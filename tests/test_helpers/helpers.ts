@@ -54,21 +54,16 @@ import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
+import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
 import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
-import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { useStore } from "../../src/store_engine/store_hooks";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
-import { RendererStore } from "../../src/stores/renderer_store";
 import { GeoChartRegion } from "../../src/types/chart/geo_chart";
 import { Image } from "../../src/types/image";
 import { ModelExternalConfig } from "../../src/types/model";
-import {
-  OwlPluginGetter,
-  SpreadsheetActionEnv,
-  SpreadsheetChildEnv,
-} from "../../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { NotificationCallbacks } from "../../src/types/stores/notification_store_methods";
 import { XLSXExport } from "../../src/types/xlsx";
@@ -1039,14 +1034,9 @@ export function drawGrid(model: Model, ctx: GridRenderingContext) {
   }
 }
 
-export function getHighlightsFromStore(
-  storeGetter: SpreadsheetChildEnv | DependencyContainer
-): Highlight[] {
-  const rendererStore =
-    "getStore" in storeGetter
-      ? storeGetter.getStore(RendererStore)
-      : storeGetter.get(RendererStore);
-  return (Object.values(rendererStore["renderers"]) as any)
+export function getHighlightsFromPlugin(getPlugin: OwlPluginGetter): Highlight[] {
+  const rendererPlugin = getPlugin(RendererPlugin);
+  return (Object.values(rendererPlugin.renderers()) as any)
     .flat()
     .filter((renderer) => renderer instanceof HighlightStore)
     .flatMap((store: HighlightStore) => store["providers"])

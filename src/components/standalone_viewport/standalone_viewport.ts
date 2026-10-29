@@ -1,9 +1,9 @@
-import { proxy, signal, useEffect, usePlugin, useProps } from "@odoo/owl";
+import { providePlugins, proxy, signal, useEffect, usePlugin, useProps } from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
+import { LocalRendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
-import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMDimension, Rect } from "../../types/rendering";
@@ -57,7 +57,6 @@ export class StandaloneViewport extends OSComponent {
 
   onMouseWheel!: (ev: WheelEvent) => void;
 
-  rendererStore!: Store<RendererStore>;
   viewStore!: Store<ViewportsStore>;
   zoomPlugin = usePlugin(ZoomPlugin);
   cellPopoverStore!: Store<CellPopoverStore>;
@@ -74,7 +73,8 @@ export class StandaloneViewport extends OSComponent {
     this.store = useLocalStore(StandaloneViewportStore, this.props.range, this.props.columnWeights);
     this.viewStore = useStore(ViewportsStore);
     this.cellPopoverStore = useStore(CellPopoverStore);
-    this.rendererStore = useLocalStore(RendererStore, ["Background", "Chart"]);
+    providePlugins([LocalRendererPlugin], { layers: ["Background", "Chart"] });
+    const rendererPlugin = usePlugin(LocalRendererPlugin);
     useEffect(() => {
       this.store.setRange(this.props.range);
       if (this.dndState.col === undefined) {
@@ -86,7 +86,7 @@ export class StandaloneViewport extends OSComponent {
     useGridDrawing({
       canvasRef: this.canvasRef,
       renderingCtx: () => this.store.renderingContext,
-      rendererStore: this.rendererStore,
+      rendererPlugin,
     });
 
     this.onMouseWheel = useWheelHandler((deltaX, deltaY, ev) => {

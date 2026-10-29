@@ -8,7 +8,7 @@ import { clickAndDrag, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCellRawContent } from "../test_helpers/getters_helpers";
 import {
   flattenHighlightRange,
-  getHighlightsFromStore,
+  getHighlightsFromPlugin,
   mountSpreadsheet,
   nextTick,
 } from "../test_helpers/helpers";
@@ -58,13 +58,13 @@ describe("Table resizer component", () => {
     await nextTick();
     const dragEndPosition = { x: DEFAULT_CELL_WIDTH * 4, y: DEFAULT_CELL_HEIGHT * 4 };
     await clickAndDrag(".o-table-resizer", dragEndPosition, undefined, false);
-    expect(flattenHighlightRange(getHighlightsFromStore(env)[0])).toMatchObject({
+    expect(flattenHighlightRange(getHighlightsFromPlugin(env.getPlugin)[0])).toMatchObject({
       zone: toZone("A1:E5"),
       noFill: true,
     });
 
     triggerMouseEvent(".o-table-resizer", "pointerup", 0, 0);
-    expect(getHighlightsFromStore(env)[0]).toEqual(undefined);
+    expect(getHighlightsFromPlugin(env.getPlugin)[0]).toEqual(undefined);
   });
 
   test("Cannot drag & drop to position above/left of the table", async () => {
@@ -72,7 +72,7 @@ describe("Table resizer component", () => {
     await nextTick();
 
     await clickAndDrag(".o-table-resizer", { x: 0, y: 0 }, undefined, false);
-    expect(flattenHighlightRange(getHighlightsFromStore(env)[0])).toMatchObject({
+    expect(flattenHighlightRange(getHighlightsFromPlugin(env.getPlugin)[0])).toMatchObject({
       zone: toZone("C3"),
     });
     triggerMouseEvent(".o-table-resizer", "pointerup", 0, 0);

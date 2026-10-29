@@ -1,16 +1,17 @@
+import { PluginInstance, usePlugin } from "@odoo/owl";
 import { DEFAULT_CAROUSEL_TITLE_STYLE, GRAY_400 } from "../../constants";
 import { getCarouselLayout } from "../../helpers/carousel_helpers";
 import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
 import { chartStyleToCellStyle, deepCopy } from "../../helpers/misc";
 import { computeTextFont } from "../../helpers/text_helper";
+import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { DisposableStore } from "../../store_engine/store";
 import { ModelStore } from "../../stores/model_store";
-import { RendererStore } from "../../stores/renderer_store";
 import { FigureUI } from "../../types/figure";
 import { RenderingGetters } from "../../types/getters";
 import { UID } from "../../types/misc";
 import { GridRenderingContext, Rect } from "../../types/rendering";
-import { Get, Store } from "../../types/store_engine";
+import { Get } from "../../types/store_engine";
 
 /** Store that draws the figures directly onto the canvas */
 export class FigureRendererStore extends DisposableStore {
@@ -19,7 +20,10 @@ export class FigureRendererStore extends DisposableStore {
   private getters: RenderingGetters = this.get(ModelStore).getters;
   loadedImages: Record<string, ImageBitmap> = {};
 
-  constructor(get: Get, private renderer: Store<RendererStore> = get(RendererStore)) {
+  constructor(
+    get: Get,
+    private renderer: PluginInstance<typeof RendererPlugin> = usePlugin(RendererPlugin)
+  ) {
     super(get);
 
     this.renderer.register(this);

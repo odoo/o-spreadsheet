@@ -9,7 +9,7 @@ import { addDataValidation, updateLocale } from "../test_helpers/commands_helper
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
   flattenHighlightRange,
-  getHighlightsFromStore,
+  getHighlightsFromPlugin,
   mountComponent,
   mountSpreadsheet,
   nextTick,
@@ -70,14 +70,14 @@ describe("Data validation preview", () => {
   test("Ranges of hovered previews are highlighted", async () => {
     const rule = { ...testDataValidationRule, ranges: ["A1", "A3"] };
     await mountDataValidationPreview(rule);
-    expect(getHighlightsFromStore(env)).toEqual([]);
+    expect(getHighlightsFromPlugin(env.getPlugin)).toEqual([]);
     triggerMouseEvent(".o-dv-preview", "mouseenter");
-    expect(getHighlightsFromStore(env).map(flattenHighlightRange)).toMatchObject([
+    expect(getHighlightsFromPlugin(env.getPlugin).map(flattenHighlightRange)).toMatchObject([
       { zone: toZone("A1") },
       { zone: toZone("A3") },
     ]);
     triggerMouseEvent(".o-dv-preview", "mouseleave");
-    expect(getHighlightsFromStore(env)).toEqual([]);
+    expect(getHighlightsFromPlugin(env.getPlugin)).toEqual([]);
   });
 
   test("Highlights disappear when preview is unmounted", async () => {
@@ -87,10 +87,10 @@ describe("Data validation preview", () => {
     env.getStore(SidePanelStore).open("DataValidation");
     await nextTick();
     triggerMouseEvent(".o-dv-preview", "mouseenter");
-    expect(getHighlightsFromStore(env)).not.toEqual([]);
+    expect(getHighlightsFromPlugin(env.getPlugin)).not.toEqual([]);
     env.getStore(SidePanelStore).close();
     await nextTick();
-    expect(getHighlightsFromStore(env)).toEqual([]);
+    expect(getHighlightsFromPlugin(env.getPlugin)).toEqual([]);
   });
 
   describe("Date rules previews", () => {

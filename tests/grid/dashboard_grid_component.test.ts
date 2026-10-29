@@ -11,6 +11,7 @@ import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
 import { GridIcon, iconsOnCellRegistry } from "../../src/registries/icons_on_cell_registry";
+import { HighlightStore } from "../../src/stores/highlight_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
@@ -23,7 +24,13 @@ import {
 } from "../test_helpers/commands_helpers";
 import { clickGridIcon, keyDown, simulateClick } from "../test_helpers/dom_helper";
 import { getCellIcons, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
-import { addToRegistry, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
+import {
+  addToRegistry,
+  getHighlightsFromPlugin,
+  mountSpreadsheet,
+  nextTick,
+  spyDispatch,
+} from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let parent: Spreadsheet;
@@ -354,4 +361,17 @@ describe("Grid component in dashboard mode", () => {
     expect(background.classList).toContain("os-canvas-background");
     expect(background.closest(".os-theme-dependant")).toBeNull();
   });
+});
+
+test("Highlights are drawn on the main grid after switching from dashboard to normal mode", async () => {
+  const model = new Model();
+  model.updateMode("dashboard");
+  const { env, getPlugin } = await mountSpreadsheet({ model });
+
+  model.updateMode("normal");
+  await nextTick();
+  const range = model.getters.getRangeFromSheetXC(model.getters.getActiveSheetId(), "A1");
+  env.getStore(HighlightStore).register({ highlights: [{ range, color: "#FF0000" }] });
+
+  expect(getHighlightsFromPlugin(getPlugin)).toHaveLength(1);
 });
