@@ -22,10 +22,9 @@ import { CellValueType } from "../../../types/cells";
 import { Command } from "../../../types/commands";
 import { Get } from "../../../types/store_engine";
 
-const OCCURRENCES_PAGE_SIZE = 50;
-
-export type DateOccurenceSortType = "desc" | "asc" | "chrono";
-export interface OccurrencesSortType {
+const AGGREGATED_STAT_PAGE_SIZE = 50;
+export type DateSortType = "desc" | "asc" | "chrono";
+export interface AggregatedStatSortType {
   sortOn: "name" | "value";
   order: "asc" | "desc" | "none";
 }
@@ -34,23 +33,23 @@ export class DataAnalysisStore extends SpreadsheetStore {
   mutators = [
     "setDateGranularity",
     "toggleDateSort",
-    "toggleOccurrencesSort",
-    "loadMoreOccurrences",
+    "toggleAggregatedStatSort",
+    "loadMoreAggregatedStatItems",
   ] as const;
   shape: ExtendedColumnType[] = [];
   hasHeader: boolean = false;
   generalStatItems: StatValue[] = [];
-  occurrencesItems: StatValue[] = [];
+  aggregatedStatItems: StatValue[] = [];
   dateStatSections: DateSections = this.defaultDateSections;
 
   dateGranularity: DateGranularity = "month";
-  dateOccurenceSortType: DateOccurenceSortType = "chrono";
+  dateSortType: DateSortType = "chrono";
   displayedDateItems: StatValue[] = [];
 
-  occurrencesSortType: OccurrencesSortType = { sortOn: "value", order: "desc" };
-  numberOfDisplayedOccurrences = OCCURRENCES_PAGE_SIZE;
-  displayedOccurrencesItems: StatValue[] = [];
-  hasMoreOccurrences = false;
+  aggregatedStatSortType: AggregatedStatSortType = { sortOn: "value", order: "desc" };
+  numberOfDisplayedAggregatedStatItems = AGGREGATED_STAT_PAGE_SIZE;
+  displayedAggregatedStatItems: StatValue[] = [];
+  hasMoreAggregatedStatItems = false;
 
   hasData: boolean = false;
   chartSuggestions: ChartSuggestion[] = [];
@@ -104,48 +103,48 @@ export class DataAnalysisStore extends SpreadsheetStore {
   }
 
   toggleDateSort() {
-    switch (this.dateOccurenceSortType) {
+    switch (this.dateSortType) {
       case "desc":
-        this.dateOccurenceSortType = "chrono";
+        this.dateSortType = "chrono";
         break;
       case "asc":
-        this.dateOccurenceSortType = "desc";
+        this.dateSortType = "desc";
         break;
       case "chrono":
-        this.dateOccurenceSortType = "asc";
+        this.dateSortType = "asc";
         break;
     }
     this.sortDateItems();
   }
 
-  toggleOccurrencesSort(sortOn: "name" | "value") {
-    const sortType = this.occurrencesSortType;
+  toggleAggregatedStatSort(sortOn: "name" | "value") {
+    const sortType = this.aggregatedStatSortType;
     if (sortType.sortOn !== sortOn) {
-      this.occurrencesSortType = { sortOn, order: "asc" };
+      this.aggregatedStatSortType = { sortOn, order: "asc" };
     } else {
       switch (sortType.order) {
         case "desc":
-          this.occurrencesSortType = { sortOn, order: "none" };
+          this.aggregatedStatSortType = { sortOn, order: "none" };
           break;
         case "asc":
-          this.occurrencesSortType = { sortOn, order: "desc" };
+          this.aggregatedStatSortType = { sortOn, order: "desc" };
           break;
         case "none":
-          this.occurrencesSortType = { sortOn, order: "asc" };
+          this.aggregatedStatSortType = { sortOn, order: "asc" };
           break;
       }
     }
-    this.sortOccurrencesItems();
+    this.sortAggregatedStatItems();
   }
 
-  loadMoreOccurrences() {
-    this.numberOfDisplayedOccurrences += OCCURRENCES_PAGE_SIZE;
-    this.sortOccurrencesItems();
+  loadMoreAggregatedStatItems() {
+    this.numberOfDisplayedAggregatedStatItems += AGGREGATED_STAT_PAGE_SIZE;
+    this.sortAggregatedStatItems();
   }
 
   private sortDateItems() {
     const items = [...this.dateStatSections[this.dateGranularity]];
-    switch (this.dateOccurenceSortType) {
+    switch (this.dateSortType) {
       case "asc":
         items.sort((a, b) => Number(a.value) - Number(b.value) || a.name.localeCompare(b.name));
         break;
@@ -156,9 +155,9 @@ export class DataAnalysisStore extends SpreadsheetStore {
     this.displayedDateItems = items;
   }
 
-  private sortOccurrencesItems() {
-    const { sortOn, order } = this.occurrencesSortType;
-    const items = [...this.occurrencesItems];
+  private sortAggregatedStatItems() {
+    const { sortOn, order } = this.aggregatedStatSortType;
+    const items = [...this.aggregatedStatItems];
     if (order !== "none") {
       items.sort((a, b) => {
         if (sortOn === "name") {
@@ -169,8 +168,8 @@ export class DataAnalysisStore extends SpreadsheetStore {
           : Number(b.value) - Number(a.value);
       });
     }
-    this.displayedOccurrencesItems = items.slice(0, this.numberOfDisplayedOccurrences);
-    this.hasMoreOccurrences = items.length > this.numberOfDisplayedOccurrences;
+    this.displayedAggregatedStatItems = items.slice(0, this.numberOfDisplayedAggregatedStatItems);
+    this.hasMoreAggregatedStatItems = items.length > this.numberOfDisplayedAggregatedStatItems;
   }
 
   get defaultDateSections() {
@@ -202,7 +201,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
     const suggestions = this.hasData ? getChartSuggestions(this.shape, cols, this.getters) : [];
     this.chartSuggestions = suggestions;
     this.generalStatItems = [];
-    this.occurrencesItems = [];
+    this.aggregatedStatItems = [];
     this.dateStatSections = this.defaultDateSections;
     if (this.hasData && this.shape.length === 1) {
       const col = cols[0];
@@ -218,7 +217,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
           this.occurrencesItems = buildOccurrencesItems(this.getters, col, sheetId);
       }
     }
-    this.sortOccurrencesItems();
+    this.sortAggregatedStatItems();
     this.sortDateItems();
   }
 }

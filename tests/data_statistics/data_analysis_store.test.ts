@@ -58,13 +58,13 @@ describe("data analysis store", () => {
     });
   });
 
-  test("generalStatItems and occurrencesItems are empty when the selection has no data", () => {
+  test("generalStatItems and aggregatedStatItems are empty when the selection has no data", () => {
     const model = createModelFromGrid({});
     const { store } = makeStoreWithModel(model, DataAnalysisStore);
     setSelection(model, ["A1:A3"]);
     expect(store.hasData).toBe(false);
     expect(store.generalStatItems).toEqual([]);
-    expect(store.occurrencesItems).toEqual([]);
+    expect(store.aggregatedStatItems).toEqual([]);
   });
 
   test("generalStatItems and occurrencesItems are empty when several columns are selected", () => {
@@ -101,30 +101,30 @@ describe("data analysis store occurrences", () => {
 
   test("occurrences are sorted by descending count by default", () => {
     const { store } = makeDataAnalysisStore(grid, "A1:A6");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["apple", "cherry", "banana"]);
+    expect(getNames(store.displayedAggregatedStatItems)).toEqual(["apple", "cherry", "banana"]);
   });
 
   test("sorting by count cycles between ascending, apparition order and descending", () => {
     const { store } = makeDataAnalysisStore(grid, "A1:A6");
-    store.toggleOccurrencesSort("value");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["banana", "cherry", "apple"]);
-    expect(store.occurrencesSortType).toEqual({ sortOn: "value", order: "none" });
-    store.toggleOccurrencesSort("value");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["banana", "cherry", "apple"]);
-    expect(store.occurrencesSortType).toEqual({ sortOn: "value", order: "asc" });
-    store.toggleOccurrencesSort("value");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["apple", "cherry", "banana"]);
-    expect(store.occurrencesSortType).toEqual({ sortOn: "value", order: "desc" });
+    store.toggleAggregatedStatSort("value");
+    expect(getNames(store.displayedAggregatedStatItems)).toEqual(["banana", "cherry", "apple"]);
+    expect(store.aggregatedStatSortType).toEqual({ sortOn: "value", order: "none" });
+    store.toggleAggregatedStatSort("value");
+    expect(getNames(store.displayedAggregatedStatItems)).toEqual(["banana", "cherry", "apple"]);
+    expect(store.aggregatedStatSortType).toEqual({ sortOn: "value", order: "asc" });
+    store.toggleAggregatedStatSort("value");
+    expect(getNames(store.displayedAggregatedStatItems)).toEqual(["apple", "cherry", "banana"]);
+    expect(store.aggregatedStatSortType).toEqual({ sortOn: "value", order: "desc" });
   });
 
   test("sorting by name cycles between alphabetical, reverse alphabetical and apparition order", () => {
     const { store } = makeDataAnalysisStore(grid, "A1:A6");
-    store.toggleOccurrencesSort("name");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["apple", "banana", "cherry"]);
-    store.toggleOccurrencesSort("name");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["cherry", "banana", "apple"]);
-    store.toggleOccurrencesSort("name");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["banana", "cherry", "apple"]);
+    store.toggleAggregatedStatSort("name");
+    expect(getNames(store.displayedAggregatedStatItems)).toEqual(["apple", "banana", "cherry"]);
+    store.toggleAggregatedStatSort("name");
+    expect(getNames(store.displayedAggregatedStatItems)).toEqual(["cherry", "banana", "apple"]);
+    store.toggleAggregatedStatSort("name");
+    expect(getNames(store.displayedAggregatedStatItems)).toEqual(["banana", "cherry", "apple"]);
   });
 
   test("sorting by name use the same order as grid sorting", () => {
@@ -132,8 +132,8 @@ describe("data analysis store occurrences", () => {
       { A1: "10", A2: "banana", A3: "9", A4: "-5", A5: "1.5", A6: "Apple", A7: "1.25" },
       "A1:A7"
     );
-    store.toggleOccurrencesSort("name");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual([
+    store.toggleAggregatedStatSort("name");
+    expect(getNames(store.displayedAggregatedStatItems)).toEqual([
       "-5",
       "1.25",
       "1.5",
@@ -142,8 +142,8 @@ describe("data analysis store occurrences", () => {
       "Apple",
       "banana",
     ]);
-    store.toggleOccurrencesSort("name");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual([
+    store.toggleAggregatedStatSort("name");
+    expect(getNames(store.displayedAggregatedStatItems)).toEqual([
       "banana",
       "Apple",
       "10",
@@ -156,16 +156,16 @@ describe("data analysis store occurrences", () => {
 
   test("occurrences with the same count are sorted by apparition order", () => {
     const { store } = makeDataAnalysisStore({ A1: "cherry", A2: "apple", A3: "banana" }, "A1:A3");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["cherry", "apple", "banana"]);
+    expect(getNames(store.displayedAggregatedStatItems)).toEqual(["cherry", "apple", "banana"]);
   });
 
   test("the sort is kept when the data changes", () => {
     const { model, store } = makeDataAnalysisStore(grid, "A1:A6");
-    store.toggleOccurrencesSort("name");
+    store.toggleAggregatedStatSort("name");
     setCellContent(model, "A1", "date");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["apple", "cherry", "date"]);
+    expect(getNames(store.displayedAggregatedStatItems)).toEqual(["apple", "cherry", "date"]);
     setSelection(model, ["A1:A3"]);
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["cherry", "date"]);
+    expect(getNames(store.displayedAggregatedStatItems)).toEqual(["cherry", "date"]);
   });
 
   test("occurrences are displayed by pages of 50", () => {
@@ -174,16 +174,16 @@ describe("data analysis store occurrences", () => {
       grid[`A${i}`] = `value${i}`;
     }
     const { store } = makeDataAnalysisStore(grid, "A1:A80");
-    expect(store.displayedOccurrencesItems).toHaveLength(50);
-    expect(store.hasMoreOccurrences).toBe(true);
-    store.loadMoreOccurrences();
-    expect(store.displayedOccurrencesItems).toHaveLength(80);
-    expect(store.hasMoreOccurrences).toBe(false);
+    expect(store.displayedAggregatedStatItems).toHaveLength(50);
+    expect(store.hasMoreAggregatedStatItems).toBe(true);
+    store.loadMoreAggregatedStatItems();
+    expect(store.displayedAggregatedStatItems).toHaveLength(80);
+    expect(store.hasMoreAggregatedStatItems).toBe(false);
   });
 
   test("percentage of the total count are computed in each item", () => {
     const { store } = makeDataAnalysisStore(grid, "A1:A6");
-    expect(store.displayedOccurrencesItems).toMatchObject([
+    expect(store.displayedAggregatedStatItems).toMatchObject([
       { name: "apple", percentage: "(50%)" },
       { name: "cherry", percentage: "(33%)" },
       { name: "banana", percentage: "(17%)" },
@@ -195,7 +195,7 @@ describe("data analysis store occurrences", () => {
       { A1: "TRUE", A2: "FALSE", A3: "TRUE", A4: "TRUE" },
       "A1:A4"
     );
-    expect(store.occurrencesItems).toMatchObject([
+    expect(store.aggregatedStatItems).toMatchObject([
       { id: "true", percentage: "(75%)" },
       { id: "false", percentage: "(25%)" },
     ]);
@@ -275,13 +275,13 @@ describe("data analysis for date", () => {
     const { store } = makeDataAnalysisStore(grid, "A1:A4");
     store.setDateGranularity("year");
     store.toggleDateSort();
-    expect(store.dateOccurenceSortType).toBe("asc");
+    expect(store.dateSortType).toBe("asc");
     expect(getNames(store.displayedDateItems)).toEqual(["2024", "2023"]);
     store.toggleDateSort();
-    expect(store.dateOccurenceSortType).toBe("desc");
+    expect(store.dateSortType).toBe("desc");
     expect(getNames(store.displayedDateItems)).toEqual(["2023", "2024"]);
     store.toggleDateSort();
-    expect(store.dateOccurenceSortType).toBe("chrono");
+    expect(store.dateSortType).toBe("chrono");
     expect(getNames(store.displayedDateItems)).toEqual(["2023", "2024"]);
   });
 

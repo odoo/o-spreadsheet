@@ -8,9 +8,9 @@ import { SidePanelCollapsible } from "../components/collapsible/side_panel_colla
 import { Section } from "../components/section/section";
 import { ChartSuggestionPreview } from "./chart_suggestion/chart_suggestion_preview";
 import { DataAnalysisStore } from "./data_analysis_store";
+import { AggregatedStatistics } from "./data_statistics/aggregated_statistics";
 import { DateSection } from "./data_statistics/date_section";
 import { GeneralStatsSection } from "./data_statistics/general_stats_section";
-import { OccurrencesStatistics } from "./data_statistics/occurrences_statistics";
 
 export class DataAnalysisPanel extends OSComponent {
   static template = "o-spreadsheet-DataAnalysisPanel";
@@ -19,7 +19,7 @@ export class DataAnalysisPanel extends OSComponent {
     Section,
     ChartSuggestionPreview,
     SidePanelCollapsible,
-    OccurrencesStatistics,
+    AggregatedStatistics,
     GeneralStatsSection,
     DateSection,
   };
