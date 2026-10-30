@@ -1,9 +1,11 @@
-import { range } from "../../helpers/misc";
+import { defaultDict, range } from "../../helpers/misc";
 import { CellPosition, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
 import { EvaluationPlugin } from "../evaluation_plugin";
 
 export class HeaderVisibilityEvaluationPlugin extends EvaluationPlugin {
+  private hiddenCache = defaultDict({ COL: {}, ROW: {} });
+
   static getters = [
     "getNextVisibleCellPosition",
     "findVisibleHeader",
@@ -14,15 +16,32 @@ export class HeaderVisibilityEvaluationPlugin extends EvaluationPlugin {
     "isHeaderHidden",
   ] as const;
 
+  handlers = {
+    "*allCommands": this.resetCache,
+  };
+
+  resetCache() {
+    this.hiddenCache = defaultDict({ COL: {}, ROW: {} });
+  }
+
   isRowHidden(sheetId: UID, index: number): boolean {
-    return (
+    if (this.hiddenCache.get(sheetId)["ROW"]?.[index] !== undefined) {
+      return this.hiddenCache.get(sheetId)["ROW"]?.[index];
+    }
+    const isHidden =
       this.getters.isRowHiddenOrFoldedByUser(sheetId, index) ||
-      this.getters.isRowFiltered(sheetId, index)
-    );
+      this.getters.isRowFiltered(sheetId, index);
+    this.hiddenCache.get(sheetId)["ROW"][index] = isHidden;
+    return isHidden;
   }
 
   isColHidden(sheetId: UID, index: number): boolean {
-    return this.getters.isColHiddenOrFoldedByUser(sheetId, index);
+    if (this.hiddenCache.get(sheetId)["COL"]?.[index] !== undefined) {
+      return this.hiddenCache.get(sheetId)["COL"]?.[index];
+    }
+    const isHidden = this.getters.isColHiddenOrFoldedByUser(sheetId, index);
+    this.hiddenCache.get(sheetId)["COL"][index] = isHidden;
+    return isHidden;
   }
 
   isHeaderHidden(sheetId: UID, dimension: Dimension, index: number) {
