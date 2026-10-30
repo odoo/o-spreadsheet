@@ -21,7 +21,7 @@ export class AggregatedStatistics extends OSComponent {
   setup() {
     this.onStatHovered = useStatHighlights(
       () => this.props.store.groupingColumnIndex,
-      (cell, stat) => generateItemIdFromValue(cell.value) === generateItemIdFromValue(stat.id)
+      (cell, stat) => generateItemIdFromValue(cell.value) === stat.id
     );
   }
 }

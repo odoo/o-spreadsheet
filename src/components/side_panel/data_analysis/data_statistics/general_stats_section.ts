@@ -9,7 +9,6 @@ import { StatisticItem } from "./statistic_item";
 export class GeneralStatsSection extends OSComponent {
   static template = "o-spreadsheet-GeneralStatsSection";
   protected props = useProps({
-    items: types.array(types.object<StatValue>()),
     store: types.Store<DataAnalysisStore>(),
   });
   static components = {
@@ -21,7 +20,7 @@ export class GeneralStatsSection extends OSComponent {
   setup() {
     this.onStatHovered = useStatHighlights(
       () => this.props.store.groupingColumnIndex,
-      (cell, stat) => cell.formattedValue === stat.formattedValue
+      (cell, stat) => cell.value === stat.rawValue
     );
   }
 }

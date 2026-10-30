@@ -4,7 +4,6 @@ import { Getters } from "../../types/getters";
 import { numberToJsDate } from "../dates";
 import { formatValue, MONTHS, QUARTERS, DAYS as WEEKDAYS } from "../format/format";
 import { getFullReference } from "../references";
-import { toTrimmedLowerCase } from "../text_helper";
 import { zoneToXc } from "../zones";
 import { ColumnAnalysis } from "./data_analysis";
 import {
@@ -21,7 +20,7 @@ import {
 
 function getColumnDataRange(getters: Getters, col: ColumnAnalysis, sheetId: string) {
   const zone = col.headerInZone ? { ...col.zone, top: col.zone.top + 1 } : col.zone;
-  return { zone, range: getFullReference(getters.getSheetName(sheetId), zoneToXc(zone)) };
+  return { range: getFullReference(getters.getSheetName(sheetId), zoneToXc(zone)) };
 }
 
 const ALL_TYPES = ["number", "percentage", "date", "text", "boolean", "label", "categorical"];
@@ -34,8 +33,9 @@ interface StatItemConfig {
   types: string[];
 }
 
-export function generateItemIdFromValue(value: any) {
-  return toTrimmedLowerCase(String(value));
+export function generateItemIdFromValue(value: CellValue): string {
+  const category = String(value ?? "").trim();
+  return typeof value === "boolean" ? category.toUpperCase() : category;
 }
 
 export const GENERIC_STAT_ITEMS: StatItemConfig[] = [
@@ -104,36 +104,30 @@ export function buildOccurrencesItems(
   sheetId: string
 ): StatValue[] {
   const { range } = getColumnDataRange(getters, col, sheetId);
-  const count: Map<string, number> = new Map();
+  const occurrences: Map<string, { cell: EvaluatedCell; count: number }> = new Map();
   for (const cell of col.nonEmpty) {
-    const key = generateItemIdFromValue(cell.value);
-    count.set(key, (count.get(key) ?? 0) + 1);
-  }
-  const items: StatValue[] = [];
-  for (const { type, value, formattedValue } of uniqueValues(col.nonEmpty)) {
-    if (formattedValue === "") {
+    if (cell.formattedValue === "") {
       continue;
     }
-    const id = generateItemIdFromValue(value);
-    let formula: string;
-    if (id === "true" || id === "false") {
-      formula = `=COUNTIF(${range},${formattedValue})+SUMPRODUCT(ISTEXT(${range})*(${range}="${formattedValue}"))`;
-    } else if (typeof value === "string") {
-      formula = `=COUNTIF(${range},${`"${value}"`})`;
+    const id = generateItemIdFromValue(cell.value);
+    const occurrence = occurrences.get(id);
+    if (occurrence) {
+      occurrence.count++;
     } else {
-      formula = `=COUNTIF(${range},${value})`;
+      occurrences.set(id, { cell, count: 1 });
     }
+  }
+  const items: StatValue[] = [];
+  for (const [id, { cell, count }] of occurrences) {
     items.push({
       ...createStatItem(getters, sheetId, {
         id,
-        name: formattedValue,
-        formula,
-        chartTitle: _t('Occurrences of "%s"', formattedValue),
-        computedValue: {
-          value: count.get(id) ?? 0,
-        },
+        name: cell.formattedValue,
+        formula: `=SUMPRODUCT(--EXACT(TRIM(${range}),"${id}"))`,
+        chartTitle: _t('Occurrences of "%s"', cell.formattedValue),
+        computedValue: { value: count },
       }),
-      category: { type, value },
+      category: { type: cell.type, value: cell.value },
     });
   }
   return withPercentages(items, col.nonEmpty.length);
@@ -152,8 +146,9 @@ export function buildSumByCategoryItems(
     ? { ...valueColumn.zone, top: valueColumn.zone.top + 1 }
     : valueColumn.zone;
 
-  const { range: categoryRange } = getColumnDataRange(getters, categoryColumn, sheetId);
-  const { range: valueRange } = getColumnDataRange(getters, valueColumn, sheetId);
+  const sheetName = getters.getSheetName(sheetId);
+  const categoryRange = getFullReference(sheetName, zoneToXc(categoryZone));
+  const valueRange = getFullReference(sheetName, zoneToXc(valueZone));
   const categoryCells = getters.getEvaluatedCellsInZone(sheetId, categoryZone);
   const valueCells = getters.getEvaluatedCellsInZone(sheetId, valueZone);
   const format = valueCells.find((cell) => cell.format)?.format;
@@ -162,11 +157,7 @@ export function buildSumByCategoryItems(
   let totalSum = 0;
   const sumByCategory: Record<string, number> = {};
   for (let i = 0; i < categoryCells.length; i++) {
-    const cellValue = categoryCells[i].value;
-    let category = cellValue?.toString().trim();
-    if (typeof cellValue === "boolean") {
-      category = category?.toUpperCase();
-    }
+    const category = generateItemIdFromValue(categoryCells[i].value);
     const value = Number(valueCells[i].value);
     if (category && !isNaN(value) && value !== 0) {
       sumByCategory[category] = (sumByCategory[category] || 0) + value;
@@ -178,34 +169,19 @@ export function buildSumByCategoryItems(
     ...createStatItem(getters, sheetId, {
       id: generateItemIdFromValue(category),
       name: category,
-      formula: `=SUMIF(${categoryRange},"${category}",${valueRange})`,
+      formula: `=SUMPRODUCT(--EXACT(TRIM(${categoryRange}),"${category}"),${valueRange})`,
       chartTitle: _t('Sum of "%s"', category),
       computedValue: { value: total },
     }),
     formattedValue: format ? formatValue(total, { format, locale }) : String(total),
     rawValue: total,
-    rawData: {
+    category: {
       type: CellValueType.text,
       value: category,
     },
   }));
 
   return withPercentages(items, totalSum);
-}
-
-function uniqueValues(
-  cells: EvaluatedCell[]
-): { type: CellValueType; value: CellValue; formattedValue: string }[] {
-  const normalizedValues = new Set<string>();
-  const uniqueValuesList: { type: CellValueType; value: CellValue; formattedValue: string }[] = [];
-  for (const cell of cells) {
-    const normalizedValue = toTrimmedLowerCase(String(cell.value));
-    if (!normalizedValues.has(normalizedValue)) {
-      uniqueValuesList.push(cell);
-      normalizedValues.add(normalizedValue);
-    }
-  }
-  return uniqueValuesList;
 }
 
 export function buildBooleanItems(
@@ -225,14 +201,14 @@ export function buildBooleanItems(
   }
   const items = [
     createStatItem(getters, sheetId, {
-      id: "true",
+      id: "TRUE",
       name: _t("TRUE"),
       formula: `=COUNTIF(${range},TRUE)`,
       chartTitle: _t('Occurrences of "%s"', _t("TRUE")),
       computedValue: { value: trueCount },
     }),
     createStatItem(getters, sheetId, {
-      id: "false",
+      id: "FALSE",
       name: _t("FALSE"),
       formula: `=COUNTIF(${range},FALSE)`,
       chartTitle: _t('Occurrences of "%s"', _t("FALSE")),

@@ -52,12 +52,13 @@ describe("data statistics", () => {
     expect('[data-test-id="banana"]').toHaveText("2");
   });
 
-  test("statistics occurrences are case insensitive", async () => {
+  test("statistics occurrences are case sensitive", async () => {
     const model = createModelFromGrid({ A1: "apple", A2: "banana", A3: "BANANA" });
     await mountSpreadsheet({ model });
     setSelection(model, ["A1:A3"]);
     await simulateClick(".o-data-analysis-button");
-    expect('[data-test-id="banana"]').toHaveText("2");
+    expect('[data-test-id="banana"]').toHaveText("1");
+    expect('[data-test-id="BANANA"]').toHaveText("1");
   });
 
   test("statistics are updated if the selection changes", async () => {
@@ -194,7 +195,7 @@ describe("data statistics", () => {
       setSelection(model, ["A1:B3"]);
       await simulateClick(".o-data-analysis-button");
 
-      await clickAndDrag(`[data-test-id="fruits"]`, { x: 150, y: 100 }, undefined, true);
+      await clickAndDrag(`[data-test-id="Fruits"]`, { x: 150, y: 100 }, undefined, true);
 
       const chartIds = model.getters.getChartIds(sheetId);
       expect(chartIds).toHaveLength(1);
@@ -202,7 +203,7 @@ describe("data statistics", () => {
 
       expect(definition).toMatchObject({
         type: "scorecard",
-        keyValue: `=SUMIF(A1:A3,"Fruits",B1:B3)`,
+        keyValue: `=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A3),"Fruits"),Sheet1!B1:B3)`,
       });
     });
   });
@@ -347,12 +348,12 @@ describe("data statistics", () => {
       setSelection(model, ["A1:B2"]);
       await simulateClick(".o-data-analysis-button");
 
-      expect(`[data-test-id="fruits"]`).toHaveText("300");
+      expect(`[data-test-id="Fruits"]`).toHaveText("300");
 
       setCellContent(model, "B1", "500");
       await nextTick();
 
-      expect(`[data-test-id="fruits"]`).toHaveText("700");
+      expect(`[data-test-id="Fruits"]`).toHaveText("700");
     });
 
     test("updates date sums when changing granularity dropdown in 2-columns mode", async () => {
@@ -437,12 +438,15 @@ describe("data statistics", () => {
       setSelection(model, ["A1:B3"]);
       await simulateClick(".o-data-analysis-button");
 
-      triggerMouseEvent(`[data-test-id="fruits"]`, "mouseenter");
+      triggerMouseEvent(`[data-test-id="Fruits"]`, "mouseenter");
       await nextTick();
 
-      expect(getHighlightsFromStore(env)).toHaveLength(4);
+      expect(getHighlightsFromStore(env).map(flattenHighlightRange)).toMatchObject([
+        { zone: toZone("A1:B1") },
+        { zone: toZone("A3:B3") },
+      ]);
 
-      triggerMouseEvent(`[data-test-id="fruits"]`, "mouseleave");
+      triggerMouseEvent(`[data-test-id="Fruits"]`, "mouseleave");
       await nextTick();
       expect(getHighlightsFromStore(env)).toHaveLength(0);
     });

@@ -4,6 +4,7 @@ import {
   ANY_TYPE,
   CATEGORICAL_OR_LABEL_OR_BOOLEAN,
   CATEGORICAL_OR_LABEL_OR_NUMBER_OR_PERCENTAGE,
+  ColumnAnalysis,
   ExtendedColumnType,
   hasSameRowSpan,
   matchesShape,
@@ -28,7 +29,6 @@ import {
   getChartSuggestions,
 } from "../../../helpers/figures/charts/chart_suggestion_engine";
 
-import { ColumnAnalysis } from "../../../helpers/data_statistics/data_analysis";
 import { cellsSortingCriterion } from "../../../helpers/sort";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { CellValueType } from "../../../types/cells";
@@ -42,7 +42,6 @@ import { Get } from "../../../types/store_engine";
 // The shape of the selection (the tuple of each column's ExtendedColumnType, with
 // the value columns moved after the category columns) is matched against
 // SELECTION_PATTERNS to decide which statistics to show.
-// Rules only apply to a single zone or to two vertically aligned zones.
 // ------------------------------------------------------------------------------------
 
 /** A StatItemBuilder links a column pattern to the helper that computes its statistics
@@ -301,7 +300,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
         this.groupingColumnIndex = orderedCols[0].zone.left;
       }
       for (const rule of matchedRules) {
-        // ok : will never have different rules for the same target so we don't overwrite data
+        // Each target is filled by at most one rule
         this[rule.target] = rule.buildStatHelper(this.getters, orderedCols, sheetId);
       }
     }

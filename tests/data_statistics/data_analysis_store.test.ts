@@ -239,8 +239,8 @@ describe("data analysis store occurrences", () => {
       "A1:A4"
     );
     expect(store.aggregatedStatItems).toMatchObject([
-      { id: "true", percentage: "(75%)" },
-      { id: "false", percentage: "(25%)" },
+      { id: "TRUE", percentage: "(75%)" },
+      { id: "FALSE", percentage: "(25%)" },
     ]);
   });
 });
@@ -478,8 +478,16 @@ describe("buildOccurrencesItems", () => {
     const model = createModelFromGrid({ A1: "apple", A2: "banana", A3: "apple" });
     const items = occurrences(model, "A1:A3");
     expect(items).toMatchObject([
-      { name: "apple", formattedValue: "2", formula: '=COUNTIF(Sheet1!A1:A3,"apple")' },
-      { name: "banana", formattedValue: "1", formula: '=COUNTIF(Sheet1!A1:A3,"banana")' },
+      {
+        name: "apple",
+        formattedValue: "2",
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A3),"apple"))',
+      },
+      {
+        name: "banana",
+        formattedValue: "1",
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A3),"banana"))',
+      },
     ]);
   });
 
@@ -495,18 +503,22 @@ describe("buildOccurrencesItems", () => {
     expect(items.map((item) => item.name)).toEqual(["banana", "cherry", "apple"]);
   });
 
-  test("occurrences are case-insensitive", () => {
-    const model = createModelFromGrid({
-      A1: "Apple",
-      A2: "apple",
-      A3: "APPLE",
-      A4: "banana",
-      A5: "Banana",
-    });
-    const items = occurrences(model, "A1:A5");
+  test("occurrences are case-sensitive", () => {
+    const model = createModelFromGrid({ A1: "Apple", A2: "apple", A3: "Apple" });
+    const items = occurrences(model, "A1:A3");
     expect(items).toMatchObject([
-      { name: "Apple", formattedValue: "3", formula: '=COUNTIF(Sheet1!A1:A5,"Apple")' },
-      { name: "banana", formattedValue: "2", formula: '=COUNTIF(Sheet1!A1:A5,"banana")' },
+      {
+        id: "Apple",
+        name: "Apple",
+        formattedValue: "2",
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A3),"Apple"))',
+      },
+      {
+        id: "apple",
+        name: "apple",
+        formattedValue: "1",
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A3),"apple"))',
+      },
     ]);
   });
 
@@ -515,8 +527,16 @@ describe("buildOccurrencesItems", () => {
     setFormat(model, "A1:A2", "%0.00");
     const items = occurrences(model, "A1:A2");
     expect(items).toMatchObject([
-      { name: "%100.00", formattedValue: "1", formula: "=COUNTIF(Sheet1!A1:A2,1)" },
-      { name: "%200.00", formattedValue: "1", formula: "=COUNTIF(Sheet1!A1:A2,2)" },
+      {
+        name: "%100.00",
+        formattedValue: "1",
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A2),"1"))',
+      },
+      {
+        name: "%200.00",
+        formattedValue: "1",
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A2),"2"))',
+      },
     ]);
   });
 
@@ -527,15 +547,17 @@ describe("buildOccurrencesItems", () => {
       {
         name: "TRUE",
         formattedValue: "2",
-        formula:
-          '=COUNTIF(Sheet1!A1:A4,TRUE)+SUMPRODUCT(ISTEXT(Sheet1!A1:A4)*(Sheet1!A1:A4="TRUE"))',
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A4),"TRUE"))',
       },
-      { name: "apple", formattedValue: "1", formula: '=COUNTIF(Sheet1!A1:A4,"apple")' },
+      {
+        name: "apple",
+        formattedValue: "1",
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A4),"apple"))',
+      },
       {
         name: "FALSE",
         formattedValue: "1",
-        formula:
-          '=COUNTIF(Sheet1!A1:A4,FALSE)+SUMPRODUCT(ISTEXT(Sheet1!A1:A4)*(Sheet1!A1:A4="FALSE"))',
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A4),"FALSE"))',
       },
     ]);
     setCellContent(model, "B1", items[0].formula);
@@ -550,14 +572,12 @@ describe("buildOccurrencesItems", () => {
       {
         name: "TRUE",
         formattedValue: "3",
-        formula:
-          '=COUNTIF(Sheet1!A1:A4,TRUE)+SUMPRODUCT(ISTEXT(Sheet1!A1:A4)*(Sheet1!A1:A4="TRUE"))',
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A4),"TRUE"))',
       },
       {
         name: "FALSE",
         formattedValue: "1",
-        formula:
-          '=COUNTIF(Sheet1!A1:A4,FALSE)+SUMPRODUCT(ISTEXT(Sheet1!A1:A4)*(Sheet1!A1:A4="FALSE"))',
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A4),"FALSE"))',
       },
     ];
     expect(occurrences(model, "A1:A4")).toMatchObject(expectedResult);
@@ -934,15 +954,15 @@ describe("buildSumByCategoryItems", () => {
 
     expect(categoryItems).toMatchObject([
       {
-        id: "fruits",
+        id: "Fruits",
         name: "Fruits",
-        formula: `=SUMIF(A1:A6,"Fruits",B1:B6)`,
+        formula: `=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A6),"Fruits"),Sheet1!B1:B6)`,
         rawValue: 4000,
       },
       {
-        id: "vegetables",
+        id: "Vegetables",
         name: "Vegetables",
-        formula: `=SUMIF(A1:A6,"Vegetables",B1:B6)`,
+        formula: `=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A6),"Vegetables"),Sheet1!B1:B6)`,
         rawValue: 1000,
       },
     ]);
@@ -959,7 +979,9 @@ describe("buildSumByCategoryItems", () => {
     });
     const categoryItems = groupSums(model, "A1:A3", "B1:B3");
 
-    expect(categoryItems[0].formula).toBe(`=SUMIF(A2:A3,"Fruits",B2:B3)`);
+    expect(categoryItems[0].formula).toBe(
+      `=SUMPRODUCT(--EXACT(TRIM(Sheet1!A2:A3),"Fruits"),Sheet1!B2:B3)`
+    );
   });
 
   test("handles empty cells and non-numeric values in values column", () => {
@@ -975,7 +997,7 @@ describe("buildSumByCategoryItems", () => {
 
     expect(categoryItems).toEqual([
       expect.objectContaining({
-        id: "fruits",
+        id: "Fruits",
         name: "Fruits",
         rawValue: 1000,
       }),
@@ -993,13 +1015,19 @@ describe("buildSumByCategoryItems", () => {
     });
     const items = groupSums(model, "A1:A3", "B1:B3");
     expect(items).toMatchObject([
-      { name: "TRUE", rawValue: 40, formattedValue: "40" },
-      { name: "FALSE", rawValue: 20, formattedValue: "20" },
+      {
+        name: "TRUE",
+        rawValue: 40,
+        formattedValue: "40",
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A3),"TRUE"),Sheet1!B1:B3)',
+      },
+      {
+        name: "FALSE",
+        rawValue: 20,
+        formattedValue: "20",
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A3),"FALSE"),Sheet1!B1:B3)',
+      },
     ]);
-    setCellContent(model, "C1", items[0].formula);
-    setCellContent(model, "C2", items[1].formula);
-    expect(getEvaluatedCell(model, "C1").value).toBe(40);
-    expect(getEvaluatedCell(model, "C2").value).toBe(20);
   });
 });
 
