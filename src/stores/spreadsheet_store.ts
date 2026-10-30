@@ -1,16 +1,17 @@
+import { usePlugin } from "@odoo/owl";
 import { Model } from "../model";
+import { RendererPlugin } from "../owl_plugins/renderer_plugin";
 import { DisposableStore } from "../store_engine/store";
 import { Command } from "../types/commands";
 import { GridRenderingContext, LayerName } from "../types/rendering";
 import { Get } from "../types/store_engine";
 import { ModelStore } from "./model_store";
-import { RendererStore } from "./renderer_store";
 
 export class SpreadsheetStore extends DisposableStore {
   // cast the model store as Model to allow model.dispatch to return the DispatchResult
   protected model = this.get(ModelStore) as Model;
   protected getters = this.model.getters;
-  protected renderer = this.get(RendererStore);
+  protected renderer = usePlugin(RendererPlugin);
 
   constructor(get: Get) {
     super(get);

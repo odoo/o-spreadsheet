@@ -1,4 +1,12 @@
-import { PluginConstructor, signal, usePlugin, useProps, useScope, xml } from "@odoo/owl";
+import {
+  PluginConstructor,
+  providePlugins,
+  signal,
+  usePlugin,
+  useProps,
+  useScope,
+  xml,
+} from "@odoo/owl";
 import { EditionMode, StoreConstructor } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import {
@@ -15,12 +23,11 @@ import { Model } from "../../src/model";
 import { App, Component, ComponentConstructor } from "../../src/owl3_compatibility_layer";
 import { ModelPlugin } from "../../src/owl_plugins/model_owl_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
+import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
-import { proxifyStoreMutation, useStoreProvider } from "../../src/store_engine/store_hooks";
+import { proxifyStoreMutation } from "../../src/store_engine/store_hooks";
 import { globalStores } from "../../src/store_engine/store_registries";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
-import { ModelStore } from "../../src/stores/model_store";
-import { RendererStore } from "../../src/stores/renderer_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { _t } from "../../src/translation";
 import { PropsOf } from "../../src/types/props_of";
@@ -34,23 +41,14 @@ import { registerCleanup } from "../setup/jest.setup";
 import { makeTestFixture, nextTick } from "./helpers";
 import { makeOwlPluginManager } from "./owl_plugins_helpers";
 
-class FakeRendererStore extends RendererStore {
-  // we don't want to actually draw anything on the canvas as it cannot be tested
-  draw() {
-    return "noStateChange";
-  }
-  startAnimation() {
-    return "noStateChange";
-  }
-  stopAnimation() {
-    return "noStateChange";
-  }
-}
+class FakeRendererPlugin extends RendererPlugin {
+  // same id, so it is used in place of the real RendererPlugin
+  static id = RendererPlugin.id;
 
-function injectFakeRendererStore(container: DependencyContainer, model: Model) {
-  // the renderer store needs the model store as soon as it's built
-  container.inject(ModelStore, model);
-  container.inject(RendererStore, new FakeRendererStore(container.get.bind(container)));
+  // we don't want to actually draw anything on the canvas as it cannot be tested
+  draw() {}
+  startAnimation() {}
+  stopAnimation() {}
 }
 
 /**
@@ -96,9 +94,9 @@ export function makeSpreadsheetActionTestEnv(
     );
   }
 
-  const { getPlugin, container } = makeOwlPluginManager([], { model }, (container) => {
+  const { getPlugin, container } = makeOwlPluginManager([], { model }, () => {
     if (!mockEnv.useTrueRenderer) {
-      injectFakeRendererStore(container, model);
+      providePlugins([FakeRendererPlugin], { model });
     }
   });
   setupTestStores(container);
@@ -144,7 +142,7 @@ class StandaloneTestComponent extends Component {
   ref = signal.ref();
 
   setup() {
-    injectFakeRendererStore(useStoreProvider(), this.props.model);
+    providePlugins([FakeRendererPlugin], { model: this.props.model });
     const { stores } = useSpreadsheetProviders({
       model: this.props.model,
       spreadsheetRef: this.ref,
@@ -156,7 +154,7 @@ class StandaloneTestComponent extends Component {
 }
 
 /**
- * Root of mountSpreadsheet: it only creates the store container, to inject the fake renderer.
+ * Root of mountSpreadsheet: it only provides the fake renderer plugin.
  * Everything else is provided by the real Spreadsheet.
  */
 class SpreadsheetRoot extends Component {
@@ -165,7 +163,7 @@ class SpreadsheetRoot extends Component {
   protected props = useProps({ spreadsheetProps: types.any() });
 
   setup() {
-    injectFakeRendererStore(useStoreProvider(), this.props.spreadsheetProps.model);
+    providePlugins([FakeRendererPlugin], { model: this.props.spreadsheetProps.model });
   }
 }
 

@@ -10,7 +10,7 @@ import {
   triggerMouseEvent,
 } from "../test_helpers";
 import {
-  getHighlightsFromStore,
+  getHighlightsFromPlugin,
   mockNotificationMethods,
   mountComponent,
   nextTick,
@@ -113,7 +113,9 @@ describe("Named ranges side panel", () => {
 
     triggerMouseEvent(".o-named-range-preview", "mouseenter");
     await nextTick();
-    expect(getHighlightsFromStore(env)).toMatchObject([{ range: { zone: toZone("A1") } }]);
+    expect(getHighlightsFromPlugin(env.getPlugin)).toMatchObject([
+      { range: { zone: toZone("A1") } },
+    ]);
   });
 
   test("Named range highlight is disabled when using the selection input", async () => {
@@ -123,13 +125,17 @@ describe("Named ranges side panel", () => {
     triggerMouseEvent(".o-named-range-preview", "mouseenter");
     await nextTick();
     expect(".o-named-range-preview").not.toHaveClass("o-focused");
-    expect(getHighlightsFromStore(env)).toMatchObject([{ range: { zone: toZone("A1") } }]);
+    expect(getHighlightsFromPlugin(env.getPlugin)).toMatchObject([
+      { range: { zone: toZone("A1") } },
+    ]);
 
     await simulateClick(".o-named-range-preview .o-selection-input input");
     await setInputValueAndTrigger(".o-named-range-preview .o-selection-input input", "C3:D4");
     expect(".o-named-range-preview").toHaveClass("o-focused");
-    expect(getHighlightsFromStore(env)).toHaveLength(1);
-    expect(getHighlightsFromStore(env)).toMatchObject([{ range: { zone: toZone("C3:D4") } }]);
+    expect(getHighlightsFromPlugin(env.getPlugin)).toHaveLength(1);
+    expect(getHighlightsFromPlugin(env.getPlugin)).toMatchObject([
+      { range: { zone: toZone("C3:D4") } },
+    ]);
   });
 
   test("Deleting a named range being edited does not put the next one in edition", async () => {

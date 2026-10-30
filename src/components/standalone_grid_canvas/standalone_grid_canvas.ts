@@ -1,8 +1,15 @@
-import { onWillStart, onWillUpdateProps, useProps } from "@odoo/owl";
+import {
+  onWillStart,
+  onWillUpdateProps,
+  PluginInstance,
+  providePlugins,
+  usePlugin,
+  useProps,
+} from "@odoo/owl";
 import { getCarouselLayout } from "../../helpers/carousel_helpers";
 import { isDefined } from "../../helpers/misc";
+import { LocalRendererPlugin, RendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { useLocalStore } from "../../store_engine/store_hooks";
-import { RendererStore } from "../../stores/renderer_store";
 import { PropsOf } from "../../types/props_of";
 import { GridRenderingContext } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
@@ -23,16 +30,16 @@ export class StandaloneGridCanvas extends OSComponent {
     canvas: types.object<HTMLCanvasElement>(),
   });
 
-  rendererStore!: Store<RendererStore>;
   figureRendererStore!: Store<FigureRendererStore>;
-
+  rendererPlugin!: PluginInstance<typeof RendererPlugin>;
   setup() {
-    this.rendererStore = useLocalStore(RendererStore, ["Background", "Chart"]);
-    this.figureRendererStore = useLocalStore(FigureRendererStore, this.rendererStore);
+    providePlugins([LocalRendererPlugin], { layers: ["Background", "Chart"] });
+    this.rendererPlugin = usePlugin(LocalRendererPlugin);
+    this.figureRendererStore = useLocalStore(FigureRendererStore, this.rendererPlugin);
     useGridDrawing({
       canvasRef: () => this.props.canvas,
       renderingCtx: () => this.props.renderingCtx,
-      rendererStore: this.rendererStore,
+      rendererPlugin: this.rendererPlugin,
       changeCanvasSizeOnZoom: true,
     });
     onWillStart(async () => await this.loadImages(this.props));
@@ -78,7 +85,7 @@ export class StandaloneGridCanvas extends OSComponent {
           range: carouselItem.range,
           columnWeights: carouselItem.columnWeights,
           rect: layout.contentRect,
-          rendererStore: this.rendererStore,
+          rendererPlugin: this.rendererPlugin,
         };
       })
       .filter(isDefined);

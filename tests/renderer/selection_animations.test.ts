@@ -1,3 +1,4 @@
+import { PluginInstance } from "@odoo/owl";
 import { DOMCoordinates, Model, Rect } from "../../src";
 import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import {
@@ -7,15 +8,16 @@ import {
   DEFAULT_CELL_WIDTH,
 } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
+import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
 import { EASING_FN } from "../../src/registries/cell_animation_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
-import { RendererStore } from "../../src/stores/renderer_store";
 import {
   SELECTION_ANIMATION_DURATION,
   SelectionRendererStore,
   SelectionRenderingState,
 } from "../../src/stores/selection_renderer_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
+import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { registerCleanup } from "../setup/jest.setup";
 import {
   activateSheet,
@@ -37,7 +39,7 @@ let model: Model;
 let container: DependencyContainer;
 let drawGrid: () => void;
 let selectionRendererStore: SelectionRendererStore;
-let rendererStore: RendererStore;
+let rendererPlugin: PluginInstance<typeof RendererPlugin>;
 let animationFrameCallback: (timeStamp: number) => void;
 
 function isCurrentlyAnimating(): boolean {
@@ -65,11 +67,13 @@ function toCellRect(xc: string): Rect {
 
 beforeEach(() => {
   model = new Model();
-  ({ container, store: selectionRendererStore } = makeStoreWithModel(
-    model,
-    SelectionRendererStore
-  ));
-  rendererStore = container.get(RendererStore);
+  let getPlugin: OwlPluginGetter;
+  ({
+    container,
+    store: selectionRendererStore,
+    getPlugin,
+  } = makeStoreWithModel(model, SelectionRendererStore));
+  rendererPlugin = getPlugin(RendererPlugin);
   container.get(AutofillStore);
 
   const ctx = new MockGridRenderingContext(model, container, 1000, 1000, {
@@ -102,7 +106,7 @@ beforeEach(() => {
   });
 
   drawGrid = () => {
-    rendererStore.draw(ctx);
+    rendererPlugin.draw(ctx);
   };
 });
 

@@ -11,7 +11,7 @@ import {
   simulateClick,
 } from "../test_helpers/dom_helper";
 import {
-  getHighlightsFromStore,
+  getHighlightsFromPlugin,
   mockNotificationMethods,
   mountSpreadsheet,
   nextTick,
@@ -136,10 +136,12 @@ describe("Pivot side panel", () => {
 
     env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
-    expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual(["A5:A7"]);
+    expect(getHighlightsFromPlugin(env.getPlugin).map((h) => zoneToXc(h.range.zone))).toEqual([
+      "A5:A7",
+    ]);
 
     await click(fixture, ".o-sidePanel-tab.o-panel-design");
-    expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual([]);
+    expect(getHighlightsFromPlugin(env.getPlugin).map((h) => zoneToXc(h.range.zone))).toEqual([]);
   });
 
   test("Renaming the computed measure the pivot is sorted on keep the sorting", async () => {

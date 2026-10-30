@@ -1,3 +1,4 @@
+import { PluginInstance, usePlugin } from "@odoo/owl";
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import { getPath2D } from "../components/icons/icons";
 import {
@@ -32,6 +33,7 @@ import {
   zoneToXc,
 } from "../helpers/zones";
 import { Model } from "../model";
+import { RendererPlugin } from "../owl_plugins/renderer_plugin";
 import { cellAnimationRegistry } from "../registries/cell_animation_registry";
 import { DisposableStore } from "../store_engine/store";
 import { CellValueType } from "../types/cells";
@@ -50,7 +52,6 @@ import { Get, Store } from "../types/store_engine";
 import { CellHoverOverlayStore } from "./cell_hover_overlay_store";
 import { FormulaFingerprintStore } from "./formula_fingerprints_store";
 import { ModelStore } from "./model_store";
-import { RendererStore } from "./renderer_store";
 
 export const CELL_ANIMATION_DURATION = 200;
 
@@ -62,6 +63,7 @@ interface Animation {
 }
 
 export class GridRenderer extends DisposableStore {
+  private renderer: PluginInstance<typeof RendererPlugin>;
   storeGetters = ["drawLayer"] as const;
 
   private fingerprints: Store<FormulaFingerprintStore>;
@@ -74,24 +76,33 @@ export class GridRenderer extends DisposableStore {
   private zonesWithPreventedAnimationsInNextFrame: Record<UID, Zone[]> = {};
   private animations: Map<string, Animation> = new Map();
   protected getters: RenderingGetters;
+  private shouldRender: boolean = true;
 
-  constructor(get: Get, private renderer: Store<RendererStore> | null = get(RendererStore)) {
+  constructor(
+    get: Get,
+    {
+      shouldRender = true,
+      renderer,
+    }: { shouldRender?: boolean; renderer?: PluginInstance<typeof RendererPlugin> } = {}
+  ) {
     super(get);
+    this.renderer = renderer ?? usePlugin(RendererPlugin);
     const model = get(ModelStore) as Model;
     this.getters = model.getters;
     this.fingerprints = get(FormulaFingerprintStore);
     this.hoveredIcon = get(HoveredIconStore);
+    this.shouldRender = shouldRender;
 
     model.on("command-dispatched", this, this.handle);
     model.on("command-finalized", this, this.finalize);
-    if (this.renderer) {
+    if (shouldRender) {
       this.renderer.register(this);
     }
 
     this.onDispose(() => {
       model.off("command-dispatched", this);
       model.off("command-finalized", this);
-      if (this.renderer) {
+      if (shouldRender) {
         this.renderer.unRegister(this);
       }
     });
@@ -1004,7 +1015,7 @@ export class GridRenderer extends DisposableStore {
     oldBoxes: Map<string, Box>,
     timeStamp: number | undefined
   ) {
-    if (!this.renderer) {
+    if (!this.shouldRender) {
       return boxes;
     }
     this.updateAnimationsProgress(timeStamp);
