@@ -196,8 +196,8 @@ describe("data analysis store occurrences", () => {
       "A1:A4"
     );
     expect(store.occurrencesItems).toMatchObject([
-      { id: "true", percentage: "(75%)" },
-      { id: "false", percentage: "(25%)" },
+      { id: "TRUE", percentage: "(75%)" },
+      { id: "FALSE", percentage: "(25%)" },
     ]);
   });
 });
@@ -399,8 +399,8 @@ describe("buildOccurrencesItems", () => {
     const model = createModelFromGrid({ A1: "apple", A2: "banana", A3: "apple" });
     const items = occurrences(model, "A1:A3");
     expect(items).toMatchObject([
-      { name: "apple", value: "2", formula: '=COUNTIF(Sheet1!A1:A3,"apple")' },
-      { name: "banana", value: "1", formula: '=COUNTIF(Sheet1!A1:A3,"banana")' },
+      { name: "apple", value: "2", formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A3),"apple"))' },
+      { name: "banana", value: "1", formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A3),"banana"))' },
     ]);
   });
 
@@ -416,18 +416,22 @@ describe("buildOccurrencesItems", () => {
     expect(items.map((item) => item.name)).toEqual(["banana", "cherry", "apple"]);
   });
 
-  test("occurrences are case-insensitive", () => {
-    const model = createModelFromGrid({
-      A1: "Apple",
-      A2: "apple",
-      A3: "APPLE",
-      A4: "banana",
-      A5: "Banana",
-    });
-    const items = occurrences(model, "A1:A5");
+  test("occurrences are case-sensitive", () => {
+    const model = createModelFromGrid({ A1: "Apple", A2: "apple", A3: "Apple" });
+    const items = occurrences(model, "A1:A3");
     expect(items).toMatchObject([
-      { name: "Apple", value: "3", formula: '=COUNTIF(Sheet1!A1:A5,"Apple")' },
-      { name: "banana", value: "2", formula: '=COUNTIF(Sheet1!A1:A5,"banana")' },
+      {
+        id: "Apple",
+        name: "Apple",
+        value: "2",
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A3),"Apple"))',
+      },
+      {
+        id: "apple",
+        name: "apple",
+        value: "1",
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A3),"apple"))',
+      },
     ]);
   });
 
@@ -436,8 +440,16 @@ describe("buildOccurrencesItems", () => {
     setFormat(model, "A1:A2", "%0.00");
     const items = occurrences(model, "A1:A2");
     expect(items).toMatchObject([
-      { name: "%100.00", value: "1", formula: "=COUNTIF(Sheet1!A1:A2,1)" },
-      { name: "%200.00", value: "1", formula: "=COUNTIF(Sheet1!A1:A2,2)" },
+      {
+        name: "%100.00",
+        value: "1",
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A2),"1"))',
+      },
+      {
+        name: "%200.00",
+        value: "1",
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A2),"2"))',
+      },
     ]);
   });
 
@@ -448,15 +460,17 @@ describe("buildOccurrencesItems", () => {
       {
         name: "TRUE",
         value: "2",
-        formula:
-          '=COUNTIF(Sheet1!A1:A4,TRUE)+SUMPRODUCT(ISTEXT(Sheet1!A1:A4)*(Sheet1!A1:A4="TRUE"))',
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A4),"TRUE"))',
       },
-      { name: "apple", value: "1", formula: '=COUNTIF(Sheet1!A1:A4,"apple")' },
+      {
+        name: "apple",
+        value: "1",
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A4),"apple"))',
+      },
       {
         name: "FALSE",
         value: "1",
-        formula:
-          '=COUNTIF(Sheet1!A1:A4,FALSE)+SUMPRODUCT(ISTEXT(Sheet1!A1:A4)*(Sheet1!A1:A4="FALSE"))',
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A4),"FALSE"))',
       },
     ]);
     setCellContent(model, "B1", items[0].formula);
@@ -471,14 +485,12 @@ describe("buildOccurrencesItems", () => {
       {
         name: "TRUE",
         value: "3",
-        formula:
-          '=COUNTIF(Sheet1!A1:A4,TRUE)+SUMPRODUCT(ISTEXT(Sheet1!A1:A4)*(Sheet1!A1:A4="TRUE"))',
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A4),"TRUE"))',
       },
       {
         name: "FALSE",
         value: "1",
-        formula:
-          '=COUNTIF(Sheet1!A1:A4,FALSE)+SUMPRODUCT(ISTEXT(Sheet1!A1:A4)*(Sheet1!A1:A4="FALSE"))',
+        formula: '=SUMPRODUCT(--EXACT(TRIM(Sheet1!A1:A4),"FALSE"))',
       },
     ];
     expect(occurrences(model, "A1:A4")).toMatchObject(expectedResult);

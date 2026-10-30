@@ -52,12 +52,13 @@ describe("data statistics", () => {
     expect('[data-test-id="banana"]').toHaveText("2");
   });
 
-  test("statistics occurrences are case insensitive", async () => {
+  test("statistics occurrences are case-sensitive", async () => {
     const model = createModelFromGrid({ A1: "apple", A2: "banana", A3: "BANANA" });
     await mountSpreadsheet({ model });
     setSelection(model, ["A1:A3"]);
     await simulateClick(".o-data-analysis-button");
-    expect('[data-test-id="banana"]').toHaveText("2");
+    expect('[data-test-id="banana"]').toHaveText("1");
+    expect('[data-test-id="BANANA"]').toHaveText("1");
   });
 
   test("statistics are updated if the selection changes", async () => {
