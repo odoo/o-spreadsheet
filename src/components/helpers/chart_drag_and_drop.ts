@@ -57,6 +57,9 @@ export function useChartDragAndDrop() {
       droppedFigures: Figure[],
       overlappingFigureId: UID | undefined
     ) => {
+      if (model.getters.isReadonly()) {
+        return;
+      }
       const droppedFigure = droppedFigures[0];
       if (!droppedFigure || (!overlappingFigureId && isMouseEventInPanel(ev))) {
         return;

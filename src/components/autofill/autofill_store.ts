@@ -540,7 +540,7 @@ export class AutofillStore extends SpreadsheetStore {
   }
 
   isAutofillVisible(sheetId: UID): boolean {
-    if (this.getters.isCurrentSheetLocked()) {
+    if (this.getters.isCurrentSheetLocked() || this.getters.isReadonly()) {
       return false;
     }
     const zone = this.getters.getSelectedZone();

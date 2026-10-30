@@ -44,7 +44,6 @@ export const invalidateCFEvaluationCommands = new Set<CommandTypes>();
 export const invalidateTableStyleCommands = new Set<CommandTypes>();
 export const invalidateBordersCommands = new Set<CommandTypes>();
 export const invalidSubtotalFormulasCommands = new Set<CommandTypes>();
-export const readonlyAllowedCommands = new Set<CommandTypes>();
 export const lockedSheetAllowedCommands = new Set<CommandTypes>();
 
 export const commandSets = {
@@ -55,7 +54,6 @@ export const commandSets = {
   "*invalidateTableStyleCommands": invalidateTableStyleCommands,
   "*invalidateBordersCommands": invalidateBordersCommands,
   "*invalidSubtotalFormulasCommands": invalidSubtotalFormulasCommands,
-  "*readonlyAllowedCommands": readonlyAllowedCommands,
   "*lockedSheetAllowedCommands": lockedSheetAllowedCommands,
   "*coreCommands": coreCommands,
   "*localCommands": localCommands,
@@ -85,7 +83,6 @@ interface CommandBehaviours {
   invalidatesTableStyle?: boolean;
   invalidatesBorders?: boolean;
   invalidatesSubtotalFormulas?: boolean;
-  allowedInReadonly?: boolean;
   allowedOnLockedSheet?: boolean;
 }
 
@@ -97,7 +94,6 @@ const behaviourSets = {
   invalidatesTableStyle: invalidateTableStyleCommands,
   invalidatesBorders: invalidateBordersCommands,
   invalidatesSubtotalFormulas: invalidSubtotalFormulasCommands,
-  allowedInReadonly: readonlyAllowedCommands,
   allowedOnLockedSheet: lockedSheetAllowedCommands,
 } satisfies Required<{ [key in keyof CommandBehaviours]: Set<CommandTypes> }>;
 
@@ -166,10 +162,6 @@ export function isDispatcheableEvaluationCommand(
 
 export function isEvaluationCommand(cmd: Command): cmd is EvaluationCommand {
   return evaluationCommandTypes.has(cmd.type as any);
-}
-
-export function canExecuteInReadonly(cmd: Command): boolean {
-  return readonlyAllowedCommands.has(cmd.type);
 }
 
 //#region Core Commands
@@ -336,7 +328,6 @@ registerCommand("CREATE_CHART", {
 });
 registerCommand("UPDATE_CHART", {
   category: "core",
-  allowedInReadonly: true,
 });
 registerCommand("DELETE_CHART", { category: "core" });
 
@@ -449,7 +440,6 @@ registerCommand("ADD_PIVOT", {
 registerCommand("UPDATE_PIVOT", {
   category: "core",
   invalidatesEvaluation: true,
-  allowedInReadonly: true,
 });
 registerCommand("INSERT_PIVOT", {
   category: "core",
@@ -498,7 +488,6 @@ registerCommand("REDO", {
 // CLIPBOARD
 registerCommand("COPY", {
   category: "local",
-  allowedInReadonly: true,
   allowedOnLockedSheet: true,
 });
 registerCommand("CUT", { category: "local" });
@@ -519,7 +508,6 @@ registerCommand("MOVE_COLUMNS_ROWS", { category: "local" });
 // SHEETS MANIPULATION
 registerCommand("ACTIVATE_SHEET", {
   category: "local",
-  allowedInReadonly: true,
   allowedOnLockedSheet: true,
 });
 registerCommand("ACTIVATE_NEXT_SHEET", {
@@ -537,20 +525,17 @@ registerCommand("EVALUATE_CELLS", {
   isDispatcheableEvaluationCommand: true,
   invalidatesChartEvaluation: true,
   invalidatesConditionalFormatEvaluation: true,
-  allowedInReadonly: true,
   allowedOnLockedSheet: true,
 });
 registerCommand("EVALUATE_CHARTS", {
   category: "local",
   isDispatcheableEvaluationCommand: true,
   invalidatesChartEvaluation: true,
-  allowedInReadonly: true,
   allowedOnLockedSheet: true,
 });
 registerCommand("SET_AUTOMATIC_EVALUATION", {
   category: "local",
   isEvaluationCommand: true,
-  allowedInReadonly: true,
 });
 
 // COMPOSER
@@ -560,7 +545,6 @@ registerCommand("START_CHANGE_HIGHLIGHT", { category: "local" });
 registerCommand("START", {
   category: "local",
   isEvaluationCommand: true,
-  allowedInReadonly: true,
   allowedOnLockedSheet: true,
 });
 registerCommand("AUTOFILL", { category: "local" });
@@ -568,7 +552,6 @@ registerCommand("AUTOFILL_SELECT", { category: "local" });
 registerCommand("AUTOFILL_TABLE_COLUMN", { category: "local" });
 registerCommand("SET_FORMULA_VISIBILITY", {
   category: "local",
-  allowedInReadonly: true,
   allowedOnLockedSheet: true,
 });
 registerCommand("AUTOFILL_AUTO", { category: "local" });
@@ -592,7 +575,6 @@ registerCommand("TOGGLE_CHECKBOX", { category: "local" });
 registerCommand("DELETE_DATA_SOURCES", { category: "local" });
 registerCommand("UPDATE_COLOR_SCHEME", {
   category: "local",
-  allowedInReadonly: true,
 });
 
 // FORMATTING
@@ -609,7 +591,6 @@ registerCommand("UPDATE_FILTER", {
   invalidatesChartEvaluation: true,
   invalidatesTableStyle: true,
   invalidatesSubtotalFormulas: true,
-  allowedInReadonly: true,
   allowedOnLockedSheet: true,
 });
 registerCommand("RESIZE_TABLE", { category: "local" });
@@ -646,13 +627,11 @@ registerCommand("ADD_FIGURES_CHART_TO_CAROUSEL", { category: "local" });
 registerCommand("DUPLICATE_CAROUSEL_CHART", { category: "local" });
 registerCommand("UPDATE_CAROUSEL_ACTIVE_ITEM", {
   category: "local",
-  allowedInReadonly: true,
   allowedOnLockedSheet: true,
 });
 registerCommand("POPOUT_CHART_FROM_CAROUSEL", { category: "local" });
 registerCommand("UPDATE_CHART_REGION", {
   category: "local",
-  allowedInReadonly: true,
 });
 registerCommand("MERGE_CHART_FIGURES_INTO_CAROUSEL", { category: "local" });
 registerCommand("CREATE_CHART_AND_MERGE_INTO_CAROUSEL", { category: "local" });
