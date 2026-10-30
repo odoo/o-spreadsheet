@@ -51,6 +51,7 @@
     #bcbcbc,
     #9fa5bd
   ); /* FROZEN_PANE_HEADER_BORDER_COLOR */
+  --os-spreadsheet-background: light-dark(var(--os-background-gray-color), #1e1f29);
   --os-grid-border-color: light-dark(#e2e3e3, var(--os-gray-400));
   --os-canvas-border-color: light-dark(
     #e2e3e3,
