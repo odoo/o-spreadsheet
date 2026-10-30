@@ -4,6 +4,7 @@ import { toZone } from "../../src/helpers/zones";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   createNamedRange,
+  createSheet,
   setInputValueAndTrigger,
   setSelection,
   simulateClick,
@@ -139,5 +140,21 @@ describe("Named ranges side panel", () => {
     expect(".o-named-range-preview .o-selection-input input").toHaveValue("B2");
     expect(".o-named-range-preview").not.toHaveClass("o-focused");
     expect(".o-selection-ok").toHaveCount(0);
+  });
+
+  test("Can create a range in another sheet", async () => {
+    const newSheetId = "sheet2";
+    createSheet(model, { sheetId: newSheetId, name: "Sheet2", cols: 10, rows: 10_000 });
+    await mountNamedRangesPanel();
+
+    await simulateClick(".o-named-range-add");
+    await setInputValueAndTrigger(
+      ".o-named-range-preview .o-selection-input input",
+      "Sheet2!A5000"
+    );
+    await simulateClick(".o-selection-ok");
+    expect(model.getters.getNamedRanges()[0]).toMatchObject({
+      range: { sheetId: newSheetId, zone: toZone("A5000") },
+    });
   });
 });

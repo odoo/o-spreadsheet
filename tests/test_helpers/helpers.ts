@@ -709,12 +709,15 @@ export function target(str: string): Zone[] {
   return str.split(",").map(toZone);
 }
 
-export function toRangeData(sheetId: UID, xc: string): RangeData {
-  return { _zone: toUnboundedZone(xc), _sheetId: sheetId };
+export function toRangeData(defaultSheetId: UID, xc: string): RangeData {
+  if (xc.indexOf("!") !== -1) {
+    throw new Error("toRangeData does not support xc with sheet reference.");
+  }
+  return { _zone: toUnboundedZone(xc), _sheetId: defaultSheetId };
 }
 
-export function toRangesData(sheetId: UID, str: string): RangeData[] {
-  return str.split(",").map((xc) => toRangeData(sheetId, xc));
+export function toRangesData(defaultSheetId: UID, str: string): RangeData[] {
+  return str.split(",").map((xc) => toRangeData(defaultSheetId, xc));
 }
 
 export function toBoundedRange(sheetId: UID, xc: string) {
