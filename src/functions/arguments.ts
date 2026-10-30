@@ -23,6 +23,7 @@ const ARG_TYPES: ArgType[] = [
   "RANGE<DATE>",
   "RANGE<NUMBER>",
   "RANGE<STRING>",
+  "ERROR",
 ];
 
 export function arg(
@@ -64,7 +65,7 @@ function makeArg(str: string, description: string, proposals?: ArgProposal[]): A
     description,
     type: types,
   };
-  const acceptErrors = types.includes("ANY") || types.includes("RANGE");
+  const acceptErrors = types.includes("ANY") || types.includes("RANGE") || types.includes("ERROR");
   if (acceptErrors) {
     result.acceptErrors = true;
   }

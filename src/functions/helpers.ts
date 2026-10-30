@@ -712,7 +712,10 @@ export function visitMatchingRanges(
       );
     }
 
-    const description = toLocaleString(args[i + 1] as Maybe<FunctionResultObject>, locale);
+    const descrStr = args[i + 1] as Maybe<FunctionResultObject>;
+    const description = isEvaluationError(descrStr?.value)
+      ? descrStr.value
+      : toLocaleString(descrStr, locale);
     const predicate = getPredicate(description, locale);
     if (isQuery && typeof predicate.operand === "string") {
       predicate.operand += "*";
