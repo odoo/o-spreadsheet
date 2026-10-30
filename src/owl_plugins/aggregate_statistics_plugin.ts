@@ -1,18 +1,18 @@
-import { invalidateEvaluationCommands } from "../../../command_registry";
-import { sum } from "../../../functions/helper_math";
-import { average, countAny, countNumbers, max, min } from "../../../functions/helper_statistical";
-import { isDateTimeFormat } from "../../../helpers/format/format";
-import { recomputeZones } from "../../../helpers/recompute_zones";
+import { onWillDestroy, signal } from "@odoo/owl";
+import { invalidateEvaluationCommands } from "../command_registry";
+import { sum } from "../functions/helper_math";
+import { average, countAny, countNumbers, max, min } from "../functions/helper_statistical";
+import { isDateTimeFormat } from "../helpers/format/format";
+import { recomputeZones } from "../helpers/recompute_zones";
 import {
   SelectionStatisticFunction,
   StatisticFnResults,
   computeStatisticFnResults,
-} from "../../../helpers/selection_statistic_functions";
-import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
-import { _t } from "../../../translation";
-import { CellValueType, EvaluatedCell } from "../../../types/cells";
-import { Command } from "../../../types/commands";
-import { Get } from "../../../types/store_engine";
+} from "../helpers/selection_statistic_functions";
+import { _t } from "../translation";
+import { CellValueType, EvaluatedCell } from "../types/cells";
+import { Command } from "../types/commands";
+import { OwlPluginWithModel } from "./owl_plugin_with_model";
 
 const selectionStatisticFunctions: SelectionStatisticFunction[] = [
   {
@@ -60,21 +60,22 @@ const selectionStatisticFunctions: SelectionStatisticFunction[] = [
   },
 ];
 
-export class AggregateStatisticsStore extends SpreadsheetStore {
-  statisticFnResults: StatisticFnResults = this._computeStatisticFnResults();
+export class AggregateStatisticsPlugin extends OwlPluginWithModel {
+  statisticFnResults = signal<StatisticFnResults>({});
   private isDirty = false;
 
-  constructor(get: Get) {
-    super(get);
-    this.model.selection.observe(this, {
+  setup() {
+    super.setup();
+    this.statisticFnResults.set(this._computeStatisticFnResults());
+    this.model().selection.observe(this, {
       handleEvent: this.handleEvent.bind(this),
     });
-    this.onDispose(() => {
-      this.model.selection.unobserve(this);
+    onWillDestroy(() => {
+      this.model().selection.unobserve(this);
     });
   }
 
-  handle(cmd: Command) {
+  protected handle(cmd: Command) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
@@ -96,27 +97,27 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
     }
   }
 
-  finalize() {
+  protected finalize() {
     if (this.isDirty) {
       this.isDirty = false;
-      this.statisticFnResults = this._computeStatisticFnResults();
+      this.statisticFnResults.set(this._computeStatisticFnResults());
     }
   }
 
   handleEvent() {
-    if (this.getters.isGridSelectionActive()) {
-      this.statisticFnResults = this._computeStatisticFnResults();
+    if (this.model().getters.isGridSelectionActive()) {
+      this.statisticFnResults.set(this._computeStatisticFnResults());
     }
   }
 
   private _computeStatisticFnResults(): StatisticFnResults {
-    const getters = this.getters;
+    const getters = this.model().getters;
     const sheetId = getters.getActiveSheetId();
     const cells: EvaluatedCell[] = [];
 
     const recomputedZones = recomputeZones(getters.getSelectedZones(), []);
-    const heightMax = this.getters.getSheetSize(sheetId).numberOfRows - 1;
-    const widthMax = this.getters.getSheetSize(sheetId).numberOfCols - 1;
+    const heightMax = getters.getSheetSize(sheetId).numberOfRows - 1;
+    const widthMax = getters.getSheetSize(sheetId).numberOfCols - 1;
 
     for (const zone of recomputedZones) {
       for (let col = zone.left; col <= (zone.right ?? widthMax); col++) {

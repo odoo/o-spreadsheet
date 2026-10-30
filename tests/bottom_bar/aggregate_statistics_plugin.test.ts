@@ -1,6 +1,7 @@
+import { PluginInstance } from "@odoo/owl";
 import { Model } from "../../src";
-import { AggregateStatisticsStore } from "../../src/components/bottom_bar/bottom_bar_statistic/aggregate_statistics_store";
 import { functionRegistry } from "../../src/functions/function_registry";
+import { AggregateStatisticsPlugin } from "../../src/owl_plugins/aggregate_statistics_plugin";
 import {
   activateSheet,
   addCellToSelection,
@@ -15,17 +16,22 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { addToRegistry } from "../test_helpers/helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
+
+function makePlugin(model: Model = new Model()) {
+  const { getPlugin } = makeOwlPluginManager([AggregateStatisticsPlugin], { model });
+  return { store: getPlugin(AggregateStatisticsPlugin), model };
+}
 
 describe("Aggregate statistic functions", () => {
   test("functions are applied on deduplicated cells in zones", () => {
-    const { store, model } = makeStore(AggregateStatisticsStore);
+    const { store, model } = makePlugin();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
 
     setSelection(model, ["A1:A2"]);
-    let statisticFnResults = store.statisticFnResults;
+    let statisticFnResults = store.statisticFnResults();
     expect(statisticFnResults["Count"]?.value?.()).toBe(2);
 
     // expand selection with the range A3:A2
@@ -33,12 +39,12 @@ describe("Aggregate statistic functions", () => {
     setAnchorCorner(model, "A2");
 
     // A2 is now present in two selection
-    statisticFnResults = store.statisticFnResults;
+    statisticFnResults = store.statisticFnResults();
     expect(statisticFnResults["Count"]?.value?.()).toBe(3);
   });
 
   test.each(["Count", "Count Numbers"])("%s aggregate does not inherit format", (statName) => {
-    const { store, model } = makeStore(AggregateStatisticsStore);
+    const { store, model } = makePlugin();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
@@ -46,12 +52,12 @@ describe("Aggregate statistic functions", () => {
     setFormat(model, "A1:A3", "0.00%");
 
     setSelection(model, ["A1:A3"]);
-    const statisticFnResults = store.statisticFnResults;
+    const statisticFnResults = store.statisticFnResults();
     expect(statisticFnResults[statName]?.format()).toBe("");
   });
 
   test.each(["Avg", "Min", "Max"])("%s aggregate inherits first found format", (statName) => {
-    const { store, model } = makeStore(AggregateStatisticsStore);
+    const { store, model } = makePlugin();
     setCellContent(model, "A1", "Hello");
     setCellContent(model, "A2", "1");
     setCellContent(model, "A3", "2");
@@ -59,12 +65,12 @@ describe("Aggregate statistic functions", () => {
     setFormat(model, "A2", "0.00%");
 
     setSelection(model, ["A1:A3"]);
-    const statisticFnResults = store.statisticFnResults;
+    const statisticFnResults = store.statisticFnResults();
     expect(statisticFnResults[statName]?.format()).toBe("0.00%");
   });
 
   test("Sum inherits first found format that is not a date", () => {
-    const { store, model } = makeStore(AggregateStatisticsStore);
+    const { store, model } = makePlugin();
     setCellContent(model, "A1", "Hello");
     setCellContent(model, "A2", "1");
     setCellContent(model, "A3", "2");
@@ -73,12 +79,12 @@ describe("Aggregate statistic functions", () => {
     setFormat(model, "A3", "0.00%");
 
     setSelection(model, ["A1:A3"]);
-    const statisticFnResults = store.statisticFnResults;
+    const statisticFnResults = store.statisticFnResults();
     expect(statisticFnResults["Sum"]?.format()).toBe("0.00%");
   });
 
   test("Sum is not visible when only selecting numbers that are dates", () => {
-    const { store, model } = makeStore(AggregateStatisticsStore);
+    const { store, model } = makePlugin();
     setCellContent(model, "A1", "Hello");
     setCellContent(model, "A2", "1");
     setCellContent(model, "A3", "2");
@@ -86,30 +92,30 @@ describe("Aggregate statistic functions", () => {
     setFormat(model, "A2:A3", "mm/dd/yyyy");
 
     setSelection(model, ["A1:A3"]);
-    const statisticFnResults = store.statisticFnResults;
+    const statisticFnResults = store.statisticFnResults();
     expect(statisticFnResults["Sum"]).toBeUndefined();
   });
 
   test("statistic function should not include hidden rows/columns in calculations", () => {
-    const { store, model } = makeStore(AggregateStatisticsStore);
+    const { store, model } = makePlugin();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
 
     setSelection(model, ["A1:A4"]);
-    let statisticFnResults = store.statisticFnResults;
+    let statisticFnResults = store.statisticFnResults();
     expect(statisticFnResults["Sum"]?.value?.()).toBe(6);
 
     hideRows(model, [1, 2]);
-    statisticFnResults = store.statisticFnResults;
+    statisticFnResults = store.statisticFnResults();
     expect(statisticFnResults["Sum"]?.value?.()).toBe(1);
   });
 
   describe("return undefined if the types handled by the function are not present among the types of the selected cells", () => {
     let model: Model;
-    let store: AggregateStatisticsStore;
+    let store: PluginInstance<typeof AggregateStatisticsPlugin>;
     beforeEach(() => {
-      ({ store, model } = makeStore(AggregateStatisticsStore));
+      ({ store, model } = makePlugin());
       setCellContent(model, "A1", "24");
       setCellContent(model, "A2", "=42");
       setCellContent(model, "A3", "107% of people don't get statistics");
@@ -122,11 +128,11 @@ describe("Aggregate statistic functions", () => {
       // select the range A1:A7
       selectCell(model, "A1");
       setAnchorCorner(model, "A7");
-      let statisticFnResults = store.statisticFnResults;
+      let statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Sum"]?.value?.()).toBe(66);
 
       selectCell(model, "A7");
-      statisticFnResults = store.statisticFnResults;
+      statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Sum"]?.value).toBe(undefined);
     });
 
@@ -134,11 +140,11 @@ describe("Aggregate statistic functions", () => {
       // select the range A1:A7
       selectCell(model, "A1");
       setAnchorCorner(model, "A7");
-      let statisticFnResults = store.statisticFnResults;
+      let statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Avg"]?.value?.()).toBe(22);
 
       selectCell(model, "A7");
-      statisticFnResults = store.statisticFnResults;
+      statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Avg"]?.value).toBe(undefined);
     });
 
@@ -146,11 +152,11 @@ describe("Aggregate statistic functions", () => {
       // select the range A1:A7
       selectCell(model, "A1");
       setAnchorCorner(model, "A7");
-      let statisticFnResults = store.statisticFnResults;
+      let statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Min"]?.value?.()).toBe(0);
 
       selectCell(model, "A7");
-      statisticFnResults = store.statisticFnResults;
+      statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Min"]?.value).toBe(undefined);
     });
 
@@ -158,11 +164,11 @@ describe("Aggregate statistic functions", () => {
       // select the range A1:A7
       selectCell(model, "A1");
       setAnchorCorner(model, "A7");
-      let statisticFnResults = store.statisticFnResults;
+      let statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Max"]?.value?.()).toBe(42);
 
       selectCell(model, "A7");
-      statisticFnResults = store.statisticFnResults;
+      statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Max"]?.value).toBe(undefined);
     });
 
@@ -170,39 +176,39 @@ describe("Aggregate statistic functions", () => {
       // select the range A1:A7
       selectCell(model, "A1");
       setAnchorCorner(model, "A7");
-      let statisticFnResults = store.statisticFnResults;
+      let statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Count"]?.value?.()).toBe(6);
 
       selectCell(model, "A7");
-      statisticFnResults = store.statisticFnResults;
+      statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Count"]?.value).toBe(undefined);
     });
 
     test('return the "Count numbers" value on all types of interpreted cells except on cells interpreted as empty', () => {
       selectCell(model, "A1");
-      let statisticFnResults = store.statisticFnResults;
+      let statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Count Numbers"]?.value?.()).toBe(1);
 
       selectCell(model, "A2");
-      statisticFnResults = store.statisticFnResults;
+      statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Count Numbers"]?.value?.()).toBe(1);
 
       selectCell(model, "A3");
-      statisticFnResults = store.statisticFnResults;
+      statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Count Numbers"]?.value?.()).toBe(0);
 
       selectCell(model, "A4");
-      statisticFnResults = store.statisticFnResults;
+      statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Count Numbers"]?.value?.()).toBe(0);
 
       selectCell(model, "A5");
-      statisticFnResults = store.statisticFnResults;
+      statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Count Numbers"]?.value?.()).toBe(0);
 
       // select the range A6:A7
       selectCell(model, "A6");
       setAnchorCorner(model, "A7");
-      statisticFnResults = store.statisticFnResults;
+      statisticFnResults = store.statisticFnResults();
       expect(statisticFnResults["Count"]?.value?.()).toBe(1);
     });
   });
@@ -229,7 +235,7 @@ describe("Aggregate statistic functions", () => {
   });
 
   test("Statistics are recomputed when switching sheets", () => {
-    const { store, model } = makeStore(AggregateStatisticsStore);
+    const { store, model } = makePlugin();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
@@ -239,23 +245,23 @@ describe("Aggregate statistic functions", () => {
     createSheet(model, { sheetId: sId2 });
     setCellContent(model, "A2", "4", sId2);
     setCellContent(model, "A3", "4", sId2);
-    expect(store.statisticFnResults["Count"]?.value?.()).toBe(3);
+    expect(store.statisticFnResults()["Count"]?.value?.()).toBe(3);
     activateSheet(model, sId2);
     selectAll(model);
-    expect(store.statisticFnResults["Count"]?.value?.()).toBe(2);
+    expect(store.statisticFnResults()["Count"]?.value?.()).toBe(2);
     activateSheet(model, sId1);
     selectAll(model);
-    expect(store.statisticFnResults["Count"]?.value?.()).toBe(3);
+    expect(store.statisticFnResults()["Count"]?.value?.()).toBe(3);
   });
 
   test("statistic is updated when a cell format changes", () => {
-    const { store, model } = makeStore(AggregateStatisticsStore);
+    const { store, model } = makePlugin();
     setCellContent(model, "A1", '=IF(CELL("format",B1)="0.00%",3,0)');
     setSelection(model, ["A1"]);
 
-    expect(store.statisticFnResults["Sum"]?.value?.()).toBe(0);
+    expect(store.statisticFnResults()["Sum"]?.value?.()).toBe(0);
 
     setFormat(model, "B1", "0.00%");
-    expect(store.statisticFnResults["Sum"]?.value?.()).toBe(3);
+    expect(store.statisticFnResults()["Sum"]?.value?.()).toBe(3);
   });
 });

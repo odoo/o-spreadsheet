@@ -1,5 +1,13 @@
-import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
+import {
+  onWillUpdateProps,
+  PluginInstance,
+  providePlugins,
+  proxy,
+  usePlugin,
+  useProps,
+} from "@odoo/owl";
 import { formatValue } from "../../../helpers/format/format";
+import { AggregateStatisticsPlugin } from "../../../owl_plugins/aggregate_statistics_plugin";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { MenuMouseEvent } from "../../../types/misc";
@@ -8,7 +16,6 @@ import { Ripple } from "../../animation/ripple";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { SidePanelStore } from "../../side_panel/side_panel/side_panel_store";
-import { AggregateStatisticsStore } from "./aggregate_statistics_store";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -24,15 +31,18 @@ export class BottomBarStatistic extends OSComponent {
   });
 
   private state = proxy({ selectedStatisticFn: "" });
-  private store!: Store<AggregateStatisticsStore>;
+  private aggregateStatisticsPlugin!: PluginInstance<typeof AggregateStatisticsPlugin>;
   private sidePanelStore!: Store<SidePanelStore>;
 
   setup() {
-    this.store = useStore(AggregateStatisticsStore);
+    providePlugins([AggregateStatisticsPlugin]);
+    this.aggregateStatisticsPlugin = usePlugin(AggregateStatisticsPlugin);
     this.sidePanelStore = useStore(SidePanelStore);
     onWillUpdateProps(() => {
       if (
-        Object.values(this.store.statisticFnResults).every((result) => result?.value === undefined)
+        Object.values(this.aggregateStatisticsPlugin.statisticFnResults()).every(
+          (result) => result?.value === undefined
+        )
       ) {
         this.props.closeContextMenu();
       }
@@ -42,12 +52,16 @@ export class BottomBarStatistic extends OSComponent {
   getSelectedStatistic() {
     // don't display button if no function has a result
     if (
-      Object.values(this.store.statisticFnResults).every((result) => result?.value === undefined)
+      Object.values(this.aggregateStatisticsPlugin.statisticFnResults()).every(
+        (result) => result?.value === undefined
+      )
     ) {
       return undefined;
     }
-    if (!this.store.statisticFnResults[this.state.selectedStatisticFn]) {
-      return this.getComposedFnName(Object.keys(this.store.statisticFnResults)[0]);
+    if (!this.aggregateStatisticsPlugin.statisticFnResults()[this.state.selectedStatisticFn]) {
+      return this.getComposedFnName(
+        Object.keys(this.aggregateStatisticsPlugin.statisticFnResults())[0]
+      );
     }
     return this.getComposedFnName(this.state.selectedStatisticFn);
   }
@@ -59,7 +73,7 @@ export class BottomBarStatistic extends OSComponent {
     }
     const registry = new MenuItemRegistry();
     let i = 0;
-    for (const [fnName] of Object.entries(this.store.statisticFnResults)) {
+    for (const [fnName] of Object.entries(this.aggregateStatisticsPlugin.statisticFnResults())) {
       registry.add(fnName, {
         name: () => this.getComposedFnName(fnName),
         sequence: i,
@@ -77,7 +91,7 @@ export class BottomBarStatistic extends OSComponent {
 
   private getComposedFnName(fnName: string): string {
     const locale = this.model().getters.getLocale();
-    const fnValue = this.store.statisticFnResults[fnName];
+    const fnValue = this.aggregateStatisticsPlugin.statisticFnResults()[fnName];
     if (!fnValue?.value) {
       return "";
     }
