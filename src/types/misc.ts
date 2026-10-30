@@ -3,6 +3,7 @@ import { CellValue } from "./cells";
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
+import { AVAILABLE_FONTS } from "../constants";
 import { CompiledFormula } from "../formulas/compiler";
 import { SquishedContent } from "../plugins/core/squisher";
 import { CommandResult } from "./commands";
@@ -105,6 +106,9 @@ export type VerticalAlign = "top" | "middle" | "bottom" | undefined;
 
 export type Wrapping = "overflow" | "wrap" | "clip" | undefined;
 
+export type FontDescriptor = undefined | (typeof AVAILABLE_FONTS)[number];
+export type Font = "" | (typeof AVAILABLE_FONTS)[number]["name"];
+
 export interface Style {
   bold?: boolean;
   italic?: boolean;
@@ -118,6 +122,7 @@ export interface Style {
   fontSize?: number; // in pt, not in px!
   rotation?: number; // in rad, clockwise because y+ is down
   hideGridLines?: boolean; // hide the grid lines for this cell. Mainly used for pivot tables and cell animations.
+  font?: Font;
 }
 
 export interface DataBarFill {

@@ -311,6 +311,42 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             </div>
             <div
               class="d-flex tool-container h-100"
+              id="font"
+            >
+              <div
+                class="o-dropdown o-font-editor"
+              >
+                <span
+                  class="o-menu-item-button o-font-editor-button o-hoverable-button o-toolbar-button"
+                  title="Roboto"
+                >
+                  <span
+                    class="o-font-editor-name text-truncate"
+                    style="font-family: Roboto;"
+                  >
+                    Roboto
+                  </span>
+                  <div
+                    class="o-icon"
+                  >
+                    <i
+                      class="oi"
+                      data-icon="arrow_drop_down"
+                    />
+                  </div>
+                  
+                </span>
+                
+              </div>
+              
+              
+              <div
+                class="o-topbar-divider border-end"
+              />
+              
+            </div>
+            <div
+              class="d-flex tool-container h-100"
               id="fontSize"
             >
               <div
@@ -1408,6 +1444,42 @@ exports[`components take the small screen into account 1`] = `
                   
                 </span>
                 
+                
+              </div>
+              
+              
+              <div
+                class="o-topbar-divider border-end"
+              />
+              
+            </div>
+            <div
+              class="d-flex tool-container h-100"
+              id="font"
+            >
+              <div
+                class="o-dropdown o-font-editor"
+              >
+                <span
+                  class="o-menu-item-button o-font-editor-button o-hoverable-button o-toolbar-button"
+                  title="Roboto"
+                >
+                  <span
+                    class="o-font-editor-name text-truncate"
+                    style="font-family: Roboto;"
+                  >
+                    Roboto
+                  </span>
+                  <div
+                    class="o-icon"
+                  >
+                    <i
+                      class="oi"
+                      data-icon="arrow_drop_down"
+                    />
+                  </div>
+                  
+                </span>
                 
               </div>
               

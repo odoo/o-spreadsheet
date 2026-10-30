@@ -1,11 +1,12 @@
 import { proxy, useListener, useProps } from "@odoo/owl";
 import { ActionSpec } from "../../../../../actions/action";
-import { DEFAULT_STYLE } from "../../../../../constants";
+import { DEFAULT_FONT, DEFAULT_STYLE } from "../../../../../constants";
 import { _t } from "../../../../../translation";
 import { ChartStyle } from "../../../../../types/chart/chart";
-import { Align, Color, VerticalAlign } from "../../../../../types/misc";
+import { Align, Color, Font, VerticalAlign } from "../../../../../types/misc";
 import { ActionButton } from "../../../../action_button/action_button";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
+import { FontEditor } from "../../../../font_editor/font_editor";
 import { FontSizeEditor } from "../../../../font_size_editor/font_size_editor";
 import { OSComponent } from "../../../../os_component";
 import { types } from "../../../../props_validation";
@@ -16,7 +17,7 @@ export interface TextStylerState {
 
 export class TextStyler extends OSComponent {
   static template = "o-spreadsheet.TextStyler";
-  static components = { ColorPickerWidget, ActionButton, FontSizeEditor };
+  static components = { ColorPickerWidget, ActionButton, FontEditor, FontSizeEditor };
 
   protected props = useProps({
     style: types.ChartStyle(),
@@ -39,6 +40,11 @@ export class TextStyler extends OSComponent {
 
   updateFontSize(fontSize: number) {
     this.props.updateStyle?.({ ...this.props.style, fontSize });
+  }
+
+  updateFont(font: Font) {
+    this.props.updateStyle?.({ ...this.props.style, font });
+    this.closeMenus();
   }
 
   toggleDropdownTool(tool: string, ev: MouseEvent) {
@@ -112,6 +118,10 @@ export class TextStyler extends OSComponent {
 
   get currentFontSize() {
     return this.props.style.fontSize ?? this.props.defaultStyle?.fontSize ?? DEFAULT_STYLE.fontSize;
+  }
+
+  get currentFont() {
+    return this.props.style.font ?? this.props.defaultStyle?.font ?? DEFAULT_FONT;
   }
 
   get boldButtonAction(): ActionSpec {

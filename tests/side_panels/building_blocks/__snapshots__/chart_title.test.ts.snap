@@ -114,6 +114,34 @@ exports[`Chart title Can render a chart title component 1`] = `
           class="o-divider border-start"
         />
         <div
+          class="o-dropdown flex-grow-1 overflow-hidden"
+        >
+          <span
+            class="o-menu-item-button d-flex justify-content-between w-100 o-hoverable-button"
+            style="font-family: Roboto;"
+          >
+            <span
+              class="text-truncate text-start flex-grow-1"
+            >
+              Roboto
+            </span>
+            <span
+              class="flex-shrink-0"
+            >
+              <div
+                class="o-icon"
+              >
+                <i
+                  class="oi"
+                  data-icon="arrow_drop_down"
+                />
+              </div>
+            </span>
+          </span>
+          
+        </div>
+        
+        <div
           class="o-dropdown"
         >
           <div

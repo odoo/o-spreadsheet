@@ -37,6 +37,11 @@ const testChartRect: Rect = {
   height: 500,
 };
 
+jest.mock("../../../../src/constants", () => ({
+  ...jest.requireActual("../../../../src/constants"),
+  DEFAULT_FONT: "Roboto",
+}));
+
 function getRenderingConfig(
   runtime: GaugeAnimatedRuntime,
   boundingRect = testChartRect,
@@ -68,8 +73,14 @@ describe("Gauge rendering config", () => {
         x: CHART_PADDING,
         y: 23,
       },
+      font: "Roboto",
       color: chartMutedFontColor(testRuntime.background),
     });
+  });
+
+  test("Chart title uses the title font", () => {
+    const runtime = { ...testRuntime, title: { ...testRuntime.title, font: "Verdana" as const } };
+    expect(getRenderingConfig(runtime).title.font).toBe("Verdana");
   });
 
   test("Min value label", () => {
@@ -80,6 +91,7 @@ describe("Gauge rendering config", () => {
         x: config.gauge.rect.x + config.gauge.arcWidth / 2, // in the middle of the left gauge arc
         y: config.gauge.rect.y + config.gauge.rect.height + GAUGE_LABELS_FONT_SIZE, // below the gauge
       },
+      font: "Roboto",
       fontSize: GAUGE_LABELS_FONT_SIZE,
       color: chartMutedFontColor(testRuntime.background),
     });
@@ -93,6 +105,7 @@ describe("Gauge rendering config", () => {
         x: config.gauge.rect.x + config.gauge.rect.width - config.gauge.arcWidth / 2, // in the middle of the right gauge arc
         y: config.gauge.rect.y + config.gauge.rect.height + GAUGE_LABELS_FONT_SIZE, // below the gauge
       },
+      font: "Roboto",
       fontSize: GAUGE_LABELS_FONT_SIZE,
       color: chartMutedFontColor(testRuntime.background),
     });
@@ -213,6 +226,7 @@ describe("Gauge rendering config", () => {
         y: config.gauge.rect.y + config.gauge.rect.height - config.gauge.rect.height / 12,
       },
       fontSize: GAUGE_DEFAULT_VALUE_FONT_SIZE,
+      font: "Roboto",
       color: chartMutedFontColor(testRuntime.background),
     });
   });
