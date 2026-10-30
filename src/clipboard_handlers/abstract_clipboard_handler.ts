@@ -23,6 +23,10 @@ export type ClipboardHandlerConstructor<H extends ClipboardHandler<any>> = new (
 export abstract class ClipboardHandler<T> {
   constructor(protected getters: Getters, protected dispatch: CommandDispatcher["dispatch"]) {}
 
+  get canPasteInFigure() {
+    return false;
+  }
+
   copy(
     data: ClipboardData,
     isCutOperation: boolean,

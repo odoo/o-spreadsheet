@@ -77,6 +77,7 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     }
     const { zones } = target;
     const sheetId = target.sheetId;
+    let carouselFigureId: UID | undefined;
     for (const clippedFigure of clippedContent.figures) {
       const figureId = target.figureIds[clippedFigure.figureId];
       const { width, height } = clippedFigure.copiedFigure;
@@ -93,22 +94,51 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
         sheetId,
         copiedDefinition
       ).getDefinition();
-      const { col, row, offset } = boundColRowOffsetInSheet(
-        this.getters,
-        sheetId,
-        { col: zones[0].left, row: zones[0].top },
-        { ...clippedFigure.copiedFigure, offset: clippedFigure.offset }
-      );
-      this.dispatch("CREATE_CHART", {
-        figureId,
-        chartId: UuidGenerator.smallUuid(),
-        sheetId,
-        definition: copiedDefinition,
-        col,
-        row,
-        offset,
-        size: { height, width },
-      });
+      if (options.targetFigureId) {
+        const targetFigureId = carouselFigureId ?? options.targetFigureId;
+        const targetFigure = this.getters.getFigure(sheetId, targetFigureId);
+        const newChartId = UuidGenerator.smallUuid();
+        switch (targetFigure?.tag) {
+          case "carousel":
+            this.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
+              sheetId,
+              carouselId: targetFigureId,
+              newChartId,
+              chartDefinition: copiedDefinition,
+            });
+            carouselFigureId = targetFigureId;
+            break;
+          case "chart":
+            this.dispatch("CREATE_CHART_AND_MERGE_INTO_CAROUSEL", {
+              newChartId,
+              sheetId,
+              definition: copiedDefinition,
+              baseFigureId: targetFigureId,
+              newCarouselId: UuidGenerator.smallUuid(),
+            });
+            carouselFigureId = this.getters.getFigureIdFromChartId(newChartId);
+            break;
+          default:
+            throw new Error(`Cannot paste into figure of type ${targetFigure?.tag}`);
+        }
+      } else {
+        const { col, row, offset } = boundColRowOffsetInSheet(
+          this.getters,
+          sheetId,
+          { col: zones[0].left, row: zones[0].top },
+          { ...clippedFigure.copiedFigure, offset: clippedFigure.offset }
+        );
+        this.dispatch("CREATE_CHART", {
+          figureId,
+          chartId: UuidGenerator.smallUuid(),
+          sheetId,
+          definition: copiedDefinition,
+          col,
+          row,
+          offset,
+          size: { height, width },
+        });
+      }
 
       if (options.isCutOperation) {
         this.dispatch("DELETE_FIGURE", {
@@ -116,10 +146,15 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
           figureId: clippedFigure.copiedFigure.id,
         });
       }
-      this.dispatch("SELECT_FIGURE", {
-        figureId,
-        selectMultiple: clippedContent.figureIds.length > 1,
-      });
+      if (!carouselFigureId) {
+        this.dispatch("SELECT_FIGURE", {
+          figureId,
+          selectMultiple: clippedContent.figureIds.length > 1,
+        });
+      }
+    }
+    if (carouselFigureId) {
+      this.dispatch("SELECT_FIGURE", { figureId: carouselFigureId });
     }
   }
 

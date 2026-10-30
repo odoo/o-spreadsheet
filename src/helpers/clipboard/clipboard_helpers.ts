@@ -457,6 +457,9 @@ export const applyClipboardHandlersPaste = (
 ): void => {
   handlers.forEach(({ handlerName, handler }) => {
     const data = expandedData[handlerName];
+    if (options.targetFigureId && !handler.canPasteInFigure) {
+      return;
+    }
     if (data) {
       handler.paste(target, data, options, positions);
     }
