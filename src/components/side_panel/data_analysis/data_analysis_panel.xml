@@ -19,23 +19,23 @@
         </t>
       </SidePanelCollapsible>
       <SidePanelCollapsible
+        t-if="this.store.generalStatItems.length > 0"
         title.translate="General statistics"
-        isInitiallyCollapsed="false"
-        t-if="this.store.shape.length === 1">
+        isInitiallyCollapsed="false">
         <t t-set-slot="content">
           <Section class="'o-column-global-stats d-flex flex-column pt-0'">
-            <GeneralStatsSection items="this.store.generalStatItems"/>
+            <GeneralStatsSection store="this.store"/>
           </Section>
         </t>
       </SidePanelCollapsible>
       <SidePanelCollapsible
-        title.translate="Occurrences"
+        title="this.sectionTitle()"
         isInitiallyCollapsed="false"
-        t-if="this.store.shape.length === 1">
+        t-if="this.store.displayedAggregatedStatItems.length > 0 || this.store.displayedDateItems.length > 0">
         <t t-set-slot="content">
           <Section class="'o-column-global-stats d-flex flex-column pt-0'">
-            <t t-if="this.store.shape[0] !== 'date'">
-              <OccurrencesStatistics store="this.store"/>
+            <t t-if="this.store.displayedAggregatedStatItems.length > 0">
+              <AggregatedStatistics store="this.store"/>
             </t>
             <t t-else="">
               <DateSection store="this.store"/>
@@ -43,6 +43,10 @@
           </Section>
         </t>
       </SidePanelCollapsible>
+      <div t-if="!this.store.hasStatistics" class="o-data-analysis-empty text-muted p-3">
+        No general statistics available for the selected data. Note that selecting unique
+        contiguous columns is required to display statistics.
+      </div>
     </div>
     <div t-else="" class="o-data-analysis-empty text-muted p-3">
       Select cells containing data to see suggestions. Note that the order of selected

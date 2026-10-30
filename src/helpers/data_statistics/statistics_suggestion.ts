@@ -4,7 +4,6 @@ import { Getters } from "../../types/getters";
 import { numberToJsDate } from "../dates";
 import { formatValue, MONTHS, QUARTERS, DAYS as WEEKDAYS } from "../format/format";
 import { getFullReference } from "../references";
-import { toTrimmedLowerCase } from "../text_helper";
 import { zoneToXc } from "../zones";
 import { ColumnAnalysis } from "./data_analysis";
 import {
@@ -21,7 +20,7 @@ import {
 
 function getColumnDataRange(getters: Getters, col: ColumnAnalysis, sheetId: string) {
   const zone = col.headerInZone ? { ...col.zone, top: col.zone.top + 1 } : col.zone;
-  return { zone, range: getFullReference(getters.getSheetName(sheetId), zoneToXc(zone)) };
+  return { range: getFullReference(getters.getSheetName(sheetId), zoneToXc(zone)) };
 }
 
 const ALL_TYPES = ["number", "percentage", "date", "text", "boolean", "label", "categorical"];
@@ -34,8 +33,9 @@ interface StatItemConfig {
   types: string[];
 }
 
-export function generateItemIdFromValue(value: any) {
-  return toTrimmedLowerCase(String(value));
+export function generateItemIdFromValue(value: CellValue): string {
+  const category = String(value ?? "").trim();
+  return typeof value === "boolean" ? category.toUpperCase() : category;
 }
 
 export const GENERIC_STAT_ITEMS: StatItemConfig[] = [
@@ -85,7 +85,7 @@ export const GENERIC_STAT_ITEMS: StatItemConfig[] = [
 
 export function buildGeneralStatItems(
   getters: Getters,
-  col: ColumnAnalysis,
+  [col]: ColumnAnalysis[],
   sheetId: string
 ): StatValue[] {
   const { range } = getColumnDataRange(getters, col, sheetId);
@@ -93,70 +93,100 @@ export function buildGeneralStatItems(
     const name = item.getName(col.type);
     return item.types.includes(col.type)
       ? createStatItem(getters, sheetId, { id: item.id, name, formula: item.formula(range) })
-      : { id: item.id, name, formula: "", value: "—" };
+      : { id: item.id, name, formula: "", rawValue: 0, formattedValue: "—" };
   });
 }
 
 /** Pattern A + B + D + E — Single number/percentage or categorical/label column: general stats + occurrences per value. */
 export function buildOccurrencesItems(
   getters: Getters,
-  col: ColumnAnalysis,
+  [col]: ColumnAnalysis[],
   sheetId: string
 ): StatValue[] {
   const { range } = getColumnDataRange(getters, col, sheetId);
-  const count: Map<string, number> = new Map();
+  const occurrences: Map<string, { cell: EvaluatedCell; count: number }> = new Map();
   for (const cell of col.nonEmpty) {
-    const key = generateItemIdFromValue(cell.value);
-    count.set(key, (count.get(key) ?? 0) + 1);
-  }
-  const items: StatValue[] = [];
-  for (const { type, value, formattedValue } of uniqueValues(col.nonEmpty)) {
-    if (formattedValue === "") {
+    if (cell.formattedValue === "") {
       continue;
     }
-    const id = generateItemIdFromValue(value);
-    let formula: string;
-    if (id === "true" || id === "false") {
-      formula = `=COUNTIF(${range},${formattedValue})+SUMPRODUCT(ISTEXT(${range})*(${range}="${formattedValue}"))`;
-    } else if (typeof value === "string") {
-      formula = `=COUNTIF(${range},${`"${value}"`})`;
+    const id = generateItemIdFromValue(cell.value);
+    const occurrence = occurrences.get(id);
+    if (occurrence) {
+      occurrence.count++;
     } else {
-      formula = `=COUNTIF(${range},${value})`;
+      occurrences.set(id, { cell, count: 1 });
     }
+  }
+  const items: StatValue[] = [];
+  for (const [id, { cell, count }] of occurrences) {
     items.push({
       ...createStatItem(getters, sheetId, {
         id,
-        name: formattedValue,
-        formula,
-        chartTitle: _t('Occurrences of "%s"', formattedValue),
-        computedValue: {
-          value: count.get(id) ?? 0,
-        },
+        name: cell.formattedValue,
+        formula: `=SUMPRODUCT(--EXACT(TRIM(${range}),"${id}"))`,
+        chartTitle: _t('Occurrences of "%s"', cell.formattedValue),
+        computedValue: { value: count },
       }),
-      rawData: { type, value },
+      category: { type: cell.type, value: cell.value },
     });
   }
   return withPercentages(items, col.nonEmpty.length);
 }
 
-function uniqueValues(
-  cells: EvaluatedCell[]
-): { type: CellValueType; value: CellValue; formattedValue: string }[] {
-  const normalizedValues = new Set<string>();
-  const uniqueValuesList: { type: CellValueType; value: CellValue; formattedValue: string }[] = [];
-  for (const cell of cells) {
-    const normalizedValue = toTrimmedLowerCase(String(cell.value));
-    if (!normalizedValues.has(normalizedValue)) {
-      uniqueValuesList.push(cell);
-      normalizedValues.add(normalizedValue);
+export function buildSumByCategoryItems(
+  getters: Getters,
+  [categoryColumn, valueColumn]: ColumnAnalysis[],
+  sheetId: string
+): StatValue[] {
+  const hasHeader = categoryColumn.headerInZone || valueColumn.headerInZone;
+  const categoryZone = hasHeader
+    ? { ...categoryColumn.zone, top: categoryColumn.zone.top + 1 }
+    : categoryColumn.zone;
+  const valueZone = hasHeader
+    ? { ...valueColumn.zone, top: valueColumn.zone.top + 1 }
+    : valueColumn.zone;
+
+  const sheetName = getters.getSheetName(sheetId);
+  const categoryRange = getFullReference(sheetName, zoneToXc(categoryZone));
+  const valueRange = getFullReference(sheetName, zoneToXc(valueZone));
+  const categoryCells = getters.getEvaluatedCellsInZone(sheetId, categoryZone);
+  const valueCells = getters.getEvaluatedCellsInZone(sheetId, valueZone);
+  const format = valueCells.find((cell) => cell.format)?.format;
+  const locale = getters.getLocale();
+
+  let totalSum = 0;
+  const sumByCategory: Record<string, number> = {};
+  for (let i = 0; i < categoryCells.length; i++) {
+    const category = generateItemIdFromValue(categoryCells[i].value);
+    const value = Number(valueCells[i].value);
+    if (category && !isNaN(value) && value !== 0) {
+      sumByCategory[category] = (sumByCategory[category] || 0) + value;
+      totalSum += value;
     }
   }
-  return uniqueValuesList;
+
+  const items = Object.entries(sumByCategory).map(([category, total]) => ({
+    ...createStatItem(getters, sheetId, {
+      id: generateItemIdFromValue(category),
+      name: category,
+      formula: `=SUMPRODUCT(--EXACT(TRIM(${categoryRange}),"${category}"),${valueRange})`,
+      chartTitle: _t('Sum of "%s"', category),
+      computedValue: { value: total },
+    }),
+    formattedValue: format ? formatValue(total, { format, locale }) : String(total),
+    rawValue: total,
+    category: {
+      type: CellValueType.text,
+      value: category,
+    },
+  }));
+
+  return withPercentages(items, totalSum);
 }
 
 export function buildBooleanItems(
   getters: Getters,
-  col: ColumnAnalysis,
+  [col]: ColumnAnalysis[],
   sheetId: string
 ): StatValue[] {
   const { range } = getColumnDataRange(getters, col, sheetId);
@@ -171,14 +201,14 @@ export function buildBooleanItems(
   }
   const items = [
     createStatItem(getters, sheetId, {
-      id: "true",
+      id: "TRUE",
       name: _t("TRUE"),
       formula: `=COUNTIF(${range},TRUE)`,
       chartTitle: _t('Occurrences of "%s"', _t("TRUE")),
       computedValue: { value: trueCount },
     }),
     createStatItem(getters, sheetId, {
-      id: "false",
+      id: "FALSE",
       name: _t("FALSE"),
       formula: `=COUNTIF(${range},FALSE)`,
       chartTitle: _t('Occurrences of "%s"', _t("FALSE")),
@@ -191,7 +221,7 @@ export function buildBooleanItems(
 /** Pattern C — Single date column */
 export function buildDateStatSections(
   getters: Getters,
-  col: ColumnAnalysis,
+  [col]: ColumnAnalysis[],
   sheetId: string
 ): DateSections {
   const { range } = getColumnDataRange(getters, col, sheetId);
@@ -315,8 +345,161 @@ function withPercentages(items: StatValue[], count: number): StatValue[] {
   if (count === 0) {
     return items;
   }
-  return items.map((item) => ({
-    ...item,
-    percentage: `(${Math.round((Number(item.value) / count) * 100)}%)`,
-  }));
+  return items.map((item) => {
+    const numericValue = item.rawValue;
+    return {
+      ...item,
+      percentage: `(${Math.round((numericValue / count) * 100)}%)`,
+    };
+  });
+}
+
+/** Date + number columns: sum of the values per period */
+export function buildSumByDateSections(
+  getters: Getters,
+  [dateColumn, valueColumn]: ColumnAnalysis[],
+  sheetId: string
+): DateSections {
+  const hasHeader = dateColumn.headerInZone || valueColumn.headerInZone;
+  const dateZone = hasHeader
+    ? { ...dateColumn.zone, top: dateColumn.zone.top + 1 }
+    : dateColumn.zone;
+  const valueZone = hasHeader
+    ? { ...valueColumn.zone, top: valueColumn.zone.top + 1 }
+    : valueColumn.zone;
+  const { range: datesRange } = getColumnDataRange(getters, dateColumn, sheetId);
+  const { range: valuesRange } = getColumnDataRange(getters, valueColumn, sheetId);
+  const dateCells = getters.getEvaluatedCellsInZone(sheetId, dateZone);
+  const valueCells = getters.getEvaluatedCellsInZone(sheetId, valueZone);
+  const format = valueCells.find((cell) => cell.format)?.format;
+  const yearSum: Map<number, number> = new Map();
+  const monthSum: number[] = new Array(12).fill(0);
+  const weekdaySum: number[] = new Array(7).fill(0);
+  const weekSum: Map<number, number> = new Map();
+  const dateSum: Map<number, number> = new Map();
+  const daySum: number[] = new Array(31).fill(0);
+  let totalSum = 0;
+  for (let i = 0; i < dateCells.length; i++) {
+    const dateValue = dateCells[i].value;
+    const value = valueCells[i].value;
+    if (typeof dateValue !== "number" || typeof value !== "number") {
+      continue;
+    }
+    const date = numberToJsDate(dateValue);
+    const year = date.getFullYear();
+    yearSum.set(year, (yearSum.get(year) ?? 0) + value);
+    monthSum[date.getMonth()] += value;
+    weekdaySum[date.getDay()] += value;
+    const week = date.getIsoWeek();
+    weekSum.set(week, (weekSum.get(week) ?? 0) + value);
+    const day = Math.floor(dateValue);
+    dateSum.set(day, (dateSum.get(day) ?? 0) + value);
+    daySum[date.getDate() - 1] += value;
+    totalSum += value;
+  }
+  const earliestYear = Math.min(...yearSum.keys());
+  const latestYear = Math.max(...yearSum.keys());
+  const yearRange = Array.from(
+    { length: latestYear - earliestYear + 1 },
+    (_, i) => earliestYear + i
+  );
+  const quarterSum = [
+    monthSum[0] + monthSum[1] + monthSum[2],
+    monthSum[3] + monthSum[4] + monthSum[5],
+    monthSum[6] + monthSum[7] + monthSum[8],
+    monthSum[9] + monthSum[10] + monthSum[11],
+  ];
+  const yearItems = yearRange.map((year) =>
+    createStatItem(getters, sheetId, {
+      id: String(year),
+      name: getStatIdForYear(year),
+      formula: `=SUMIF(FILTER(YEAR(${datesRange}), ${datesRange}), ${year}, FILTER(${valuesRange}, ${datesRange}))`,
+      computedValue: { value: yearSum.get(year) ?? 0 },
+      format,
+    })
+  );
+  const monthItems = Object.entries(MONTHS).map(([month, name]) =>
+    createStatItem(getters, sheetId, {
+      id: getStatIdForMonth(month),
+      name: name.toString(),
+      formula: `=SUMIF(FILTER(MONTH(${datesRange}), ${datesRange}), ${
+        Number(month) + 1
+      }, FILTER(${valuesRange}, ${datesRange}))`,
+      computedValue: { value: monthSum[Number(month)] },
+      format,
+    })
+  );
+  const quarterItems = [1, 2, 3, 4].map((quarter) =>
+    createStatItem(getters, sheetId, {
+      id: getStatIdForQuarter(quarter),
+      name: QUARTERS[quarter].toString(),
+      formula: `=SUMIF(FILTER(QUARTER(${datesRange}), ${datesRange}), ${quarter}, FILTER(${valuesRange}, ${datesRange}))`,
+      computedValue: {
+        value: quarterSum[quarter - 1],
+      },
+      format,
+    })
+  );
+  const locale = getters.getLocale();
+  const firstDayOfWeek = locale.weekStart;
+  const offset = firstDayOfWeek % 7;
+  const weekItems = [...weekSum.keys()]
+    .sort((a, b) => a - b)
+    .map((week) =>
+      createStatItem(getters, sheetId, {
+        id: getStatIdForWeek(week),
+        name: `W${week}`,
+        formula: `=SUMIF(FILTER(ISOWEEKNUM(${datesRange}), ${datesRange}), ${week}, FILTER(${valuesRange}, ${datesRange}))`,
+        computedValue: { value: weekSum.get(week)! },
+        format,
+      })
+    );
+  const weekdayItems: StatValue[] = [];
+  for (let i = 0; i < 7; i++) {
+    const day = (i + offset) % 7;
+    const name = WEEKDAYS[day].toString();
+    weekdayItems.push(
+      createStatItem(getters, sheetId, {
+        id: getStatIdForDay(day),
+        name,
+        formula: `=SUMIF(FILTER(WEEKDAY(${datesRange}), ${datesRange}), ${
+          day + 1
+        }, FILTER(${valuesRange}, ${datesRange}))`,
+        computedValue: { value: weekdaySum[day] },
+        format,
+      })
+    );
+  }
+  const dateItems = [...dateSum.keys()]
+    .sort((a, b) => a - b)
+    .map((date) =>
+      createStatItem(getters, sheetId, {
+        id: String(date),
+        name: formatValue(date, { locale, format: locale.dateFormat }),
+        formula: `=SUMIF(FILTER(INT(${datesRange}), ${datesRange}), ${date}, FILTER(${valuesRange}, ${datesRange}))`,
+        computedValue: { value: dateSum.get(date)! },
+        format,
+      })
+    );
+  const dayItems: StatValue[] = daySum.map((sum, index) =>
+    createStatItem(getters, sheetId, {
+      id: getStatIdForDayOfMonth(index + 1),
+      name: String(index + 1),
+      formula: `=SUMIF(FILTER(DAY(${datesRange}), ${datesRange}), ${
+        index + 1
+      }, FILTER(${valuesRange}, ${datesRange}))`,
+      computedValue: { value: sum },
+      format,
+    })
+  );
+
+  return {
+    year: withPercentages(yearItems, totalSum),
+    quarter: withPercentages(quarterItems, totalSum),
+    month: withPercentages(monthItems, totalSum),
+    week: withPercentages(weekItems, totalSum),
+    weekday: withPercentages(weekdayItems, totalSum),
+    date: withPercentages(dateItems, totalSum),
+    day: withPercentages(dayItems, totalSum),
+  };
 }

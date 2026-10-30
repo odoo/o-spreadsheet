@@ -13,7 +13,7 @@
       <span
         class="o-fw-bold ms-auto"
         t-att-data-test-id="this.props.stat.id"
-        t-out="this.props.stat.value"
+        t-out="this.props.stat.formattedValue"
       />
       <span
         t-if="this.props.stat.percentage"
