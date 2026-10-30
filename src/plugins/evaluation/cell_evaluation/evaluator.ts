@@ -256,8 +256,9 @@ export class Evaluator {
   buildDependencyGraph() {
     this.blockedArrayFormulas = this.createEmptyPositionSet();
     this.spreadingRelations = new SpreadingRelation();
+    const currentUsedZones = this.usedZones;
     this.formulaDependencies = lazy(() => {
-      const graph = new FormulaDependencyGraph();
+      const graph = new FormulaDependencyGraph(currentUsedZones);
       for (const sheetId of this.getters.getSheetIds()) {
         for (const cell of this.getters.getCells(sheetId)) {
           if (cell.isFormula) {

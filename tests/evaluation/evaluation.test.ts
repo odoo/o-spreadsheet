@@ -4,6 +4,7 @@ import { functionRegistry } from "../../src/functions/function_registry";
 import { toMatrix } from "../../src/functions/helpers";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { Model } from "../../src/model";
+import { CellEvaluationPlugin } from "../../src/plugins/evaluation/cell_evaluation/cell_evaluation_plugin";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   activateSheet,
@@ -35,6 +36,7 @@ import {
   createModelFromGrid,
   evaluateCell,
   evaluateGrid,
+  getPlugin,
   toCellPosition,
 } from "../test_helpers/helpers";
 import { makeStore } from "../test_helpers/stores";
@@ -1657,5 +1659,21 @@ describe("Automatic evaluation", () => {
     // REMOVE_TABLE_STYLE dispatches UPDATE_TABLE, which makes the subtotal plugin dispatch EVALUATE_CELLS
     removeTableStyle(model, "MyStyle");
     expect(getEvaluatedCell(model, "A2").value).toBe(2);
+  });
+});
+
+describe("dependency graph dimension", () => {
+  test.each([
+    { colNumber: 100, rowNumber: 10, dimension: "ROW" },
+    { colNumber: 10, rowNumber: 100, dimension: "COL" },
+  ])("$colNumber cols x $rowNumber rows sheet uses $dimension trees", (sheetSize) => {
+    const model = new Model({ sheets: [{ id: "sh1", ...sheetSize }] });
+    setCellContent(model, "A1", "=SUM(B2:C3)");
+    setCellContent(model, "B2", "3");
+    setCellContent(model, "C3", "5");
+    expect(getEvaluatedCell(model, "A1").value).toBe(8);
+
+    const graph = getPlugin(model, CellEvaluationPlugin)["evaluator"]["formulaDependencies"]();
+    expect(graph["dependeciesDimensions"]["sh1"]).toBe(sheetSize.dimension);
   });
 });

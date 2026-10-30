@@ -1,27 +1,38 @@
+import { Dimension } from "../../src";
 import { Interval, IntervalTree } from "../../src/plugins/evaluation/cell_evaluation/interval_tree";
 import { toBoundedRange } from "../test_helpers/helpers";
 
-describe("IntervalTree", () => {
+describe.each(["COL", "ROW"])("IntervalTree", (dim: Dimension) => {
   // Helper to create a Required<Interval> quickly
   const createInterval = (
     top: number,
     bottom: number,
     dependents: Required<Interval>["dependents"]
   ): Required<Interval> => ({
-    top,
-    bottom,
+    start: top,
+    end: bottom,
+    dim,
     dependents,
   });
 
   test("should merge two contiguous cell ranges with the same interval", () => {
     const tree = new IntervalTree();
     // Row 1 to 5 and Row 6 to 10 are contiguous in Column A
-    tree.insert(createInterval(100, 200, toBoundedRange("Sheet1", "A1:A5")));
-    tree.insert(createInterval(100, 200, toBoundedRange("Sheet1", "A6:A10")));
+    if (dim === "COL") {
+      tree.insert(createInterval(100, 200, toBoundedRange("Sheet1", "A1:A5")));
+      tree.insert(createInterval(100, 200, toBoundedRange("Sheet1", "A6:A10")));
+    } else {
+      tree.insert(createInterval(100, 200, toBoundedRange("Sheet1", "A1:D1")));
+      tree.insert(createInterval(100, 200, toBoundedRange("Sheet1", "E1:I1")));
+    }
 
-    const results = tree.query({ top: 150, bottom: 160 });
+    const results = tree.query({ start: 150, end: 160 });
     expect(results).toHaveLength(1);
-    expect(results[0]).toEqual(createInterval(100, 200, toBoundedRange("Sheet1", "A1:A10")));
+    if (dim === "COL") {
+      expect(results[0]).toEqual(createInterval(100, 200, toBoundedRange("Sheet1", "A1:A10")));
+    } else {
+      expect(results[0]).toEqual(createInterval(100, 200, toBoundedRange("Sheet1", "A1:I1")));
+    }
   });
 
   test("should NOT merge two contiguous cell ranges with different intervals", () => {
@@ -29,7 +40,7 @@ describe("IntervalTree", () => {
     // Row 1 to 5 and Row 6 to 10 are contiguous in Column A
     tree.insert(createInterval(100, 200, toBoundedRange("Sheet1", "A1:A5")));
     tree.insert(createInterval(101, 201, toBoundedRange("Sheet1", "A6:A10")));
-    const results = tree.query({ top: 150, bottom: 160 });
+    const results = tree.query({ start: 150, end: 160 });
     expect(results).toHaveLength(2);
     expect(results).toContainEqual(createInterval(100, 200, toBoundedRange("Sheet1", "A1:A5")));
     expect(results).toContainEqual(createInterval(101, 201, toBoundedRange("Sheet1", "A6:A10")));
@@ -39,7 +50,7 @@ describe("IntervalTree", () => {
     const tree = new IntervalTree();
     tree.insert(createInterval(100, 200, toBoundedRange("Sheet1", "A1:A5")));
     tree.insert(createInterval(100, 200, toBoundedRange("Sheet2", "A6:A10")));
-    const results = tree.query({ top: 150, bottom: 160 });
+    const results = tree.query({ start: 150, end: 160 });
     expect(results).toHaveLength(2);
     expect(results).toContainEqual(createInterval(100, 200, toBoundedRange("Sheet1", "A1:A5")));
     expect(results).toContainEqual(createInterval(100, 200, toBoundedRange("Sheet2", "A6:A10")));
@@ -51,7 +62,7 @@ describe("IntervalTree", () => {
     tree.insert(createInterval(10, 20, toBoundedRange("Sheet1", "A1:A5")));
     tree.insert(createInterval(10, 20, toBoundedRange("Sheet1", "B6:B10")));
 
-    const results = tree.query({ top: 15, bottom: 16 });
+    const results = tree.query({ start: 15, end: 16 });
     expect(results).toHaveLength(2);
     expect(results).toContainEqual(createInterval(10, 20, toBoundedRange("Sheet1", "A1:A5")));
     expect(results).toContainEqual(createInterval(10, 20, toBoundedRange("Sheet1", "B6:B10")));
@@ -64,7 +75,7 @@ describe("IntervalTree", () => {
     tree.insert(createInterval(50, 60, toBoundedRange("Sheet1", "A1:A5")));
     tree.insert(createInterval(50, 60, toBoundedRange("Sheet1", "A5:A10")));
 
-    const results = tree.query({ top: 55, bottom: 56 });
+    const results = tree.query({ start: 55, end: 56 });
     expect(results).toHaveLength(2);
     expect(results).toContainEqual(createInterval(50, 60, toBoundedRange("Sheet1", "A1:A5")));
     expect(results).toContainEqual(createInterval(50, 60, toBoundedRange("Sheet1", "A5:A10")));
@@ -75,7 +86,7 @@ describe("IntervalTree", () => {
     tree.insert(createInterval(100, 200, toBoundedRange("Sheet1", "A1:A5")));
     tree.insert(createInterval(100, 200, toBoundedRange("Sheet1", "A1:A5")));
 
-    const results = tree.query({ top: 150, bottom: 160 });
+    const results = tree.query({ start: 150, end: 160 });
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(createInterval(100, 200, toBoundedRange("Sheet1", "A1:A5")));
   });
@@ -85,9 +96,9 @@ describe("IntervalTree", () => {
     tree.insert(createInterval(10, 20, toBoundedRange("Sheet1", "A1")));
     tree.insert(createInterval(100, 110, toBoundedRange("Sheet1", "A10")));
 
-    expect(tree.query({ top: 1, bottom: 9 })).toHaveLength(0);
-    expect(tree.query({ top: 21, bottom: 99 })).toHaveLength(0);
-    expect(tree.query({ top: 111, bottom: 120 })).toHaveLength(0);
+    expect(tree.query({ start: 1, end: 9 })).toHaveLength(0);
+    expect(tree.query({ start: 21, end: 99 })).toHaveLength(0);
+    expect(tree.query({ start: 111, end: 120 })).toHaveLength(0);
   });
 
   test("query on interval boundaries", () => {
@@ -95,9 +106,35 @@ describe("IntervalTree", () => {
     const tree = new IntervalTree();
     tree.insert(interval);
 
-    expect(tree.query({ top: 10, bottom: 10 })).toEqual([interval]);
-    expect(tree.query({ top: 20, bottom: 20 })).toEqual([interval]);
-    expect(tree.query({ top: 1, bottom: 10 })).toEqual([interval]);
-    expect(tree.query({ top: 20, bottom: 30 })).toEqual([interval]);
+    expect(tree.query({ start: 10, end: 10 })).toEqual([interval]);
+    expect(tree.query({ start: 20, end: 20 })).toEqual([interval]);
+    expect(tree.query({ start: 1, end: 10 })).toEqual([interval]);
+    expect(tree.query({ start: 20, end: 30 })).toEqual([interval]);
+  });
+
+  test("compaction does not alter dependents shared with another tree", () => {
+    const sharedDependents = toBoundedRange("Sheet1", "A1");
+    const tree1 = new IntervalTree();
+    tree1.insert(createInterval(0, 0, sharedDependents));
+    if (dim === "COL") {
+      tree1.insert(createInterval(0, 0, toBoundedRange("Sheet1", "A2")));
+    } else {
+      tree1.insert(createInterval(0, 0, toBoundedRange("Sheet1", "B1")));
+    }
+    const tree2 = new IntervalTree();
+    tree2.insert(createInterval(5, 5, sharedDependents));
+
+    if (dim === "COL") {
+      expect(tree1.query({ start: 0, end: 0 })).toEqual([
+        createInterval(0, 0, toBoundedRange("Sheet1", "A1:A2")),
+      ]);
+    } else {
+      expect(tree1.query({ start: 0, end: 0 })).toEqual([
+        createInterval(0, 0, toBoundedRange("Sheet1", "A1:B1")),
+      ]);
+    }
+    expect(tree2.query({ start: 5, end: 5 })).toEqual([
+      createInterval(5, 5, toBoundedRange("Sheet1", "A1")),
+    ]);
   });
 });
