@@ -1,5 +1,5 @@
 import { expandCompactCFCells, makeIndexer } from "../helpers/clipboard/clipboard_helpers";
-import { deepEquals } from "../helpers/misc";
+import { deepEquals, transpose } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
 import { positionToZone } from "../helpers/zones";
 import {
@@ -50,14 +50,20 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     positions: ClipboardPositions
   ) {
     this.queuedChanges = {};
-    if (options.pasteOption === "asValue") {
+    if (
+      !!options.pasteOptions?.length &&
+      (options.pasteOptions.includes("value") || options.pasteOptions.includes("formula"))
+    ) {
       return;
     }
     const zones = target.zones;
     const sheetId = target.sheetId;
 
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, clippedContent, options, positions);
+      const cfRules = options.pasteOptions?.includes("transpose")
+        ? transpose(clippedContent)
+        : clippedContent;
+      this.pasteFromCopy(sheetId, zones, cfRules, options, positions);
     } else {
       this.pasteFromCut(sheetId, zones, clippedContent, options, positions);
     }

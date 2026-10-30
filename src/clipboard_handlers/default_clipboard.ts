@@ -1,5 +1,5 @@
 import { DEFAULT_STYLE } from "../constants";
-import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
+import { shouldPasteFormat, splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
 import { deepCopy, defaultDict, isObjectEmptyRecursive, repeat } from "../helpers/misc";
 import { defaultValue } from "../plugins/core/default";
 import {
@@ -134,13 +134,16 @@ export class DefaultClipboardHandler extends ClipboardHandler<ClipboardContent[]
       return;
     }
     const sheetId = target.sheetId;
-    if (options.pasteOption === "asValue") {
+    if (!shouldPasteFormat(options.pasteOptions)) {
       return;
     }
     const zones = target.zones;
     if (!options.isCutOperation) {
+      const pastedContent = options.pasteOptions?.includes("transpose")
+        ? this.transposeContent(clipboardContent)
+        : clipboardContent;
       for (const zone of zones) {
-        const newContent = this.adaptContentToZone(zone, clipboardContent);
+        const newContent = this.adaptContentToZone(zone, pastedContent);
         for (const pasteZone of splitZoneForPaste(zone, newContent.width, newContent.height)) {
           this.pasteStyle(
             sheetId,
@@ -180,6 +183,25 @@ export class DefaultClipboardHandler extends ClipboardHandler<ClipboardContent[]
         clipboardContent.format
       );
     }
+  }
+
+  private transposeContent(content: ClipboardContent): ClipboardContent {
+    const transposed = deepCopy(content);
+    transposed.width = content.height;
+    transposed.height = content.width;
+    transposed.format = {
+      ...content.format,
+      colDefault: content.format.rowDefault,
+      rowDefault: content.format.colDefault,
+    };
+    for (const key in content.style) {
+      transposed.style[key as keyof Style] = {
+        ...content.style[key],
+        colDefault: content.style[key].rowDefault,
+        rowDefault: content.style[key].colDefault,
+      };
+    }
+    return transposed;
   }
 
   /**

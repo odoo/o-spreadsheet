@@ -3,8 +3,10 @@ import {
   expandBorderCell,
   expandCompactTableCells,
   makeIndexer,
+  shouldPasteFormat,
+  transposeBorder,
 } from "../helpers/clipboard/clipboard_helpers";
-import { removeFalsyAttributes } from "../helpers/misc";
+import { removeFalsyAttributes, transpose } from "../helpers/misc";
 import { isZoneInside, zoneToDimension } from "../helpers/zones";
 import {
   ClipboardCellData,
@@ -126,7 +128,8 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     const zones = target.zones;
     const sheetId = target.sheetId;
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, content, options, positions);
+      const tableCells = options.pasteOptions?.includes("transpose") ? transpose(content) : content;
+      this.pasteFromCopy(sheetId, zones, tableCells, options, positions);
     } else {
       this.pasteFromCut(sheetId, zones, content, options, positions);
     }
@@ -186,7 +189,8 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     position: CellPosition,
     options: ClipboardOptions
   ) {
-    if (tableCell.table && !options.pasteOption) {
+    const pasteOptions = options.pasteOptions;
+    if (tableCell.table && !pasteOptions) {
       const { range: tableRange } = tableCell.table;
       const zoneDims = zoneToDimension(this.getters.getRangeFromRangeData(tableRange).zone);
       const newTableZone = {
@@ -205,18 +209,25 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
 
     // We cannot check for dynamic tables, because at this point the paste can have changed the evaluation, and the
     // dynamic tables are not yet computed
-    if (this.getters.getCoreTable(position) || options.pasteOption === "asValue") {
+    if (this.getters.getCoreTable(position) || !shouldPasteFormat(pasteOptions)) {
       return;
     }
+    // A table cannot be transposed (its header would become a column): only its style is pasted
+    const isTransposed = !!pasteOptions?.includes("transpose");
     if (
-      (!options.pasteOption && !tableCell.isWholeTableCopied) ||
-      options.pasteOption === "onlyFormat"
+      (!pasteOptions && !tableCell.isWholeTableCopied) ||
+      pasteOptions?.includes("format") ||
+      isTransposed
     ) {
       if (tableCell.style?.style) {
         this.dispatch("UPDATE_CELL", { ...position, style: tableCell.style.style });
       }
       if (tableCell.style?.border) {
-        this.dispatch("SET_BORDER", { ...position, border: tableCell.style.border });
+        const border = tableCell.style.border;
+        this.dispatch("SET_BORDER", {
+          ...position,
+          border: isTransposed ? transposeBorder(border) : border,
+        });
       }
     }
   }
