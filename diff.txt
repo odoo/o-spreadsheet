@@ -1,0 +1,67 @@
+diff --git a/src/components/helpers/chart_drag_and_drop.ts b/src/components/helpers/chart_drag_and_drop.ts
+index 430afc4af..f57e79c34 100644
+--- a/src/components/helpers/chart_drag_and_drop.ts
++++ b/src/components/helpers/chart_drag_and_drop.ts
+@@ -99,7 +99,7 @@ export function startChartDragAndDrop(
+   document.body.style.cursor = "grabbing";
+ 
+   const otherFigures = viewStore.visibleFigures;
+-  const chartId = UuidGenerator.smallUuid();
++  let figureId: string | undefined = undefined;
+ 
+   const getDragInfo = (ev: PointerEvent) => {
+     const mouseX = ev.clientX / zoom;
+@@ -171,31 +171,38 @@ export function startChartDragAndDrop(
+     if (!position || position.x + halfWidth > Math.min(gridWidth + scrollX, maxDimensions.maxX)) {
+       return undefined;
+     }
++    const chartId = UuidGenerator.smallUuid();
+     switch (overlappedFigure?.tag) {
+-      case "carousel":
++      case "carousel": {
++        figureId = overlappedFigure.id;
+         return env.model().dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
+           sheetId,
+-          figureId: overlappedFigure.id,
++          figureId,
+           newChartId: chartId,
+           chartDefinition: definition,
+         });
+-      case "chart":
+-        return env.model().dispatch("CREATE_CHART_AND_MERGE_INTO_CAROUSEL", {
++      }
++      case "chart": {
++        const result = env.model().dispatch("CREATE_CHART_AND_MERGE_INTO_CAROUSEL", {
+           chartId,
+           figureId: UuidGenerator.smallUuid(),
+           sheetId,
+           definition,
+           baseFigureId: overlappedFigure.id,
+         });
++        figureId = getters.getFigureIdFromChartId(chartId);
++        return result;
++      }
+       default: {
+         const clampedPosition = {
+           x: Math.min(position.x, maxDimensions.maxX - figureSize.width),
+           y: Math.min(position.y, maxDimensions.maxY - figureSize.height),
+         };
+         const anchor = viewStore.viewports.getPositionAnchorOffset(sheetId, clampedPosition);
++        figureId = UuidGenerator.smallUuid();
+         return env.model().dispatch("CREATE_CHART", {
+           chartId,
+-          figureId: UuidGenerator.smallUuid(),
++          figureId,
+           sheetId,
+           size: figureSize,
+           definition,
+@@ -212,8 +219,7 @@ export function startChartDragAndDrop(
+     destroyChart?.();
+     document.body.style.cursor = previousCursor;
+ 
+-    if (dropChart(ev)?.isSuccessful) {
+-      const figureId = getters.getFigureIdFromChartId(chartId);
++    if (dropChart(ev)?.isSuccessful && figureId) {
+       env.model().dispatch("SELECT_FIGURE", { figureId });
+     }
+   };
