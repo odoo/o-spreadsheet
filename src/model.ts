@@ -434,6 +434,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       moveClient: () => {},
       snapshotRequested: false,
       customColors: config.customColors || [],
+      automaticEvaluation: config.automaticEvaluation ?? true,
     };
   }
 
@@ -468,6 +469,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       defaultCurrency: this.config.defaultCurrency,
       customColors: this.config.customColors || [],
       external: this.config.external,
+      automaticEvaluation: this.config.automaticEvaluation,
     };
   }
 
