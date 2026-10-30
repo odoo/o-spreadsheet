@@ -1,6 +1,8 @@
+import { defaultValue, sparseDefaultValue } from "../plugins/core/default";
 import { Format } from "../types/format";
-import { Border, CellPosition, Position, Style, UID } from "../types/misc";
+import { BorderOrNull, CellPosition, Position, Style, UID } from "../types/misc";
 import { WorkbookData } from "../types/workbook_data";
+import { isObjectEmptyRecursive } from "./misc";
 import { recomputeZones } from "./recompute_zones";
 import { isZoneInside, positionToZone, toZone, zoneToXc } from "./zones";
 
@@ -101,7 +103,7 @@ export function addStyleToWorkbookData(
   workbookData: WorkbookData,
   key: "borders" | "formats" | "styles",
   position: CellPosition,
-  newItem: Border | Format | Style
+  newItem: BorderOrNull | Format | Style
 ) {
   const sheetData = workbookData.sheets.find((sheet) => sheet.id === position.sheetId);
   if (!sheetData) {
@@ -126,4 +128,60 @@ export function addStyleToWorkbookData(
     zonifiedData[zoneToXc(remainingZone)] = existingStyle;
   }
   zonifiedData[zoneToXc(zone)] = id;
+}
+
+function isDefaultEmpty(value: unknown): boolean {
+  return (
+    value === undefined ||
+    value === null ||
+    (typeof value === "object" && isObjectEmptyRecursive(value))
+  );
+}
+
+export function mapToId<T>(
+  defaults: defaultValue<T>,
+  dict: ItemsDic<T>
+): sparseDefaultValue<number> {
+  const defaultsIds: sparseDefaultValue<number> = {
+    colDefault: {},
+    rowDefault: {},
+  };
+  if (defaults.sheetDefault && !isDefaultEmpty(defaults.sheetDefault)) {
+    defaultsIds.sheetDefault = getItemId(defaults.sheetDefault, dict);
+  }
+  for (const colIndex in defaults.colDefault) {
+    const colValue = defaults.colDefault[colIndex];
+    if (isDefaultEmpty(colValue)) {
+      continue;
+    }
+    defaultsIds.colDefault![colIndex] = getItemId(defaults.colDefault[colIndex], dict);
+  }
+  for (const rowIndex in defaults.rowDefault) {
+    const rowValue = defaults.rowDefault[rowIndex];
+    if (isDefaultEmpty(rowValue)) {
+      continue;
+    }
+    defaultsIds.rowDefault![rowIndex] = getItemId(defaults.rowDefault[rowIndex], dict);
+  }
+  return defaultsIds;
+}
+
+export function mapToValue<T>(
+  defaultIds: sparseDefaultValue<number>,
+  dict: ItemsDic<T>
+): defaultValue<T> {
+  const defaults: defaultValue<T> = {
+    colDefault: [],
+    rowDefault: [],
+  };
+  if (defaultIds.sheetDefault) {
+    defaults.sheetDefault = dict[defaultIds.sheetDefault];
+  }
+  for (const colIndex in defaultIds.colDefault) {
+    defaults.colDefault![colIndex] = dict[defaultIds.colDefault[colIndex]];
+  }
+  for (const rowIndex in defaultIds.rowDefault) {
+    defaults.rowDefault![rowIndex] = dict[defaultIds.rowDefault[rowIndex]];
+  }
+  return defaults;
 }

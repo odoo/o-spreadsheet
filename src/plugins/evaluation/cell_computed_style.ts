@@ -37,11 +37,15 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
   }
 
   private invalidateComputedCfStyles() {
-    this.styles = new PositionMap();
+    if (!this.styles.isEmpty()) {
+      this.styles = new PositionMap();
+    }
   }
 
   private invalidateComputedBorders() {
-    this.borders = new PositionMap();
+    if (!this.borders.isEmpty()) {
+      this.borders = new PositionMap();
+    }
   }
 
   private invalidateComputedStyles() {
