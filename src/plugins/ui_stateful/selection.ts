@@ -1,4 +1,7 @@
-import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
+import {
+  ClipboardHandler,
+  ClipboardHandlerConstructor,
+} from "../../clipboard_handlers/abstract_clipboard_handler";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import { clip, deepCopy, range } from "../../helpers/misc";
 import { createRange, isFullColRange, isFullRowRange } from "../../helpers/range";
@@ -13,6 +16,7 @@ import {
   updateSelectionOnInsertion,
 } from "../../helpers/zones";
 import { clipboardHandlersRegistries } from "../../registries/clipboard_handlers_registries";
+import { Registry } from "../../registries/registry";
 import { EvaluatedCell } from "../../types/cells";
 import { ClientPosition } from "../../types/collaborative/session";
 import {
@@ -683,19 +687,23 @@ export class GridSelectionPlugin extends UIPlugin {
     this.setSelectionMixin(anchor, selection);
   }
 
-  private onMoveElements(cmd: MoveColumnsRowsCommand) {
+  private instantiateHandlers(
+    registries: Registry<ClipboardHandlerConstructor<ClipboardHandler<unknown>>>[]
+  ) {
+    return registries.flatMap((registry) =>
+      registry.getKeys().map((name) => {
+        const Handler = registry.get(name);
+        return [name, new Handler(this.getters, this.dispatch)] as [
+          string,
+          ClipboardHandler<unknown>
+        ];
+      })
+    );
+  }
+
+  private onMoveElements(cmd: Readonly<MoveColumnsRowsCommand>) {
     const thickness = cmd.elements.length;
     const figureUpdateCmds = this.getFiguresUpdates(cmd);
-
-    this.dispatch("ADD_COLUMNS_ROWS", {
-      dimension: cmd.dimension,
-      sheetId: cmd.sheetId,
-      sheetName: cmd.sheetName,
-      base: cmd.base,
-      quantity: thickness,
-      position: cmd.position,
-    });
-
     const isCol = cmd.dimension === "COL";
     const start = cmd.elements[0];
     const end = cmd.elements[thickness - 1];
@@ -704,9 +712,23 @@ export class GridSelectionPlugin extends UIPlugin {
     const deltaRow = isBasedBefore && !isCol ? thickness : 0;
     const toRemove = isBasedBefore ? cmd.elements.map((el) => el + thickness) : cmd.elements;
     const originalSize: Record<HeaderIndex, Pixel> = {};
-    for (const element of toRemove) {
-      originalSize[element] = this.getters.getHeaderSize(cmd.sheetId, cmd.dimension, element);
+
+    for (let i = 0; i < thickness; i++) {
+      // the original sizes needs to be assigned at the destination positions so we save them here
+      originalSize[toRemove[i]] = this.getters.getHeaderSize(
+        cmd.sheetId,
+        cmd.dimension,
+        cmd.elements[i]
+      );
     }
+    const origin = [
+      {
+        left: isCol ? start : 0,
+        right: isCol ? end : this.getters.getNumberCols(cmd.sheetId) - 1,
+        top: !isCol ? start : 0,
+        bottom: !isCol ? end : this.getters.getNumberRows(cmd.sheetId) - 1,
+      },
+    ];
     const target = [
       {
         left: isCol ? start + deltaCol : 0,
@@ -729,24 +751,33 @@ export class GridSelectionPlugin extends UIPlugin {
 
     // The clipboards copy the data before pasting to ensure that
     // clipboardA paste doesn't interfere with clipboardB copy
-    const registries = [
+    const contentHandlers = this.instantiateHandlers([
       clipboardHandlersRegistries.cellHandlers,
       clipboardHandlersRegistries.sheetHandlers,
-      clipboardHandlersRegistries.rangeHandlers,
-    ];
-
-    const handlers = registries.flatMap((registry) =>
-      registry.getKeys().map((name) => {
-        const Handler = registry.get(name);
-        return [name, new Handler(this.getters, this.dispatch)] as [
-          string,
-          ClipboardHandler<unknown>
-        ];
-      })
-    );
+    ]);
     const data: Record<string, unknown> = {};
 
-    for (const [handlerName, handler] of handlers) {
+    // Save the content of the Row/Cols before adding the columns, so that the cell content and evaluated cells (used to compact) are in sync
+    for (const [handlerName, handler] of contentHandlers) {
+      data[handlerName] = handler.copy(
+        getClipboardDataPositions(sheetId, origin),
+        false,
+        "shiftCells"
+      );
+    }
+
+    this.dispatch("ADD_COLUMNS_ROWS", {
+      dimension: cmd.dimension,
+      sheetId: cmd.sheetId,
+      sheetName: cmd.sheetName,
+      base: cmd.base,
+      quantity: thickness,
+      position: cmd.position,
+    });
+
+    const rangeHandlers = this.instantiateHandlers([clipboardHandlersRegistries.rangeHandlers]);
+    // The ranges have been shifted by the insertion: they must be copied rom the moved headers new position.
+    for (const [handlerName, handler] of rangeHandlers) {
       data[handlerName] = handler.copy(
         getClipboardDataPositions(sheetId, target),
         false,
@@ -754,7 +785,7 @@ export class GridSelectionPlugin extends UIPlugin {
       );
     }
 
-    for (const [handlerName, handler] of handlers) {
+    for (const [handlerName, handler] of [...contentHandlers, ...rangeHandlers]) {
       if (!data[handlerName]) {
         continue;
       }
