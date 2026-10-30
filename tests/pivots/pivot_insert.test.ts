@@ -66,4 +66,15 @@ describe("Check the style when copying and pasting a pivot table", () => {
     });
     expect(model.getters.getTables("Sheet2")).toHaveLength(1);
   });
+
+  test("copy/paste a part of the table with the top left cell", () => {
+    const { model } = makeStoreWithModel(createModelFromGrid({ A1: "1", A2: "2" }), ClipboardStore);
+    insertPivot(model, "A1:A2", "pivot1", "Sheet2");
+    copy(model, "A1:A2");
+    paste(model, "C1");
+    const headerStyle = { bold: true, fillColor: "#6C4E65", textColor: "#FFFFFF" };
+    expect(getCell(model, "C1")?.style).toStrictEqual(headerStyle);
+    expect(getCell(model, "C2")?.style).toStrictEqual(headerStyle);
+    expect(model.getters.getTables("Sheet2")).toHaveLength(1);
+  });
 });

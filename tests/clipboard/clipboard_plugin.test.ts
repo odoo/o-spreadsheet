@@ -13,7 +13,7 @@ import {
   getOSheetClipboardIdFromHTML,
   parseOSClipboardContent,
 } from "../../src/helpers/clipboard/clipboard_helpers";
-import { toCartesian } from "../../src/helpers/coordinates";
+import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { urlRepresentation } from "../../src/helpers/links";
 import { markdownLink } from "../../src/helpers/misc";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
@@ -21,6 +21,7 @@ import { Model } from "../../src/model";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
 import { clipboardHandlersRegistries } from "../../src/registries/clipboard_handlers_registries";
+import { dynamicToStaticFormulaRegistry } from "../../src/registries/dynamic_to_static_formula_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { ClipboardStore, MAX_FILE_SIZE } from "../../src/stores/clipboard_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
@@ -85,7 +86,13 @@ import {
   getEvaluatedGrid,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { addTestPlugin, createModelFromGrid, getGrid, target } from "../test_helpers/helpers";
+import {
+  addTestPlugin,
+  addToRegistry,
+  createModelFromGrid,
+  getGrid,
+  target,
+} from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
@@ -2304,6 +2311,38 @@ describe("clipboard", () => {
     copy(model, "C1");
     paste(model, "G4");
     expect(getCellRawContent(model, "G4")).toBe("=PIVOT(1)");
+  });
+
+  test("copying a part of a spread formula registered in dynamicToStaticFormulaRegistry gives its static formulas", () => {
+    addToRegistry(dynamicToStaticFormulaRegistry, "sequence", {
+      condition: (position, getters) =>
+        !!getters.getCorrespondingFormulaCell(position)?.compiledFormula.usesSymbol("SEQUENCE"),
+      getStaticFormula: (position) => `="static ${toXC(position.col, position.row)}"`,
+    });
+    ({ store, model } = makeStoreWithModel(
+      createModelFromGrid({ A1: "=SEQUENCE(3,2)" }),
+      ClipboardStore
+    ));
+
+    // copy part of the spread formula
+    copy(model, "A1:B2");
+    paste(model, "D1");
+    setFormulaVisibility(model, true);
+    expect(getEvaluatedGrid(model, "D1:E2")).toEqual([
+      ['="static A1"', '="static B1"'],
+      ['="static A2"', '="static B2"'],
+    ]);
+
+    // copy only the cell with the spread formula
+    copy(model, "A1");
+    paste(model, "D10");
+    expect(getCellRawContent(model, "D10")).toBe("=SEQUENCE(3,2)");
+
+    // copy the entire spread formula
+    copy(model, "A1:B3");
+    paste(model, "D20");
+    expect(getCellRawContent(model, "D20")).toBe("=SEQUENCE(3,2)");
+    expect(getCell(model, "E21")).toBeUndefined();
   });
 
   test("fixed pivot formulas are copied like standard cells", () => {

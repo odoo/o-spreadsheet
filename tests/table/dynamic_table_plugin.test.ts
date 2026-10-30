@@ -1,5 +1,6 @@
 import { BorderDescr, Model, UID } from "../../src";
 import { toZone } from "../../src/helpers/zones";
+import { dynamicToStaticFormulaRegistry } from "../../src/registries/dynamic_to_static_formula_registry";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   copy,
@@ -17,6 +18,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCellStyle, getTables } from "../test_helpers/getters_helpers";
 import {
+  addToRegistry,
   getExportedExcelData,
   getFilterHiddenValues,
   setGrid,
@@ -222,6 +224,63 @@ describe("Dynamic tables", () => {
     expect(getCellStyle(model, "D1")).toMatchObject(
       model.getters.getCellComputedStyle(toCellPosition(sheetId, "B1"))
     );
+  });
+
+  test("Can copy/paste a part of a dynamic table with its formula cell", () => {
+    makeStoreWithModel(model, ClipboardStore);
+    setCellContent(model, "A1", "=MUNIT(2)");
+    createDynamicTable(model, "A1");
+
+    copy(model, "A1:B1");
+    paste(model, "D1");
+
+    expect(getTables(model, sheetId)).toMatchObject([{ zone: "A1:B2" }, { zone: "D1:E2" }]);
+  });
+
+  describe("Dynamic formula copied as static formulas", () => {
+    beforeEach(() => {
+      addToRegistry(dynamicToStaticFormulaRegistry, "munit", {
+        condition: (position, getters) =>
+          !!getters.getCorrespondingFormulaCell(position)?.compiledFormula.usesSymbol("MUNIT"),
+        getStaticFormula: () => "=1",
+      });
+      makeStoreWithModel(model, ClipboardStore);
+      setCellContent(model, "A1", "=MUNIT(2)");
+      createDynamicTable(model, "A1");
+    });
+
+    test("Copying a part of the table pastes its style instead of the table", () => {
+      copy(model, "A1:B1");
+      paste(model, "D1");
+
+      expect(getTables(model, sheetId)).toMatchObject([{ zone: "A1:B2" }]);
+      expect(getCellStyle(model, "D1")).toMatchObject(
+        model.getters.getCellComputedStyle(toCellPosition(sheetId, "A1"))
+      );
+      expect(getCellStyle(model, "E1")).toMatchObject(
+        model.getters.getCellComputedStyle(toCellPosition(sheetId, "B1"))
+      );
+    });
+
+    test("Cutting a part of the table deletes the table", () => {
+      cut(model, "A1:B1");
+      paste(model, "D1");
+
+      expect(getTables(model, sheetId)).toEqual([]);
+    });
+
+    test("Copying only the formula cell or the whole table copies the table", () => {
+      copy(model, "A1");
+      paste(model, "D1");
+      copy(model, "A1:B2");
+      paste(model, "G1");
+
+      expect(getTables(model, sheetId)).toMatchObject([
+        { zone: "A1:B2" },
+        { zone: "D1:E2" },
+        { zone: "G1:H2" },
+      ]);
+    });
   });
 
   describe("Import/export", () => {

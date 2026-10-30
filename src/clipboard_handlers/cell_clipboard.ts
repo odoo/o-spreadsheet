@@ -4,10 +4,10 @@ import { toCartesian, toXC } from "../helpers/coordinates";
 import { formatValue } from "../helpers/format/format";
 import { canonicalizeNumberValue } from "../helpers/locale";
 import { deepEquals } from "../helpers/misc";
-import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
 import { cellPositions, isZoneInside } from "../helpers/zones";
 import { SquishedContent, Squisher } from "../plugins/core/squisher";
 import { Unsquisher } from "../plugins/core/unsquisher";
+import { getDynamicToStaticFormulaRule } from "../registries/dynamic_to_static_formula_registry";
 import { Cell, CellValue, CellValueType } from "../types/cells";
 import {
   ClipboardCellData,
@@ -65,23 +65,20 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         const position = { col, row, sheetId };
         let cell = this.getters.getCell(position);
         const evaluatedCell = this.getters.getEvaluatedCell(position);
-        const pivotId = this.getters.getPivotIdFromPosition(position);
+        const dynamicToStaticRule = getDynamicToStaticFormulaRule(position, this.getters);
         const spreader = this.getters.getArrayFormulaSpreadingOn(position);
-        if (mode !== "shiftCells" && pivotId && spreader) {
-          const pivotZone = this.getters.getSpreadZone(spreader);
+        if (mode !== "shiftCells" && dynamicToStaticRule && spreader) {
+          const spreadZone = this.getters.getSpreadZone(spreader);
           if (
             (!deepEquals(spreader, position) || !isCopyingOneCell) &&
-            pivotZone &&
-            !data.zones.some((z) => isZoneInside(pivotZone, z))
+            spreadZone &&
+            !data.zones.some((z) => isZoneInside(spreadZone, z))
           ) {
-            const pivotCell = this.getters.getPivotCellFromPosition(position);
-            const formulaPivotId = this.getters.getPivotFormulaId(pivotId);
-            const pivotFormula = createPivotFormula(formulaPivotId, pivotCell);
             cell = {
               id: cell?.id ?? 0,
               style: cell?.style,
               format: cell?.format,
-              content: pivotFormula,
+              content: dynamicToStaticRule.getStaticFormula(position, this.getters),
               isFormula: false,
               parsedValue: evaluatedCell.value,
             };
