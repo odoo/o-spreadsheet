@@ -9,10 +9,10 @@ import { toCartesian } from "../../src/helpers/coordinates";
 import { render } from "../../src/helpers/owl3_helpers";
 import { toZone } from "../../src/helpers/zones";
 import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
+import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { useStoreProvider } from "../../src/store_engine/store_hooks";
-import { HighlightStore } from "../../src/stores/highlight_store";
 import { ModelStore } from "../../src/stores/model_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   activateSheet,
   addCellToSelection,
@@ -136,7 +136,8 @@ async function createSelectionInput(
   model = new Model();
   let parent: Component;
   let app: App;
-  ({ fixture, parent, app } = await mountComponent(Parent, {
+  let getPlugin: OwlPluginGetter;
+  ({ fixture, parent, app, getPlugin } = await mountComponent(Parent, {
     model,
     fixture: fixtureEl,
     props: { model, config },
@@ -146,6 +147,7 @@ async function createSelectionInput(
   return {
     parent: parent as Parent,
     env: parent.env as SpreadsheetChildEnv,
+    getPlugin,
     model,
     id,
     app,
@@ -299,15 +301,15 @@ describe("Selection Input", () => {
     // data series of a chart, as the color of the removed range won't be passed anymore to
     // the colors function in the chart's side panel's props.
     const colors = ["#FF0000", "#00FF00"];
-    const { parent, env } = await createSelectionInput({
+    const { parent, getPlugin } = await createSelectionInput({
       initialRanges: ["A1", "B1"],
       colors: colors,
     });
-    const highlightStore = env.getStore(HighlightStore);
+    const highlightPlugin = getPlugin(HighlightPlugin);
     await simulateClick(fixture.querySelectorAll("input")[0]);
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #FF0000;");
     expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe("color: #00FF00;");
-    expect(highlightStore.highlights.map(flattenHighlightRange)).toMatchObject([
+    expect(highlightPlugin.highlights.map(flattenHighlightRange)).toMatchObject([
       { color: "#FF0000", zone: toZone("A1") },
       { color: "#00FF00", zone: toZone("B1") },
     ]);
@@ -315,7 +317,7 @@ describe("Selection Input", () => {
     await simulateClick(fixture.querySelectorAll("input")[1]);
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #0000FF;");
     expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe("color: #FF00FF;");
-    expect(highlightStore.highlights.map(flattenHighlightRange)).toMatchObject([
+    expect(highlightPlugin.highlights.map(flattenHighlightRange)).toMatchObject([
       { color: "#0000FF", zone: toZone("A1") },
       { color: "#FF00FF", zone: toZone("B1") },
     ]);

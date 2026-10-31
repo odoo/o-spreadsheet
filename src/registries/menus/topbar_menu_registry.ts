@@ -7,9 +7,9 @@ import * as ACTION_VIEW from "../../actions/view_actions";
 import { SidePanelStore } from "../../components/side_panel/side_panel/side_panel_store";
 import { ZOOM_VALUES } from "../../constants";
 import { getPivotHighlights } from "../../helpers/pivot/pivot_highlight";
+import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { PrintModePlugin } from "../../owl_plugins/print_mode_owl_plugin";
-import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 import { formatNumberMenuItemSpec } from "./number_format_menu_registry";
@@ -556,8 +556,8 @@ topbarMenuRegistry
             isEnabledOnLockedSheet: true,
             execute: () => env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId }),
             isEnabled: () => !env.getPlugin(IsSmallPlugin).isSmall(),
-            onStartHover: () => env.getStore(HighlightStore).register(highlightProvider),
-            onStopHover: () => env.getStore(HighlightStore).unRegister(highlightProvider),
+            onStartHover: () => env.getPlugin(HighlightPlugin).register(highlightProvider),
+            onStopHover: () => env.getPlugin(HighlightPlugin).unRegister(highlightProvider),
           };
         });
       },

@@ -8,11 +8,11 @@ import {
   interactiveUpdateNamedRange,
 } from "../../helpers/ui/named_range_interactive";
 import { zoneToXc } from "../../helpers/zones";
+import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
-import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { Highlight } from "../../types/misc";
@@ -123,8 +123,8 @@ export class NamedRangeSelector extends OSComponent {
         },
         description: (env) => env.model().getters.getRangeString(range),
         icon: "o-spreadsheet-Icon.NAMED_RANGE",
-        onStartHover: (env) => env.getStore(HighlightStore).register(highlightProvider),
-        onStopHover: (env) => env.getStore(HighlightStore).unRegister(highlightProvider),
+        onStartHover: (env) => env.getPlugin(HighlightPlugin).register(highlightProvider),
+        onStopHover: (env) => env.getPlugin(HighlightPlugin).unRegister(highlightProvider),
       });
     }
 

@@ -1,6 +1,6 @@
 import { getSearchRegex } from "../../../helpers/misc";
 import { isInside, positionToZone } from "../../../helpers/zones";
-import { HighlightProvider, HighlightStore } from "../../../stores/highlight_store";
+import { HighlightPlugin, HighlightProvider } from "../../../owl_plugins/highlight_plugin";
 import { Command } from "../../../types/commands";
 import { CellPosition, Color, Highlight, UID } from "../../../types/misc";
 
@@ -53,6 +53,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   private shouldFinalizeUpdateSelection = false;
 
   private notificationPlugin = usePlugin(NotificationPlugin);
+  private highlightPlugin = usePlugin(HighlightPlugin);
   private viewStore = this.get(ViewportsStore);
 
   // fixme: why do we make selectedMatchIndex on top of a selected
@@ -74,11 +75,10 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     this.initialShowFormulaState = this.model.getters.shouldShowFormulas();
     this.searchOptions.searchFormulas = this.initialShowFormulaState;
 
-    const highlightStore = get(HighlightStore);
-    highlightStore.register(this);
+    this.highlightPlugin.register(this);
     this.onDispose(() => {
       this.model.dispatch("SET_FORMULA_VISIBILITY", { show: this.initialShowFormulaState });
-      highlightStore.unRegister(this);
+      this.highlightPlugin.unRegister(this);
     });
   }
 

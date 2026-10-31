@@ -3,8 +3,8 @@ import { NamedRangeSelector } from "../../src/components/named_range_selector/na
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { HIGHLIGHT_COLOR } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
+import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
-import { HighlightStore } from "../../src/stores/highlight_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
@@ -156,14 +156,14 @@ describe("Named ranges topbar selector", () => {
     triggerMouseEvent(".o-menu-item", "mouseenter");
     await nextTick();
 
-    const highlightStore = env.getStore(HighlightStore);
-    expect(highlightStore.highlights).toMatchObject([
+    const highlightPlugin = env.getPlugin(HighlightPlugin);
+    expect(highlightPlugin.highlights).toMatchObject([
       { range: { zone: toZone("A1:B3") }, color: HIGHLIGHT_COLOR, noFill: true },
     ]);
 
     triggerMouseEvent(".o-menu-item", "mouseleave");
     await nextTick();
-    expect(highlightStore.highlights).toHaveLength(0);
+    expect(highlightPlugin.highlights).toHaveLength(0);
   });
 
   test("Can open the named range side panel from the dropdown", async () => {

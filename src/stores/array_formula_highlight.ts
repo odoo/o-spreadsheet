@@ -1,14 +1,15 @@
+import { usePlugin } from "@odoo/owl";
+import { HighlightPlugin } from "../owl_plugins/highlight_plugin";
 import { Highlight } from "../types/misc";
 import { Get } from "../types/store_engine";
-import { HighlightStore } from "./highlight_store";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
 export class ArrayFormulaHighlight extends SpreadsheetStore {
-  protected highlightStore = this.get(HighlightStore);
+  protected highlightPlugin = usePlugin(HighlightPlugin);
 
   constructor(get: Get) {
     super(get);
-    this.highlightStore.register(this);
+    this.highlightPlugin.register(this);
   }
 
   get highlights(): Highlight[] {

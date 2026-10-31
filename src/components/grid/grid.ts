@@ -35,6 +35,7 @@ import { isInside, positionToZone } from "../../helpers/zones";
 import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { AutomaticSumPlugin } from "../../owl_plugins/automatic_sum_plugin";
 import { CheckboxTogglePlugin } from "../../owl_plugins/checkbox_toggle_plugin";
+import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
@@ -49,7 +50,6 @@ import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { ClipboardStore } from "../../stores/clipboard_store";
-import { HighlightStore } from "../../stores/highlight_store";
 import { SelectionRendererStore } from "../../stores/selection_renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { _t } from "../../translation";
@@ -172,9 +172,9 @@ export class Grid extends OSComponent {
   private headerResizeEditorTarget = signal<HeaderResizeEditorTarget | null>(null);
   private gridRef = signal.ref();
   private canvasRef = signal.ref(HTMLCanvasElement);
-  private highlightStore!: Store<HighlightStore>;
   viewStore!: Store<ViewportsStore>;
   private zoomPlugin = usePlugin(ZoomPlugin);
+  private highlightPlugin = usePlugin(HighlightPlugin);
   private cellPopovers!: Store<CellPopoverStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
@@ -192,7 +192,6 @@ export class Grid extends OSComponent {
   private automaticSumPlugin!: PluginInstance<typeof AutomaticSumPlugin>;
 
   setup() {
-    this.highlightStore = useStore(HighlightStore);
     this.viewStore = useStore(ViewportsStore);
     this.menuState = proxy({
       isOpen: false,
@@ -259,7 +258,7 @@ export class Grid extends OSComponent {
   }
 
   get highlights() {
-    return this.highlightStore.highlights;
+    return this.highlightPlugin.highlights;
   }
 
   get gridOverlayDimensions() {

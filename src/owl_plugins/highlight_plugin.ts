@@ -1,25 +1,26 @@
+import { onWillDestroy, signal, untrack, useConfig, usePlugin } from "@odoo/owl";
 import { drawHighlight } from "../helpers/rendering";
 import { zoneToDimension } from "../helpers/zones";
+import type { ViewportsStore } from "../stores/viewports_store";
 import { Highlight } from "../types/misc";
 import { GridRenderingContext, LayerName, Rect } from "../types/rendering";
-import { Get, Store } from "../types/store_engine";
-import { SpreadsheetStore } from "./spreadsheet_store";
-import { ViewportsStore } from "./viewports_store";
+import { OwlPluginWithModel } from "./owl_plugin_with_model";
+import { RendererPlugin } from "./renderer_plugin";
 
 export interface HighlightProvider {
   highlights: Highlight[];
 }
 
-export class HighlightStore extends SpreadsheetStore {
-  mutators = ["register", "unRegister"] as const;
-  private providers: HighlightProvider[] = [];
-  private viewStore: Store<ViewportsStore>;
+export class HighlightPlugin extends OwlPluginWithModel {
+  private providers = signal.Array<HighlightProvider>([]);
+  private renderer = usePlugin(RendererPlugin);
+  private viewStore: ViewportsStore = useConfig("viewStore");
 
-  constructor(get: Get) {
-    super(get);
-    this.viewStore = get(ViewportsStore);
-    this.onDispose(() => {
-      this.providers = [];
+  setup() {
+    super.setup();
+    this.renderer.register(this);
+    onWillDestroy(() => {
+      this.renderer.unRegister(this);
     });
   }
 
@@ -27,14 +28,16 @@ export class HighlightStore extends SpreadsheetStore {
     return ["Highlights"] as const;
   }
 
+  // TODO highlights from the providers will become reactive signals (maybe) and this getter
+  // will become a compute
   get highlights(): Highlight[] {
     return this.getVisibleHighlights().map(({ highlight }) => highlight);
   }
 
   private getVisibleHighlights(): { highlight: Highlight; rect: Rect }[] {
-    const activeSheetId = this.getters.getActiveSheetId();
+    const activeSheetId = this.model().getters.getActiveSheetId();
     const visibleHighlights: { highlight: Highlight; rect: Rect }[] = [];
-    for (const provider of this.providers) {
+    for (const provider of this.providers()) {
       for (const highlight of provider.highlights) {
         const { sheetId, zone: highlightZone } = highlight.range;
         if (sheetId !== activeSheetId) {
@@ -43,7 +46,7 @@ export class HighlightStore extends SpreadsheetStore {
         const { numberOfRows, numberOfCols } = zoneToDimension(highlightZone);
         const zone =
           numberOfRows * numberOfCols === 1
-            ? this.getters.expandZone(sheetId, highlightZone)
+            ? this.model().getters.expandZone(sheetId, highlightZone)
             : highlightZone;
         // compute once here as it's used in drawLayer
         const rect = this.viewStore.viewports.getVisibleRect(sheetId, zone);
@@ -51,7 +54,7 @@ export class HighlightStore extends SpreadsheetStore {
           continue;
         }
         visibleHighlights.push({
-          highlight: { ...highlight, range: this.getters.getRangeFromZone(sheetId, zone) },
+          highlight: { ...highlight, range: this.model().getters.getRangeFromZone(sheetId, zone) },
           rect,
         });
       }
@@ -60,11 +63,11 @@ export class HighlightStore extends SpreadsheetStore {
   }
 
   register(highlightProvider: HighlightProvider) {
-    this.providers.push(highlightProvider);
+    untrack(() => this.providers().push(highlightProvider));
   }
 
   unRegister(highlightProvider: HighlightProvider) {
-    this.providers = this.providers.filter((h) => h !== highlightProvider);
+    untrack(() => this.providers.set(this.providers().filter((h) => h !== highlightProvider)));
   }
 
   drawLayer(ctx: GridRenderingContext, layer: LayerName): void {
