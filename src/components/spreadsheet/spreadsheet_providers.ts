@@ -1,4 +1,5 @@
 import { providePlugins, Signal } from "@odoo/owl";
+import { SelectionInputFocusPlugin } from "../../components/focus_store";
 import { providePluginsIfNotPresent } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
@@ -41,6 +42,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
       ModelPlugin,
       NavigatorClipboardPlugin,
       ImageProviderPlugin,
+      SelectionInputFocusPlugin,
     ],
     {
       getPopoverContainerRect,

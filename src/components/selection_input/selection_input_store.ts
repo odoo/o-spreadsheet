@@ -8,7 +8,7 @@ import { Command } from "../../types/commands";
 import { SelectionEvent } from "../../types/event_stream/selection_events";
 import { Color, Highlight, UID } from "../../types/misc";
 import { Get } from "../../types/store_engine";
-import { FocusStore } from "../focus_store";
+import { SelectionInputFocusPlugin } from "../focus_store";
 
 export interface RangeInputValue {
   id: number;
@@ -43,7 +43,7 @@ export class SelectionInputStore extends SpreadsheetStore {
   focusedRangeIndex: number | null = null;
   mode: SelectionRangeEditMode = "text-edit";
   private inputSheetId: UID;
-  private focusStore = this.get(FocusStore);
+  private focusPlugin = usePlugin(SelectionInputFocusPlugin);
   protected highlightPlugin = usePlugin(HighlightPlugin);
 
   constructor(
@@ -258,7 +258,7 @@ export class SelectionInputStore extends SpreadsheetStore {
   }
 
   private get hasMainFocus() {
-    const focusedElement = this.focusStore.focusedElement;
+    const focusedElement = this.focusPlugin.focusedElement();
     return !!focusedElement && focusedElement === this;
   }
 
@@ -288,7 +288,7 @@ export class SelectionInputStore extends SpreadsheetStore {
    * Focus a given range or remove the focus.
    */
   private focus(index: number | null) {
-    this.focusStore.focus(this);
+    this.focusPlugin.focus(this);
     this.focusedRangeIndex = index;
     this.captureSelection();
   }
@@ -299,7 +299,7 @@ export class SelectionInputStore extends SpreadsheetStore {
 
   unfocus() {
     this.focusedRangeIndex = null;
-    this.focusStore.unfocus(this);
+    this.focusPlugin.unfocus(this);
     this.model.selection.release(this);
   }
 
