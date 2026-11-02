@@ -34,6 +34,7 @@ export function makeGlobalStoreWithModel(model: Model) {
     container,
     model: container.get(ModelStore),
     getPlugin: testEnv.getPlugin,
+    scope: testEnv.__owl_scope__,
   };
 }
 

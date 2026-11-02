@@ -1,6 +1,16 @@
-import { onWillStart, onWillUpdateProps, proxy, signal, useEffect, useProps } from "@odoo/owl";
+import {
+  onWillStart,
+  onWillUpdateProps,
+  PluginInstance,
+  providePlugins,
+  proxy,
+  signal,
+  useEffect,
+  usePlugin,
+  useProps,
+} from "@odoo/owl";
 import { deepEquals, range } from "../../helpers/misc";
-import { useLocalStore, useStore } from "../../store_engine/store_hooks";
+import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { Color } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
@@ -11,7 +21,7 @@ import { useResizeObserver } from "../helpers/listener_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
-import { RangeInputValue, SelectionInputStore } from "./selection_input_store";
+import { RangeInputValue, SelectionInputPlugin } from "./selection_input_plugin";
 
 interface State {
   isMissing: boolean;
@@ -58,7 +68,7 @@ export class SelectionInput extends OSComponent {
   unfocusedInputRef = signal.ref(HTMLInputElement);
   private selectionRef = signal.ref();
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
-  private store!: Store<SelectionInputStore>;
+  private selectionPlugin!: PluginInstance<typeof SelectionInputPlugin>;
 
   get canAddRange(): boolean {
     return !this.props.hasSingleRange;
@@ -69,15 +79,15 @@ export class SelectionInput extends OSComponent {
   }
 
   get isConfirmable(): boolean {
-    return this.store.isConfirmable;
+    return this.selectionPlugin.isConfirmable;
   }
 
   get isResettable(): boolean {
-    return this.store.isResettable;
+    return this.selectionPlugin.isResettable;
   }
 
   get hasDisabledRanges(): boolean {
-    return this.store.disabledRanges.some(Boolean);
+    return this.selectionPlugin.disabledRanges.some(Boolean);
   }
 
   setup() {
@@ -95,15 +105,16 @@ export class SelectionInput extends OSComponent {
     onWillUpdateProps(async () => {});
 
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
-    this.store = useLocalStore(
-      SelectionInputStore,
-      this.props.ranges,
-      this.props.hasSingleRange || false,
-      this.props.colors,
-      this.props.disabledRanges
-    );
+    providePlugins([SelectionInputPlugin], {
+      initialRanges: this.props.ranges,
+      hasSingleRange: this.props.hasSingleRange || false,
+      colors: this.props.colors,
+      disabledRanges: this.props.disabledRanges,
+    });
+    this.selectionPlugin = usePlugin(SelectionInputPlugin);
+
     if (this.props.autofocus) {
-      this.store.focusById(this.store.selectionInputs[0]?.id);
+      this.selectionPlugin.focusById(this.selectionPlugin.selectionInputs[0]?.id);
       this.props.onInputFocused?.();
     }
     useEffect(() => {
@@ -112,32 +123,35 @@ export class SelectionInput extends OSComponent {
 
     useResizeObserver(this.selectionRef, () => {
       const el = this.selectionRef();
-      if ((this.store.isResettable || this.store.hasFocus) && el?.offsetParent === null) {
+      if (
+        (this.selectionPlugin.isResettable || this.selectionPlugin.hasFocus) &&
+        el?.offsetParent === null
+      ) {
         this.reset();
       }
     });
 
     onWillUpdateProps((nextProps: PropsOf<SelectionInput>) => {
-      if (nextProps.ranges.join() !== this.store.selectionInputValues.join()) {
+      if (nextProps.ranges.join() !== this.selectionPlugin.selectionInputValues.join()) {
         this.triggerChange();
       }
       if (
         nextProps.ranges.join() !== this.props.ranges.join() &&
-        nextProps.ranges.join() !== this.store.selectionInputValues.join()
+        nextProps.ranges.join() !== this.selectionPlugin.selectionInputValues.join()
       ) {
-        this.store.resetWithRanges(nextProps.ranges);
+        this.selectionPlugin.resetWithRanges(nextProps.ranges);
       }
       if (
         nextProps.colors?.join() !== this.props.colors?.join() &&
-        nextProps.colors?.join() !== this.store.colors.join()
+        nextProps.colors?.join() !== this.selectionPlugin.colors.join()
       ) {
-        this.store.updateColors(nextProps.colors || []);
+        this.selectionPlugin.updateColors(nextProps.colors || []);
       }
       if (
         !deepEquals(nextProps.disabledRanges, this.props.disabledRanges) &&
-        !deepEquals(nextProps.disabledRanges, this.store.disabledRanges)
+        !deepEquals(nextProps.disabledRanges, this.selectionPlugin.disabledRanges)
       ) {
-        this.store.updateDisabledRanges(nextProps.disabledRanges || []);
+        this.selectionPlugin.updateDisabledRanges(nextProps.disabledRanges || []);
       }
     });
   }
@@ -148,7 +162,7 @@ export class SelectionInput extends OSComponent {
     }
 
     const rects = this.getRangeElementsRects();
-    const draggableIds = this.store.selectionInputs.map((range) => range.id);
+    const draggableIds = this.selectionPlugin.selectionInputs.map((range) => range.id);
     const draggableItems = draggableIds.map((id, index) => ({
       id: id.toString(),
       size: rects[index].height,
@@ -169,7 +183,7 @@ export class SelectionInput extends OSComponent {
         indexes.splice(finalIndex, 0, originalIndex);
         this.props.onSelectionReordered?.(indexes);
         this.props.onSelectionConfirmed?.();
-        this.store.confirm();
+        this.selectionPlugin.confirm();
       },
     });
   }
@@ -183,14 +197,14 @@ export class SelectionInput extends OSComponent {
     if (range.color) {
       properties["color"] = range.color;
     }
-    if (this.store.mode === "select-range") {
+    if (this.selectionPlugin.mode() === "select-range") {
       properties["caret-color"] = "transparent";
     }
     return cssPropertiesToCss(properties);
   }
 
   private triggerChange() {
-    const ranges = this.store.selectionInputValues;
+    const ranges = this.selectionPlugin.selectionInputValues;
     this.props.onSelectionChanged?.(ranges);
   }
 
@@ -198,10 +212,10 @@ export class SelectionInput extends OSComponent {
     if (ev.key === "F2") {
       ev.preventDefault();
       ev.stopPropagation();
-      this.store.toggleEditMode();
+      this.selectionPlugin.toggleEditMode();
     } else if (ev.key.startsWith("Arrow")) {
       ev.stopPropagation();
-      if (this.store.mode === "select-range") {
+      if (this.selectionPlugin.mode() === "select-range") {
         ev.preventDefault();
         updateSelectionWithArrowKeys(ev, this.model().selection);
       }
@@ -223,45 +237,45 @@ export class SelectionInput extends OSComponent {
 
   focus(rangeId: number) {
     this.state.isMissing = false;
-    this.store.focusById(rangeId);
+    this.selectionPlugin.focusById(rangeId);
     this.props.onInputFocused?.();
   }
 
   addEmptyInput() {
-    this.store.addEmptyRange();
+    this.selectionPlugin.addEmptyRange();
   }
 
   removeInput(rangeId: number) {
-    const activeRanges = this.store.selectionInputs;
+    const activeRanges = this.selectionPlugin.selectionInputs;
     const index = activeRanges.findIndex((range) => range.id === rangeId);
     if (activeRanges[index]?.xc) {
       this.props.onSelectionRemoved?.(index);
       this.props.onSelectionConfirmed?.();
     }
-    this.store.removeRange(rangeId);
+    this.selectionPlugin.removeRange(rangeId);
   }
 
   onInputChanged(rangeId: number, ev: InputEvent) {
     const target = ev.target as HTMLInputElement;
     const value = this.extractRanges(target.value);
-    this.store.changeRange(rangeId, value);
+    this.selectionPlugin.changeRange(rangeId, value);
     this.triggerChange();
   }
 
   reset() {
-    this.store.reset();
+    this.selectionPlugin.reset();
     this.triggerChange();
   }
 
   confirm() {
-    this.store.confirm();
-    const anyValidInput = this.store.selectionInputs.some((range) =>
+    this.selectionPlugin.confirm();
+    const anyValidInput = this.selectionPlugin.selectionInputs.some((range) =>
       this.model().getters.isRangeValid(range.xc)
     );
     if (this.props.required && !anyValidInput) {
       this.state.isMissing = true;
     }
-    this.props.onSelectionChanged?.(this.store.selectionInputValues);
+    this.props.onSelectionChanged?.(this.selectionPlugin.selectionInputValues);
     this.props.onSelectionConfirmed?.();
   }
 }

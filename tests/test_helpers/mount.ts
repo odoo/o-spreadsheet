@@ -1,6 +1,7 @@
 import {
   PluginConstructor,
   providePlugins,
+  Scope,
   signal,
   usePlugin,
   useProps,
@@ -82,6 +83,7 @@ function setupTestStores(container: DependencyContainer) {
 
 interface SpreadsheetActionEnvWithStores extends SpreadsheetActionEnv {
   __spreadsheet_stores__: DependencyContainer;
+  __owl_scope__: Scope;
 }
 
 export function makeSpreadsheetActionTestEnv(
@@ -94,7 +96,7 @@ export function makeSpreadsheetActionTestEnv(
     );
   }
 
-  const { getPlugin, container } = makeOwlPluginManager([], { model }, () => {
+  const { getPlugin, container, scope } = makeOwlPluginManager([], { model }, () => {
     if (!mockEnv.useTrueRenderer) {
       providePlugins([FakeRendererPlugin], { model });
     }
@@ -109,6 +111,7 @@ export function makeSpreadsheetActionTestEnv(
     },
     // @ts-ignore
     __spreadsheet_stores__: container,
+    __owl_scope__: scope,
     getPlugin,
   };
 }

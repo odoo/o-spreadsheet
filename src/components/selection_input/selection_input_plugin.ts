@@ -1,13 +1,12 @@
-import { usePlugin } from "@odoo/owl";
+import { onWillDestroy, signal, useConfig, usePlugin } from "@odoo/owl";
 import { ColorGenerator } from "../../helpers/color";
 import { splitReference } from "../../helpers/references";
 import { isEqual, positionToZone } from "../../helpers/zones";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
-import { SpreadsheetStore } from "../../stores/spreadsheet_store";
+import { OwlPluginWithModel } from "../../owl_plugins/owl_plugin_with_model";
 import { Command } from "../../types/commands";
 import { SelectionEvent } from "../../types/event_stream/selection_events";
 import { Color, Highlight, UID } from "../../types/misc";
-import { Get } from "../../types/store_engine";
 import { SelectionInputFocusPlugin } from "../focus_store";
 
 export interface RangeInputValue {
@@ -25,7 +24,7 @@ type SelectionRangeEditMode = "select-range" | "text-edit";
  * it requires an intermediary internal state to work.
  * This plugin handles this internal state.
  */
-export class SelectionInputStore extends SpreadsheetStore {
+export class SelectionInputPlugin extends OwlPluginWithModel {
   mutators = [
     "resetWithRanges",
     "focusById",
@@ -39,100 +38,105 @@ export class SelectionInputStore extends SpreadsheetStore {
     "updateDisabledRanges",
     "toggleEditMode",
   ] as const;
-  private ranges: RangeInputValue[] = [];
-  focusedRangeIndex: number | null = null;
-  mode: SelectionRangeEditMode = "text-edit";
+
+  private ranges = signal.Array<RangeInputValue>([]);
+  focusedRangeIndex = signal<number | null>(null);
+  mode = signal<SelectionRangeEditMode>("text-edit");
   private inputSheetId: UID;
   private focusPlugin = usePlugin(SelectionInputFocusPlugin);
   protected highlightPlugin = usePlugin(HighlightPlugin);
 
-  constructor(
-    get: Get,
-    private initialRanges: string[] = [],
-    private readonly inputHasSingleRange: boolean = false,
-    public colors: Color[] = [],
-    public disabledRanges: boolean[] = []
-  ) {
-    super(get);
-    if (inputHasSingleRange && initialRanges.length > 1) {
+  colors: Color[] = useConfig("colors");
+  readonly inputHasSingleRange: boolean = useConfig("hasSingleRange");
+  initialRanges: string[] = useConfig("initialRanges");
+  disabledRanges: boolean[] = useConfig("disabledRanges");
+
+  constructor() {
+    super();
+    if (this.inputHasSingleRange && this.initialRanges.length > 1) {
       throw new Error(
         "Input with a single range cannot be instantiated with several range references."
       );
     }
-    this.inputSheetId = this.getters.getActiveSheetId();
-    this.resetWithRanges(initialRanges);
+    this.inputSheetId = this.model().getters.getActiveSheetId();
+    this.resetWithRanges(this.initialRanges);
     this.highlightPlugin.register(this);
-    this.onDispose(() => {
+  }
+
+  setup() {
+    super.setup();
+    onWillDestroy(() => {
       this.unfocus();
       this.highlightPlugin.unRegister(this);
     });
   }
 
   handleEvent(event: SelectionEvent) {
-    if (this.focusedRangeIndex === null) {
+    const focusedRangeIndex = this.focusedRangeIndex();
+    if (focusedRangeIndex === null) {
       return;
     }
 
     const inputSheetId = this.inputSheetId;
-    const activeSheetId = this.getters.getActiveSheetId();
+    const activeSheetId = this.model().getters.getActiveSheetId();
     const zone = event.options.unbounded
-      ? this.getters.getUnboundedZone(activeSheetId, event.anchor.zone)
+      ? this.model().getters.getUnboundedZone(activeSheetId, event.anchor.zone)
       : event.anchor.zone;
-    const range = this.getters.getRangeFromZone(activeSheetId, zone);
+    const range = this.model().getters.getRangeFromZone(activeSheetId, zone);
 
     const willAddNewRange =
       event.mode === "newAnchor" &&
       !this.inputHasSingleRange &&
-      this.ranges[this.focusedRangeIndex].xc.trim() !== "";
+      this.ranges()[focusedRangeIndex].xc.trim() !== "";
 
     if (willAddNewRange) {
-      const xc = this.getters.getSelectionRangeString(range, inputSheetId);
-      this.insertNewRange(this.ranges.length, [xc]);
+      const xc = this.model().getters.getSelectionRangeString(range, inputSheetId);
+      this.insertNewRange(this.ranges().length, [xc]);
       this.focusLast();
     } else {
       let parts = range.parts;
-      const previousXc = this.ranges[this.focusedRangeIndex].xc.trim();
+      const previousXc = this.ranges()[focusedRangeIndex].xc.trim();
       if (previousXc) {
-        parts = this.getters.getRangeFromSheetXC(inputSheetId, previousXc).parts;
+        parts = this.model().getters.getRangeFromSheetXC(inputSheetId, previousXc).parts;
       }
       const newRange = { ...range, parts };
-      const xc = this.getters.getSelectionRangeString(newRange, inputSheetId);
-      this.setRange(this.focusedRangeIndex, [xc]);
+      const xc = this.model().getters.getSelectionRangeString(newRange, inputSheetId);
+      this.setRange(focusedRangeIndex, [xc]);
     }
-    this.mode = "select-range";
+    this.mode.set("select-range");
   }
 
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET": {
         if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
-          const { col, row } = this.getters.getNextVisibleCellPosition({
+          const { col, row } = this.model().getters.getNextVisibleCellPosition({
             sheetId: cmd.sheetIdTo,
             col: 0,
             row: 0,
           });
-          const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
-          this.model.selection.resetAnchor(this, { cell: { col, row }, zone });
+          const zone = this.model().getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
+          this.model().selection.resetAnchor(this, { cell: { col, row }, zone });
         }
         break;
       }
       case "START_CHANGE_HIGHLIGHT":
-        const activeSheetId = this.getters.getActiveSheetId();
-        const newZone = this.getters.expandZone(activeSheetId, cmd.zone);
-        const focusIndex = this.ranges.findIndex((range) => {
+        const activeSheetId = this.model().getters.getActiveSheetId();
+        const newZone = this.model().getters.expandZone(activeSheetId, cmd.zone);
+        const focusIndex = this.ranges().findIndex((range) => {
           const { xc, sheetName: sheet } = splitReference(range.xc);
-          const sheetName = sheet || this.getters.getSheetName(this.inputSheetId);
-          if (this.getters.getSheetName(activeSheetId) !== sheetName) {
+          const sheetName = sheet || this.model().getters.getSheetName(this.inputSheetId);
+          if (this.model().getters.getSheetName(activeSheetId) !== sheetName) {
             return false;
           }
-          const refRange = this.getters.getRangeFromSheetXC(activeSheetId, xc);
-          return isEqual(this.getters.expandZone(activeSheetId, refRange.zone), newZone);
+          const refRange = this.model().getters.getRangeFromSheetXC(activeSheetId, xc);
+          return isEqual(this.model().getters.expandZone(activeSheetId, refRange.zone), newZone);
         });
 
         if (focusIndex !== -1) {
           this.focus(focusIndex);
           const { left, top } = newZone;
-          this.model.selection.resetAnchor(this, {
+          this.model().selection.resetAnchor(this, {
             cell: { col: left, row: top },
             zone: newZone,
           });
@@ -146,7 +150,7 @@ export class SelectionInputStore extends SpreadsheetStore {
       return;
     }
     const index = this.getIndex(rangeId);
-    if (index !== null && this.focusedRangeIndex !== index) {
+    if (index !== null && this.focusedRangeIndex() !== index) {
       this.focus(index);
     }
     if (index !== null) {
@@ -158,15 +162,15 @@ export class SelectionInputStore extends SpreadsheetStore {
   }
 
   addEmptyRange() {
-    if (this.inputHasSingleRange && this.ranges.length === 1) {
+    if (this.inputHasSingleRange && this.ranges().length === 1) {
       return;
     }
-    this.insertNewRange(this.ranges.length, [""]);
+    this.insertNewRange(this.ranges().length, [""]);
     this.focusLast();
   }
 
   removeRange(rangeId: number) {
-    if (this.ranges.length === 1) {
+    if (this.ranges().length === 1) {
       return;
     }
     const index = this.getIndex(rangeId);
@@ -175,15 +179,19 @@ export class SelectionInputStore extends SpreadsheetStore {
     }
   }
 
+  // TODORAR only used by dataseries, maybe a signal ?
   updateColors(colors: Color[]) {
     this.colors = colors;
-    const colorGenerator = new ColorGenerator(this.ranges.length, this.colors);
-    this.ranges = this.ranges.map((range) => ({
-      ...range,
-      color: colorGenerator.next(),
-    }));
+    const colorGenerator = new ColorGenerator(this.ranges().length, this.colors);
+    this.ranges.set(
+      this.ranges().map((range) => ({
+        ...range,
+        color: colorGenerator.next(),
+      }))
+    );
   }
 
+  // should become a signal of some sort
   updateDisabledRanges(disabledRanges: boolean[]) {
     this.disabledRanges = disabledRanges;
   }
@@ -194,9 +202,9 @@ export class SelectionInputStore extends SpreadsheetStore {
         this.removeRange(range.id);
       }
     }
-    const activeSheetId = this.getters.getActiveSheetId();
+    const activeSheetId = this.model().getters.getActiveSheetId();
     if (this.inputSheetId !== activeSheetId) {
-      this.model.dispatch("ACTIVATE_SHEET", {
+      this.model().dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: activeSheetId,
         sheetIdTo: this.inputSheetId,
       });
@@ -215,7 +223,7 @@ export class SelectionInputStore extends SpreadsheetStore {
 
   get selectionInputValues(): string[] {
     return this.cleanInputs(
-      this.ranges.map((range) => {
+      this.ranges().map((range) => {
         return range.xc ? range.xc : "";
       })
     );
@@ -230,23 +238,28 @@ export class SelectionInputStore extends SpreadsheetStore {
     isValidRange: boolean;
     disabled?: boolean;
   })[] {
-    return this.ranges.map((input, index) =>
+    return this.ranges().map((input, index) =>
       Object.assign({}, input, {
         color:
           this.hasMainFocus &&
           this.focusedRangeIndex !== null &&
-          this.getters.isRangeValid(input.xc)
+          this.model().getters.isRangeValid(input.xc)
             ? input.color
             : null,
-        isFocused: this.hasMainFocus && this.focusedRangeIndex === index,
-        isValidRange: input.xc === "" || this.getters.isRangeValid(input.xc),
+        isFocused: this.hasMainFocus && this.focusedRangeIndex() === index,
+        isValidRange: input.xc === "" || this.model().getters.isRangeValid(input.xc),
         disabled: this.disabledRanges?.[index],
       })
     );
   }
 
   get isResettable(): boolean {
-    return this.initialRanges.join() !== this.ranges.map((r) => r.xc).join();
+    return (
+      this.initialRanges.join() !==
+      this.ranges()
+        .map((r) => r.xc)
+        .join()
+    );
   }
 
   get isConfirmable(): boolean {
@@ -254,7 +267,7 @@ export class SelectionInputStore extends SpreadsheetStore {
   }
 
   get hasFocus(): boolean {
-    return this.hasMainFocus && this.focusedRangeIndex !== null;
+    return this.hasMainFocus && this.focusedRangeIndex() !== null;
   }
 
   private get hasMainFocus() {
@@ -267,7 +280,9 @@ export class SelectionInputStore extends SpreadsheetStore {
       return [];
     }
     // TODO expand zone globally
-    return this.ranges.map((input) => this.inputToHighlights(input)).flat();
+    return this.ranges()
+      .map((input) => this.inputToHighlights(input))
+      .flat();
   }
 
   // ---------------------------------------------------------------------------
@@ -276,9 +291,9 @@ export class SelectionInputStore extends SpreadsheetStore {
 
   focusById(rangeId: number) {
     const rangeIndex = this.getIndex(rangeId);
-    if (this.focusedRangeIndex !== rangeIndex || this.mode === "select-range") {
+    if (this.focusedRangeIndex() !== rangeIndex || this.mode() === "select-range") {
       this.focus(rangeIndex);
-      this.mode = "text-edit";
+      this.mode.set("text-edit");
       return;
     }
     return "noStateChange";
@@ -289,28 +304,29 @@ export class SelectionInputStore extends SpreadsheetStore {
    */
   private focus(index: number | null) {
     this.focusPlugin.focus(this);
-    this.focusedRangeIndex = index;
+    this.focusedRangeIndex.set(index);
     this.captureSelection();
   }
 
   private focusLast() {
-    this.focus(this.ranges.length - 1);
+    this.focus(this.ranges().length - 1);
   }
 
   unfocus() {
-    this.focusedRangeIndex = null;
+    this.focusedRangeIndex.set(null);
     this.focusPlugin.unfocus(this);
-    this.model.selection.release(this);
+    this.model().selection.release(this);
   }
 
   private captureSelection() {
-    if (this.focusedRangeIndex === null) {
+    const focusedRangeIndex = this.focusedRangeIndex();
+    if (focusedRangeIndex === null) {
       return;
     }
-    const range = this.ranges[this.focusedRangeIndex];
-    const sheetId = this.getters.getActiveSheetId();
-    const zone = this.getters.getRangeFromSheetXC(sheetId, range?.xc || "A1").zone;
-    this.model.selection.capture(
+    const range = this.ranges()[focusedRangeIndex];
+    const sheetId = this.model().getters.getActiveSheetId();
+    const zone = this.model().getters.getRangeFromSheetXC(sheetId, range?.xc || "A1").zone;
+    this.model().selection.capture(
       this,
       { cell: { col: zone.left, row: zone.top }, zone },
       {
@@ -321,23 +337,24 @@ export class SelectionInputStore extends SpreadsheetStore {
   }
 
   resetWithRanges(ranges: string[]) {
-    if (ranges.length && ranges.every((r) => this.getters.isRangeValid(r))) {
+    if (ranges.length && ranges.every((r) => this.model().getters.isRangeValid(r))) {
       this.initialRanges = ranges;
     }
-    this.ranges = [];
+    this.ranges.set([]);
     this.insertNewRange(0, ranges);
-    if (this.ranges.length === 0) {
-      this.insertNewRange(this.ranges.length, [""]);
+    if (this.ranges().length === 0) {
+      this.insertNewRange(this.ranges().length, [""]);
       this.focusLast();
     }
-    if (this.focusedRangeIndex !== null && this.focusedRangeIndex >= this.ranges.length) {
+    const focusedRangeIndex = this.focusedRangeIndex();
+    if (focusedRangeIndex !== null && focusedRangeIndex >= this.ranges().length) {
       this.focusLast();
     }
   }
 
   private setContent(index: number, xc: string) {
-    this.ranges[index] = {
-      ...this.ranges[index],
+    this.ranges()[index] = {
+      ...this.ranges()[index],
       xc,
     };
   }
@@ -346,12 +363,15 @@ export class SelectionInputStore extends SpreadsheetStore {
    * Insert new inputs after the given index.
    */
   private insertNewRange(index: number, values: string[]) {
-    const currentMaxId = Math.max(0, ...this.ranges.map((range) => Number(range.id)));
-    const colors = new ColorGenerator(this.ranges.length, this.colors);
+    // can break with too many ranges (max # of arguments for Math.max)
+    const currentMaxId = Math.max(0, ...this.ranges().map((range) => Number(range.id)));
+    const colors = new ColorGenerator(this.ranges().length, this.colors);
     for (let i = 0; i < index; i++) {
       colors.next();
     }
-    this.ranges.splice(
+
+    // does it work ??
+    this.ranges().splice(
       index,
       0,
       ...values.map((xc, i) => ({
@@ -377,8 +397,8 @@ export class SelectionInputStore extends SpreadsheetStore {
   }
 
   private removeRangeByIndex(index: number) {
-    this.ranges.splice(index, 1);
-    if (this.focusedRangeIndex !== null) {
+    this.ranges().splice(index, 1);
+    if (this.focusedRangeIndex() !== null) {
       this.focusLast();
     }
   }
@@ -391,13 +411,14 @@ export class SelectionInputStore extends SpreadsheetStore {
    */
   private inputToHighlights({ xc, color }: Pick<RangeInputValue, "xc" | "color">): Highlight[] {
     const XCs = this.cleanInputs([xc])
-      .filter((range) => this.getters.isRangeValid(range))
+      .filter((range) => this.model().getters.isRangeValid(range))
       .filter((reference) => this.shouldBeHighlighted(this.inputSheetId, reference));
     return XCs.map((xc) => {
       const { sheetName } = splitReference(xc);
-      const sheetId = (sheetName && this.getters.getSheetIdByName(sheetName)) || this.inputSheetId;
+      const sheetId =
+        (sheetName && this.model().getters.getSheetIdByName(sheetName)) || this.inputSheetId;
       return {
-        range: this.getters.getRangeFromSheetXC(sheetId, xc),
+        range: this.model().getters.getRangeFromSheetXC(sheetId, xc),
         color,
         interactive: true,
       };
@@ -421,9 +442,9 @@ export class SelectionInputStore extends SpreadsheetStore {
    */
   private shouldBeHighlighted(inputSheetId: UID, reference: string): boolean {
     const { sheetName } = splitReference(reference);
-    const sheetId = this.getters.getSheetIdByName(sheetName);
-    const activeSheetId = this.getters.getActiveSheet().id;
-    const valid = this.getters.isRangeValid(reference);
+    const sheetId = this.model().getters.getSheetIdByName(sheetName);
+    const activeSheetId = this.model().getters.getActiveSheet().id;
+    const valid = this.model().getters.isRangeValid(reference);
     return (
       valid &&
       (sheetId === activeSheetId || (sheetId === undefined && activeSheetId === inputSheetId))
@@ -434,11 +455,11 @@ export class SelectionInputStore extends SpreadsheetStore {
    * or `null` if the range is not found.
    */
   getIndex(rangeId: number | null): number | null {
-    const index = this.ranges.findIndex((range) => range.id === rangeId);
+    const index = this.ranges().findIndex((range) => range.id === rangeId);
     return index >= 0 ? index : null;
   }
 
   toggleEditMode() {
-    this.mode = this.mode === "select-range" ? "text-edit" : "select-range";
+    this.mode.set(this.mode() === "select-range" ? "text-edit" : "select-range");
   }
 }

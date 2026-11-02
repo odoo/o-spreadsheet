@@ -3,7 +3,7 @@ import { Color, Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { types } from "../../src/components/props_validation";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
-import { SelectionInputStore } from "../../src/components/selection_input/selection_input_store";
+import { SelectionInputPlugin } from "../../src/components/selection_input/selection_input_plugin";
 import { ColorGenerator } from "../../src/helpers/color";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { render } from "../../src/helpers/owl3_helpers";
@@ -314,6 +314,7 @@ describe("Selection Input", () => {
       { color: "#00FF00", zone: toZone("B1") },
     ]);
     parent.colors = ["#0000FF", "#FF00FF"];
+    render(parent, false);
     await simulateClick(fixture.querySelectorAll("input")[1]);
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #0000FF;");
     expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe("color: #FF00FF;");
@@ -872,7 +873,7 @@ describe("Selection Input", () => {
 
   test("ranges are computed only once per render", async () => {
     const { parent } = await createSelectionInput({ initialRanges: ["A1", "A2", "A3"] });
-    const spy = jest.spyOn(SelectionInputStore.prototype, "selectionInputs", "get");
+    const spy = jest.spyOn(SelectionInputPlugin.prototype, "selectionInputs", "get");
     render(parent, true);
     await nextTick();
     expect(spy).toHaveBeenCalledTimes(1);
