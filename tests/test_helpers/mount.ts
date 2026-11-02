@@ -159,10 +159,15 @@ class StandaloneTestComponent extends Component {
 class SpreadsheetRoot extends Component {
   static template = xml/*xml*/ `<Spreadsheet t-props="this.props.spreadsheetProps"/>`;
   static components = { Spreadsheet };
-  protected props = useProps({ spreadsheetProps: types.any() });
+  protected props = useProps({
+    spreadsheetProps: types.any(),
+    useRealRender: types.boolean().optional(false),
+  });
 
   setup() {
-    providePlugins([FakeRendererPlugin], { model: this.props.spreadsheetProps.model });
+    if (!this.props.useRealRender) {
+      providePlugins([FakeRendererPlugin], { model: this.props.spreadsheetProps.model });
+    }
   }
 }
 
@@ -258,7 +263,8 @@ async function _mount<Props extends ComponentProps>(
 
 // Requires to be called wit jest realTimers
 export async function mountSpreadsheet(
-  props: PropsOf<Spreadsheet> = { model: new Model() }
+  props: PropsOf<Spreadsheet> = { model: new Model() },
+  args: { useRealRender?: boolean } = {}
 ): Promise<Omit<MountComponentReturn, "parent"> & { parent: Spreadsheet }> {
   const model = props.model;
   const spreadsheetProps = {
@@ -272,7 +278,7 @@ export async function mountSpreadsheet(
     SpreadsheetRoot,
     Spreadsheet,
     { renderOnModelUpdate: false }, // handled in spreadsheet component
-    { spreadsheetProps }
+    { spreadsheetProps, useRealRender: args.useRealRender }
   );
   await nextTick();
   return { ...ret, parent: ret.parent as Spreadsheet };

@@ -31,6 +31,7 @@ import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { ImageProviderPlugin } from "../../src/owl_plugins/image_provider_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
+import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
 import { ZoomPlugin } from "../../src/owl_plugins/zoom_plugin";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
@@ -41,6 +42,7 @@ import { xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { MockFileStore } from "../__mocks__/mock_file_store";
 import { mockJsDomForImageProvider } from "../__mocks__/mock_image_provider";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { registerCleanup } from "../setup/jest.setup";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
 import {
   addEqualCf,
@@ -70,6 +72,7 @@ import {
   setFormulaVisibility,
   setSelection,
   setViewportOffset,
+  setZoom,
   undo,
   updateFilter,
   updateTableConfig,
@@ -2831,4 +2834,78 @@ test("Cannot pinch to zoom with right-click", async () => {
     button: 1,
   });
   expect(env.getPlugin(ZoomPlugin).zoomLevel()).toBe(1);
+});
+
+describe("Grid canvas", () => {
+  beforeEach(async () => {
+    ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet(
+      { model: new Model() },
+      { useRealRender: true }
+    ));
+  });
+
+  function setVisibilityState(visibilityState: DocumentVisibilityState) {
+    Object.defineProperty(document, "visibilityState", {
+      value: visibilityState,
+      configurable: true,
+    });
+    registerCleanup(() => {
+      delete (document as any).visibilityState;
+    });
+    document.dispatchEvent(new Event("visibilitychange"));
+  }
+
+  test("the grid is drawn again when the tab becomes visible", async () => {
+    const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
+    setVisibilityState("visible");
+    await nextTick();
+    expect(drawSpy).toHaveBeenCalled();
+  });
+
+  test("the grid is not drawn when the tab becomes hidden", async () => {
+    const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
+    setVisibilityState("hidden");
+    await nextTick();
+    expect(drawSpy).not.toHaveBeenCalled();
+  });
+
+  test("the grid is drawn again when the canvas context is restored", async () => {
+    const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
+    const canvas = fixture.querySelector(".os-canvas-background canvas")!;
+    canvas.dispatchEvent(new Event("contextrestored"));
+    await nextTick();
+    expect(drawSpy).toHaveBeenCalled();
+  });
+
+  test("the grid is drawn again after having been drawn with an empty size", async () => {
+    const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
+    viewStore.resizeSheetView({ width: 0, height: 0, gridOffsetX: 0, gridOffsetY: 0 });
+    await nextTick();
+    expect(drawSpy).not.toHaveBeenCalled(); // there's nothing to draw on an empty canvas
+
+    viewStore.resizeSheetView({ width: 100, height: 200, gridOffsetX: 0, gridOffsetY: 0 });
+    await nextTick();
+    expect(drawSpy).toHaveBeenCalled();
+  });
+
+  test("the grid is drawn again when the zoom changes", async () => {
+    const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
+    setZoom(env, 2);
+    await nextTick();
+    expect(drawSpy).toHaveBeenCalled();
+  });
+
+  test("the grid is only drawn once the DOM is up to date with the change", async () => {
+    const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
+    setCellContent(model, "A1", "hello");
+
+    // the reactive effects have run, but the DOM is not patched yet: drawing now could paint on a
+    // canvas that the pending patch is about to remove
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(drawSpy).not.toHaveBeenCalled();
+
+    await nextTick();
+    expect(drawSpy).toHaveBeenCalled();
+  });
 });

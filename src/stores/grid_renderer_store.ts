@@ -33,6 +33,7 @@ import {
   zoneToXc,
 } from "../helpers/zones";
 import { Model } from "../model";
+import { FormulaFingerprintPlugin } from "../owl_plugins/formula_fingerprints_store";
 import { RendererPlugin } from "../owl_plugins/renderer_plugin";
 import { cellAnimationRegistry } from "../registries/cell_animation_registry";
 import { DisposableStore } from "../store_engine/store";
@@ -50,7 +51,6 @@ import {
 } from "../types/rendering";
 import { Get, Store } from "../types/store_engine";
 import { CellHoverOverlayStore } from "./cell_hover_overlay_store";
-import { FormulaFingerprintStore } from "./formula_fingerprints_store";
 import { ModelStore } from "./model_store";
 
 export const CELL_ANIMATION_DURATION = 200;
@@ -66,7 +66,7 @@ export class GridRenderer extends DisposableStore {
   private renderer: PluginInstance<typeof RendererPlugin>;
   storeGetters = ["drawLayer"] as const;
 
-  private fingerprints: Store<FormulaFingerprintStore>;
+  private fingerprints = usePlugin(FormulaFingerprintPlugin);
   private cellHoverOverlayStore = this.get(CellHoverOverlayStore);
   private hoveredIcon: Store<HoveredIconStore>;
 
@@ -89,7 +89,6 @@ export class GridRenderer extends DisposableStore {
     this.renderer = renderer ?? usePlugin(RendererPlugin);
     const model = get(ModelStore) as Model;
     this.getters = model.getters;
-    this.fingerprints = get(FormulaFingerprintStore);
     this.hoveredIcon = get(HoveredIconStore);
     this.shouldRender = shouldRender;
 
@@ -774,14 +773,14 @@ export class GridRenderer extends DisposableStore {
     const chipStyle = this.getters.getDataValidationChipStyle(position);
 
     let style = this.getters.getCellComputedStyle(position);
-    if (this.fingerprints.isEnabled) {
-      const fingerprintColor = this.fingerprints.colors.get(position);
+    if (this.fingerprints.isEnabled()) {
+      const fingerprintColor = this.fingerprints.colors().get(position);
       style = { ...style, fillColor: fingerprintColor };
     }
     if (chipStyle?.textColor) {
       style = { ...style, textColor: chipStyle.textColor };
     }
-    const dataBarFill = this.fingerprints.isEnabled
+    const dataBarFill = this.fingerprints.isEnabled()
       ? undefined
       : this.getters.getConditionalDataBar(position);
     const iconsList = this.getters.getCellIcons(position);

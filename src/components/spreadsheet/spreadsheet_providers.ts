@@ -1,6 +1,7 @@
 import { providePlugins, Signal, usePlugin } from "@odoo/owl";
 import { providePluginsIfNotPresent } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
+import { FormulaFingerprintPlugin } from "../../owl_plugins/formula_fingerprints_store";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
@@ -40,6 +41,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
       IsSmallPlugin,
       PopoverContainerPlugin,
       ModelPlugin,
+      FormulaFingerprintPlugin,
       NavigatorClipboardPlugin,
       ImageProviderPlugin,
       TableResizePlugin,

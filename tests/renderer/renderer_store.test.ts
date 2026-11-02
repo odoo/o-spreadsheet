@@ -32,11 +32,11 @@ import {
 import { COLOR_THEMES } from "../../src/helpers/color_themes";
 import { fontSizeInPixels, getContextFontSize } from "../../src/helpers/text_helper";
 import { toZone } from "../../src/helpers/zones";
+import { FormulaFingerprintPlugin } from "../../src/owl_plugins/formula_fingerprints_store";
 import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
-import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { SelectionRendererStore } from "../../src/stores/selection_renderer_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
@@ -128,7 +128,7 @@ function setRenderer(model: Model = new Model(), layers: LayerName[] = ["Backgro
     }
   };
   const sheetId = model.getters.getActiveSheetId();
-  return { model, gridRendererStore, drawGridRenderer, container, sheetId };
+  return { model, gridRendererStore, drawGridRenderer, container, sheetId, getPlugin };
 }
 
 describe("renderer", () => {
@@ -627,10 +627,9 @@ describe("renderer", () => {
   });
 
   test("formula fingerprints", () => {
-    const { drawGridRenderer, model, gridRendererStore, container, sheetId } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 6 }] })
-    );
-    const fingerprints = container.get(FormulaFingerprintStore);
+    const { drawGridRenderer, model, gridRendererStore, container, sheetId, getPlugin } =
+      setRenderer(new Model({ sheets: [{ colNumber: 1, rowNumber: 6 }] }));
+    const fingerprints = getPlugin(FormulaFingerprintPlugin);
     const viewStore = container.get(ViewportsStore);
     fingerprints.enable();
 
