@@ -1534,6 +1534,13 @@ describe("Menu Item actions", () => {
       });
     });
 
+    test("Label with selected columns before and after column K", () => {
+      setSelection(model, ["J1:K100"]);
+      expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide columns J - K");
+      setSelection(model, ["B1:B100", "D1:D100", "K1:K100"]);
+      expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide columns");
+    });
+
     test("Inactive menu item on invalid selection", () => {
       setSelection(model, ["A1:A100", "A4:Z4"]);
       expect(getNode(hidePath, env, colMenuRegistry).isVisible(env)).toBeFalsy();
@@ -1603,6 +1610,13 @@ describe("Menu Item actions", () => {
         elements: [],
         dimension: "ROW",
       });
+    });
+
+    test("Label with selected rows before and after row 11", () => {
+      setSelection(model, ["A10:Z11"]);
+      expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide rows 10 - 11");
+      setSelection(model, ["A2:Z2", "A4:Z4", "A11:Z11"]);
+      expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide rows");
     });
 
     test("Inactive menu item on invalid selection", () => {
