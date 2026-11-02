@@ -1,15 +1,8 @@
-import {
-  PluginConstructor,
-  providePlugins,
-  Scope,
-  signal,
-  useProps,
-  useScope,
-  xml,
-} from "@odoo/owl";
+import { PluginConstructor, providePlugins, Scope, useProps, useScope, xml } from "@odoo/owl";
 import { createGetPluginFunctionFromScope } from "../../src/components/os_component";
+import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
 import { types } from "../../src/components/props_validation";
-import { useSpreadsheetProviders } from "../../src/components/spreadsheet/spreadsheet_providers";
+import { provideSpreadsheetPlugins } from "../../src/components/spreadsheet/spreadsheet_providers";
 import { Model } from "../../src/model";
 import { App, Component } from "../../src/owl3_compatibility_layer";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
@@ -37,6 +30,14 @@ export function scopeDependencyContainer(scope: Scope, container: DependencyCont
   }) as typeof container;
 }
 
+/**
+ * Replaces the default PopoverContainerPlugin with a fixed container rect.
+ */
+export class TestPopoverContainerPlugin extends PopoverContainerPlugin {
+  static id = PopoverContainerPlugin.id;
+  getContainerRect = () => ({ x: 0, y: 0, height: 1000, width: 1000 });
+}
+
 class PluginParent extends Component {
   static template = xml/*xml*/ `<div/>`;
   protected props = useProps({
@@ -49,11 +50,9 @@ class PluginParent extends Component {
   setup() {
     // Mainly used to inject a FakeRendererStore before the providers are instantiated
     this.props.beforeProviders?.(useStoreProvider());
-    const { stores } = useSpreadsheetProviders({
-      model: this.props.configPlugins.model,
-      spreadsheetRef: signal.ref(),
-      getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
-    });
+    const { stores } = provideSpreadsheetPlugins({ model: this.props.configPlugins.model }, [
+      TestPopoverContainerPlugin,
+    ]);
     providePlugins(this.props.providedPlugins, this.props.configPlugins);
 
     const scope = useScope();

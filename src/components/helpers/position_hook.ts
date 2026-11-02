@@ -1,13 +1,4 @@
-import {
-  onMounted,
-  onPatched,
-  providePlugins,
-  proxy,
-  shallowEqual,
-  signal,
-  Signal,
-  usePlugin,
-} from "@odoo/owl";
+import { onMounted, onPatched, proxy, shallowEqual, signal, Signal, usePlugin } from "@odoo/owl";
 import { SpreadsheetRectPlugin } from "../../owl_plugins/spreadsheet_rect_plugin";
 import { Rect } from "../../types/rendering";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
@@ -39,8 +30,7 @@ export function useSpreadsheetRect(): Rect {
   return position;
 }
 
-export function provideSpreadsheetRect(spreadsheetRef: Signal<HTMLElement | null>) {
-  providePlugins([SpreadsheetRectPlugin]);
+export function useSpreadsheetRectBinding(spreadsheetRef: Signal<HTMLElement | null>) {
   const spreadsheetRectPlugin = usePlugin(SpreadsheetRectPlugin);
   function updatePosition() {
     const spreadsheetElement = spreadsheetRef();

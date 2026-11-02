@@ -1,6 +1,7 @@
 import { PluginConstructor, signal, usePlugin, useProps, useScope, xml } from "@odoo/owl";
 import { EditionMode, StoreConstructor } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
+import { useSpreadsheetRectBinding } from "../../src/components/helpers/position_hook";
 import {
   createGetPluginFunctionFromScope,
   useSpreadsheetEnv,
@@ -8,7 +9,7 @@ import {
 import { types } from "../../src/components/props_validation";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet } from "../../src/components/spreadsheet/spreadsheet";
-import { useSpreadsheetProviders } from "../../src/components/spreadsheet/spreadsheet_providers";
+import { provideSpreadsheetPlugins } from "../../src/components/spreadsheet/spreadsheet_providers";
 import { batched } from "../../src/helpers/misc";
 import { render } from "../../src/helpers/owl3_helpers";
 import { Model } from "../../src/model";
@@ -32,7 +33,7 @@ import {
 import { Store } from "../../src/types/store_engine";
 import { registerCleanup } from "../setup/jest.setup";
 import { makeTestFixture, nextTick } from "./helpers";
-import { makeOwlPluginManager } from "./owl_plugins_helpers";
+import { makeOwlPluginManager, TestPopoverContainerPlugin } from "./owl_plugins_helpers";
 
 class FakeRendererStore extends RendererStore {
   // we don't want to actually draw anything on the canvas as it cannot be tested
@@ -145,11 +146,10 @@ class StandaloneTestComponent extends Component {
 
   setup() {
     injectFakeRendererStore(useStoreProvider(), this.props.model);
-    const { stores } = useSpreadsheetProviders({
-      model: this.props.model,
-      spreadsheetRef: this.ref,
-      getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
-    });
+    const { stores } = provideSpreadsheetPlugins({ model: this.props.model }, [
+      TestPopoverContainerPlugin,
+    ]);
+    useSpreadsheetRectBinding(this.ref);
     setupTestStores(stores);
     mockNotificationCallbacks();
   }
@@ -162,10 +162,20 @@ class StandaloneTestComponent extends Component {
 class SpreadsheetRoot extends Component {
   static template = xml/*xml*/ `<Spreadsheet t-props="this.props.spreadsheetProps"/>`;
   static components = { Spreadsheet };
-  protected props = useProps({ spreadsheetProps: types.any() });
+  protected props = useProps({
+    spreadsheetProps: types.any(),
+    parentPlugins: types.array<PluginConstructor>().optional(),
+  });
 
   setup() {
     injectFakeRendererStore(useStoreProvider(), this.props.spreadsheetProps.model);
+    if (this.props.parentPlugins) {
+      // Like an integrator providing the plugins in a parent of the Spreadsheet
+      provideSpreadsheetPlugins(
+        { model: this.props.spreadsheetProps.model },
+        this.props.parentPlugins
+      );
+    }
   }
 }
 
@@ -261,7 +271,8 @@ async function _mount<Props extends ComponentProps>(
 
 // Requires to be called wit jest realTimers
 export async function mountSpreadsheet(
-  props: PropsOf<Spreadsheet> = { model: new Model() }
+  props: PropsOf<Spreadsheet> = { model: new Model() },
+  parentPlugins?: PluginConstructor[]
 ): Promise<Omit<MountComponentReturn, "parent"> & { parent: Spreadsheet }> {
   const model = props.model;
   const spreadsheetProps = {
@@ -275,7 +286,7 @@ export async function mountSpreadsheet(
     SpreadsheetRoot,
     Spreadsheet,
     { renderOnModelUpdate: false }, // handled in spreadsheet component
-    { spreadsheetProps }
+    { spreadsheetProps, parentPlugins }
   );
   await nextTick();
   return { ...ret, parent: ret.parent as Spreadsheet };

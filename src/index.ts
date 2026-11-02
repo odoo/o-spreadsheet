@@ -362,7 +362,7 @@ import {
   hasInteractiveElementInEventTree,
   isMobileOS,
 } from "./components/helpers/dom_helpers";
-import { provideSpreadsheetRect } from "./components/helpers/position_hook";
+import { useSpreadsheetRectBinding } from "./components/helpers/position_hook";
 import {
   createGetPluginFunctionFromScope,
   OSComponent,
@@ -374,7 +374,7 @@ import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/bui
 import { CalendarButton } from "./components/side_panel/criterion_form/calendar_button/calendar_button";
 import { PerfItem } from "./components/side_panel/perf_profile/perf_item";
 import { Spreadsheet } from "./components/spreadsheet/spreadsheet";
-import { useSpreadsheetProviders } from "./components/spreadsheet/spreadsheet_providers";
+import { provideSpreadsheetPlugins } from "./components/spreadsheet/spreadsheet_providers";
 import { TopBar } from "./components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "./components/top_bar/top_bar_tools_registry";
 import { createComputeFunction } from "./functions/create_compute_function";
@@ -575,8 +575,8 @@ export const hooks = {
   useDragAndDropListItems,
   useHighlights,
   useHighlightsOnHover,
-  provideSpreadsheetRect,
-  useSpreadsheetProviders,
+  useSpreadsheetRectBinding,
+  provideSpreadsheetPlugins,
 };
 
 export const compatibility: {

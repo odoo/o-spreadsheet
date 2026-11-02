@@ -14,7 +14,7 @@ import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "../../constants";
 import { DARK_MODE_FILTER_STRING } from "../../helpers/color";
 import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_js_extension";
 import { batched } from "../../helpers/misc";
-import { render } from "../../helpers/owl3_helpers";
+import { hasPlugin, render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
 import { Component } from "../../owl3_compatibility_layer";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
@@ -22,7 +22,7 @@ import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { PrintModePlugin } from "../../owl_plugins/print_mode_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
-import { useStore } from "../../store_engine/store_hooks";
+import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { _t } from "../../translation";
@@ -39,20 +39,16 @@ import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { cssPropertiesToCss } from "../helpers/css";
-import {
-  getElBoundingRect,
-  keyboardEventToShortcutString,
-  zoomCorrectedElementRect,
-} from "../helpers/dom_helpers";
+import { keyboardEventToShortcutString, zoomCorrectedElementRect } from "../helpers/dom_helpers";
 import { useResizeObserver } from "../helpers/listener_hook";
-import { useSpreadsheetRect } from "../helpers/position_hook";
+import { useSpreadsheetRect, useSpreadsheetRectBinding } from "../helpers/position_hook";
 import { types } from "../props_validation";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
 import { SpreadsheetPrint } from "../spreadsheet_print/spreadsheet_print";
 import { TopBar } from "../top_bar/top_bar";
-import { useSpreadsheetProviders } from "./spreadsheet_providers";
+import { provideSpreadsheetPlugins } from "./spreadsheet_providers";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -122,11 +118,11 @@ export class Spreadsheet extends Component {
   }
 
   setup() {
-    const { stores } = useSpreadsheetProviders({
-      model: this.props.model,
-      spreadsheetRef: this.spreadsheetRef,
-      getPopoverContainerRect: () => getElBoundingRect(this.spreadsheetRef()),
-    });
+    // An integrator can provide the plugins and stores in a parent component
+    const { stores } = hasPlugin(ModelPlugin)
+      ? { stores: useStoreProvider() }
+      : provideSpreadsheetPlugins({ model: this.props.model });
+    useSpreadsheetRectBinding(this.spreadsheetRef);
     this.viewStore = useStore(ViewportsStore);
     this.isSmallPlugin = usePlugin(IsSmallPlugin);
     this.modelPlugin = usePlugin(ModelPlugin);

@@ -1,3 +1,4 @@
+import { computed } from "@odoo/owl";
 import { CommandResult, Model, setDefaultSheetViewSize, Spreadsheet } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
@@ -482,6 +483,18 @@ test("components take the small screen into account", async () => {
   expect(getPlugin(IsSmallPlugin).isSmall()).toBeTruthy();
 
   expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
+  expect(fixture.querySelector(".o-spreadsheet-mobile")).not.toBeNull();
+});
+
+test("plugins provided in a parent of the Spreadsheet replace the default ones", async () => {
+  class AlwaysSmallPlugin extends IsSmallPlugin {
+    static id = IsSmallPlugin.id;
+    isSmall = computed(() => true);
+  }
+  const { fixture, getPlugin } = await mountSpreadsheet({ model: new Model() }, [
+    AlwaysSmallPlugin,
+  ]);
+  expect(getPlugin(IsSmallPlugin)).toBeInstanceOf(AlwaysSmallPlugin);
   expect(fixture.querySelector(".o-spreadsheet-mobile")).not.toBeNull();
 });
 
