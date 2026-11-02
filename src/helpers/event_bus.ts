@@ -71,7 +71,7 @@ export class EventBus<Event extends { type: string }> {
 
 type Callback = (...args: any[]) => void;
 
-interface Subscription {
+export interface Subscription {
   owner: any;
   callback: Callback;
 }

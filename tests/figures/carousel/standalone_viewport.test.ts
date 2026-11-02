@@ -6,6 +6,7 @@ import { StandaloneViewport } from "../../../src/components/standalone_viewport/
 import { DEFAULT_CELL_HEIGHT, TABLE_HOVER_BACKGROUND_COLOR } from "../../../src/constants";
 import { buildSheetLink, range } from "../../../src/helpers/misc";
 import { zoneToXc } from "../../../src/helpers/zones";
+import { FormulaFingerprintPlugin } from "../../../src/owl_plugins/formula_fingerprints_store";
 import { LocalRendererPlugin } from "../../../src/owl_plugins/renderer_plugin";
 import { ZoomPlugin } from "../../../src/owl_plugins/zoom_plugin";
 import { CellHoverOverlayStore } from "../../../src/stores/cell_hover_overlay_store";
@@ -355,6 +356,24 @@ describe("Standalone viewport", () => {
     expect(overlayStore.overlayColors.get(toCellPosition("sh2", "B2"))).toBeUndefined();
     expect(overlayStore.overlayColors.get(toCellPosition("sh2", "C2"))).toBeUndefined();
     jest.useRealTimers();
+  });
+
+  test("Standalone viewport is drawn again when the formula fingerprints are toggled", async () => {
+    setGrid(model, { A1: "=1" });
+    await mountViewport("A1:A2");
+    const rendererPlugin = subActionEnv.getPlugin(LocalRendererPlugin);
+
+    let drawCount = 0;
+    rendererPlugin.register({ renderingLayers: ["Background"], drawLayer: () => drawCount++ });
+
+    const fingerprints = subActionEnv.getPlugin(FormulaFingerprintPlugin);
+    fingerprints.enable();
+    await nextTick();
+    expect(drawCount).toBe(1);
+
+    fingerprints.disable();
+    await nextTick();
+    expect(drawCount).toBe(2);
   });
 
   test("Standalone viewport is drawn with the window devicePixelRatio", async () => {

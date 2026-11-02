@@ -379,6 +379,7 @@ import { PositionMap } from "./helpers/cells/position_map";
 import { addStyleToWorkbookData } from "./helpers/data_normalization";
 import { parseFormat } from "./helpers/format/format_parser";
 import { replaceSymbolInFormula } from "./helpers/formulas";
+import { useEffectAfterPatch } from "./helpers/owl3_helpers";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
@@ -575,6 +576,7 @@ export const hooks = {
   useHighlightsOnHover,
   provideSpreadsheetRect,
   useSpreadsheetProviders,
+  useEffectAfterPatch,
 };
 
 export const compatibility: {
