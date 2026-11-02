@@ -322,7 +322,7 @@ describe("Composer hover", () => {
       .spyOn(HTMLElement.prototype, "getBoundingClientRect")
       .mockImplementation(function (this: HTMLElement) {
         if (this.classList.contains("o-spreadsheet")) {
-          return { left: 66, top: 66, width: 555, height: 555 } as DOMRect;
+          return { x: 66, y: 66, width: 555, height: 555 } as DOMRect;
         }
         if (this.classList.contains("o-speech-bubble")) {
           return { x: 0, y: 0, width: 100, height: 50 } as DOMRect;
@@ -348,7 +348,7 @@ describe("Composer hover", () => {
       .spyOn(HTMLElement.prototype, "getBoundingClientRect")
       .mockImplementation(function (this: HTMLElement) {
         if (this.classList.contains("o-spreadsheet")) {
-          return { left: 0, top: 0, width: 555, height: 555 } as DOMRect;
+          return { x: 0, y: 0, width: 555, height: 555 } as DOMRect;
         } else if (this.classList.contains("o-speech-bubble")) {
           return { x: 0, y: 0, width: 100, height: 50 } as DOMRect;
         } else if (this.textContent === "SUM") {

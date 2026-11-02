@@ -89,6 +89,7 @@ import {
 } from "../helpers/dom_helpers";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
+import { useElementRect } from "../helpers/position_hook";
 import {
   moveAnchorWithinSelection,
   updateSelectionWithArrowKeys,
@@ -210,7 +211,7 @@ export class Grid extends OSComponent {
     useStore(SelectionRendererStore);
 
     providePlugins([PopoverContainerPlugin, CheckboxTogglePlugin, AutomaticSumPlugin], {
-      getPopoverContainerRect: () => this.getGridRect(),
+      popoverContainerRectSignal: useElementRect(this.gridRef),
     });
     this.checkboxTogglePlugin = usePlugin(CheckboxTogglePlugin);
     this.automaticSumPlugin = usePlugin(AutomaticSumPlugin);

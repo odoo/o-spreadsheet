@@ -181,7 +181,7 @@ interface Props {
 
 class ContextMenuParent extends Component {
   static template = xml/* xml */ `
-    <div class="o-spreadsheet">
+    <div>
       <MenuPopover
         onClose="() => this.onClose()"
         anchorRect="this.anchorRect"
@@ -217,7 +217,12 @@ class ContextMenuParent extends Component {
   }
 }
 
+let gridWidth = 1000;
+let gridHeight = 1000;
+
 beforeEach(() => {
+  gridWidth = 1000;
+  gridHeight = 1000;
   extendMockGetBoundingClientRect({
     "o-menu": (el) => getElPosition(el),
     "o-menu-wrapper": (el) => getElPosition(el),
@@ -247,6 +252,7 @@ beforeEach(() => {
     "o-topbar-responsive": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
     "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: 30 }),
     "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+    "o-grid": () => ({ x: 0, y: 0, width: gridWidth, height: gridHeight }),
   });
 });
 
@@ -918,6 +924,8 @@ describe("Context menu react to grid size changes", () => {
     expect(menus[1]).toBeTruthy();
 
     resizeSheetView(env, { height: 500, width: 500 });
+    gridWidth = 500 + MENU_WIDTH / 2;
+    gridHeight = 500;
     await nextTick();
     await nextTick(); // First render hides the parent menu, second closes the submenu
 
@@ -937,6 +945,8 @@ describe("Context menu react to grid size changes", () => {
     expect(menus[1]).toBeTruthy();
 
     resizeSheetView(env, { height: 1000, width: 500 + MENU_WIDTH / 2 });
+    gridWidth = 500 + MENU_WIDTH / 2;
+    window.resizers.resize();
     await nextTick();
     await nextTick(); // First render moves the parent menu, second closes the submenu
 

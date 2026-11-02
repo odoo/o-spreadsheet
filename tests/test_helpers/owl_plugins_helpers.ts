@@ -52,7 +52,6 @@ class PluginParent extends Component {
     const { stores } = useSpreadsheetProviders({
       model: this.props.configPlugins.model,
       spreadsheetRef: signal.ref(),
-      getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
     });
     providePlugins(this.props.providedPlugins, this.props.configPlugins);
 

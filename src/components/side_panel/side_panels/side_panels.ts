@@ -5,7 +5,6 @@ import { PropsOf } from "../../../types/props_of";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { startDnd } from "../../helpers/drag_and_drop";
-import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { OSComponent } from "../../os_component";
 import { SidePanel } from "../side_panel/side_panel";
 import { SidePanelStore } from "../side_panel/side_panel_store";
@@ -14,7 +13,6 @@ export class SidePanels extends OSComponent {
   static template = "o-spreadsheet-SidePanels";
   static components = { SidePanel };
   sidePanelStore!: Store<SidePanelStore>;
-  spreadsheetRect = useSpreadsheetRect();
 
   setup() {
     this.sidePanelStore = useStore(SidePanelStore);
