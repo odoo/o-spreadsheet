@@ -24,6 +24,7 @@ import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadshe
 import {
   activateSheet,
   addColumns,
+  copy,
   createChart,
   createGaugeChart,
   createImage,
@@ -40,6 +41,7 @@ import {
   setCellContent,
   setViewportOffset,
   setZoom,
+  unselectFigure,
 } from "../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../test_helpers/constants";
 import {
@@ -1079,8 +1081,37 @@ describe("figures", () => {
       createFigure(model, { id: "figureId" });
       selectFigure(model, "figureId");
       await nextTick();
-      expect(".o-figure").toHaveStyle({ ["border-width"]: "1px" });
+      expect(".o-figure").toHaveStyle({ ["border-width"]: "1px", ["border-color"]: "transparent" });
       expect(".o-figure-selection-border").toHaveCount(1);
+    });
+
+    test("Copied figure has a dashed border even when it is not selected anymore", async () => {
+      createFigure(model, { id: "figureId" });
+      selectFigure(model, "figureId");
+      await nextTick();
+      expect(".o-figure-selection-border").toHaveStyle({ ["border-style"]: "" });
+
+      copy(model);
+      await nextTick();
+      expect(".o-figure-selection-border").toHaveStyle({ ["border-style"]: "dashed" });
+
+      unselectFigure(model, "figureId");
+      await nextTick();
+      expect(".o-figure-wrapper").not.toHaveClass("o-figure-selected");
+      expect(".o-figure-selection-border").toHaveStyle({ ["border-style"]: "dashed" });
+    });
+
+    test("Can clear copied figure border with escape", async () => {
+      createFigure(model, { id: "figureId" });
+      selectFigure(model, "figureId");
+      await nextTick();
+      copy(model);
+      await nextTick();
+      expect(".o-figure-selection-border").toHaveStyle({ ["border-style"]: "dashed" });
+
+      expect(document.activeElement).toHaveClass("o-figure");
+      await keyDown({ key: "Escape" });
+      expect(".o-figure-selection-border").toHaveStyle({ ["border-style"]: "" });
     });
 
     test("Border for image figure", async () => {

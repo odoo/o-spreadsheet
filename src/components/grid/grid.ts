@@ -310,7 +310,7 @@ export class Grid extends OSComponent {
       } else if (this.paintFormatStore.isActive) {
         this.paintFormatStore.cancel();
       } else {
-        this.model().dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
+        this.clipboardStore.clearClipboardHighlight();
       }
     },
     "Ctrl+A": () => this.model().selection.loopSelection(),

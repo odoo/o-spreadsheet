@@ -55,7 +55,9 @@ export class ClipboardStore extends SpreadsheetStore {
     "getClipboardTextContent",
     "isCutOperation",
     "isCommandValid",
+    "showFigureAsCopied",
   ] as const;
+  mutators = ["clearClipboardHighlight"] as const;
 
   private status: "visible" | "invisible" = "invisible";
   private originSheetId?: UID;
@@ -247,9 +249,6 @@ export class ClipboardStore extends SpreadsheetStore {
           });
         }
         break;
-      case "CLEAN_CLIPBOARD_HIGHLIGHT":
-        this.status = "invisible";
-        break;
       case "DELETE_CELL": {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
         if (!isZoneValid(cut[0])) {
@@ -324,6 +323,10 @@ export class ClipboardStore extends SpreadsheetStore {
           this.status = "invisible";
         }
     }
+  }
+
+  clearClipboardHighlight() {
+    this.status = "invisible";
   }
 
   private getCopiedDataAbove(zone: Zone) {
@@ -775,6 +778,10 @@ export class ClipboardStore extends SpreadsheetStore {
     return this._isCutOperation ?? false;
   }
 
+  showFigureAsCopied(figureId: UID): boolean {
+    return this.status === "visible" && !!this.copiedData?.figureIds?.includes(figureId);
+  }
+
   // ---------------------------------------------------------------------------
   // Private methods
   // ---------------------------------------------------------------------------
@@ -840,7 +847,7 @@ export class ClipboardStore extends SpreadsheetStore {
   // ---------------------------------------------------------------------------
 
   drawLayer(renderingContext: GridRenderingContext) {
-    if (this.status !== "visible" || !this.copiedData) {
+    if (this.status !== "visible" || !this.copiedData || "figureIds" in this.copiedData) {
       return;
     }
     const { sheetId: copiedSheetId, zones } = this.copiedData;
