@@ -6,6 +6,7 @@ import {
   PluginInstance,
   signal,
   Signal,
+  useEffect,
   useListener,
   usePlugin,
   useProps,
@@ -21,6 +22,7 @@ import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { PrintModePlugin } from "../../owl_plugins/print_mode_owl_plugin";
+import { SpreadsheetRectPlugin } from "../../owl_plugins/spreadsheet_rect_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { ClipboardStore } from "../../stores/clipboard_store";
@@ -39,13 +41,7 @@ import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { cssPropertiesToCss } from "../helpers/css";
-import {
-  getElBoundingRect,
-  keyboardEventToShortcutString,
-  zoomCorrectedElementRect,
-} from "../helpers/dom_helpers";
-import { useResizeObserver } from "../helpers/listener_hook";
-import { useSpreadsheetRect } from "../helpers/position_hook";
+import { keyboardEventToShortcutString, zoomCorrectedElementRect } from "../helpers/dom_helpers";
 import { types } from "../props_validation";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../side_panel/side_panels/side_panels";
@@ -81,7 +77,6 @@ export class Spreadsheet extends Component {
 
   sidePanel!: Store<SidePanelStore>;
   spreadsheetRef = signal.ref();
-  spreadsheetRect = useSpreadsheetRect();
 
   private _focusGrid?: () => void;
 
@@ -125,7 +120,6 @@ export class Spreadsheet extends Component {
     const { stores } = useSpreadsheetProviders({
       model: this.props.model,
       spreadsheetRef: this.spreadsheetRef,
-      getPopoverContainerRect: () => getElBoundingRect(this.spreadsheetRef()),
     });
     this.viewStore = useStore(ViewportsStore);
     this.isSmallPlugin = usePlugin(IsSmallPlugin);
@@ -183,8 +177,10 @@ export class Spreadsheet extends Component {
       }
     });
 
-    useResizeObserver(this.spreadsheetRef, () => {
-      this.sidePanel.changeSpreadsheetWidth(this.spreadsheetRect.width);
+    const spreadsheetRectPlugin = usePlugin(SpreadsheetRectPlugin);
+    // FIXME OWL3: once the side panel is reactive, we can drop the effect and make the plugin depend on SpreadsheetRectPlugin directly
+    useEffect(() => {
+      this.sidePanel.changeSpreadsheetWidth(spreadsheetRectPlugin.rect().width);
     });
 
     const batchedRender = batched(() => render(this, true));

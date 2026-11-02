@@ -11,7 +11,7 @@
         onComposerContentFocused.bind="this.onFocus"
         composerStore="this.standaloneComposerStore"
         placeholder="this.props.placeholder"
-        delimitation="this.spreadsheetRect"
+        delimitation="this.spreadsheetRectPlugin.rect()"
       />
     </div>
   </t>

@@ -1,6 +1,5 @@
-import { Plugin, useConfig } from "@odoo/owl";
-import { Rect } from "../../types/rendering";
+import { Plugin, types, useConfig } from "@odoo/owl";
 
 export class PopoverContainerPlugin extends Plugin {
-  getContainerRect: () => Rect = useConfig("getPopoverContainerRect");
+  rect = useConfig("popoverContainerRectSignal", types.signal());
 }

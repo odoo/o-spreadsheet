@@ -2,7 +2,6 @@ import {
   onMounted,
   onPatched,
   providePlugins,
-  proxy,
   shallowEqual,
   signal,
   Signal,
@@ -10,34 +9,8 @@ import {
 } from "@odoo/owl";
 import { SpreadsheetRectPlugin } from "../../owl_plugins/spreadsheet_rect_plugin";
 import { Rect } from "../../types/rendering";
-import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { getBoundingRectAsPOJO } from "./dom_helpers";
 import { useResizeObserver } from "./listener_hook";
-
-/**
- * Return the o-spreadsheet element position relative
- * to the browser viewport.
- */
-export function useSpreadsheetRect(): Rect {
-  // FIXME OWL3: remove this helper, use SpreadsheetRectPlugin instead (need to use useEffect in the components)
-  const position = proxy({ x: 0, y: 0, width: 0, height: 0 });
-  let spreadsheetElement: Element | null = null;
-  function updatePosition() {
-    if (!spreadsheetElement) {
-      spreadsheetElement = document.querySelector(".o-spreadsheet");
-    }
-    if (spreadsheetElement) {
-      const { top, left, width, height } = spreadsheetElement.getBoundingClientRect();
-      position.x = left;
-      position.y = top;
-      position.width = width;
-      position.height = height;
-    }
-  }
-  onMounted(updatePosition);
-  onPatched(updatePosition);
-  return position;
-}
 
 export function provideSpreadsheetRect(spreadsheetRef: Signal<HTMLElement | null>) {
   providePlugins([SpreadsheetRectPlugin]);
@@ -51,29 +24,6 @@ export function provideSpreadsheetRect(spreadsheetRef: Signal<HTMLElement | null
   onMounted(updatePosition);
   onPatched(updatePosition);
   useResizeObserver(spreadsheetRef, updatePosition);
-}
-
-/**
- * Get the rectangle inside which a popover should stay when being displayed.
- * It's the value defined in `env.getPopoverContainerRect`, or the Rect of the "o-spreadsheet"
- * element by default.
- *
- * Coordinates are expressed expressed as absolute DOM position.
- */
-export function usePopoverContainer(): Rect {
-  const container = proxy({ x: 0, y: 0, width: 0, height: 0 });
-  const popoverContainerPlugin = usePlugin(PopoverContainerPlugin);
-  function updateRect() {
-    const newRect = popoverContainerPlugin.getContainerRect();
-    container.x = newRect.x;
-    container.y = newRect.y;
-    container.width = newRect.width;
-    container.height = newRect.height;
-  }
-  updateRect();
-  onMounted(updateRect);
-  onPatched(updateRect);
-  return container;
 }
 
 /**

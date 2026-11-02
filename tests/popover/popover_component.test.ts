@@ -1,4 +1,4 @@
-import { providePlugins, useProps, xml } from "@odoo/owl";
+import { providePlugins, signal, useProps, xml } from "@odoo/owl";
 import { Model, Pixel, Rect } from "../../src";
 import { Popover } from "../../src/components/popover/popover";
 import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
@@ -6,7 +6,7 @@ import { types } from "../../src/components/props_validation";
 import { getDefaultSheetViewSize } from "../../src/constants";
 import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
 import { PropsOf } from "../../src/types/props_of";
-import { getStylePropertyInPx, mountComponent } from "../test_helpers/helpers";
+import { getStylePropertyInPx, mountComponent, nextTick } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 const POPOVER_HEIGHT = 200;
@@ -24,7 +24,7 @@ interface MountPopoverArgs extends Partial<PropsOf<Popover>> {
 async function mountTestPopover(args: MountPopoverArgs) {
   class Parent extends Component<any> {
     static template = xml/* xml */ `
-        <div class="o-spreadsheet">
+        <div t-ref="this.containerRef">
           <Popover t-props="this.popoverProps">
             <div style="height:${args.childHeight}px;width:${args.childWidth}px;"/>
           </Popover>
@@ -34,15 +34,17 @@ async function mountTestPopover(args: MountPopoverArgs) {
     protected props = useProps({
       model: types.object<Model>(),
     });
+    containerRef = signal.ref();
 
     setup() {
       const env: any = {
         model: this.props.model,
       };
-      providePlugins([PopoverContainerPlugin], {
-        getPopoverContainerRect: () =>
-          args.containerRect || { x: 0, y: 0, height: 1000, width: 1000 },
-      });
+      if (args.containerRect) {
+        providePlugins([PopoverContainerPlugin], {
+          popoverContainerRectSignal: signal(args.containerRect),
+        });
+      }
       useSubEnv(env);
     }
 
@@ -336,6 +338,7 @@ describe("Popover positioning", () => {
 
     popoverContentBox = { x: 0, y: 0, width: 100, height: 400 };
     window.resizers.resize();
+    await nextTick();
     expect(popover.style.top).toEqual(`400px`);
   });
 
@@ -359,10 +362,12 @@ describe("Popover positioning", () => {
 
     popoverContentBox = { x: 0, y: 0, width: 100, height: 400 };
     window.resizers.resize();
+    await nextTick();
     expect(popover.style.top).toEqual(`400px`);
 
     popoverContentBox = { x: 0, y: 0, width: 100, height: 100 };
     window.resizers.resize();
+    await nextTick();
     // top moves because the content changes, but the bottom stays the same, even if there is now space below the anchor rect
     expect(popover.style.top).toEqual(`700px`);
   });

@@ -9,6 +9,7 @@ import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
 import { UuidGenerator } from "../../helpers/uuid";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
+import { SpreadsheetRectPlugin } from "../../owl_plugins/spreadsheet_rect_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { ChartDefinition } from "../../types/chart/chart";
 import { Figure, FigureSize, FigureUI } from "../../types/figure";
@@ -20,7 +21,6 @@ import {
 import { OSComponent } from "../os_component";
 import { cssPropertiesToCss, rectToCss } from "./css";
 import { getElBoundingRect } from "./dom_helpers";
-import { useSpreadsheetRect } from "./position_hook";
 
 export function getDefaultChartFigureSize(type: ChartDefinition["type"]): FigureSize {
   if (type === "scorecard") {
@@ -33,10 +33,11 @@ export function useChartDragAndDrop() {
   const draggedFigurePlugin = usePlugin(DraggedFigurePlugin);
   const zoomPlugin = usePlugin(ZoomPlugin);
   const model = usePlugin(ModelPlugin).model();
-  const spreadsheetRect = useSpreadsheetRect();
+  const spreadsheetRectPlugin = usePlugin(SpreadsheetRectPlugin);
 
   const startChartDragAndDrop = (ev: PointerEvent, definition: ChartDefinition) => {
     const dragContainerRect = draggedFigurePlugin.containerRect;
+    const spreadsheetRect = spreadsheetRectPlugin.rect();
     const startX = ev.clientX / zoomPlugin.zoomLevel() - dragContainerRect.x - spreadsheetRect.x;
     const startY = ev.clientY / zoomPlugin.zoomLevel() - dragContainerRect.y - spreadsheetRect.y;
     const { width, height } = getDefaultChartFigureSize(definition.type);

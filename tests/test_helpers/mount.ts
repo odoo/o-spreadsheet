@@ -148,7 +148,6 @@ class StandaloneTestComponent extends Component {
     const { stores } = useSpreadsheetProviders({
       model: this.props.model,
       spreadsheetRef: this.ref,
-      getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
     });
     setupTestStores(stores);
     mockNotificationCallbacks();
