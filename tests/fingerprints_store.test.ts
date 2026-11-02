@@ -1,5 +1,6 @@
+import { PluginInstance } from "@odoo/owl";
 import { Model } from "../src";
-import { FormulaFingerprintStore } from "../src/stores/formula_fingerprints_store";
+import { FormulaFingerprintPlugin } from "../src/owl_plugins/formula_fingerprints_store";
 import {
   activateSheet,
   createSheet,
@@ -8,14 +9,18 @@ import {
   undo,
 } from "./test_helpers/commands_helpers";
 import { getFingerprint } from "./test_helpers/helpers";
-import { makeStore } from "./test_helpers/stores";
+import { makeOwlPluginManager } from "./test_helpers/owl_plugins_helpers";
 
 describe("formula fingerprints", () => {
-  let fingerprints: FormulaFingerprintStore;
+  let fingerprints: PluginInstance<typeof FormulaFingerprintPlugin>;
   let model: Model;
 
   beforeEach(() => {
-    ({ model, store: fingerprints } = makeStore(FormulaFingerprintStore));
+    model = new Model();
+    const { getPlugin } = makeOwlPluginManager([FormulaFingerprintPlugin], {
+      model,
+    });
+    fingerprints = getPlugin(FormulaFingerprintPlugin);
     fingerprints.enable();
   });
 

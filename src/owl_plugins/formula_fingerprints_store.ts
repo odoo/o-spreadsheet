@@ -1,29 +1,30 @@
+import { signal } from "@odoo/owl";
 import { isCoreCommand } from "../command_registry";
 import { PositionMap } from "../helpers/cells/position_map";
 import { AlternatingColorGenerator, setColorAlpha } from "../helpers/color";
 import { DATA_FINGERPRINT, Fingerprint } from "../plugins/evaluation/fingerprint";
 import { Command } from "../types/commands";
 import { CellPosition, Color } from "../types/misc";
-import { SpreadsheetStore } from "./spreadsheet_store";
+import { OwlPluginWithModel } from "./owl_plugin_with_model";
 
-export class FormulaFingerprintStore extends SpreadsheetStore {
+export class FormulaFingerprintPlugin extends OwlPluginWithModel {
   mutators = ["enable", "disable"] as const;
   private isInvalidated = false;
-  private fingerprintColors: Record<Fingerprint, Color> = {
+  private fingerprintColors = {
     [DATA_FINGERPRINT]: "#D9D9D9",
   };
-  isEnabled: boolean = false;
-  colors = new PositionMap<Color>();
+  isEnabled = signal(false);
+  colors = signal(new PositionMap<Color>());
 
   handle(cmd: Command) {
-    if (isCoreCommand(cmd) && this.isEnabled) {
+    if (isCoreCommand(cmd) && this.isEnabled()) {
       this.isInvalidated = true;
     }
     switch (cmd.type) {
       case "UNDO":
       case "REDO":
       case "ACTIVATE_SHEET":
-        if (this.isEnabled) {
+        if (this.isEnabled()) {
           this.isInvalidated = true;
         }
         break;
@@ -38,41 +39,41 @@ export class FormulaFingerprintStore extends SpreadsheetStore {
   }
 
   enable() {
-    this.isEnabled = true;
+    this.isEnabled.set(true);
     this.computeFingerprints();
   }
 
   disable() {
-    this.isEnabled = false;
-    this.colors = new PositionMap();
+    this.isEnabled.set(false);
+    this.colors.set(new PositionMap<Color>());
   }
 
   private computeFingerprints() {
-    this.colors = new PositionMap();
+    this.colors.set(new PositionMap<Color>());
     const fingerprints = new PositionMap<Fingerprint>();
     const allFingerprints = new Set<Fingerprint>();
-    const activeSheetId = this.getters.getActiveSheetId();
-    const cells = this.getters.getCells(activeSheetId);
+    const activeSheetId = this.model().getters.getActiveSheetId();
+    const cells = this.model().getters.getCells(activeSheetId);
     for (const cellId in cells) {
       const cell = cells[cellId];
-      const fingerprint = this.getters.getCellFingerprint(cell);
+      const fingerprint = this.model().getters.getCellFingerprint(cell);
       if (!fingerprint) {
         continue;
       }
       allFingerprints.add(fingerprint);
-      const position = this.getters.getCellPosition(cell.id);
+      const position = this.model().getters.getCellPosition(cell.id);
       fingerprints.set(position, fingerprint);
     }
     this.assignColors(allFingerprints);
     for (const [position, fingerprint] of fingerprints.entries()) {
       const color = this.fingerprintColors[fingerprint];
-      this.colors.set(position, color);
+      this.colors().set(position, color);
       this.colorSpreadZone(position, color);
     }
   }
 
   private colorSpreadZone(position: CellPosition, fingerprintColor: Color) {
-    const spreadZone = this.getters.getSpreadZone(position);
+    const spreadZone = this.model().getters.getSpreadZone(position);
     if (!spreadZone) {
       return;
     }
@@ -80,7 +81,7 @@ export class FormulaFingerprintStore extends SpreadsheetStore {
     for (let row = spreadZone.top; row <= spreadZone.bottom; row++) {
       for (let col = spreadZone.left; col <= spreadZone.right; col++) {
         const spreadPosition = { sheetId, col, row };
-        this.colors.set(spreadPosition, fingerprintColor);
+        this.colors().set(spreadPosition, fingerprintColor);
       }
     }
   }

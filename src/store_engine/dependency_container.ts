@@ -1,7 +1,7 @@
 import { EventBus } from "../helpers/event_bus";
 import { Get, StoreConstructor, StoreParams } from "../types/store_engine";
 
-interface StoreUpdateEvent {
+export interface StoreUpdateEvent {
   type: "store-updated";
 }
 

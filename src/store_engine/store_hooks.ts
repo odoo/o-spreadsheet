@@ -6,7 +6,7 @@ import { DependencyContainer } from "./dependency_container";
 /**
  * This hook should be used at the root of your app to provide the store container.
  */
-export function useStoreProvider() {
+export function useStoreProvider(): DependencyContainer {
   const env = useEnv();
   if (env.__spreadsheet_stores__ instanceof DependencyContainer) {
     return env.__spreadsheet_stores__;
