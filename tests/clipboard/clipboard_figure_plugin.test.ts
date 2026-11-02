@@ -223,6 +223,28 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     expect(clipboardData?.copiedChart).toBe(undefined);
   });
 
+  describe("Copied figure highlight", () => {
+    test("Figure is shown as copied after a copy", () => {
+      expect(clipboardStore.showFigureAsCopied(figureId)).toBe(false);
+      selectFigure(model, figureId);
+      copy(model);
+      expect(clipboardStore.showFigureAsCopied(figureId)).toBe(true);
+    });
+
+    test("Figure is shown as copied after a cut", () => {
+      selectFigure(model, figureId);
+      cut(model);
+      expect(clipboardStore.showFigureAsCopied(figureId)).toBe(true);
+    });
+
+    test("Figure is no longer shown as copied after a change in the grid", () => {
+      selectFigure(model, figureId);
+      copy(model);
+      setCellContent(model, "A1", "hello");
+      expect(clipboardStore.showFigureAsCopied(figureId)).toBe(false);
+    });
+  });
+
   describe("Paste command result", () => {
     test("Cannot paste with empty target", () => {
       selectFigure(model, figureId);

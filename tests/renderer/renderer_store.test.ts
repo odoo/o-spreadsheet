@@ -50,6 +50,7 @@ import {
   addEqualCf,
   addIconCF,
   copy,
+  createImage,
   createSheet,
   createTable,
   deleteColumns,
@@ -60,6 +61,7 @@ import {
   resizeColumns,
   resizeRows,
   selectCell,
+  selectFigure,
   setCellContent,
   setCellFormat,
   setFormat,
@@ -1619,6 +1621,18 @@ describe("renderer", () => {
       expect(isDotOutlined(expectedOutlinedZone)).toBeFalsy();
     }
   );
+
+  test("copying a figure does not outline the selected zone with dots", () => {
+    const model = new Model();
+    const { drawGridRenderer, container } = setRenderer(model, ["Clipboard"]);
+    createImage(model, { figureId: "figureId" });
+    selectCell(model, "A1");
+    selectFigure(model, "figureId");
+    copy(model);
+    const { ctx, isDotOutlined } = watchDashedOutline(model, container);
+    drawGridRenderer(ctx);
+    expect(isDotOutlined(target("A1"))).toBeFalsy();
+  });
 
   test.each([
     (model) => setCellContent(model, "B15", "hello"),

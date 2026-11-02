@@ -14,7 +14,7 @@
         t-att-style="this.figureStyle"
         t-att-data-id="this.props.figureUI.id"
         tabindex="0"
-        t-on-keydown.stop="(ev) => this.onKeyDown(ev)"
+        t-on-keydown="(ev) => this.onKeyDown(ev)"
         t-on-keyup.stop="">
         <t
           t-component="this.figureRegistry.get(this.props.figureUI.tag).Component"
@@ -32,8 +32,9 @@
         />
       </div>
       <div
-        t-if="this.isSelected"
+        t-if="this.isSelected || this.isFigureCopied"
         class="o-figure-selection-border position-absolute pe-none w-100 h-100"
+        t-att-style="this.selectionBorderStyle"
       />
       <t t-if="this.isFigureResizable">
         <div
