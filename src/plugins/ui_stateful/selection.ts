@@ -487,7 +487,7 @@ export class GridSelectionPlugin extends UIPlugin {
       );
       elements = elements.concat(zoneRows);
     }
-    return [...new Set(elements)].sort();
+    return [...new Set(elements)].sort((a, b) => a - b);
   }
 
   /**
