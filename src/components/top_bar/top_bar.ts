@@ -2,12 +2,12 @@ import { onMounted, onPatched, proxy, signal, useListener, usePlugin, useProps }
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../constants";
+import { FormulaFingerprintPlugin } from "../../owl_plugins/formula_fingerprints_store";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { formatNumberMenuItemSpec } from "../../registries/menus/number_format_menu_registry";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
 import { useStore } from "../../store_engine/store_hooks";
-import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
 import { Color, UID } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { Store } from "../../types/store_engine";
@@ -66,7 +66,7 @@ export class TopBar extends OSComponent {
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   isntToolbarMenu = false;
   composerFocusStore!: Store<ComposerFocusStore>;
-  fingerprints!: Store<FormulaFingerprintStore>;
+  fingerprints = usePlugin(FormulaFingerprintPlugin);
   topBarToolStore!: Store<TopBarToolStore>;
 
   toolBarContainerRef = signal.ref();
@@ -82,7 +82,6 @@ export class TopBar extends OSComponent {
 
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);
-    this.fingerprints = useStore(FormulaFingerprintStore);
     this.topBarToolStore = useStore(TopBarToolStore);
 
     useListener(window, "click", this.onExternalClick.bind(this));

@@ -1,3 +1,4 @@
+import { usePlugin } from "@odoo/owl";
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import { getPath2D } from "../components/icons/icons";
 import {
@@ -32,6 +33,7 @@ import {
   zoneToXc,
 } from "../helpers/zones";
 import { Model } from "../model";
+import { FormulaFingerprintPlugin } from "../owl_plugins/formula_fingerprints_store";
 import { cellAnimationRegistry } from "../registries/cell_animation_registry";
 import { DisposableStore } from "../store_engine/store";
 import { CellValueType } from "../types/cells";
@@ -48,7 +50,6 @@ import {
 } from "../types/rendering";
 import { Get, Store } from "../types/store_engine";
 import { CellHoverOverlayStore } from "./cell_hover_overlay_store";
-import { FormulaFingerprintStore } from "./formula_fingerprints_store";
 import { ModelStore } from "./model_store";
 import { RendererStore } from "./renderer_store";
 
@@ -64,7 +65,7 @@ interface Animation {
 export class GridRenderer extends DisposableStore {
   storeGetters = ["drawLayer"] as const;
 
-  private fingerprints: Store<FormulaFingerprintStore>;
+  private fingerprints = usePlugin(FormulaFingerprintPlugin);
   private cellHoverOverlayStore = this.get(CellHoverOverlayStore);
   private hoveredIcon: Store<HoveredIconStore>;
 
@@ -79,7 +80,6 @@ export class GridRenderer extends DisposableStore {
     super(get);
     const model = get(ModelStore) as Model;
     this.getters = model.getters;
-    this.fingerprints = get(FormulaFingerprintStore);
     this.hoveredIcon = get(HoveredIconStore);
 
     model.on("command-dispatched", this, this.handle);
@@ -763,14 +763,14 @@ export class GridRenderer extends DisposableStore {
     const chipStyle = this.getters.getDataValidationChipStyle(position);
 
     let style = this.getters.getCellComputedStyle(position);
-    if (this.fingerprints.isEnabled) {
-      const fingerprintColor = this.fingerprints.colors.get(position);
+    if (this.fingerprints.isEnabled()) {
+      const fingerprintColor = this.fingerprints.colors().get(position);
       style = { ...style, fillColor: fingerprintColor };
     }
     if (chipStyle?.textColor) {
       style = { ...style, textColor: chipStyle.textColor };
     }
-    const dataBarFill = this.fingerprints.isEnabled
+    const dataBarFill = this.fingerprints.isEnabled()
       ? undefined
       : this.getters.getConditionalDataBar(position);
     const iconsList = this.getters.getCellIcons(position);

@@ -12,6 +12,6 @@ export class DOMFocusableElementStore {
       return "noStateChange";
     }
     this.focusableElement?.focus();
-    return;
+    return "noStateChange"; // ADRM TODO delete this
   }
 }
