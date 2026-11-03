@@ -12,12 +12,18 @@ import {
   createSheet,
   hideColumns,
   hideSheet,
+  keyDown,
   setInputValueAndTrigger,
   setSelection,
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers";
-import { mockNotificationMethods, mountComponent, nextTick } from "../test_helpers/helpers";
+import {
+  mockNotificationMethods,
+  mountComponent,
+  mountSpreadsheet,
+  nextTick,
+} from "../test_helpers/helpers";
 
 let model: Model;
 let env: SpreadsheetActionEnv;
@@ -267,5 +273,12 @@ describe("Named ranges topbar selector", () => {
       sticky: false,
       text: "The sheet on which the range is defined is hidden.",
     });
+  });
+
+  test("Keyboard shortcut (Ctrl+G) for the NamedRange", async () => {
+    const { fixture } = await mountSpreadsheet();
+    const input = fixture.querySelector(".o-named-range-selector input");
+    await keyDown({ key: "G", ctrlKey: true });
+    expect(document.activeElement).toBe(input);
   });
 });
