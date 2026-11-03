@@ -6,6 +6,7 @@ import {
 } from "../helpers/clipboard/clipboard_helpers";
 import { removeFalsyAttributes } from "../helpers/misc";
 import { isZoneInside, zoneToDimension } from "../helpers/zones";
+import { getDynamicToStaticFormulaRule } from "../registries/dynamic_to_static_formula_registry";
 import {
   ClipboardCellData,
   ClipboardCopiedTable,
@@ -50,13 +51,18 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
         }
         const coreTable = this.getters.getCoreTable(position);
         const tableZone = coreTable?.range.zone;
+        // A dynamic table spreads with its formula: when its formula is copied as static
+        // formulas, the table is not copied and its style is pasted on the cells instead
+        const isFormulaCopiedAsStatic =
+          coreTable?.type === "dynamic" && !this.isCopiedAsDynamicFormula(position, data);
         let copiedTable: ClipboardCopiedTable | undefined = undefined;
         // Copy whole table
         if (
           !copiedTablesIds.has(table.id) &&
           coreTable &&
           tableZone &&
-          zones.some((z) => isZoneInside(tableZone, z))
+          zones.some((z) => isZoneInside(tableZone, z)) &&
+          !isFormulaCopiedAsStatic
         ) {
           copiedTablesIds.add(table.id);
           let { numberOfRows } = zoneToDimension(tableZone);
@@ -77,10 +83,18 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
             type: coreTable.type,
           };
         }
+        // On cut, the formula becomes static formulas, so its table is deleted (by pasteFromCut)
+        // instead of moving to the paste as a one-cell table.
+        if (isCutOperation && isFormulaCopiedAsStatic) {
+          copiedTable = {
+            range: this.getters.getRangeData(coreTable.range),
+            config: coreTable.config,
+            type: coreTable.type,
+          };
+        }
         if (table.isPivotTable) {
           const isTopLeft = table.range.zone.top === row && table.range.zone.left === col;
-          const isWholePivotSelected = zones.some((z) => isZoneInside(table.range.zone, z));
-          if (isTopLeft || isWholePivotSelected) {
+          if (isTopLeft && this.isCopiedAsDynamicFormula(position, data)) {
             copiedTablesIds.add(table.id);
           }
         }
@@ -95,6 +109,23 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     }
 
     return this.compact(tableCells);
+  }
+
+  /**
+   * Whether the formula of the given cell stays dynamic when copying it, instead of being
+   * copied as static formulas, e.g. =PIVOT(1) copied as =PIVOT.HEADER(...) and
+   * =PIVOT.VALUE(...) (see `dynamicToStaticFormulaRegistry`). It stays dynamic when
+   * copying only this cell, or its whole spread zone.
+   */
+  private isCopiedAsDynamicFormula(position: CellPosition, data: ClipboardCellData): boolean {
+    const spreadZone = this.getters.getSpreadZone(position);
+    // Other spread formulas, e.g. =SEQUENCE(3), are copied as they are
+    if (!spreadZone || !getDynamicToStaticFormulaRule(position, this.getters)) {
+      return true;
+    }
+    const isOnlyThisCellCopied = data.rowsIndexes.length === 1 && data.columnsIndexes.length === 1;
+    const isWholeSpreadZoneCopied = data.zones.some((zone) => isZoneInside(spreadZone, zone));
+    return isOnlyThisCellCopied || isWholeSpreadZoneCopied;
   }
 
   /**
@@ -186,7 +217,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     position: CellPosition,
     options: ClipboardOptions
   ) {
-    if (tableCell.table && !options.pasteOption) {
+    if (tableCell.table && tableCell.isWholeTableCopied && !options.pasteOption) {
       const { range: tableRange } = tableCell.table;
       const zoneDims = zoneToDimension(this.getters.getRangeFromRangeData(tableRange).zone);
       const newTableZone = {
