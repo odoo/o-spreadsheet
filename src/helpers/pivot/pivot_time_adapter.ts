@@ -310,6 +310,24 @@ const minuteNumberAdapter: PivotTimeAdapterNotNull<number> = {
   },
 };
 
+const minuteAdapter = {
+  normalizeFunctionValue(value) {
+    return toNumber(value, DEFAULT_LOCALE);
+  },
+  toValueAndFormat(normalizedValue, locale) {
+    return {
+      value: toNumber(normalizedValue, DEFAULT_LOCALE),
+      format: "dd mmm yyyy hh:mm",
+    };
+  },
+  toFunctionValue(normalizedValue) {
+    const jsDate = toJsDate(normalizedValue, DEFAULT_LOCALE);
+    return `DATE(${jsDate.getFullYear()},${
+      jsDate.getMonth() + 1
+    },${jsDate.getDate()})+TIME(${jsDate.getHours()},${jsDate.getMinutes()},0)`;
+  },
+};
+
 /**
  * normalizes second number
  */
@@ -379,4 +397,5 @@ pivotTimeAdapterRegistry
   .add("hour_number", nullHandlerDecorator(hourNumberAdapter))
   .add("hour", nullHandlerDecorator(hourAdapter))
   .add("minute_number", nullHandlerDecorator(minuteNumberAdapter))
+  .add("minute", nullHandlerDecorator(minuteAdapter))
   .add("second_number", nullHandlerDecorator(secondNumberAdapter));
