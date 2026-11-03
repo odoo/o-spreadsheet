@@ -83,7 +83,7 @@
         <TopBarComposer t-if="!this.isSmallPlugin.isSmall()"/>
       </div>
       <div
-        t-if="false"
+        t-if="this.fingerprints.isEnabled()"
         class="topbar-banner irregularity-map d-flex align-items-stretch justify-content-between border-top">
         <div
           t-on-click="() => this.fingerprints.disable()"

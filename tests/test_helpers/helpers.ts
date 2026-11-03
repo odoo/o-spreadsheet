@@ -1,4 +1,4 @@
-import { proxy, useProps, xml } from "@odoo/owl";
+import { PluginInstance, proxy, useProps, xml } from "@odoo/owl";
 import { type ChartConfiguration } from "chart.js";
 import { setImmediate as realSetImmediate } from "timers";
 import format from "xml-formatter";
@@ -53,12 +53,12 @@ import {
 import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
+import { FormulaFingerprintPlugin } from "../../src/owl_plugins/formula_fingerprints_store";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { useStore } from "../../src/store_engine/store_hooks";
-import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
 import { RendererStore } from "../../src/stores/renderer_store";
 import { GeoChartRegion } from "../../src/types/chart/geo_chart";
@@ -1053,14 +1053,18 @@ export function getHighlightsFromStore(
     .flatMap((getter: HighlightProvider) => getter.highlights);
 }
 
-export function getFingerprint(store: FormulaFingerprintStore, xc: string, sheetId?: UID) {
+export function getFingerprint(
+  plugin: PluginInstance<typeof FormulaFingerprintPlugin>,
+  xc: string,
+  sheetId?: UID
+) {
   const { col, row } = toCartesian(xc);
-  const positions = store.colors.keys();
+  const positions = plugin.colors().keys();
   if (positions.length === 0) {
     return undefined;
   }
   sheetId ??= positions[0]?.sheetId;
-  return store.colors.get({ sheetId, col, row });
+  return plugin.colors().get({ sheetId, col, row });
 }
 
 export function makeTestComposerStore(

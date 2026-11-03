@@ -1,6 +1,7 @@
-import { useEffect } from "@odoo/owl";
+import { providePlugins, useEffect } from "@odoo/owl";
 import { CANVAS_SHIFT } from "../../constants";
-import { useLocalStore, useStore } from "../../store_engine/store_hooks";
+import { StoreRendererPlugin } from "../../owl_plugins/stores_render_owl_plugin";
+import { useLocalStore, useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { GridRenderer } from "../../stores/grid_renderer_store";
 import { RendererStore } from "../../stores/renderer_store";
 import { GridRenderingContext } from "../../types/rendering";
@@ -20,9 +21,13 @@ export function useGridDrawing({
   rendererStore,
   changeCanvasSizeOnZoom,
 }: GridDrawingArgs) {
-  useEffect(drawGrid);
   const renderer = rendererStore || useStore(RendererStore);
+  providePlugins([StoreRendererPlugin], {
+    stores: useStoreProvider(),
+    renderer,
+  });
   useLocalStore(GridRenderer, renderer);
+  useEffect(drawGrid);
 
   // ADRM TODO: do a store renderer that updates a signal on store updated & is read during the render process
   function drawGrid() {
