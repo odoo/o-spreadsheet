@@ -33,6 +33,7 @@ import { ZoomPlugin } from "../../src/owl_plugins/zoom_plugin";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { HighlightStore } from "../../src/stores/highlight_store";
+import { RendererStore } from "../../src/stores/renderer_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
@@ -40,6 +41,7 @@ import { xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { MockFileStore } from "../__mocks__/mock_file_store";
 import { mockJsDomForImageProvider } from "../__mocks__/mock_image_provider";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { registerCleanup } from "../setup/jest.setup";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
 import {
   addEqualCf,
@@ -159,6 +161,52 @@ describe("Grid component", () => {
     const canvas = background.querySelector("canvas")!;
     expect(canvas.classList).toContain("os-theme-dependant");
     expect(canvas.classList).toContain("pe-none");
+  });
+
+  describe("canvas is drawn again when its content can be lost", () => {
+    function setVisibilityState(visibilityState: DocumentVisibilityState) {
+      Object.defineProperty(document, "visibilityState", {
+        value: visibilityState,
+        configurable: true,
+      });
+      registerCleanup(() => {
+        delete (document as any).visibilityState;
+      });
+      document.dispatchEvent(new Event("visibilitychange"));
+    }
+
+    test("the grid is drawn again when the tab becomes visible", async () => {
+      const drawSpy = jest.spyOn(env.getStore(RendererStore), "draw");
+      setVisibilityState("visible");
+      await nextTick();
+      expect(drawSpy).toHaveBeenCalled();
+    });
+
+    test("the grid is not drawn when the tab becomes hidden", async () => {
+      const drawSpy = jest.spyOn(env.getStore(RendererStore), "draw");
+      setVisibilityState("hidden");
+      await nextTick();
+      expect(drawSpy).not.toHaveBeenCalled();
+    });
+
+    test("the grid is drawn again when the canvas context is restored", async () => {
+      const drawSpy = jest.spyOn(env.getStore(RendererStore), "draw");
+      const canvas = fixture.querySelector(".os-canvas-background canvas")!;
+      canvas.dispatchEvent(new Event("contextrestored"));
+      await nextTick();
+      expect(drawSpy).toHaveBeenCalled();
+    });
+
+    test("the grid is drawn again after having been drawn with an empty size", async () => {
+      const drawSpy = jest.spyOn(env.getStore(RendererStore), "draw");
+      viewStore.resizeSheetView({ width: 0, height: 0, gridOffsetX: 0, gridOffsetY: 0 });
+      await nextTick();
+      expect(drawSpy).not.toHaveBeenCalled(); // there's nothing to draw on an empty canvas
+
+      viewStore.resizeSheetView({ width: 100, height: 200, gridOffsetX: 0, gridOffsetY: 0 });
+      await nextTick();
+      expect(drawSpy).toHaveBeenCalled();
+    });
   });
 
   test("can render a sheet with a merge", async () => {

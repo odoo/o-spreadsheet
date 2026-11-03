@@ -1,4 +1,4 @@
-import { providePlugins, useEffect } from "@odoo/owl";
+import { providePlugins, signal, useEffect, useListener, usePlugin } from "@odoo/owl";
 import { CANVAS_SHIFT } from "../../constants";
 import { StoreRendererPlugin } from "../../owl_plugins/stores_render_owl_plugin";
 import { useLocalStore, useStore, useStoreProvider } from "../../store_engine/store_hooks";
@@ -26,11 +26,32 @@ export function useGridDrawing({
     stores: useStoreProvider(),
     renderer,
   });
+  const storeRenderer = usePlugin(StoreRendererPlugin);
   useLocalStore(GridRenderer, renderer);
+
+  // The browser can throw away the canvas bitmap on background tab, force a redraw when tab becomes visible
+  const redrawTrigger = signal(0);
+  const forceRedraw = () => signal.trigger(redrawTrigger);
+  useListener(document, "visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      forceRedraw();
+    }
+  });
+  useEffect(() => {
+    const canvas = canvasRef();
+    if (!canvas) {
+      return;
+    }
+    canvas.addEventListener("contextrestored", forceRedraw);
+    return () => canvas.removeEventListener("contextrestored", forceRedraw);
+  });
+
   useEffect(drawGrid);
 
-  // ADRM TODO: do a store renderer that updates a signal on store updated & is read during the render process
   function drawGrid() {
+    // Subscribe to the signals before any early return
+    redrawTrigger();
+    storeRenderer.watchDependencies();
     const canvas = canvasRef() as HTMLCanvasElement | null;
     if (!canvas) {
       return;
