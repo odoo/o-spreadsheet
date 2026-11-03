@@ -46,9 +46,7 @@ export function useGridDrawing({
     return () => canvas.removeEventListener("contextrestored", forceRedraw);
   });
 
-  useEffect(drawGrid);
-
-  function drawGrid() {
+  const drawGrid = () => {
     // Subscribe to the signals before any early return
     redrawTrigger();
     storeRenderer.watchDependencies();
@@ -89,5 +87,8 @@ export function useGridDrawing({
     ctx.scale(dpr * zoom, dpr * zoom);
 
     renderer.draw(renderingContext);
-  }
+  };
+
+  // useEffect(drawGrid);
+  return drawGrid;
 }

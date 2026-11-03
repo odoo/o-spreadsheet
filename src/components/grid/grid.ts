@@ -184,6 +184,8 @@ export class Grid extends OSComponent {
   private clipboardPlugin = usePlugin(NavigatorClipboardPlugin);
   private checkboxTogglePlugin!: PluginInstance<typeof CheckboxTogglePlugin>;
 
+  drawGrid!: () => void;
+
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
 
   onMouseWheel!: (ev: WheelEvent) => void;
@@ -219,7 +221,7 @@ export class Grid extends OSComponent {
     useListener(document.body, "paste", this.paste.bind(this));
     onMounted(() => this.focusDefaultElement());
     this.props.exposeFocus(() => this.focusDefaultElement());
-    useGridDrawing({
+    this.drawGrid = useGridDrawing({
       canvasRef: this.canvasRef,
       renderingCtx: () => ({
         dpr: window.devicePixelRatio || 1,
@@ -1020,5 +1022,11 @@ export class Grid extends OSComponent {
 
   get isMobile() {
     return isMobileOS();
+  }
+
+  get machin() {
+    console.log("drawGrid");
+    this.drawGrid();
+    return 5;
   }
 }

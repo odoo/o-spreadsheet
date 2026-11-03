@@ -81,6 +81,8 @@ export class TopBar extends OSComponent {
   isSmallPlugin = usePlugin(IsSmallPlugin);
 
   setup() {
+    // @ts-ignore
+    window.fingerprints = this.fingerprints;
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.topBarToolStore = useStore(TopBarToolStore);
 

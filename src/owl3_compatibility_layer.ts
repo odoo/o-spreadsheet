@@ -240,6 +240,10 @@ const customDirectives = {
     node.setAttribute("t-component", "__globals__.Portal");
     node.setAttribute("selector", value);
   },
+  test: (node, value) => {
+    console.log("test", node, value);
+    // node.setAttribute("", value);
+  },
 };
 
 const globalValues = {
