@@ -22,7 +22,7 @@ import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { SidePanelStore } from "../../side_panel/side_panel/side_panel_store";
 import { StandaloneViewport } from "../../standalone_viewport/standalone_viewport";
-import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
+import { ChartAnimationPlugin } from "../chart/chartJs/chartjs_animation_owl_plugin";
 import { ChartMenu } from "../chart/chart_menu/chart_menu";
 
 export class CarouselFigure extends OSComponent {
@@ -42,12 +42,11 @@ export class CarouselFigure extends OSComponent {
   private menuState = proxy<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
   private hiddenItems: CarouselItem[] = [];
 
-  protected animationStore: Store<ChartAnimationStore> | undefined;
+  protected chartAnimationPlugin = usePlugin(ChartAnimationPlugin);
   private fullScreenFigurePlugin = usePlugin(FullScreenFigurePlugin);
   private sidePanelStore!: Store<SidePanelStore>;
 
   setup(): void {
-    this.animationStore = useStore(ChartAnimationStore);
     this.sidePanelStore = useStore(SidePanelStore);
 
     onPatched(() => {
@@ -107,7 +106,7 @@ export class CarouselFigure extends OSComponent {
     });
     if (item.type === "chart") {
       const animationChartId = item.chartId + (this.props.isFullScreen ? "-fullscreen" : "");
-      this.animationStore?.enableAnimationForChart(animationChartId);
+      this.chartAnimationPlugin.enableAnimationForChart(animationChartId);
     }
   }
 

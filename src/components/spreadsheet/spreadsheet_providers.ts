@@ -16,6 +16,7 @@ import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ModelStore } from "../../stores/model_store";
 import { ViewportsStore } from "../../stores/viewports_store";
+import { ChartAnimationPlugin } from "../figures/chart/chartJs/chartjs_animation_owl_plugin";
 import { DraggedFigurePlugin } from "../figures/figure_dnd_container/figure_dnd_owl_plugin";
 import { FullScreenFigurePlugin } from "../full_screen_figure/full_screen_figure_owl_plugin";
 import { provideSpreadsheetRect } from "../helpers/position_hook";
@@ -45,6 +46,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
       ImageProviderPlugin,
       TableResizePlugin,
       FullScreenFigurePlugin,
+      ChartAnimationPlugin,
     ],
     {
       popoverContainerRectSignal: spreadsheetRectPlugin.rect,
