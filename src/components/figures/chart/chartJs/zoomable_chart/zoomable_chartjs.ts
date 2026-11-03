@@ -7,17 +7,15 @@ import {
 } from "../../../../../helpers/figures/charts/chart_common";
 import { clip, largeMax, largeMin } from "../../../../../helpers/misc";
 import { ZoomPlugin } from "../../../../../owl_plugins/zoom_plugin";
-import { useStore } from "../../../../../store_engine/store_hooks";
 import { ChartJSRuntime } from "../../../../../types/chart/chart";
-import { Store } from "../../../../../types/store_engine";
 import { cssPropertiesToCss } from "../../../../helpers/css";
 import { ChartJsComponent } from "../chartjs";
-import { Boundaries, ZoomableChartStore } from "./zoomable_chart_store";
+import { Boundaries, ZoomableChartPlugin } from "./zoomable_chart_owl_plugin";
 
 export class ZoomableChartJsComponent extends ChartJsComponent {
   static template = "o-spreadsheet-ZoomableChartJsComponent";
 
-  private store!: Store<ZoomableChartStore>;
+  private plugin = usePlugin(ZoomableChartPlugin);
   private zoomPlugin = usePlugin(ZoomPlugin);
 
   private masterChartCanvas = signal.ref(HTMLCanvasElement);
@@ -29,11 +27,6 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   private datasetBoundaries: Boundaries = { min: 0, max: 0 };
   private removeEventListeners = () => {};
   private isMasterChartAllowed: boolean = false;
-
-  setup() {
-    this.store = useStore(ZoomableChartStore);
-    super.setup();
-  }
 
   protected unmount() {
     super.unmount();
@@ -89,7 +82,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
       return chartData;
     }
     let x = chartData.options.scales.x;
-    const limits = this.store.currentAxesLimits[this.chartId]?.x;
+    const limits = this.plugin.currentAxesLimits[this.chartId]?.x;
     if (limits) {
       x = {
         ...x,
@@ -183,7 +176,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     const chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
     const { min, max } = this.getAxisLimitsFromDataset(chartData);
     if (this.datasetBoundaries.min !== min || this.datasetBoundaries.max !== max) {
-      this.store.clearAxisLimits(this.chartId);
+      this.plugin.clearAxisLimits(this.chartId);
       this.datasetBoundaries = { min, max };
     }
     this.isBarChart = chartData?.type === "bar";
@@ -227,7 +220,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     if (!this.chart) {
       return;
     }
-    const storedLimits = this.store.originalAxisLimits[this.chartId]?.x;
+    const storedLimits = this.plugin.originalAxisLimits[this.chartId]?.x;
     if (!storedLimits) {
       let scales: { [key: string]: Boundaries } = this.masterChart
         ? this.masterChart.scales
@@ -238,7 +231,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
           x: this.adjustBoundaries(scales.x),
         };
       }
-      this.store.resetAxisLimits(this.chartId, scales);
+      this.plugin.resetAxisLimits(this.chartId, scales);
       return;
     }
     this.updateTrendingLineAxes();
@@ -250,8 +243,8 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   }
 
   private updateTrendingLineAxes() {
-    this.store.updateTrendLineConfiguration(this.chartId);
-    const limits = this.store.currentAxesLimits[this.chartId];
+    this.plugin.updateTrendLineConfiguration(this.chartId);
+    const limits = this.plugin.currentAxesLimits[this.chartId];
     for (const axisId of [TREND_LINE_XAXIS_ID, MOVING_AVERAGE_TREND_LINE_XAXIS_ID]) {
       if (!this.chart?.config?.options?.scales?.[axisId] || !limits?.[axisId]) {
         continue;
@@ -262,11 +255,11 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   }
 
   get upperBound(): number | undefined {
-    return this.computePosition(this.store.currentAxesLimits[this.chartId]?.x?.max);
+    return this.computePosition(this.plugin.currentAxesLimits[this.chartId]?.x?.max);
   }
 
   get lowerBound(): number | undefined {
-    return this.computePosition(this.store.currentAxesLimits[this.chartId]?.x?.min);
+    return this.computePosition(this.plugin.currentAxesLimits[this.chartId]?.x?.min);
   }
 
   private computePosition(value: number | undefined): number | undefined {
@@ -323,7 +316,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
    */
 
   private getStoredBoundaries(): Boundaries {
-    let { min, max } = this.store.currentAxesLimits[this.chartId].x;
+    let { min, max } = this.plugin.currentAxesLimits[this.chartId].x;
     if (!this.hasLinearScale) {
       min = Math.ceil(min);
       max = Math.floor(max);
@@ -357,7 +350,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     if (!this.chart) {
       return;
     }
-    this.store.updateAxisLimits(this.chartId, { min: xMin, max: xMax });
+    this.plugin.updateAxisLimits(this.chartId, { min: xMin, max: xMax });
     const { min, max } = this.getStoredBoundaries();
     if (max > min || (this.isBarChart && max === min)) {
       this.chart.config.options!.scales!.x!.min = min;
@@ -400,7 +393,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     ) {
       startingPositionOnChart = zoomedEvent.offsetX - lowerBound;
       this.mode = "moveInMaster";
-      const currentLimits = this.store.currentAxesLimits[this.chartId]?.x;
+      const currentLimits = this.plugin.currentAxesLimits[this.chartId]?.x;
       windowSize =
         (currentLimits?.max ?? this.chart.scales.x.max) -
         (currentLimits?.min ?? this.chart.scales.x.min);
@@ -415,8 +408,8 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
       }
       startX = this.computeCoordinate(startingPositionOnChart);
     }
-    const storedMin = this.store.originalAxisLimits[this.chartId].x.min;
-    const storedMax = this.store.originalAxisLimits[this.chartId].x.max;
+    const storedMin = this.plugin.originalAxisLimits[this.chartId].x.min;
+    const storedMax = this.plugin.originalAxisLimits[this.chartId].x.max;
 
     const computeNewAxisLimits = (position: number) => {
       if (this.mode === "moveInMaster") {
@@ -545,8 +538,8 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     }
     ev.preventDefault();
     ev.stopPropagation();
-    let { min, max } = this.store.currentAxesLimits[this.chartId]?.x ?? this.chart.scales.x;
-    const originalAxisLimits = this.store.originalAxisLimits[this.chartId].x;
+    let { min, max } = this.plugin.currentAxesLimits[this.chartId]?.x ?? this.chart.scales.x;
+    const originalAxisLimits = this.plugin.originalAxisLimits[this.chartId].x;
     if (!originalAxisLimits) {
       return;
     }
