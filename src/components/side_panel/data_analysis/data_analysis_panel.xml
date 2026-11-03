@@ -1,6 +1,15 @@
 <templates>
   <div t-name="o-spreadsheet-DataAnalysisPanel" class="o-data-analysis-panel p-2">
     <div t-if="this.store.hasData">
+      <Section>
+        <div class="o-sidePanel-label mb-1">Rows to ignore</div>
+        <NumberInput
+          value="0"
+          class="'o-ignored-rows-input'"
+          min="0"
+          onChange.bind="this.updateIgnoredRows"
+        />
+      </Section>
       <SidePanelCollapsible title.translate="Suggested charts" isInitiallyCollapsed="false">
         <t t-set-slot="content">
           <div t-if="this.store.chartSuggestions.length" class="o-chart-suggestions-grid pb-4">
