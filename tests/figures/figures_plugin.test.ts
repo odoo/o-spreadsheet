@@ -1,6 +1,12 @@
 import { CommandResult } from "../../src";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  DEFAULT_FIGURE_HEIGHT,
+  DEFAULT_FIGURE_WIDTH,
+} from "../../src/constants";
 import { numberToLetters, range } from "../../src/helpers";
+import { centerFigurePosition } from "../../src/helpers/figures/figure/figure";
 import { Model } from "../../src/model";
 import {
   activateSheet,
@@ -925,5 +931,37 @@ describe("figure plugin", () => {
     const figureUIAfter = model.getters.getFigureUI(sheetId, figureAfter);
     expect(figureUIAfter.x).toBe(100);
     expect(figureUIAfter.y).toBe(100);
+  });
+
+  test("Center figure taller than rows height", async () => {
+    const model = new Model({
+      sheets: [{ rowNumber: 5 }],
+    });
+    const position = centerFigurePosition(model.getters, {
+      width: DEFAULT_FIGURE_WIDTH,
+      height: DEFAULT_FIGURE_HEIGHT,
+    });
+    expect(position).toMatchObject({
+      row: 0,
+      offset: {
+        y: 0,
+      },
+    });
+  });
+
+  test("Center figure wider than columns width", async () => {
+    const model = new Model({
+      sheets: [{ colNumber: 2 }],
+    });
+    const position = centerFigurePosition(model.getters, {
+      width: DEFAULT_FIGURE_WIDTH,
+      height: DEFAULT_FIGURE_HEIGHT,
+    });
+    expect(position).toMatchObject({
+      col: 0,
+      offset: {
+        x: 0,
+      },
+    });
   });
 });
