@@ -1,13 +1,11 @@
-import { proxy, useProps } from "@odoo/owl";
+import { proxy, usePlugin, useProps } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
-import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { MenuMouseEvent, ValueAndLabel } from "../../../../types/misc";
 import { Rect } from "../../../../types/rendering";
-import { Store } from "../../../../types/store_engine";
-import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
+import { FullScreenFigurePlugin } from "../../../full_screen_figure/full_screen_figure_owl_plugin";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { MenuPopover } from "../../../menu_popover/menu_popover";
 import { OSComponent } from "../../../os_component";
@@ -38,18 +36,13 @@ export class ChartMenu extends OSComponent {
     displayEllipsisButton: types.boolean().optional(true),
   });
 
-  private fullScreenFigureStore!: Store<FullScreenFigureStore>;
+  private fullScreenFigurePlugin = usePlugin(FullScreenFigurePlugin);
 
   private state: ChartMenuState = proxy({
     openedPopover: undefined,
     anchorRect: null,
     menuItems: [],
   });
-
-  setup() {
-    super.setup();
-    this.fullScreenFigureStore = useStore(FullScreenFigureStore);
-  }
 
   getMenuItems(): MenuItem[] {
     const items: MenuItem[] = [];
@@ -120,13 +113,13 @@ export class ChartMenu extends OSComponent {
     if (this.chartDefinition.type === "scorecard") {
       return undefined;
     }
-    const isFullScreen = this.figureId === this.fullScreenFigureStore.fullScreenFigure?.id;
+    const isFullScreen = this.figureId === this.fullScreenFigurePlugin.fullScreenFigure()?.id;
     return {
       id: "fullScreenChart",
       label: isFullScreen ? _t("Exit Full Screen") : _t("Full Screen"),
       icon: isFullScreen ? "o-spreadsheet-Icon.FULLSCREEN_OUT" : "o-spreadsheet-Icon.FULLSCREEN_IN",
       onClick: () => {
-        this.fullScreenFigureStore.toggleFullScreenFigure(this.figureId);
+        this.fullScreenFigurePlugin.toggleFullScreenFigure(this.figureId);
       },
     };
   }

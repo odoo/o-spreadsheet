@@ -1,52 +1,41 @@
-import { onWillUpdateProps, proxy, signal, useEffect } from "@odoo/owl";
+import { proxy, signal, useEffect, useOnChange, usePlugin } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { figureRegistry } from "../../registries/figures_registry";
 import { useStore } from "../../store_engine/store_hooks";
-import { Store } from "../../types/store_engine";
 import { ChartAnimationStore } from "../figures/chart/chartJs/chartjs_animation_store";
 import { ChartFigure } from "../figures/figure_chart/figure_chart";
+import { useResizeObserver } from "../helpers/listener_hook";
 import { OSComponent } from "../os_component";
-import { FullScreenFigureStore } from "./full_screen_figure_store";
+import { FullScreenFigurePlugin } from "./full_screen_figure_owl_plugin";
 
 export class FullScreenFigure extends OSComponent {
   static template = "o-spreadsheet-FullScreenFigure";
   static components = { ChartFigure };
 
-  private fullScreenFigureStore!: Store<FullScreenFigureStore>;
+  private fullScreenFigurePlugin = usePlugin(FullScreenFigurePlugin);
   private fullScreenFigureRef = signal.ref();
   private containerSize = proxy({ width: 0, height: 0 });
 
   figureRegistry = figureRegistry;
 
   setup() {
-    this.fullScreenFigureStore = useStore(FullScreenFigureStore);
-
     const animationStore = useStore(ChartAnimationStore);
-    let lastFigureId: string | undefined = undefined;
-    onWillUpdateProps(() => {
-      if (lastFigureId !== this.figureUI?.id) {
+    useOnChange(
+      () => [this.figureUI?.id],
+      () => {
         animationStore.enableAnimationForChart(this.chartId + "-fullscreen");
       }
-      lastFigureId = this.figureUI?.id;
-    });
+    );
 
     useEffect(() => this.fullScreenFigureRef()?.focus());
-    useEffect(() => {
-      const el = this.fullScreenFigureRef();
-      if (!el) {
-        return;
-      }
-      const resizeObserver = new ResizeObserver(([entry]) => {
-        this.containerSize.width = entry.contentRect.width;
-        this.containerSize.height = entry.contentRect.height;
-      });
-      resizeObserver.observe(el);
-      return () => resizeObserver.disconnect();
+    useResizeObserver(this.fullScreenFigureRef, ([entry]) => {
+      this.containerSize.width = entry.contentRect.width;
+      this.containerSize.height = entry.contentRect.height;
     });
   }
 
   get figureUI() {
-    const figureUI = this.fullScreenFigureStore.fullScreenFigure;
+    const figureUI = this.fullScreenFigurePlugin.fullScreenFigure();
     if (!figureUI) {
       return undefined;
     }
@@ -66,7 +55,7 @@ export class FullScreenFigure extends OSComponent {
 
   exitFullScreen() {
     if (this.figureUI) {
-      this.fullScreenFigureStore.toggleFullScreenFigure(this.figureUI.id);
+      this.fullScreenFigurePlugin.toggleFullScreenFigure(this.figureUI.id);
     }
   }
 

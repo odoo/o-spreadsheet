@@ -1,4 +1,4 @@
-import { onPatched, proxy, signal, useProps } from "@odoo/owl";
+import { onPatched, proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemTitle, getCarouselLayout } from "../../../helpers/carousel_helpers";
@@ -14,7 +14,7 @@ import { CSSProperties, MenuMouseEvent } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
-import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figure_store";
+import { FullScreenFigurePlugin } from "../../full_screen_figure/full_screen_figure_owl_plugin";
 import { cellTextStyleToCss, cssPropertiesToCss, rectToCss } from "../../helpers/css";
 import { getBoundingRectAsPOJO, getElBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
@@ -43,12 +43,11 @@ export class CarouselFigure extends OSComponent {
   private hiddenItems: CarouselItem[] = [];
 
   protected animationStore: Store<ChartAnimationStore> | undefined;
-  private fullScreenFigureStore!: Store<FullScreenFigureStore>;
+  private fullScreenFigurePlugin = usePlugin(FullScreenFigurePlugin);
   private sidePanelStore!: Store<SidePanelStore>;
 
   setup(): void {
     this.animationStore = useStore(ChartAnimationStore);
-    this.fullScreenFigureStore = useStore(FullScreenFigureStore);
     this.sidePanelStore = useStore(SidePanelStore);
 
     onPatched(() => {
@@ -207,7 +206,7 @@ export class CarouselFigure extends OSComponent {
   }
 
   toggleFullScreen() {
-    this.fullScreenFigureStore.toggleFullScreenFigure(this.props.figureUI.id);
+    this.fullScreenFigurePlugin.toggleFullScreenFigure(this.props.figureUI.id);
   }
 
   get fullScreenButtonTitle(): string {
