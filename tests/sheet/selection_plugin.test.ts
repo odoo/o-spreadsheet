@@ -44,6 +44,7 @@ import {
   getActivePosition,
   getCell,
   getCellContent,
+  getCellFormat,
   getCellRawContent,
   getCellText,
   getSelectionAnchorCellXc,
@@ -1109,6 +1110,23 @@ describe("move elements(s)", () => {
     setFormatting(model, "A3", { wrapping: "wrap" });
     moveRows(model, 1, [2], "before");
     expect(model.getters.getUserRowSize(sheetId, 1)).toEqual(undefined);
+  });
+
+  test("Cells formats are preserved when moving headers", () => {
+    const model = new Model();
+    // const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "B2", "1%");
+    setCellContent(model, "B3", "2/2/2002");
+    moveColumns(model, "C", ["B"], "after");
+    expect(getCellFormat(model, "B2")).toBeUndefined();
+    expect(getCellFormat(model, "B3")).toBeUndefined();
+    expect(getCellFormat(model, "C2")).toBe("0%");
+    expect(getCellFormat(model, "C3")).toBe("m/d/yyyy");
+    moveRows(model, 4, [1, 2], "after");
+    expect(getCellFormat(model, "C2")).toBeUndefined();
+    expect(getCellFormat(model, "C3")).toBeUndefined();
+    expect(getCellFormat(model, "C4")).toBe("0%");
+    expect(getCellFormat(model, "C5")).toBe("m/d/yyyy");
   });
 
   test("Moving a resized row above does not change next row's size", () => {

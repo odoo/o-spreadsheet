@@ -120,12 +120,13 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
           } else {
             // The evaluation can be stale (e.g. mid MOVE_COLUMNS_ROWS, after ADD_COLUMNS_ROWS),
             // whereas a literal cell's parsedValue is always in sync with its content.
-            const { parsedValue } = cell as LiteralCell;
+            const { format, parsedValue } = cell as LiteralCell;
             tempCell = {
               id: -1,
               isFormula: false,
               content: rawContent,
               parsedValue: parsedValue !== null && parsedValue !== undefined ? parsedValue : "",
+              format: format,
             };
           }
           squishedContent = squisher.squish(tempCell, sheetId);
