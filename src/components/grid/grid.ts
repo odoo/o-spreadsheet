@@ -36,6 +36,7 @@ import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { AutomaticSumPlugin } from "../../owl_plugins/automatic_sum_plugin";
 import { CheckboxTogglePlugin } from "../../owl_plugins/checkbox_toggle_plugin";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
+import { NamedRangeShortcutPlugin } from "../../owl_plugins/named_range_shortcut_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
@@ -184,6 +185,7 @@ export class Grid extends OSComponent {
   private clipboardStore!: Store<ClipboardStore>;
   private clipboardPlugin = usePlugin(NavigatorClipboardPlugin);
   private checkboxTogglePlugin!: PluginInstance<typeof CheckboxTogglePlugin>;
+  private namedRangeShortcut = usePlugin(NamedRangeShortcutPlugin);
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
 
@@ -414,6 +416,7 @@ export class Grid extends OSComponent {
     "Ctrl+Enter": () => {
       handleCopyPasteResult(this.spEnv, { type: "COPY_PASTE_CELLS_ON_ZONE" });
     },
+    "Ctrl+G": () => this.namedRangeShortcut.focusOnSelector(),
     "Ctrl+H": () => this.sidePanel.open("FindAndReplace", {}),
     "Ctrl+F": () => this.sidePanel.open("FindAndReplace", {}),
     "Ctrl+Shift+E": () => this.setHorizontalAlign("center"),

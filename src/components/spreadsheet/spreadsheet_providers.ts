@@ -5,6 +5,7 @@ import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
+import { NamedRangeShortcutPlugin } from "../../owl_plugins/named_range_shortcut_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { PrintModePlugin } from "../../owl_plugins/print_mode_owl_plugin";
@@ -43,6 +44,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
       NavigatorClipboardPlugin,
       ImageProviderPlugin,
       TableResizePlugin,
+      NamedRangeShortcutPlugin,
     ],
     {
       popoverContainerRectSignal: spreadsheetRectPlugin.rect,

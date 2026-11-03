@@ -10,6 +10,7 @@ import {
 import { zoneToXc } from "../../helpers/zones";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
+import { NamedRangeShortcutPlugin } from "../../owl_plugins/named_range_shortcut_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
@@ -35,6 +36,7 @@ export class NamedRangeSelector extends OSComponent {
 
   private notification = usePlugin(NotificationPlugin);
   private isSmallPlugin = usePlugin(IsSmallPlugin);
+  private namedRangeShortcut = usePlugin(NamedRangeShortcutPlugin);
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private sidePanelStore!: Store<SidePanelStore>;
@@ -48,6 +50,7 @@ export class NamedRangeSelector extends OSComponent {
     this.topBarToolStore = useToolBarDropdownStore();
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.sidePanelStore = useStore(SidePanelStore);
+    this.namedRangeShortcut.provideRef(this.namedRangeSelectorRef);
   }
 
   onInput(value: string) {
