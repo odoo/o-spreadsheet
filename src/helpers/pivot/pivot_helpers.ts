@@ -133,7 +133,8 @@ export const ALL_PERIODS = {
   iso_week_number: _t("Week"),
   day_of_month: _t("Day of Month"),
   day_of_week: _t("Day of Week"),
-  hour_number: _t("Hour"),
+  hour_number: _t("Hour of Day"),
+  hour: _t("Hour"),
   minute_number: _t("Minute"),
   second_number: _t("Second"),
 };
