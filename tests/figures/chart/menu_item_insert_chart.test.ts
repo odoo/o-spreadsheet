@@ -7,6 +7,7 @@ import {
 } from "../../../src/constants";
 import { toXC, zoneToXc } from "../../../src/helpers";
 import { ChartDefinition, CustomizedDataSet, SpreadsheetChildEnv } from "../../../src/types";
+import { simulateClick } from "../../test_helpers";
 import {
   addColumns,
   addRows,
@@ -416,6 +417,30 @@ describe("Insert chart menu item", () => {
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       dataSets: [{ dataRange: "B:B" }],
       labelRange: "A:A",
+    });
+  });
+
+  test("Chart is inserted on small sheet", async () => {
+    const myModel = new Model({ sheets: [{ id: "s1", name: "s1", rowNumber: 5, colNumber: 2 }] });
+    await mountSpreadsheet({ model: myModel });
+    dispatchSpy = spyModelDispatch(myModel);
+    setSelection(myModel, ["A1"]);
+    await simulateClick(".o-topbar-menu[data-id='insert']");
+    await simulateClick(".o-menu-item[data-name='insert_chart']");
+    const payload = { ...defaultPayload };
+    payload.definition = expect.any(Object);
+    payload.offset = {
+      x: 0,
+      y: 0,
+    };
+    payload.col = 0;
+    payload.row = 0;
+    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    const figureUI = myModel.getters.getVisibleFigures()[0];
+    expect({ col: figureUI.col, row: figureUI.row, offset: figureUI.offset }).toStrictEqual({
+      col: 0,
+      row: 0,
+      offset: { x: 0, y: 0 },
     });
   });
 });
