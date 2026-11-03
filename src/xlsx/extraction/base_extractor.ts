@@ -9,7 +9,7 @@ import {
   XMLFile,
 } from "../../types/xlsx";
 import { DEFAULT_SYSTEM_COLOR } from "../conversion";
-import { fixXlsxUnicode } from "../helpers/misc";
+import { fixXlsxUnicode, resolveRelationshipTarget } from "../helpers/misc";
 import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { escapeQueryNameSpaces } from "../helpers/xml_helpers";
 import { XLSXImageFile } from "./../../types/xlsx";
@@ -88,22 +88,29 @@ export class XlsxBaseExtractor {
     this.warningManager = warningManager;
     this.relationships = {};
     if (rootFile.rels) {
-      this.extractRelationships(rootFile.rels).map((rel) => {
+      this.extractRelationships(rootFile.file, rootFile.rels).map((rel) => {
         this.relationships[rel.id] = rel;
       });
     }
   }
 
   /**
-   * Extract all the relationships inside a .xml.rels file
+   * Extract all the relationships inside a .xml.rels file.
+   *
+   * The targets of internal relationships are resolved to their path from the root of the xlsx.
    */
-  protected extractRelationships(relFile: XMLFile): XLSXRel[] {
+  protected extractRelationships(sourceFile: XMLFile, relFile: XMLFile): XLSXRel[] {
     return this.mapOnElements(
       { parent: relFile.xml, query: "Relationship" },
       (relationshipElement): XLSXRel => {
+        const target = this.extractAttr(relationshipElement, "Target", {
+          required: true,
+        }).asString();
+        const isExternal =
+          this.extractAttr(relationshipElement, "TargetMode")?.asString() === "External";
         return {
           id: this.extractAttr(relationshipElement, "Id", { required: true }).asString(),
-          target: this.extractAttr(relationshipElement, "Target", { required: true }).asString(),
+          target: isExternal ? target : resolveRelationshipTarget(sourceFile.fileName, target),
           type: this.extractAttr(relationshipElement, "Type", { required: true }).asString(),
         };
       }
@@ -352,9 +359,7 @@ export class XlsxBaseExtractor {
     if (!relationship) {
       throw new Error("Undefined target file");
     }
-    const target = this.processRelationshipTargetName(relationship.target);
-    // Use "endsWith" because targets are relative paths, and we know the files by their absolute path.
-    const f = this.getListOfXMLFiles().find((f) => f.file.fileName.endsWith(target));
+    const f = this.getListOfXMLFiles().find((f) => f.file.fileName === relationship.target);
     if (!f || !f.file) {
       throw new Error("Cannot find target file");
     }
@@ -368,9 +373,7 @@ export class XlsxBaseExtractor {
     if (!relationship) {
       throw new Error("Undefined target file");
     }
-    const target = this.processRelationshipTargetName(relationship.target);
-    // Use "endsWith" because targets are relative paths, and we know the files by their absolute path.
-    const f = this.xlsxFileStructure.images.find((f) => f.fileName.endsWith(target));
+    const f = this.xlsxFileStructure.images.find((f) => f.fileName === relationship.target);
     if (!f) {
       throw new Error("Cannot find target file");
     }
@@ -408,10 +411,5 @@ export class XlsxBaseExtractor {
       default:
         return clrScheme[colorId].value;
     }
-  }
-
-  /** Remove signs of relative path. */
-  private processRelationshipTargetName(targetName: string): string {
-    return targetName.replace(/\.+\//, "");
   }
 }

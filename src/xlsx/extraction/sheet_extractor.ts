@@ -23,7 +23,6 @@ import {
 } from "../../types/xlsx";
 import { EXCEL_DEFAULT_COL_WIDTH, EXCEL_DEFAULT_ROW_HEIGHT } from "../constants";
 import { CELL_TYPE_CONVERSION_MAP } from "../conversion";
-import { getRelativePath } from "../helpers/misc";
 import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { XlsxBaseExtractor } from "./base_extractor";
 import { XlsxCfExtractor } from "./cf_extractor";
@@ -102,13 +101,15 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
     );
   }
 
+  /** Id of the relationship of the workbook targeting this sheet */
+  private getWorkbookRelationshipId(): string {
+    const workbook = this.xlsxFileStructure.workbook;
+    const workbookRels = this.extractRelationships(workbook.file, workbook.rels!);
+    return workbookRels.find((rel) => rel.target === this.rootFile.file.fileName)!.id;
+  }
+
   private extractSheetName(): string {
-    const relativePath = getRelativePath(
-      this.xlsxFileStructure.workbook.file.fileName,
-      this.rootFile.file.fileName
-    );
-    const workbookRels = this.extractRelationships(this.xlsxFileStructure.workbook.rels!);
-    const relId = workbookRels.find((rel) => rel.target === relativePath)!.id;
+    const relId = this.getWorkbookRelationshipId();
 
     // Having a namespace in the attributes names mess with the querySelector, and the behavior is not the same
     // for every XML parser. So we'll search manually instead of using a querySelector to search for an attribute value.
@@ -124,12 +125,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
   }
 
   private getSheetWorkbookInfo(): XLSXSheetWorkbookInfo {
-    const relativePath = getRelativePath(
-      this.xlsxFileStructure.workbook.file.fileName,
-      this.rootFile.file.fileName
-    );
-    const workbookRels = this.extractRelationships(this.xlsxFileStructure.workbook.rels!);
-    const relId = workbookRels.find((rel) => rel.target === relativePath)!.id;
+    const relId = this.getWorkbookRelationshipId();
 
     const workbookSheets = this.mapOnElements(
       { parent: this.xlsxFileStructure.workbook.file.xml, query: "sheet" },
