@@ -56,8 +56,16 @@ export function createDate(
         case "hour_number":
           number = date.getHours();
           break;
+        case "hour":
+          number = Math.floor(toNumber(value, locale)) + date.getHours() / 24;
+          break;
         case "minute_number":
           number = date.getMinutes();
+          break;
+        case "minute":
+          number =
+            Math.floor(toNumber(value, locale)) +
+            (date.getHours() * 60 + date.getMinutes()) / (24 * 60);
           break;
         case "second_number":
           number = date.getSeconds();
@@ -108,9 +116,17 @@ export function createDate(
  *     set: { 45_387.13 },
  *     values: { '45_387.13': 3 }
  *   }
+ *   hour: {
+ *     set: { 45_387.13 },
+ *     values: { '45_387.13': 45_387.125 } (05/04/2024 03:00:00)
+ *   }
  *   minute_number: {
  *     set: { 45_387.13 },
  *     values: { '45_387.13': 7 }
+ *   }
+ *   minute: {
+ *     set: { 45_387.13 },
+ *     values: { '45_387.13': 45_387.129861 } (05/04/2024 03:07:00)
  *   }
  *   second_number: {
  *     set: { 45_387.13 },
@@ -158,7 +174,15 @@ const MAP_VALUE_DIMENSION_DATE: Record<
     set: new Set<CellValue>(),
     values: {},
   },
+  hour: {
+    set: new Set<CellValue>(),
+    values: {},
+  },
   minute_number: {
+    set: new Set<CellValue>(),
+    values: {},
+  },
+  minute: {
     set: new Set<CellValue>(),
     values: {},
   },

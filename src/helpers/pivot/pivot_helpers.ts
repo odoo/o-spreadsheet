@@ -135,7 +135,8 @@ export const ALL_PERIODS = {
   day_of_week: _t("Day of Week"),
   hour_number: _t("Hour of Day"),
   hour: _t("Hour"),
-  minute_number: _t("Minute"),
+  minute_number: _t("Minute of Hour"),
+  minute: _t("Minute"),
   second_number: _t("Second"),
 };
 
