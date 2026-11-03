@@ -71,7 +71,12 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
       case "CREATE_FIGURE":
         return this.checkValidations(cmd, this.checkFigureDuplicate, this.checkFigureAnchorOffset);
       case "UPDATE_FIGURE":
-        return this.checkValidations(cmd, this.checkFigureExists, this.checkFigureAnchorOffset);
+        return this.checkValidations(
+          cmd,
+          this.checkFigureExists,
+          this.checkFigureAnchorOffset,
+          this.checkFigureSize
+        );
       case "DELETE_FIGURE":
         return this.checkFigureExists(cmd);
       default:
@@ -321,6 +326,13 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   private checkFigureAnchorOffset(cmd: UpdateFigureCommand | CreateFigureCommand): CommandResult {
     if (cmd.col < 0 || cmd.row < 0 || (cmd.offset && (cmd.offset.x < 0 || cmd.offset.y < 0))) {
       return CommandResult.WrongSheetPosition;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkFigureSize(cmd: UpdateFigureCommand): CommandResult {
+    if ((cmd.width && cmd.width <= 0) || (cmd.height && cmd.height <= 0)) {
+      return CommandResult.WrongFigureSize;
     }
     return CommandResult.Success;
   }
