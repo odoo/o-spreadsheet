@@ -36,9 +36,11 @@ export class DataAnalysisStore extends SpreadsheetStore {
     "toggleDateSort",
     "toggleOccurrencesSort",
     "loadMoreOccurrences",
+    "updateIgnoredRows",
   ] as const;
   shape: ExtendedColumnType[] = [];
   hasHeader: boolean = false;
+  ignoredRows: number = 0;
   generalStatItems: StatValue[] = [];
   occurrencesItems: StatValue[] = [];
   dateStatSections: DateSections = this.defaultDateSections;
@@ -143,6 +145,11 @@ export class DataAnalysisStore extends SpreadsheetStore {
     this.sortOccurrencesItems();
   }
 
+  updateIgnoredRows(value: number) {
+    this.ignoredRows = value;
+    this.refresh();
+  }
+
   private sortDateItems() {
     const items = [...this.dateStatSections[this.dateGranularity]];
     switch (this.dateOccurenceSortType) {
@@ -187,7 +194,13 @@ export class DataAnalysisStore extends SpreadsheetStore {
 
   private refresh() {
     const sheetId = this.getters.getActiveSheetId();
-    const zones = this.getters.getSelectedZones();
+    const selectedZones = this.getters.getSelectedZones();
+    const zones = this.ignoredRows
+      ? selectedZones.map((zone) => ({
+          ...zone,
+          top: zone.top + this.ignoredRows,
+        }))
+      : selectedZones;
     this.ranges = zones.map(zoneToXc);
 
     this.hasData = zones.some((zone) =>
