@@ -244,6 +244,24 @@ const yearAdapter: PivotTimeAdapterNotNull<number> = {
   },
 };
 
+const hourAdapter = {
+  normalizeFunctionValue(value) {
+    return toNumber(value, DEFAULT_LOCALE);
+  },
+  toValueAndFormat(normalizedValue, locale) {
+    return {
+      value: toNumber(normalizedValue, DEFAULT_LOCALE),
+      format: "dd mmm yyyy hh:mm",
+    };
+  },
+  toFunctionValue(normalizedValue) {
+    const jsDate = toJsDate(normalizedValue, DEFAULT_LOCALE);
+    return `DATE(${jsDate.getFullYear()},${
+      jsDate.getMonth() + 1
+    },${jsDate.getDate()})+TIME(${jsDate.getHours()},0,0)`;
+  },
+};
+
 /**
  * normalizes hour number
  */
@@ -359,5 +377,6 @@ pivotTimeAdapterRegistry
   .add("quarter_number", nullHandlerDecorator(quarterNumberAdapter))
   .add("day_of_week", nullHandlerDecorator(dayOfWeekAdapter))
   .add("hour_number", nullHandlerDecorator(hourNumberAdapter))
+  .add("hour", nullHandlerDecorator(hourAdapter))
   .add("minute_number", nullHandlerDecorator(minuteNumberAdapter))
   .add("second_number", nullHandlerDecorator(secondNumberAdapter));
