@@ -1,8 +1,7 @@
 import { proxy, signal, useEffect, useOnChange, usePlugin } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { figureRegistry } from "../../registries/figures_registry";
-import { useStore } from "../../store_engine/store_hooks";
-import { ChartAnimationStore } from "../figures/chart/chartJs/chartjs_animation_store";
+import { ChartAnimationPlugin } from "../figures/chart/chartJs/chartjs_animation_owl_plugin";
 import { ChartFigure } from "../figures/figure_chart/figure_chart";
 import { useResizeObserver } from "../helpers/listener_hook";
 import { OSComponent } from "../os_component";
@@ -19,11 +18,11 @@ export class FullScreenFigure extends OSComponent {
   figureRegistry = figureRegistry;
 
   setup() {
-    const animationStore = useStore(ChartAnimationStore);
+    const chartAnimationPlugin = usePlugin(ChartAnimationPlugin);
     useOnChange(
       () => [this.figureUI?.id],
       () => {
-        animationStore.enableAnimationForChart(this.chartId + "-fullscreen");
+        chartAnimationPlugin.enableAnimationForChart(this.chartId + "-fullscreen");
       }
     );
 

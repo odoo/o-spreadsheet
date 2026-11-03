@@ -1,6 +1,6 @@
 import { Chart } from "chart.js";
 import { Model } from "../../../src";
-import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
+import { ChartAnimationPlugin } from "../../../src/components/figures/chart/chartJs/chartjs_animation_owl_plugin";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
@@ -128,14 +128,14 @@ describe("Chart animations in dashboard", () => {
       "chartId"
     );
     model.updateMode("dashboard");
-    const { env, fixture } = await mountSpreadsheet({ model });
-    const store = env.getStore(ChartAnimationStore);
+    const { fixture, getPlugin } = await mountSpreadsheet({ model });
+    const plugin = getPlugin(ChartAnimationPlugin);
 
-    expect(store.animationPlayed["chartId"]).toBe("pie");
-    expect(store.animationPlayed["chartId-fullscreen"]).toBe(undefined);
+    expect(plugin.animationPlayed["chartId"]).toBe("pie");
+    expect(plugin.animationPlayed["chartId-fullscreen"]).toBe(undefined);
 
     await click(fixture, ".o-figure [data-id='fullScreenChart']");
-    expect(store.animationPlayed["chartId-fullscreen"]).toBe("pie");
+    expect(plugin.animationPlayed["chartId-fullscreen"]).toBe("pie");
   });
 
   test("Non-zoomable full screen charts will be animated each time we open them", async () => {
@@ -146,9 +146,9 @@ describe("Chart animations in dashboard", () => {
       "chartId"
     );
     model.updateMode("dashboard");
-    const { env, fixture } = await mountSpreadsheet({ model });
-    const store = env.getStore(ChartAnimationStore) as ChartAnimationStore;
-    const enableAnimationSpy = jest.spyOn(store, "enableAnimationForChart");
+    const { getPlugin, fixture } = await mountSpreadsheet({ model });
+    const plugin = getPlugin(ChartAnimationPlugin);
+    const enableAnimationSpy = jest.spyOn(plugin, "enableAnimationForChart");
 
     await click(fixture, ".o-figure [data-id='fullScreenChart']");
     expect(enableAnimationSpy).toHaveBeenCalledWith("chartId-fullscreen");
@@ -163,9 +163,9 @@ describe("Chart animations in dashboard", () => {
     );
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
-    const { env, fixture } = await mountSpreadsheet({ model });
-    const store = env.getStore(ChartAnimationStore) as ChartAnimationStore;
-    const enableAnimationSpy = jest.spyOn(store, "enableAnimationForChart");
+    const { getPlugin, fixture } = await mountSpreadsheet({ model });
+    const plugin = getPlugin(ChartAnimationPlugin);
+    const enableAnimationSpy = jest.spyOn(plugin, "enableAnimationForChart");
 
     await click(fixture, ".o-figure [data-id='fullScreenChart']");
     expect(enableAnimationSpy).toHaveBeenCalledWith("chartId-fullscreen");
