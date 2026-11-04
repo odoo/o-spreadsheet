@@ -1,11 +1,10 @@
 import { proxy } from "@odoo/owl";
-import { useLocalStore } from "../../../store_engine/store_hooks";
+import { provideAndUsePlugin } from "../../../helpers/owl3_helpers";
 import { UID } from "../../../types/misc";
-import { Store } from "../../../types/store_engine";
 import { OSComponent } from "../../os_component";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
-import { DataSourcesCleanupStore } from "./data_sources_cleanup_store";
+import { DataSourcesCleanupPlugin } from "./data_sources_cleanup_store";
 
 interface State {
   uncheckedDataSources: Record<UID, boolean>;
@@ -19,11 +18,7 @@ export class DataSourcesCleanup extends OSComponent {
     uncheckedDataSources: {},
   });
 
-  store!: Store<DataSourcesCleanupStore>;
-
-  setup() {
-    this.store = useLocalStore(DataSourcesCleanupStore);
-  }
+  datasourceCleanupPlugin = provideAndUsePlugin(DataSourcesCleanupPlugin);
 
   onToggleDataSource(type: string, id: UID, checked: boolean) {
     this.state.uncheckedDataSources[`${type}-${id}`] = !checked;
@@ -35,7 +30,7 @@ export class DataSourcesCleanup extends OSComponent {
 
   get dataSourcesToDelete() {
     const dataSourcesToDelete: { type: string; id: UID }[] = [];
-    for (const category of this.store.unusedDataSourcesCategories) {
+    for (const category of this.datasourceCleanupPlugin.unusedDataSourcesCategories()) {
       for (const dataSource of category.dataSources) {
         const stateKey = `${category.type}-${dataSource.id}`;
         if (!this.state.uncheckedDataSources[stateKey]) {

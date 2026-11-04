@@ -1,8 +1,9 @@
+import { computed } from "@odoo/owl";
+import { OwlPluginWithModel } from "../../../owl_plugins/owl_plugin_with_model";
 import {
   UnusedDataSource,
   unusedDataSourceRegistry,
 } from "../../../registries/data_source_registry";
-import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { Command } from "../../../types/commands";
 
 interface UnusedDataSourceCategory {
@@ -11,27 +12,27 @@ interface UnusedDataSourceCategory {
   dataSources: UnusedDataSource[];
 }
 
-export class DataSourcesCleanupStore extends SpreadsheetStore {
+export class DataSourcesCleanupPlugin extends OwlPluginWithModel {
   protected handle(cmd: Command): void {
     switch (cmd.type) {
       case "DELETE_DATA_SOURCES":
         for (const item of cmd.dataSources) {
           const dataSourceType = unusedDataSourceRegistry.get(item.type);
-          dataSourceType.deleteDataSource(this.model.dispatch, item.id);
+          dataSourceType.deleteDataSource(this.model().dispatch, item.id);
         }
     }
   }
 
-  get unusedDataSourcesCategories(): UnusedDataSourceCategory[] {
+  unusedDataSourcesCategories = computed<UnusedDataSourceCategory[]>(() => {
     const unusedDataSourcesCategories: UnusedDataSourceCategory[] = [];
     for (const dataSourceType of unusedDataSourceRegistry.getAll()) {
       unusedDataSourcesCategories.push({
         type: dataSourceType.type,
         label: dataSourceType.unusedLabel,
-        dataSources: dataSourceType.getUnusedInstances(this.getters),
+        dataSources: dataSourceType.getUnusedInstances(this.model().getters),
       });
     }
 
     return unusedDataSourcesCategories;
-  }
+  });
 }
