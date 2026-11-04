@@ -1,15 +1,8 @@
-import {
-  PluginConstructor,
-  providePlugins,
-  Scope,
-  signal,
-  useProps,
-  useScope,
-  xml,
-} from "@odoo/owl";
+import { PluginConstructor, Scope, signal, useProps, useScope, xml } from "@odoo/owl";
 import { createGetPluginFunctionFromScope } from "../../src/components/os_component";
 import { types } from "../../src/components/props_validation";
 import { useSpreadsheetProviders } from "../../src/components/spreadsheet/spreadsheet_providers";
+import { providePluginsIfNotPresent } from "../../src/helpers/owl3_helpers";
 import { Model } from "../../src/model";
 import { App, Component } from "../../src/owl3_compatibility_layer";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
@@ -53,7 +46,7 @@ class PluginParent extends Component {
       model: this.props.configPlugins.model,
       spreadsheetRef: signal.ref(),
     });
-    providePlugins(this.props.providedPlugins, this.props.configPlugins);
+    providePluginsIfNotPresent(this.props.providedPlugins, this.props.configPlugins);
 
     const scope = useScope();
     const getPlugin = createGetPluginFunctionFromScope(scope);

@@ -20,6 +20,7 @@ import { ViewportsStore } from "../../stores/viewports_store";
 import { DraggedFigurePlugin } from "../figures/figure_dnd_container/figure_dnd_owl_plugin";
 import { provideSpreadsheetRect } from "../helpers/position_hook";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
+import { SplitToColumnsPlugin } from "../side_panel/split_to_columns_panel/split_to_columns_owl_plugin";
 
 interface SpreadsheetProvidersConfig {
   model: Model;
@@ -45,6 +46,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
       ImageProviderPlugin,
       TableResizePlugin,
       TrimWhitespacePlugin,
+      SplitToColumnsPlugin,
     ],
     {
       popoverContainerRectSignal: spreadsheetRectPlugin.rect,
