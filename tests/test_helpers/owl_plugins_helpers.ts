@@ -65,14 +65,18 @@ class PluginParent extends Component {
 
 export function makeOwlPluginManager(
   providedPlugins: PluginConstructor[],
-  configPlugins: { model: Model } & Record<string, any>,
+  configPlugins: { model?: Model } & Record<string, any> = {},
   beforeProviders?: (container: DependencyContainer) => void
 ): {
+  model: Model;
   getPlugin: OwlPluginGetter;
   scope: Scope;
   container: DependencyContainer;
 } {
   const app = new App({ test: true, translateFn: _t });
+  if (!configPlugins.model) {
+    configPlugins.model = new Model();
+  }
 
   let getPlugin: OwlPluginGetter | undefined = undefined;
   let scope: Scope | undefined = undefined;
@@ -97,5 +101,5 @@ export function makeOwlPluginManager(
 
   container = scopeDependencyContainer(scope, container);
 
-  return { getPlugin, scope, container };
+  return { getPlugin, scope, container, model: configPlugins.model };
 }

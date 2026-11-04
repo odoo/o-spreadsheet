@@ -1,24 +1,26 @@
 import { NotificationPlugin } from "../src/owl_plugins/notification_owl_plugin";
-import { TrimWhitespaceStore } from "../src/stores/trim_whitespace_store";
+import { TrimWhitespacePlugin } from "../src/owl_plugins/trim_whitespace_owl_plugin";
 import { getCellContent } from "./test_helpers";
 import { selectCell, setCellContent, setSelection } from "./test_helpers/commands_helpers";
 import { createModelFromGrid, getRangeValuesAsMatrix } from "./test_helpers/helpers";
-import { makeStore, makeStoreWithModel } from "./test_helpers/stores";
+import { makeOwlPluginManager } from "./test_helpers/owl_plugins_helpers";
 
 describe("trim whitespace", () => {
   test("trim cell content", () => {
-    const { model, store } = makeStore(TrimWhitespaceStore);
+    const { model, getPlugin } = makeOwlPluginManager([TrimWhitespacePlugin]);
+    const plugin = getPlugin(TrimWhitespacePlugin);
     setCellContent(model, "A2", "   Alo         ");
     selectCell(model, "A2");
-    store.trimWhitespace();
+    plugin.trimWhitespace();
     expect(getCellContent(model, "A2")).toBe("Alo");
   });
 
   test("remove duplicate spaces", () => {
-    const { model, store } = makeStore(TrimWhitespaceStore);
+    const { model, getPlugin } = makeOwlPluginManager([TrimWhitespacePlugin]);
+    const plugin = getPlugin(TrimWhitespacePlugin);
     setCellContent(model, "A2", "  Alo        salut     sunt  eu    un haiduc  ");
     selectCell(model, "A2");
-    store.trimWhitespace();
+    plugin.trimWhitespace();
     expect(getCellContent(model, "A2")).toBe("Alo salut sunt eu un haiduc");
   });
 
@@ -29,9 +31,10 @@ describe("trim whitespace", () => {
       A3: "  Space Cowboys   ",
       A4: "   Space Cake  ???    ",
     });
-    const { store } = makeStoreWithModel(model, TrimWhitespaceStore);
+    const { getPlugin } = makeOwlPluginManager([TrimWhitespacePlugin], { model });
+    const plugin = getPlugin(TrimWhitespacePlugin);
     setSelection(model, ["A1:A2", "A2:A3", "A4"]);
-    store.trimWhitespace();
+    plugin.trimWhitespace();
     expect(getCellContent(model, "A1")).toBe("Space Opera");
     expect(getCellContent(model, "A2")).toBe("Space Marine");
     expect(getCellContent(model, "A3")).toBe("Space Cowboys");
@@ -39,36 +42,42 @@ describe("trim whitespace", () => {
   });
 
   test("remove tabulation", () => {
-    const { model, store } = makeStore(TrimWhitespaceStore);
+    const { model, getPlugin } = makeOwlPluginManager([TrimWhitespacePlugin]);
+    const plugin = getPlugin(TrimWhitespacePlugin);
+
     setCellContent(model, "A2", "\tAlo   \t     salut\tsunt eu \tun haiduc  \t");
     selectCell(model, "A2");
-    store.trimWhitespace();
+    plugin.trimWhitespace();
     expect(getCellContent(model, "A2")).toBe("Alo salut sunt eu un haiduc");
   });
 
   test("keep lines break", () => {
     // @compatibility: the TRIM Excel function does not keep line breaks
-    const { model, store } = makeStore(TrimWhitespaceStore);
+    const { model, getPlugin } = makeOwlPluginManager([TrimWhitespacePlugin]);
+    const plugin = getPlugin(TrimWhitespacePlugin);
+
     setCellContent(model, "A2", "  Alo        salut   \n   sunt  eu  \n  un haiduc  ");
     selectCell(model, "A2");
-    store.trimWhitespace();
+    plugin.trimWhitespace();
     expect(getCellContent(model, "A2")).toBe("Alo salut\nsunt eu\nun haiduc");
   });
 
   test("keep empty lines break", () => {
     // @compatibility: the TRIM Google Sheets feature does not keep empty line breaks bue the formula does
-    const { model, store } = makeStore(TrimWhitespaceStore);
+    const { model, getPlugin } = makeOwlPluginManager([TrimWhitespacePlugin]);
+    const plugin = getPlugin(TrimWhitespacePlugin);
     setCellContent(model, "A2", "  Alo        salut   \n\n   sunt  eu  \n     \n  un haiduc  ");
     selectCell(model, "A2");
-    store.trimWhitespace();
+    plugin.trimWhitespace();
     expect(getCellContent(model, "A2")).toBe("Alo salut\n\nsunt eu\n\nun haiduc");
   });
 
   test("apply it on all selected cells", () => {
     const model = createModelFromGrid({ A2: " a ", A3: " b ", A4: " c " });
-    const { store } = makeStoreWithModel(model, TrimWhitespaceStore);
+    const { getPlugin } = makeOwlPluginManager([TrimWhitespacePlugin], { model });
+    const plugin = getPlugin(TrimWhitespacePlugin);
     setSelection(model, ["A2:A3", "A3:A4"]);
-    store.trimWhitespace();
+    plugin.trimWhitespace();
     expect(getRangeValuesAsMatrix(model, "A2:A4")).toEqual([["a"], ["b"], ["c"]]);
   });
 });
@@ -80,11 +89,12 @@ describe("notify user", () => {
       A2: "  SPACES   INVADERS   !  ",
       A3: "NO SPACES INVADERS",
     });
-    const { store, getPlugin } = makeStoreWithModel(model, TrimWhitespaceStore);
+    const { getPlugin } = makeOwlPluginManager([TrimWhitespacePlugin], { model });
+    const plugin = getPlugin(TrimWhitespacePlugin);
     const notificationPlugin = getPlugin(NotificationPlugin);
     const notifyUserTextSpy = jest.spyOn(notificationPlugin, "notifyUser");
     setSelection(model, ["A1:A3"]);
-    store.trimWhitespace();
+    plugin.trimWhitespace();
     expect(notifyUserTextSpy).toHaveBeenCalledWith({
       text: "Trimmed whitespace from 2 cells.",
       type: "info",
@@ -98,11 +108,12 @@ describe("notify user", () => {
       A2: "Space invaders",
       A3: "Space mountain",
     });
-    const { store, getPlugin } = makeStoreWithModel(model, TrimWhitespaceStore);
+    const { getPlugin } = makeOwlPluginManager([TrimWhitespacePlugin], { model });
+    const plugin = getPlugin(TrimWhitespacePlugin);
     const notificationPlugin = getPlugin(NotificationPlugin);
     const notifyUserTextSpy = jest.spyOn(notificationPlugin, "notifyUser");
     setSelection(model, ["A1:A3"]);
-    store.trimWhitespace();
+    plugin.trimWhitespace();
     expect(notifyUserTextSpy).toHaveBeenCalledWith({
       text: "No selected cells had whitespace trimmed.",
       type: "info",

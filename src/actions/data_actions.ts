@@ -2,7 +2,7 @@ import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_s
 import { interactiveSortSelection } from "../helpers/sort_interactive";
 import { getZoneArea } from "../helpers/zones";
 import { IsSmallPlugin } from "../owl_plugins/is_small_plugin";
-import { TrimWhitespaceStore } from "../stores/trim_whitespace_store";
+import { TrimWhitespacePlugin } from "../owl_plugins/trim_whitespace_owl_plugin";
 import { _t } from "../translation";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
@@ -42,7 +42,7 @@ export const removeDuplicates: ActionSpec = {
 export const trimWhitespace: ActionSpec = {
   name: _t("Trim whitespace"),
   execute: (env) => {
-    env.getStore(TrimWhitespaceStore).trimWhitespace();
+    env.getPlugin(TrimWhitespacePlugin).trimWhitespace();
   },
 };
 
