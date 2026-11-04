@@ -384,37 +384,21 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
       return undefined;
     }
     let { top, left, right, bottom } = approximate;
-    while (top <= bottom) {
-      if (this.isRowEmpty(sheetId, top, left, right)) {
-        top++;
-      } else {
-        break;
-      }
+    while (top <= bottom && this.isRowEmpty(sheetId, top, left, right)) {
+      top++;
     }
-    while (top <= bottom) {
-      if (this.isRowEmpty(sheetId, bottom, left, right)) {
-        bottom--;
-      } else {
-        break;
-      }
+    while (top <= bottom && this.isRowEmpty(sheetId, bottom, left, right)) {
+      bottom--;
     }
     if (bottom < top) {
       this.evaluator.setSheetUsedZone(sheetId, undefined);
       return undefined;
     }
-    while (left <= right) {
-      if (this.isColEmpty(sheetId, left, top, bottom)) {
-        left++;
-      } else {
-        break;
-      }
+    while (left <= right && this.isColEmpty(sheetId, left, top, bottom)) {
+      left++;
     }
-    while (left <= right) {
-      if (this.isColEmpty(sheetId, right, top, bottom)) {
-        right--;
-      } else {
-        break;
-      }
+    while (left <= right && this.isColEmpty(sheetId, right, top, bottom)) {
+      right--;
     }
     if (right < left) {
       this.evaluator.setSheetUsedZone(sheetId, undefined);

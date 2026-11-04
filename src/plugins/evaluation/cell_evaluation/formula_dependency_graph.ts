@@ -1,8 +1,10 @@
-import { positionToZone } from "../../../helpers/zones";
-import { CellPosition, HeaderIndex, UID } from "../../../types/misc";
+import { dimensionStartEnd, positionToZone } from "../../../helpers/zones";
+import { CellPosition, Dimension, HeaderIndex, UID, Zone } from "../../../types/misc";
 import { BoundedRange, Range } from "../../../types/range";
 import { IntervalTree } from "./interval_tree";
 import { RangeSet } from "./range_set";
+
+const DEFAULT_DIMENSION = "COL";
 
 /**
  * Implementation of a dependency Graph.
@@ -10,11 +12,23 @@ import { RangeSet } from "./range_set";
  * order, and should be updated each time a cell's content is modified
  *
  * It uses a collection of interval trees to efficiently find dependent cells.
- * There is one interval tree per column.
+ * There is one interval tree per col/row.
  */
 export class FormulaDependencyGraph {
   // One interval tree per column, grouped by sheetId
   private forest: Record<UID, Record<HeaderIndex, IntervalTree>> = {};
+  private dependeciesDimensions: Record<UID, Dimension> = {};
+
+  constructor(sheetUsedZones: Record<UID, Zone> = {}) {
+    for (const sheetId of Object.keys(sheetUsedZones)) {
+      const zone = sheetUsedZones[sheetId];
+      if (zone.right - zone.left > (zone.bottom - zone.top) * 2) {
+        this.dependeciesDimensions[sheetId] = "ROW";
+      } else {
+        this.dependeciesDimensions[sheetId] = "COL";
+      }
+    }
+  }
 
   removeAllDependencies(formulaPosition: CellPosition) {
     // Not implemented.
@@ -24,19 +38,31 @@ export class FormulaDependencyGraph {
     // where this would cause a significant performance issue.
   }
 
+  getTreeSpan(range: BoundedRange) {
+    const dim = this.dependeciesDimensions[range.sheetId] ?? DEFAULT_DIMENSION;
+    return dimensionStartEnd(dim, range.zone);
+  }
+
   addDependencies(formulaPosition: CellPosition, dependencies: Iterable<Range>) {
     const dependentsRange = {
       zone: positionToZone(formulaPosition),
       sheetId: formulaPosition.sheetId,
     };
+    // Dependents are compacted following the layout of the formula sheet
+    const dependentsDim = this.dependeciesDimensions[formulaPosition.sheetId] ?? DEFAULT_DIMENSION;
     for (const range of dependencies) {
       if (range.invalidSheetName || range.invalidXc) {
         continue;
       }
-      const { zone, sheetId } = range;
-      for (let col = zone.left; col <= zone.right; col++) {
-        const columnTree = this.getOrCreateIntervalTree(sheetId, col);
-        columnTree.insert({ top: zone.top, bottom: zone.bottom, dependents: dependentsRange });
+      const { start, end, crossStart, crossEnd } = this.getTreeSpan(range);
+      for (let headerIndex = start; headerIndex <= end; headerIndex++) {
+        const columnTree = this.getOrCreateIntervalTree(range.sheetId, headerIndex);
+        columnTree.insert({
+          start: crossStart,
+          end: crossEnd,
+          dim: dependentsDim,
+          dependents: dependentsRange,
+        });
       }
     }
   }
@@ -46,30 +72,40 @@ export class FormulaDependencyGraph {
 
     // At the end we want to remove from the visited set all the initial range positions, except the ones we're actually depending on
     // Some of the cells of the initial ranges might be depending on other cells of the initial ranges, and we want to keep those in the visited set
-    let initialRangesToRemove = visited.copy();
+    const initialRangesToRemove = visited.copy();
+    const hasInitialRanges = !initialRangesToRemove.isEmpty();
 
     const queue: BoundedRange[] = Array.from(ranges).reverse();
     while (queue.length > 0) {
       const range = queue.pop()!;
       visited.add(range);
-      const zone = range.zone;
       const sheetForest = this.forest[range.sheetId];
       if (!sheetForest) {
         continue;
       }
       const impactedRanges = new RangeSet();
-      for (let col = zone.left; col <= zone.right; col++) {
-        const columnTree = sheetForest[col];
+
+      const { start, end, crossStart, crossEnd } = this.getTreeSpan(range);
+      const queryInterval = { start: crossStart, end: crossEnd };
+
+      for (let headerIndex = start; headerIndex <= end; headerIndex++) {
+        const columnTree = sheetForest[headerIndex];
         if (!columnTree) {
           continue;
         }
-        const overlappingIntervals = columnTree.query(zone);
+        const overlappingIntervals = columnTree.query(queryInterval);
         for (const interval of overlappingIntervals) {
           impactedRanges.add(interval.dependents);
         }
       }
-      queue.push(...impactedRanges.difference(visited));
-      initialRangesToRemove = initialRangesToRemove.difference(impactedRanges);
+      for (const impactedRange of impactedRanges) {
+        if (!visited.has(impactedRange)) {
+          queue.push(impactedRange);
+        }
+        if (hasInitialRanges) {
+          initialRangesToRemove.delete(impactedRange);
+        }
+      }
     }
 
     // remove initial ranges
@@ -80,14 +116,14 @@ export class FormulaDependencyGraph {
     return visited;
   }
 
-  private getOrCreateIntervalTree(sheetId: UID, col: HeaderIndex): IntervalTree {
-    let tree = this.forest[sheetId]?.[col];
+  private getOrCreateIntervalTree(sheetId: UID, header: HeaderIndex): IntervalTree {
+    let tree = this.forest[sheetId]?.[header];
     if (!tree) {
       if (!this.forest[sheetId]) {
         this.forest[sheetId] = {};
       }
       tree = new IntervalTree();
-      this.forest[sheetId][col] = tree;
+      this.forest[sheetId][header] = tree;
     }
     return tree;
   }
