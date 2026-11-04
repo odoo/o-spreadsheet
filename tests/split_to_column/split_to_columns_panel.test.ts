@@ -1,9 +1,9 @@
+import { PluginInstance } from "@odoo/owl";
 import { EditionMode, Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
+import { SplitToColumnsPlugin } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_owl_plugin";
 import { SplitIntoColumnsPanel } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_panel";
-import { SplitToColumnsStore } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_store";
-import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
-import { Store } from "../../src/types/store_engine";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { getCellContent } from "../test_helpers";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import {
@@ -22,14 +22,15 @@ describe("split to columns sidePanel component", () => {
   let checkBox: HTMLInputElement;
   let onCloseSidePanel: jest.Mock;
   let env: SpreadsheetActionEnv;
-  let splitToColumnsStore: Store<SplitToColumnsStore>;
+  let getPlugin: OwlPluginGetter;
+  let splitToColumnsPlugin: PluginInstance<typeof SplitToColumnsPlugin>;
 
   beforeEach(async () => {
     onCloseSidePanel = jest.fn();
-    ({ model, fixture, env } = await mountComponent(SplitIntoColumnsPanel, {
+    ({ model, fixture, env, getPlugin } = await mountComponent(SplitIntoColumnsPanel, {
       props: { onCloseSidePanel: () => onCloseSidePanel() },
     }));
-    splitToColumnsStore = env.getStore(SplitToColumnsStore);
+    splitToColumnsPlugin = getPlugin(SplitToColumnsPlugin);
     confirmButton = fixture.querySelector(".o-split-to-cols-panel button")!;
     checkBox = fixture.querySelector('.o-split-to-cols-panel input[type="checkbox"]')!;
   });
@@ -51,10 +52,10 @@ describe("split to columns sidePanel component", () => {
 
   test("Editing the separator select updates the store", async () => {
     await editSelectComponent(".o-split-to-cols-panel .o-select", ",");
-    expect(splitToColumnsStore.separatorValue).toBe(",");
+    expect(splitToColumnsPlugin.separatorValue()).toBe(",");
 
     await editSelectComponent(".o-split-to-cols-panel .o-select", ";");
-    expect(splitToColumnsStore.separatorValue).toBe(";");
+    expect(splitToColumnsPlugin.separatorValue()).toBe(";");
   });
 
   test("Custom separator", async () => {
@@ -73,10 +74,10 @@ describe("split to columns sidePanel component", () => {
 
   test("Add new columns checkbox", async () => {
     setCheckboxValueAndTrigger(checkBox, true, "change");
-    expect(splitToColumnsStore.addNewColumns).toBe(true);
+    expect(splitToColumnsPlugin.addNewColumns()).toBe(true);
 
     setCheckboxValueAndTrigger(checkBox, false, "change");
-    expect(splitToColumnsStore.addNewColumns).toBe(false);
+    expect(splitToColumnsPlugin.addNewColumns()).toBe(false);
   });
 
   test("Multiple columns selected : confirm button disabled + error message", async () => {

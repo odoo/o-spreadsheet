@@ -46,11 +46,12 @@ import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
+import { PluginInstance } from "@odoo/owl";
 import { ICON_SETS } from "../../src/components/icons/icons";
 import {
+  SplitToColumnsPlugin,
   SplitToColumnsSeparatorValue,
-  SplitToColumnsStore,
-} from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_store";
+} from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_owl_plugin";
 import { colorToNumber } from "../../src/helpers/color";
 import { lettersToNumber, toCartesian } from "../../src/helpers/coordinates";
 import { SpreadsheetChart } from "../../src/helpers/figures/chart";
@@ -75,7 +76,6 @@ import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart"
 import { AnchorOffset, CarouselItem, FigureSize } from "../../src/types/figure";
 import { Image } from "../../src/types/image";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
-import { Store } from "../../src/types/store_engine";
 import { CoreTableType, CriterionFilter, TableConfig } from "../../src/types/table";
 import { toChartDataSource } from "./chart_helpers";
 
@@ -1576,7 +1576,7 @@ export function setFormat(
 
 export function splitTextToColumns(
   model: Model,
-  store: Store<SplitToColumnsStore>,
+  plugin: PluginInstance<typeof SplitToColumnsPlugin>,
   separator: SplitToColumnsSeparatorValue,
   target?: string,
   options?: { force?: boolean; addNewColumns?: boolean; customSeparator?: string }
@@ -1584,11 +1584,11 @@ export function splitTextToColumns(
   if (target) {
     setSelection(model, [target]);
   }
-  store.setSeparatorValue(separator);
+  plugin.setSeparatorValue(separator);
   if (options?.customSeparator) {
-    store.setCustomSeparator(options.customSeparator);
+    plugin.setCustomSeparator(options.customSeparator);
   }
-  store.setShouldAddNewColumns(options?.addNewColumns || false);
+  plugin.setShouldAddNewColumns(options?.addNewColumns || false);
   return model.dispatch("SPLIT_TEXT_INTO_COLUMNS", {
     force: options?.force || false,
   });

@@ -1,12 +1,10 @@
-import { onMounted, useProps } from "@odoo/owl";
+import { onMounted, usePlugin, useProps } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
-import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
 import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { CommandResult } from "../../../types/commands";
 import { ValueAndLabel } from "../../../types/misc";
-import { Store } from "../../../types/store_engine";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { Select } from "../../select/select";
@@ -15,7 +13,7 @@ import { ValidationMessages } from "../../validation_messages/validation_message
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 import { ComposerFocusStore } from "./../../composer/composer_focus_store";
-import { SplitToColumnsSeparatorValue, SplitToColumnsStore } from "./split_to_columns_store";
+import { SplitToColumnsPlugin, SplitToColumnsSeparatorValue } from "./split_to_columns_owl_plugin";
 
 const SEPARATORS: ValueAndLabel[] = [
   { label: _t("Detect automatically"), value: "auto" },
@@ -34,11 +32,10 @@ export class SplitIntoColumnsPanel extends OSComponent {
     onCloseSidePanel: types.function(),
   });
 
-  store!: Store<SplitToColumnsStore>;
+  splitToColumnPlugin = usePlugin(SplitToColumnsPlugin);
 
   setup() {
     const composerFocusStore = useStore(ComposerFocusStore);
-    this.store = useStore(SplitToColumnsStore);
     // The feature makes no sense if we are editing a cell, because then the selection isn't active
     // Stop the edition when the panel is mounted, and close the panel if the user start editing a cell
     useLayoutEffect(
@@ -56,22 +53,22 @@ export class SplitIntoColumnsPanel extends OSComponent {
   }
 
   onSeparatorChange(value: SplitToColumnsSeparatorValue) {
-    this.store.setSeparatorValue(value);
+    this.splitToColumnPlugin.setSeparatorValue(value);
   }
 
   updateCustomSeparator(ev: InputEvent) {
     if (!ev.target) {
       return;
     }
-    this.store.setCustomSeparator((ev.target as HTMLInputElement).value);
+    this.splitToColumnPlugin.setCustomSeparator((ev.target as HTMLInputElement).value);
   }
 
   updateAddNewColumnsCheckbox(addNewColumns: boolean) {
-    this.store.setShouldAddNewColumns(addNewColumns);
+    this.splitToColumnPlugin.setShouldAddNewColumns(addNewColumns);
   }
 
   confirm() {
-    const result = interactiveSplitToColumns(this.spEnv);
+    const result = this.splitToColumnPlugin.splitIntoColumns();
 
     if (result.isSuccessful) {
       this.props.onCloseSidePanel();
@@ -79,7 +76,7 @@ export class SplitIntoColumnsPanel extends OSComponent {
   }
 
   get errorMessages(): string[] {
-    const cancelledReasons = this.store.canSplitIntoColumns({ force: true }).reasons;
+    const cancelledReasons = this.splitToColumnPlugin.canSplitIntoColumns({ force: true }).reasons;
 
     const errors = new Set<string>();
 
@@ -97,7 +94,7 @@ export class SplitIntoColumnsPanel extends OSComponent {
 
   get warningMessages(): string[] {
     const warnings: string[] = [];
-    const cancelledReasons = this.store.canSplitIntoColumns({ force: false }).reasons;
+    const cancelledReasons = this.splitToColumnPlugin.canSplitIntoColumns({ force: false }).reasons;
 
     if (cancelledReasons.includes(CommandResult.SplitWillOverwriteContent)) {
       warnings.push(SplitToColumnsTerms.Errors[CommandResult.SplitWillOverwriteContent]);
@@ -111,6 +108,6 @@ export class SplitIntoColumnsPanel extends OSComponent {
   }
 
   get isConfirmDisabled(): boolean {
-    return !this.store.separatorString || this.errorMessages.length > 0;
+    return !this.splitToColumnPlugin.separatorString || this.errorMessages.length > 0;
   }
 }
