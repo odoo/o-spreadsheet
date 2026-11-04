@@ -1,23 +1,17 @@
 import { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
 import { Range } from "../range";
-import { ChartDataSource, DataSetStyle, TitleDesign } from "./chart";
+import { TitleDesign } from "./chart";
 import { TreemapDataPoint } from "./chartjs_tree_map_type";
-import { BaseChartDefinition, LegendPosition } from "./common_chart";
+import { HierarchicalChartDefinition } from "./common_chart";
 
 export interface TreeMapChartDefinition<T extends string | Range = Range>
-  extends BaseChartDefinition {
+  extends HierarchicalChartDefinition<T> {
   readonly type: "treemap";
-  readonly dataSetStyles: DataSetStyle;
-  readonly dataSource: ChartDataSource<T>;
-  readonly legendPosition: LegendPosition;
   readonly showHeaders?: boolean;
   readonly headerDesign?: TitleDesign;
-  readonly showValues?: boolean;
-  readonly showLabels?: boolean;
   readonly valuesDesign?: TitleDesign;
   readonly coloringOptions?: TreeMapColoringOptions;
-  readonly humanize?: boolean;
 }
 
 export type TreeMapCategoryColorOptions = {
