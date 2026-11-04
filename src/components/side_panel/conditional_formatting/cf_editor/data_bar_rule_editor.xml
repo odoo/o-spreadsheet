@@ -4,17 +4,17 @@
       <div class="o-section-subtitle">Color</div>
       <RoundColorPicker
         currentColor="this.colorNumberToHex(this.rule.color)"
-        onColorPicked="(color) => this.props.store.updateDataBarColor(color)"
+        onColorPicked="(color) => this.cfEditorPlugin.updateDataBarColor(color)"
         disableNoColor="true"
       />
       <div class="o-section-subtitle">Range of values</div>
       <SelectionInput
-        ranges="this.props.store.rangeValues"
+        ranges="this.cfEditorPlugin.rangeValues"
         class="'o-range'"
         isInvalid="false"
         hasSingleRange="true"
-        onSelectionChanged="(ranges) => this.props.store.onDataBarRangeUpdate(ranges)"
-        onSelectionConfirmed="() => this.props.store.onDataBarRangeChange()"
+        onSelectionChanged="(ranges) => this.cfEditorPlugin.onDataBarRangeUpdate(ranges)"
+        onSelectionConfirmed="() => this.cfEditorPlugin.onDataBarRangeChange()"
         required="false"
       />
     </div>

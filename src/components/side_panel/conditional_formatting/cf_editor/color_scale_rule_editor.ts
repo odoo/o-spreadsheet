@@ -1,7 +1,6 @@
-import { useProps } from "@odoo/owl";
+import { usePlugin } from "@odoo/owl";
 import { OSComponent } from "../../../os_component";
-import { types } from "../../../props_validation";
-import { ConditionalFormattingEditorStore } from "./cf_editor_store";
+import { ConditionalFormattingEditorPlugin } from "./cf_editor_owl_plugin";
 import { ColorScaleRuleEditorThreshold } from "./color_scale_rule_editor_threshold";
 
 export class ColorScaleRuleEditor extends OSComponent {
@@ -9,7 +8,5 @@ export class ColorScaleRuleEditor extends OSComponent {
   static components = {
     ColorScaleRuleEditorThreshold,
   };
-  protected props = useProps({
-    store: types.Store<ConditionalFormattingEditorStore>(),
-  });
+  cfEditorPlugin = usePlugin(ConditionalFormattingEditorPlugin);
 }

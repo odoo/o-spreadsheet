@@ -9,7 +9,7 @@
             t-foreach="['arrows', 'smiley', 'dots']"
             t-as="iconSet"
             t-key="iconSet"
-            t-on-click="() => this.props.store.setIconSet(iconSet)">
+            t-on-click="() => this.cfEditorPlugin.setIconSet(iconSet)">
             <div t-foreach="['good', 'neutral', 'bad']" t-as="iconType" t-key="iconType">
               <t t-call="{{this.getIconTemplate(this.getIconName(iconSet, iconType))}}"/>
             </div>
@@ -29,15 +29,15 @@
           <!-- Upper -->
           <tr>
             <td>
-              <div t-on-click.stop="() => this.props.store.toggleMenu('iconSet-upperIcon')">
+              <div t-on-click.stop="() => this.cfEditorPlugin.toggleMenu('iconSet-upperIcon')">
                 <div
                   class="o-cf-icon-button o-cf-clickable-icon me-3 border rounded os-theme-dependant">
                   <t t-call="{{this.getIconTemplate(this.rule.icons.upper)}}"/>
                 </div>
               </div>
               <IconPicker
-                t-if="this.props.store.state.openedMenu === 'iconSet-upperIcon'"
-                onIconPicked="(i) => this.props.store.setIcon(('upper'), i)"
+                t-if="this.cfEditorPlugin.state.openedMenu === 'iconSet-upperIcon'"
+                onIconPicked="(i) => this.cfEditorPlugin.setIcon(('upper'), i)"
               />
             </td>
             <td>When value is</td>
@@ -46,7 +46,7 @@
                 selectedValue="this.rule.upperInflectionPoint.operator"
                 name="'valueType'"
                 values="this.getIconSetOperatorSelectOptions()"
-                onChange.bind="(value) => this.props.store.setInflectionOperator('upperInflectionPoint', value)"
+                onChange.bind="(value) => this.cfEditorPlugin.setInflectionOperator('upperInflectionPoint', value)"
               />
             </td>
             <td>
@@ -57,7 +57,7 @@
                   class="o-input"
                   t-att-class="{ 'o-invalid': this.isInflectionPointInvalid('upperInflectionPoint') }"
                   t-att-value="this.localizeValue(this.rule['upperInflectionPoint'].value)"
-                  t-on-change="(ev) => this.props.store.setInflectionValue('upperInflectionPoint', ev.target.value)"
+                  t-on-change="(ev) => this.cfEditorPlugin.setInflectionValue('upperInflectionPoint', ev.target.value)"
                 />
                 <StandaloneComposer
                   t-else=""
@@ -71,7 +71,7 @@
                 popoverClass="'o-icon-set-type-select-dropdown'"
                 name="'valueType'"
                 values="this.getThresholdTypeSelectOptions()"
-                onChange.bind="(value) => this.props.store.setInflectionType('upperInflectionPoint', value)"
+                onChange.bind="(value) => this.cfEditorPlugin.setInflectionType('upperInflectionPoint', value)"
               />
             </td>
           </tr>
@@ -79,14 +79,14 @@
           <!-- Middle -->
           <tr>
             <td>
-              <div t-on-click.stop="() => this.props.store.toggleMenu('iconSet-middleIcon')">
+              <div t-on-click.stop="() => this.cfEditorPlugin.toggleMenu('iconSet-middleIcon')">
                 <div class="o-cf-icon-button o-cf-clickable-icon me-3 border rounded">
                   <t t-call="{{this.getIconTemplate(this.rule.icons.middle)}}"/>
                 </div>
               </div>
               <IconPicker
-                t-if="this.props.store.state.openedMenu === 'iconSet-middleIcon'"
-                onIconPicked="(i) => this.props.store.setIcon('middle', i)"
+                t-if="this.cfEditorPlugin.state.openedMenu === 'iconSet-middleIcon'"
+                onIconPicked="(i) => this.cfEditorPlugin.setIcon('middle', i)"
               />
             </td>
             <td>When value is</td>
@@ -95,7 +95,7 @@
                 selectedValue="this.rule.lowerInflectionPoint.operator"
                 name="'valueType'"
                 values="this.getIconSetOperatorSelectOptions()"
-                onChange.bind="(value) => this.props.store.setInflectionOperator('lowerInflectionPoint', value)"
+                onChange.bind="(value) => this.cfEditorPlugin.setInflectionOperator('lowerInflectionPoint', value)"
               />
             </td>
             <td>
@@ -106,7 +106,7 @@
                   class="o-input"
                   t-att-class="{ 'o-invalid': this.isInflectionPointInvalid('lowerInflectionPoint') }"
                   t-att-value="this.localizeValue(this.rule['lowerInflectionPoint'].value)"
-                  t-on-change="(ev) => this.props.store.setInflectionValue('lowerInflectionPoint', ev.target.value)"
+                  t-on-change="(ev) => this.cfEditorPlugin.setInflectionValue('lowerInflectionPoint', ev.target.value)"
                 />
                 <StandaloneComposer
                   t-else=""
@@ -120,7 +120,7 @@
                 popoverClass="'o-icon-set-type-select-dropdown'"
                 name="'valueType'"
                 values="this.getThresholdTypeSelectOptions()"
-                onChange.bind="(value) => this.props.store.setInflectionType('lowerInflectionPoint', value)"
+                onChange.bind="(value) => this.cfEditorPlugin.setInflectionType('lowerInflectionPoint', value)"
               />
             </td>
           </tr>
@@ -128,14 +128,14 @@
           <!-- Lower -->
           <tr>
             <td>
-              <div t-on-click.stop="() => this.props.store.toggleMenu('iconSet-lowerIcon')">
+              <div t-on-click.stop="() => this.cfEditorPlugin.toggleMenu('iconSet-lowerIcon')">
                 <div class="o-cf-icon-button o-cf-clickable-icon me-3 border rounded">
                   <t t-call="{{this.getIconTemplate(this.rule.icons.lower)}}"/>
                 </div>
               </div>
               <IconPicker
-                t-if="this.props.store.state.openedMenu === 'iconSet-lowerIcon'"
-                onIconPicked="(icon) => this.props.store.setIcon('lower', icon)"
+                t-if="this.cfEditorPlugin.state.openedMenu === 'iconSet-lowerIcon'"
+                onIconPicked="(icon) => this.cfEditorPlugin.setIcon('lower', icon)"
               />
             </td>
             <td>Else</td>
@@ -148,7 +148,7 @@
       <div class="d-flex flex-row">
         <div
           class="o-button-link py-1 ps-0 o-cf-iconset-reverse d-flex align-items-center"
-          t-on-click="() => this.props.store.reverseIcons()">
+          t-on-click="() => this.cfEditorPlugin.reverseIcons()">
           <t t-call="o-spreadsheet-Icon.REFRESH"/>
           <div class="ms-1">Reverse icons</div>
         </div>

@@ -1,6 +1,7 @@
 import { useListener, useOnChange, useProps } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
-import { useLocalStore, useStore } from "../../../../store_engine/store_hooks";
+import { provideAndUsePlugin } from "../../../../helpers/owl3_helpers";
+import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { UID } from "../../../../types/misc";
 import { Store } from "../../../../types/store_engine";
@@ -12,7 +13,7 @@ import { BadgeSelection } from "../../components/badge_selection/badge_selection
 import { Section } from "../../components/section/section";
 import { SidePanelStore } from "../../side_panel/side_panel_store";
 import { CellIsRuleEditor } from "./cell_is_rule_editor";
-import { ConditionalFormattingEditorStore } from "./cf_editor_store";
+import { ConditionalFormattingEditorPlugin } from "./cf_editor_owl_plugin";
 import { ColorScaleRuleEditor } from "./color_scale_rule_editor";
 import { DataBarRuleEditor } from "./data_bar_rule_editor";
 import { IconSetRuleEditor } from "./icon_set_rule_editor";
@@ -36,16 +37,14 @@ export class ConditionalFormattingEditor extends OSComponent {
   });
 
   private activeSheetId!: UID;
-  private store!: Store<ConditionalFormattingEditorStore>;
+  private cfEditorPlugin = provideAndUsePlugin(ConditionalFormattingEditorPlugin, {
+    cf: deepCopy(this.props.cf),
+    isNewCf: this.props.isNewCf,
+  });
   private sidePanelStore!: Store<SidePanelStore>;
 
   setup() {
     this.activeSheetId = this.model().getters.getActiveSheetId();
-    this.store = useLocalStore(
-      ConditionalFormattingEditorStore,
-      deepCopy(this.props.cf),
-      this.props.isNewCf
-    );
     this.sidePanelStore = useStore(SidePanelStore);
     useOnChange(
       () => [this.model().getters.getActiveSheetId(), this.isEditedCfRemoved],
@@ -58,7 +57,7 @@ export class ConditionalFormattingEditor extends OSComponent {
         }
       }
     );
-    useListener(window as any, "click", () => this.store.closeMenus());
+    useListener(window as any, "click", () => this.cfEditorPlugin.closeMenus());
   }
 
   get isEditedCfRemoved() {
@@ -79,8 +78,8 @@ export class ConditionalFormattingEditor extends OSComponent {
   }
 
   onSave() {
-    this.store.updateConditionalFormat({});
-    const isSuccessful = this.store.state.errors.length === 0;
+    this.cfEditorPlugin.updateConditionalFormat({});
+    const isSuccessful = this.cfEditorPlugin.state.errors.length === 0;
     if (isSuccessful) {
       this.sidePanelStore.replace(
         "ConditionalFormatting",
@@ -90,7 +89,7 @@ export class ConditionalFormattingEditor extends OSComponent {
   }
 
   onCancel() {
-    if (this.store.state.hasEditedCf) {
+    if (this.cfEditorPlugin.state.hasEditedCf) {
       if (this.props.isNewCf) {
         this.model().dispatch("REMOVE_CONDITIONAL_FORMAT", {
           sheetId: this.activeSheetId,
