@@ -194,13 +194,10 @@ export class DataAnalysisStore extends SpreadsheetStore {
 
   private refresh() {
     const sheetId = this.getters.getActiveSheetId();
-    const selectedZones = this.getters.getSelectedZones();
-    const zones = this.ignoredRows
-      ? selectedZones.map((zone) => ({
-          ...zone,
-          top: zone.top + this.ignoredRows,
-        }))
-      : selectedZones;
+    const zones = this.getters.getSelectedZones().map((zone) => ({
+      ...zone,
+      top: zone.top + this.ignoredRows,
+    }));
     this.ranges = zones.map(zoneToXc);
 
     this.hasData = zones.some((zone) =>

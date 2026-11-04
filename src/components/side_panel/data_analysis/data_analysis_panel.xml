@@ -4,7 +4,7 @@
       <Section>
         <div class="o-sidePanel-label mb-1">Rows to ignore</div>
         <NumberInput
-          value="0"
+          value="this.store.ignoredRows"
           class="'o-ignored-rows-input'"
           min="0"
           onChange.bind="this.updateIgnoredRows"

@@ -43,6 +43,11 @@ export class DataAnalysisPanel extends OSComponent {
   }
 
   updateIgnoredRows(value: number) {
-    this.store.updateIgnoredRows(value);
+    this.store.updateIgnoredRows(Number(value));
   }
+
+  //TODO gérer si le user met un négatif ou un décimal
+  //solution Math.max(0, parseInt(value, 10) || 0));
+
+  //les nombres plus grands que le nombre de ligne selectionné
 }
