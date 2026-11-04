@@ -4,18 +4,18 @@
       <div class="o-section-subtitle">Format cells if...</div>
       <Select
         class="'o-cell-is-operator mb-2'"
-        values="this.props.store.cfCriterions"
+        values="this.cfEditorPlugin.cfCriterions"
         selectedValue="this.rule.operator"
-        onChange="(operator) => this.props.store.editOperator(operator)"
+        onChange="(operator) => this.cfEditorPlugin.editOperator(operator)"
       />
 
       <t
-        t-if="this.props.store.criterionComponent"
-        t-component="this.props.store.criterionComponent"
+        t-if="this.cfEditorPlugin.criterionComponent"
+        t-component="this.cfEditorPlugin.criterionComponent"
         t-key="this.rule.operator"
-        criterion="this.props.store.genericCriterion"
-        onCriterionChanged="(rule) => this.props.store.onRuleValuesChanged(rule)"
-        autofocus="this.props.store.state.hasEditedCf"
+        criterion="this.cfEditorPlugin.genericCriterion"
+        onCriterionChanged="(rule) => this.cfEditorPlugin.onRuleValuesChanged(rule)"
+        autofocus="this.cfEditorPlugin.state.hasEditedCf"
       />
 
       <div class="o-section-subtitle pt-3">Formatting style</div>
@@ -35,35 +35,35 @@
           class="o-hoverable-button o-menu-item-button"
           title="Bold"
           t-att-class="{active:this.rule.style.bold}"
-          t-on-click="() => this.props.store.toggleStyle('bold')">
+          t-on-click="() => this.cfEditorPlugin.toggleStyle('bold')">
           <t t-call="o-spreadsheet-Icon.BOLD"/>
         </div>
         <div
           class="o-hoverable-button o-menu-item-button"
           title="Italic"
           t-att-class="{active:this.rule.style.italic}"
-          t-on-click="() => this.props.store.toggleStyle('italic')">
+          t-on-click="() => this.cfEditorPlugin.toggleStyle('italic')">
           <t t-call="o-spreadsheet-Icon.ITALIC"/>
         </div>
         <div
           class="o-hoverable-button o-menu-item-button"
           title="Underline"
           t-att-class="{active:this.rule.style.underline}"
-          t-on-click="(ev) => this.props.store.toggleStyle('underline', ev)">
+          t-on-click="(ev) => this.cfEditorPlugin.toggleStyle('underline', ev)">
           <t t-call="o-spreadsheet-Icon.UNDERLINE"/>
         </div>
         <div
           class="o-hoverable-button o-menu-item-button"
           title="Strikethrough"
           t-att-class="{active:this.rule.style.strikethrough}"
-          t-on-click="(ev) => this.props.store.toggleStyle('strikethrough', ev)">
+          t-on-click="(ev) => this.cfEditorPlugin.toggleStyle('strikethrough', ev)">
           <t t-call="o-spreadsheet-Icon.STRIKE"/>
         </div>
         <ColorPickerWidget
           currentColor="this.rule.style.textColor"
-          toggleColorPicker="() => this.props.store.toggleMenu('cellIsRule-textColor')"
-          showColorPicker="this.props.store.state.openedMenu === 'cellIsRule-textColor'"
-          onColorPicked="(color) => this.props.store.setColor('textColor', color)"
+          toggleColorPicker="() => this.cfEditorPlugin.toggleMenu('cellIsRule-textColor')"
+          showColorPicker="this.cfEditorPlugin.state.openedMenu === 'cellIsRule-textColor'"
+          onColorPicked="(color) => this.cfEditorPlugin.setColor('textColor', color)"
           title.translate="Text Color"
           icon="'o-spreadsheet-Icon.TEXT_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"
@@ -71,9 +71,9 @@
         <div class="o-divider border-end"/>
         <ColorPickerWidget
           currentColor="this.rule.style.fillColor"
-          toggleColorPicker="() => this.props.store.toggleMenu('cellIsRule-fillColor')"
-          showColorPicker="this.props.store.state.openedMenu === 'cellIsRule-fillColor'"
-          onColorPicked="(color) => this.props.store.setColor('fillColor', color)"
+          toggleColorPicker="() => this.cfEditorPlugin.toggleMenu('cellIsRule-fillColor')"
+          showColorPicker="this.cfEditorPlugin.state.openedMenu === 'cellIsRule-fillColor'"
+          onColorPicked="(color) => this.cfEditorPlugin.setColor('fillColor', color)"
           title.translate="Fill Color"
           icon="'o-spreadsheet-Icon.FILL_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"

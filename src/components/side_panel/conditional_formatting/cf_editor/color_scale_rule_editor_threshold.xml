@@ -8,7 +8,7 @@
           class="'me-2'  + (this.threshold and this.threshold.type !== 'value' ? ' o-select-with-input' : '')"
           name="'valueType'"
           values="this.getThresholdTypeSelectOptions()"
-          onChange.bind="(value) => this.props.store.onMidpointChange(value)"
+          onChange.bind="(value) => this.cfEditorPlugin.onMidpointChange(value)"
         />
       </t>
       <t t-else="">
@@ -17,7 +17,7 @@
           class="'me-2'  + (this.threshold and this.threshold.type !== 'value' ? ' o-select-with-input' : '')"
           name="'valueType'"
           values="this.getThresholdTypeSelectOptions()"
-          onChange.bind="(value) => this.props.store.updateThresholdType(this.props.thresholdType, value)"
+          onChange.bind="(value) => this.cfEditorPlugin.updateThresholdType(this.props.thresholdType, value)"
         />
       </t>
       <div class="o-threshold-value me-2" t-if="this.threshold and this.threshold.type !== 'value'">
@@ -26,7 +26,7 @@
           type="text"
           class="o-input"
           t-att-value="this.localizeValue(this.threshold.value)"
-          t-on-change="(ev) => this.props.store.updateThresholdValue(this.props.thresholdType, ev.target.value)"
+          t-on-change="(ev) => this.cfEditorPlugin.updateThresholdValue(this.props.thresholdType, ev.target.value)"
           t-att-class="{ 'o-invalid': this.isValueInvalid(), 'invisible': this.threshold === undefined }"
         />
         <StandaloneComposer t-else="" t-props="this.getColorScaleComposerProps()"/>
@@ -34,7 +34,7 @@
       <div t-attf-class="flex-shrink-0 ms-1 {{ this.threshold === undefined ? 'invisible' : ''}}">
         <RoundColorPicker
           currentColor="this.getThresholdColor(this.threshold)"
-          onColorPicked="(color) => this.props.store.setColorScaleColor(this.props.thresholdType, color)"
+          onColorPicked="(color) => this.cfEditorPlugin.setColorScaleColor(this.props.thresholdType, color)"
           title.translate="Fill Color"
           disableNoColor="true"
         />

@@ -4,15 +4,15 @@
       <div class="o-section-subtitle">Preview</div>
       <div
         class="o-cf-preview-display mb-4 os-theme-dependant"
-        t-attf-style="{{this.props.store.previewGradient}}">
+        t-attf-style="{{this.cfEditorPlugin.previewGradient}}">
         Preview text
       </div>
       <div class="o-section-subtitle">Minpoint</div>
-      <ColorScaleRuleEditorThreshold store="this.props.store" thresholdType="'minimum'"/>
+      <ColorScaleRuleEditorThreshold thresholdType="'minimum'"/>
       <div class="o-section-subtitle">MidPoint</div>
-      <ColorScaleRuleEditorThreshold store="this.props.store" thresholdType="'midpoint'"/>
+      <ColorScaleRuleEditorThreshold thresholdType="'midpoint'"/>
       <div class="o-section-subtitle">MaxPoint</div>
-      <ColorScaleRuleEditorThreshold store="this.props.store" thresholdType="'maximum'"/>
+      <ColorScaleRuleEditorThreshold thresholdType="'maximum'"/>
     </div>
   </t>
 </templates>

@@ -1,4 +1,4 @@
-import { useProps } from "@odoo/owl";
+import { usePlugin, useProps } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers/color";
 import { localizeContent } from "../../../../helpers/locale";
@@ -12,7 +12,7 @@ import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
-import { ConditionalFormattingEditorStore } from "./cf_editor_store";
+import { ConditionalFormattingEditorPlugin } from "./cf_editor_owl_plugin";
 
 export class ColorScaleRuleEditorThreshold extends OSComponent {
   static template = "o-spreadsheet-ColorScaleRuleEditorThreshold";
@@ -22,7 +22,6 @@ export class ColorScaleRuleEditorThreshold extends OSComponent {
     Select,
   };
   protected props = useProps({
-    store: types.Store<ConditionalFormattingEditorStore>(),
     thresholdType: types.or([
       types.literal("minimum"),
       types.literal("midpoint"),
@@ -30,8 +29,10 @@ export class ColorScaleRuleEditorThreshold extends OSComponent {
     ]),
   });
 
+  cfEditorPlugin = usePlugin(ConditionalFormattingEditorPlugin);
+
   get rule() {
-    return this.props.store.state.rules.colorScale;
+    return this.cfEditorPlugin.state.rules.colorScale;
   }
 
   get threshold() {
@@ -45,7 +46,7 @@ export class ColorScaleRuleEditorThreshold extends OSComponent {
   }
 
   isValueInvalid(): boolean {
-    const errors = this.props.store.state.errors;
+    const errors = this.cfEditorPlugin.state.errors;
     switch (this.props.thresholdType) {
       case "minimum":
         return (
@@ -78,7 +79,7 @@ export class ColorScaleRuleEditorThreshold extends OSComponent {
     return {
       onConfirm: (str: string) => {
         threshold.value = str;
-        this.props.store.updateConditionalFormat({ rule: this.rule });
+        this.cfEditorPlugin.updateConditionalFormat({ rule: this.rule });
       },
       composerContent: threshold.value || "",
       placeholder: _t("Formula"),

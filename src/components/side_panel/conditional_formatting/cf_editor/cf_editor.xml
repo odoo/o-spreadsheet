@@ -4,11 +4,11 @@
       <Section class="'o-cf-range pb-0'" title.translate="Apply to range">
         <div class="o-selection-cf">
           <SelectionInput
-            ranges="this.store.state.ranges"
+            ranges="this.cfEditorPlugin.state.ranges"
             class="'o-range'"
-            isInvalid="this.store.isRangeValid"
-            onSelectionChanged="(ranges) => this.store.onRangeUpdate(ranges)"
-            onSelectionConfirmed="() => this.store.onRangeConfirmed()"
+            isInvalid="this.cfEditorPlugin.isRangeValid"
+            onSelectionChanged="(ranges) => this.cfEditorPlugin.onRangeUpdate(ranges)"
+            onSelectionConfirmed="() => this.cfEditorPlugin.onRangeConfirmed()"
             required="true"
           />
         </div>
@@ -17,28 +17,16 @@
         <div class="o-cf-type-selector">
           <BadgeSelection
             choices="this.cfTypesValues"
-            onChange="(ruleType) => this.store.changeRuleType(ruleType)"
-            selectedValue="this.store.state.currentCFType"
+            onChange="(ruleType) => this.cfEditorPlugin.changeRuleType(ruleType)"
+            selectedValue="this.cfEditorPlugin.state.currentCFType"
           />
         </div>
       </Section>
       <Section>
-        <CellIsRuleEditor
-          t-if="this.store.state.currentCFType === 'CellIsRule'"
-          store="this.store"
-        />
-        <ColorScaleRuleEditor
-          t-if="this.store.state.currentCFType === 'ColorScaleRule'"
-          store="this.store"
-        />
-        <IconSetRuleEditor
-          t-if="this.store.state.currentCFType === 'IconSetRule'"
-          store="this.store"
-        />
-        <DataBarRuleEditor
-          t-if="this.store.state.currentCFType === 'DataBarRule'"
-          store="this.store"
-        />
+        <CellIsRuleEditor t-if="this.cfEditorPlugin.state.currentCFType === 'CellIsRule'"/>
+        <ColorScaleRuleEditor t-if="this.cfEditorPlugin.state.currentCFType === 'ColorScaleRule'"/>
+        <IconSetRuleEditor t-if="this.cfEditorPlugin.state.currentCFType === 'IconSetRule'"/>
+        <DataBarRuleEditor t-if="this.cfEditorPlugin.state.currentCFType === 'DataBarRule'"/>
       </Section>
       <Section class="'pt-1'">
         <div class="o-sidePanelButtons">
@@ -46,13 +34,13 @@
           <button
             t-on-click="this.onSave"
             class="o-button primary o-cf-save"
-            t-att-disabled="this.store.state.errors.length !== 0">
+            t-att-disabled="this.cfEditorPlugin.state.errors.length !== 0">
             Save
           </button>
         </div>
       </Section>
       <Section>
-        <ValidationMessages messages="this.store.errorMessages" msgType="'error'"/>
+        <ValidationMessages messages="this.cfEditorPlugin.errorMessages" msgType="'error'"/>
       </Section>
     </div>
   </t>

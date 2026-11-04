@@ -1,14 +1,14 @@
-import { proxy } from "@odoo/owl";
+import { proxy, types, useConfig } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex, colorToNumber, isColorValid } from "../../../../helpers/color";
 import { canonicalizeContent } from "../../../../helpers/locale";
 import { rangeReference } from "../../../../helpers/references";
 import { ComponentConstructor } from "../../../../owl3_compatibility_layer";
+import { OwlPluginWithModel } from "../../../../owl_plugins/owl_plugin_with_model";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
 } from "../../../../registries/criterion_component_registry";
-import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
 import { CancelledReason, CommandResult } from "../../../../types/commands";
 import {
   availableConditionalFormatOperators,
@@ -24,7 +24,6 @@ import {
 } from "../../../../types/conditional_formatting";
 import { GenericCriterion, GenericDateCriterion } from "../../../../types/generic_criterion";
 import { Color, UID, ValueAndLabel } from "../../../../types/misc";
-import { Get } from "../../../../types/store_engine";
 import { hexaToInt } from "../../../../xlsx/conversion/color_conversion";
 import { cssPropertiesToCss } from "../../../helpers/css";
 import { ICON_SETS, ICONS } from "../../../icons/icons";
@@ -58,17 +57,16 @@ interface State {
   hasEditedCf: boolean;
 }
 
-export class ConditionalFormattingEditorStore extends SpreadsheetStore {
-  mutators = ["updateConditionalFormat", "closeMenus"] as const;
-
+export class ConditionalFormattingEditorPlugin extends OwlPluginWithModel {
   icons = ICONS;
   iconSets = ICON_SETS;
 
-  state: State;
-  private cfId: UID;
+  state!: State;
+  private cfId!: UID;
 
-  constructor(get: Get, cf: ConditionalFormat, isNewCf: boolean) {
-    super(get);
+  setup() {
+    const cf = useConfig("cf", types.object());
+    const isNewCf = useConfig("isNewCf", types.boolean());
     this.cfId = cf.id;
     this.state = proxy<State>({
       errors: [],
@@ -102,14 +100,14 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
       }
       return;
     }
-    const sheetId = this.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const rule = newCf.rule || this.getEditedRule(this.state.currentCFType);
-    const result = this.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    const result = this.model().dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: this.cfId,
         rule,
       },
-      ranges: ranges.map((xc) => this.model.getters.getRangeDataFromXc(sheetId, xc)),
+      ranges: ranges.map((xc) => this.model().getters.getRangeDataFromXc(sheetId, xc)),
       sheetId,
     });
     if (result.isSuccessful) {
@@ -252,7 +250,7 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
   }
 
   updateThresholdValue(threshold: "minimum" | "midpoint" | "maximum", value: string) {
-    const locale = this.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     const canonicalizedValue = canonicalizeContent(value, locale);
     this.state.rules.colorScale[threshold]!.value = canonicalizedValue;
     this.updateConditionalFormat({ rule: this.state.rules.colorScale });
@@ -308,7 +306,7 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
     inflectionPoint: "lowerInflectionPoint" | "upperInflectionPoint",
     value: string
   ) {
-    const locale = this.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     const canonicalizedValue = canonicalizeContent(value, locale);
     this.state.rules.iconSet[inflectionPoint].value = canonicalizedValue;
     this.updateConditionalFormat({ rule: this.state.rules.iconSet });
