@@ -42,7 +42,8 @@ export class DataAnalysisPanel extends OSComponent {
     this.chartDnd.startChartDragAndDrop(ev, definition);
   }
 
-  updateIgnoredRows(value: number) {
-    this.store.updateIgnoredRows(value);
+  updateIgnoredRows(value: string) {
+    const ignoredRows = parseInt(value, 10);
+    this.store.updateIgnoredRows(isNaN(ignoredRows) ? 0 : Math.max(0, ignoredRows));
   }
 }
