@@ -30,6 +30,8 @@ import {
   VFigureAxisType,
 } from "../../helpers/figure_snap_helper";
 
+type FigurePane = "topLeft" | "topRight" | "bottomLeft" | "bottomRight";
+
 interface Snap<T extends HFigureAxisType | VFigureAxisType> {
   line: SnapLine<T>;
   lineStyle: string;
@@ -139,7 +141,7 @@ export class DraggedFigurePlugin extends Plugin {
     return screenFigure;
   }
 
-  private getFigurePane(figureId: UID): "topLeft" | "topRight" | "bottomLeft" | "bottomRight" {
+  private getFigurePane(figureId: UID): FigurePane {
     if (figureId === FAKE_DRAGGED_FIGURE_ID) {
       return "topLeft"; // top-left viewport to not apply any scroll adjustments, the fake figure is outside of the viewports
     }
@@ -159,6 +161,16 @@ export class DraggedFigurePlugin extends Plugin {
     } else {
       return "bottomRight";
     }
+  }
+
+  /** Rect of a pane, in screen coordinates */
+  private getPaneRect(pane: FigurePane): Rect {
+    const { width: viewWidth, height: viewHeight } = this.viewStore.sheetViewDimension;
+    const { x: viewportX, y: viewportY } = this.viewStore.mainViewportCoordinates;
+
+    const x = pane === "topRight" || pane === "bottomRight" ? viewportX : 0;
+    const y = pane === "bottomLeft" || pane === "bottomRight" ? viewportY : 0;
+    return { x, y, width: viewWidth - x, height: viewHeight - y };
   }
 
   /**
@@ -419,14 +431,12 @@ export class DraggedFigurePlugin extends Plugin {
     if (!snapLine || !this.dnd.draggedFigure) {
       return undefined;
     }
-    const sheetViewDims = this.viewStore.sheetViewDimension;
-    const viewportRect = { x: 0, y: 0, width: sheetViewDims.width, height: sheetViewDims.height };
 
     const figuresOnScreen = this.getFiguresOnScreen();
     const figureVisibleRects = snapLine.matchedFigIds
       .map((id) => figuresOnScreen.find((figureUI) => figureUI.id === id))
       .filter(isDefined)
-      .map((rect) => rectIntersection(rect, viewportRect)) // Consider only the visible part of the figures other than the dragged one
+      .map((fig) => rectIntersection(fig, this.getPaneRect(this.getFigurePane(fig.id)))) // Consider only the visible part of the figures other than the dragged one
       .filter(isDefined);
 
     const containerRect = rectUnion(this.dnd.draggedFigure, ...figureVisibleRects);
