@@ -1,6 +1,7 @@
+import { PluginInstance } from "@odoo/owl";
 import { Model } from "../../src";
 import { DataSourcesCleanup } from "../../src/components/side_panel/data_sources_cleanup/data_sources_cleanup";
-import { DataSourcesCleanupStore } from "../../src/components/side_panel/data_sources_cleanup/data_sources_cleanup_store";
+import { DataSourcesCleanupPlugin } from "../../src/components/side_panel/data_sources_cleanup/data_sources_cleanup_store";
 import {
   addCfRule,
   addDataValidation,
@@ -10,8 +11,8 @@ import {
   undo,
 } from "../test_helpers";
 import { createModelFromGrid, mountComponent, nextTick } from "../test_helpers/helpers";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
 
@@ -85,18 +86,19 @@ describe("Data source cleanup panel", () => {
 });
 
 describe("Data source cleanup store", () => {
-  let store: DataSourcesCleanupStore;
+  let plugin: PluginInstance<typeof DataSourcesCleanupPlugin>;
   let sheetId: string;
 
   beforeEach(() => {
-    store = makeStoreWithModel(model, DataSourcesCleanupStore).store;
+    const { getPlugin } = makeOwlPluginManager([DataSourcesCleanupPlugin], { model });
+    plugin = getPlugin(DataSourcesCleanupPlugin);
     sheetId = model.getters.getActiveSheetId();
   });
 
   function getUnusedPivots() {
-    const pivotCategory = store.unusedDataSourcesCategories.find(
-      (category) => category.type === "pivot"
-    );
+    const pivotCategory = plugin
+      .unusedDataSourcesCategories()
+      .find((category) => category.type === "pivot");
     return pivotCategory ? pivotCategory.dataSources.map((pivot) => pivot.id) : [];
   }
 

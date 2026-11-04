@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-DataSourcesCleanup">
     <div class="o-data-source-cleanup">
       <Section
-        t-foreach="this.store.unusedDataSourcesCategories"
+        t-foreach="this.datasourceCleanupPlugin.unusedDataSourcesCategories()"
         t-as="category"
         t-key="category.type"
         title="category.label">
