@@ -2292,6 +2292,36 @@ describe("figures", () => {
           offset: { x: 1, y: 0 },
         });
       });
+
+      test("Snap lines do no go over frozen panes", async () => {
+        freezeColumns(model, 5);
+        createFigure(model, {
+          id: "f1",
+          col: 6,
+          row: 0,
+          offset: { x: 0, y: 0 },
+          width: 4 * cellWidth,
+          height: 50,
+        });
+        createFigure(model, {
+          id: "f2",
+          col: 8,
+          row: 0,
+          offset: { x: 0, y: 0 },
+          width: 30,
+          height: 30,
+        });
+        setViewportOffset(env, 3 * cellWidth, 0);
+        await nextTick();
+
+        await clickAndDrag(".o-figure[data-id=f2]", { x: 0, y: 0 }, undefined, false);
+        expect('[data-id="VerticalSnapContainer"]').toHaveCount(0);
+        expect('[data-id="HorizontalSnapContainer"]').toHaveCount(1);
+        expect('[data-id="HorizontalSnapContainer"]').toHaveStyle({
+          top: `0px`,
+          left: `${5 * cellWidth}px`, // starts right of frozen pane
+        });
+      });
     });
 
     describe("Snap doesn't happen with borders that aren't visible", () => {
