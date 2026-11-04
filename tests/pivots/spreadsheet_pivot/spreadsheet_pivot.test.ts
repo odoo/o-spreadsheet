@@ -2693,6 +2693,18 @@ describe("Spreadsheet Pivot", () => {
     });
     expect(getGrid(model)).toEqual(oldGrid);
   });
+
+  test("Tabular form without groups or measures does not crash", () => {
+    const model = createModelWithPivot("A1:I22");
+    updatePivot(model, "1", {
+      columns: [],
+      rows: [],
+      measures: [],
+      style: { tabularForm: true },
+    });
+    setCellContent(model, "A25", "=PIVOT(1)");
+    expect(getEvaluatedCell(model, "A25").value).toBe("My pivot");
+  });
 });
 
 describe("Spreadsheet arguments parsing", () => {
