@@ -339,4 +339,14 @@ describe("Named range plugin", () => {
       ],
     });
   });
+
+  test("Named range in another sheet with different dimensions than the active sheet", async () => {
+    const newSheetId = "sheet22";
+    createSheet(model, { sheetId: newSheetId, name: "Sheet2", cols: 10, rows: 10_000 });
+    const result = createNamedRange(model, "MyRange", "A5000", newSheetId);
+    expect(result).toBeSuccessfullyDispatched();
+    expect(model.getters.getNamedRanges()[0]).toMatchObject({
+      range: { sheetId: newSheetId, zone: toZone("A5000") },
+    });
+  });
 });

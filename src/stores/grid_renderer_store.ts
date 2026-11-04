@@ -136,11 +136,11 @@ export class GridRenderer extends DisposableStore {
         this.preventNewAnimationsInNextFrame = true;
         break;
       case "UPDATE_CELL":
-        const zones = this.getters.getCommandZones(cmd);
+        const zone = positionToZone(cmd);
         if (!this.zonesWithPreventedAnimationsInNextFrame[cmd.sheetId]) {
           this.zonesWithPreventedAnimationsInNextFrame[cmd.sheetId] = [];
         }
-        this.zonesWithPreventedAnimationsInNextFrame[cmd.sheetId].push(...zones);
+        this.zonesWithPreventedAnimationsInNextFrame[cmd.sheetId].push(zone);
         break;
     }
   }
