@@ -1,10 +1,8 @@
-import { onWillStart, onWillUpdateProps, useProps } from "@odoo/owl";
+import { onWillStart, useOnChange, useProps } from "@odoo/owl";
+import { provideAndUsePlugin } from "../../../helpers/owl3_helpers";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
-import { useLocalStore } from "../../../store_engine/store_hooks";
 import { Currency } from "../../../types/currency";
 import { ValueAndLabel } from "../../../types/misc";
-import { PropsOf } from "../../../types/props_of";
-import { Store } from "../../../types/store_engine";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { Select } from "../../select/select";
@@ -12,7 +10,7 @@ import { TextInput } from "../../text_input/text_input";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
-import { MoreFormatsStore } from "./more_formats_store";
+import { MoreFormatsPlugin } from "./more_formats_owl_plugin";
 
 export class MoreFormatsPanel extends OSComponent {
   static template = "o-spreadsheet-MoreFormatsPanel";
@@ -31,16 +29,18 @@ export class MoreFormatsPanel extends OSComponent {
       .optional(),
   });
 
-  store!: Store<MoreFormatsStore>;
+  plugin = provideAndUsePlugin(MoreFormatsPlugin, { category: this.props.category });
 
   setup() {
-    this.store = useLocalStore(MoreFormatsStore, this.props.category);
     onWillStart(() => this.loadCurrencies());
-    onWillUpdateProps((nextProps: PropsOf<MoreFormatsPanel>) => {
-      if (nextProps.category && nextProps.category !== this.props.category) {
-        this.store.changeCategory(nextProps.category);
+    useOnChange(
+      () => [this.props.category],
+      (category) => {
+        if (category) {
+          this.plugin.changeCategory(category);
+        }
       }
-    });
+    );
   }
 
   async loadCurrencies() {
@@ -49,7 +49,7 @@ export class MoreFormatsPanel extends OSComponent {
       currencies.forEach((currency, index) => {
         currenciesRegistry.replace(index.toString(), currency);
       });
-      this.store.updateAvailableCurrencies();
+      this.plugin.updateAvailableCurrencies();
     }
   }
 
@@ -59,16 +59,16 @@ export class MoreFormatsPanel extends OSComponent {
 
   updateSelectCurrency(value: string) {
     const currencyIndex = parseInt(value, 10);
-    this.store.selectCurrency(currencyIndex);
+    this.plugin.selectCurrency(currencyIndex);
   }
 
   isFormatSelected(format: string | undefined): boolean {
-    const currentFormat = this.store.currentFormat;
+    const currentFormat = this.plugin.currentFormat();
     return format === currentFormat;
   }
 
   get availableCurrenciesOptions(): ValueAndLabel[] {
-    return this.store.availableCurrencies.map((currency, index) => ({
+    return this.plugin.availableCurrencies().map((currency, index) => ({
       value: index.toString(),
       label: this.currencyDisplayName(currency),
     }));

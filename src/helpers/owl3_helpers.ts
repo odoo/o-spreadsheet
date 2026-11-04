@@ -1,4 +1,4 @@
-import { PluginConstructor, providePlugins, usePlugin } from "@odoo/owl";
+import { PluginConstructor, PluginInstance, providePlugins, usePlugin } from "@odoo/owl";
 
 /**
  * Comes from https://github.com/odoo/odoo/blob/master/addons/web/static/src/owl2/utils.js
@@ -18,4 +18,12 @@ export function providePluginsIfNotPresent(
       providePlugins([pluginConstructor], config);
     }
   }
+}
+
+export function provideAndUsePlugin<T extends PluginConstructor>(
+  pluginConstructor: T,
+  config: Object = {}
+): PluginInstance<T> {
+  providePlugins([pluginConstructor], config);
+  return usePlugin(pluginConstructor);
 }

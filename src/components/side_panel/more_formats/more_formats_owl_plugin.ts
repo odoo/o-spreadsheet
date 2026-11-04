@@ -1,3 +1,4 @@
+import { computed, onWillDestroy, signal, useConfig } from "@odoo/owl";
 import {
   EXAMPLE_DATE,
   createAccountingFormat,
@@ -8,12 +9,11 @@ import {
   isFormatValid,
 } from "../../../helpers/format/format";
 import { isDefined } from "../../../helpers/misc";
+import { OwlPluginWithModel } from "../../../owl_plugins/owl_plugin_with_model";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
-import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { _t } from "../../../translation";
 import { Currency } from "../../../types/currency";
 import { Format } from "../../../types/format";
-import { Get } from "../../../types/store_engine";
 import { CustomCurrencyTerms } from "../../translations_terms";
 
 export type CustomFormatCategory = "number" | "date" | "currency";
@@ -26,40 +26,34 @@ const CUSTOM_CURRENCY: Currency = {
   position: "after",
 };
 
-export class MoreFormatsStore extends SpreadsheetStore {
-  mutators = [
-    "updateFormat",
-    "changeCategory",
-    "selectCurrency",
-    "changeCurrencyCode",
-    "changeCurrencySymbol",
-    "updateAvailableCurrencies",
-  ] as const;
+export class MoreFormatsPlugin extends OwlPluginWithModel {
+  invalidFormat = computed(() => !isFormatValid(this.currentFormat() || ""));
+  invalidFormatMessage = computed(() => {
+    return this.invalidFormat() ? _t("The format entered is not valid.") : undefined;
+  });
 
-  invalidFormat = false;
-  isApplyingFormatFromPanel = false;
-  currentFormat = this.formatInSelection;
-  category: CustomFormatCategory = this.detectFormatCategory(this.formatInSelection);
+  currentFormat = signal(this.formatInSelection);
+  category = signal<CustomFormatCategory>(
+    useConfig("category") || this.detectFormatCategory(this.formatInSelection)
+  );
 
-  selectedCurrencyIndex = 0;
-  currencyCode = "";
-  currencySymbol = "";
-  isAccountingFormat = false;
-  availableCurrencies: Currency[] = [CUSTOM_CURRENCY, ...currenciesRegistry.getAll()];
+  selectedCurrencyIndex = signal(0);
+  currencyCode = signal("");
+  currencySymbol = signal("");
+  isAccountingFormat = signal(false);
+  availableCurrencies = signal<Currency[]>([CUSTOM_CURRENCY, ...currenciesRegistry.getAll()]);
 
-  private lastFormatInSelection = this.currentFormat;
+  private lastFormatInSelection = this.currentFormat();
   private usedFormatForCategory: Partial<Record<CustomFormatCategory, Format | undefined>> = {};
+  private isApplyingFormatFromPanel = false;
 
-  constructor(get: Get, category?: CustomFormatCategory) {
-    super(get);
-    if (category) {
-      this.category = category;
-    }
-    this.model.selection.observe(this, {
+  setup() {
+    super.setup();
+    this.model().selection.observe(this, {
       handleEvent: this.handleSelectionEvent.bind(this),
     });
-    this.onDispose(() => {
-      this.model.selection.unobserve(this);
+    onWillDestroy(() => {
+      this.model().selection.unobserve(this);
     });
   }
 
@@ -70,7 +64,7 @@ export class MoreFormatsStore extends SpreadsheetStore {
   }
 
   handleSelectionEvent() {
-    if (this.getters.isGridSelectionActive()) {
+    if (this.model().getters.isGridSelectionActive()) {
       this.syncActiveFormat();
     }
   }
@@ -84,9 +78,8 @@ export class MoreFormatsStore extends SpreadsheetStore {
   }
 
   private setActiveFormat(format: Format | undefined) {
-    this.currentFormat = format;
-    this.invalidFormat = !isFormatValid(format || "");
-    this.category = this.detectFormatCategory(format);
+    this.currentFormat.set(format);
+    this.category.set(this.detectFormatCategory(format));
   }
 
   get categories(): { label: string; value: CustomFormatCategory }[] {
@@ -98,12 +91,12 @@ export class MoreFormatsStore extends SpreadsheetStore {
   }
 
   get formatInSelection() {
-    const activePosition = this.getters.getActivePosition();
-    const pivotCell = this.getters.getPivotCellFromPosition(activePosition);
+    const activePosition = this.model().getters.getActivePosition();
+    const pivotCell = this.model().getters.getPivotCellFromPosition(activePosition);
     if (pivotCell.type === "VALUE") {
-      return this.getters.getEvaluatedCell(activePosition).format;
+      return this.model().getters.getEvaluatedCell(activePosition).format;
     }
-    return this.getters.getCell(activePosition)?.format;
+    return this.model().getters.getCell(activePosition)?.format;
   }
 
   private detectFormatCategory(format: Format | undefined): CustomFormatCategory {
@@ -118,16 +111,16 @@ export class MoreFormatsStore extends SpreadsheetStore {
     return format.includes("$") || format.includes('"') ? "currency" : "number";
   }
 
-  get formatProposals() {
-    if (this.category === "date") {
+  formatProposals = computed(() => {
+    if (this.category() === "date") {
       return this.dateFormatProposals;
-    } else if (this.category === "currency") {
+    } else if (this.category() === "currency") {
       return this.currencyFormatProposals;
-    } else if (this.category === "number") {
+    } else if (this.category() === "number") {
       return this.numberFormatProposals;
     }
     return [];
-  }
+  });
 
   get numberFormatProposals() {
     const numberFormats = [
@@ -140,7 +133,7 @@ export class MoreFormatsStore extends SpreadsheetStore {
       "0.00e",
       "0.00;(0.00);-",
     ].map((format) => ({
-      label: formatValue(-1234.56, { format, locale: this.getters.getLocale() }),
+      label: formatValue(-1234.56, { format, locale: this.model().getters.getLocale() }),
       format,
     }));
 
@@ -152,7 +145,7 @@ export class MoreFormatsStore extends SpreadsheetStore {
   }
 
   get dateFormatProposals() {
-    const locale = this.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     const formats = [
       locale.dateFormat,
       locale.timeFormat,
@@ -177,11 +170,11 @@ export class MoreFormatsStore extends SpreadsheetStore {
   }
 
   get currencyFormatProposals() {
-    const baseCurrency = this.availableCurrencies[this.selectedCurrencyIndex];
+    const baseCurrency = this.availableCurrencies()[this.selectedCurrencyIndex()];
     const position = baseCurrency.position;
     const opposite = baseCurrency.position === "before" ? "after" : "before";
-    const symbol = this.currencySymbol.trim() ? this.currencySymbol : "";
-    const code = this.currencyCode.trim() ? this.currencyCode : "";
+    const symbol = this.currencySymbol().trim();
+    const code = this.currencyCode().trim();
     const decimalPlaces = baseCurrency.decimalPlaces;
     if (!symbol && !code) {
       return [];
@@ -208,10 +201,10 @@ export class MoreFormatsStore extends SpreadsheetStore {
     ] as Partial<Currency>[];
 
     const usedFormats = new Set<string>();
-    const locale = this.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     return currencies
       .map((currency) => {
-        const format = this.isAccountingFormat
+        const format = this.isAccountingFormat()
           ? createAccountingFormat(currency)
           : createCurrencyFormat(currency);
         if ((!currency.symbol && !currency.code) || usedFormats.has(format)) {
@@ -226,13 +219,13 @@ export class MoreFormatsStore extends SpreadsheetStore {
       .filter(isDefined);
   }
 
-  get formatExamples() {
-    const format = this.currentFormat;
-    const locale = this.getters.getLocale();
+  formatExamples = computed(() => {
+    const format = this.currentFormat();
+    const locale = this.model().getters.getLocale();
     if (!format || !isFormatValid(format)) {
       return [];
     }
-    if (this.category === "date") {
+    if (this.category() === "date") {
       return [{ label: _t("Sample:"), value: formatValue(EXAMPLE_DATE, { format, locale }) }];
     } else {
       const numberOfParts = getNumberOfFormatParts(format);
@@ -246,22 +239,21 @@ export class MoreFormatsStore extends SpreadsheetStore {
       }
       return parts;
     }
-  }
+  });
 
   updateAvailableCurrencies() {
-    this.availableCurrencies = [CUSTOM_CURRENCY, ...currenciesRegistry.getAll()];
+    this.availableCurrencies.set([CUSTOM_CURRENCY, ...currenciesRegistry.getAll()]);
   }
 
   updateFormat(format: string) {
-    this.currentFormat = format;
-    this.invalidFormat = !isFormatValid(format);
+    this.currentFormat.set(format);
 
-    if (!this.invalidFormat) {
+    if (!this.invalidFormat()) {
       this.lastFormatInSelection = format;
       this.isApplyingFormatFromPanel = true;
-      this.model.dispatch("SET_FORMATTING_WITH_PIVOT", {
-        sheetId: this.getters.getActiveSheetId(),
-        target: this.getters.getSelectedZones(),
+      this.model().dispatch("SET_FORMATTING_WITH_PIVOT", {
+        sheetId: this.model().getters.getActiveSheetId(),
+        target: this.model().getters.getSelectedZones(),
         format: format || "",
       });
       this.isApplyingFormatFromPanel = false;
@@ -269,54 +261,57 @@ export class MoreFormatsStore extends SpreadsheetStore {
   }
 
   changeCategory(category: CustomFormatCategory) {
-    if (category === this.category) {
-      return "noStateChange";
+    if (category === this.category()) {
+      return;
     }
-    this.usedFormatForCategory[this.category] = this.currentFormat;
-    this.category = category;
-    const format = this.usedFormatForCategory[category] || this.formatProposals[0]?.format || "";
+    this.usedFormatForCategory[this.category()] = this.currentFormat();
+    this.category.set(category);
+    const format = this.usedFormatForCategory[category] || this.formatProposals()[0]?.format || "";
     this.updateFormat(format);
-    return;
   }
 
   selectCurrency(index: number) {
-    const proposalIndex = this.formatProposals.findIndex((p) => p.format === this.currentFormat);
-    this.selectedCurrencyIndex = index;
-    const currency = this.availableCurrencies[index];
-    this.currencyCode = currency.code;
-    this.currencySymbol = currency.symbol;
+    const proposalIndex = this.formatProposals().findIndex(
+      (p) => p.format === this.currentFormat()
+    );
+    this.selectedCurrencyIndex.set(index);
+    const currency = this.availableCurrencies()[index];
+    this.currencyCode.set(currency.code);
+    this.currencySymbol.set(currency.symbol);
     this.updateFormat(
-      this.formatProposals[proposalIndex]?.format || this.formatProposals[0]?.format || ""
+      this.formatProposals()[proposalIndex]?.format || this.formatProposals()[0]?.format || ""
     );
   }
 
   changeCurrencyCode(code: string) {
-    const proposalIndex = this.formatProposals.findIndex((p) => p.format === this.currentFormat);
-    this.currencyCode = code;
-    this.selectedCurrencyIndex = 0; // custom currency
+    const proposalIndex = this.formatProposals().findIndex(
+      (p) => p.format === this.currentFormat()
+    );
+    this.currencyCode.set(code);
+    this.selectedCurrencyIndex.set(0); // custom currency
     this.updateFormat(
-      this.formatProposals[proposalIndex]?.format || this.formatProposals[0]?.format || ""
+      this.formatProposals()[proposalIndex]?.format || this.formatProposals()[0]?.format || ""
     );
   }
 
   changeCurrencySymbol(symbol: string) {
-    const proposalIndex = this.formatProposals.findIndex((p) => p.format === this.currentFormat);
-    this.currencySymbol = symbol;
-    this.selectedCurrencyIndex = 0; // custom currency
+    const proposalIndex = this.formatProposals().findIndex(
+      (p) => p.format === this.currentFormat()
+    );
+    this.currencySymbol.set(symbol);
+    this.selectedCurrencyIndex.set(0); // custom currency
     this.updateFormat(
-      this.formatProposals[proposalIndex]?.format || this.formatProposals[0]?.format || ""
+      this.formatProposals()[proposalIndex]?.format || this.formatProposals()[0]?.format || ""
     );
   }
 
   toggleAccountingFormat() {
-    const proposalIndex = this.formatProposals.findIndex((p) => p.format === this.currentFormat);
-    this.isAccountingFormat = !this.isAccountingFormat;
-    this.updateFormat(
-      this.formatProposals[proposalIndex]?.format || this.formatProposals[0]?.format || ""
+    const proposalIndex = this.formatProposals().findIndex(
+      (p) => p.format === this.currentFormat()
     );
-  }
-
-  get invalidFormatMessage(): string | undefined {
-    return this.invalidFormat ? _t("The format entered is not valid.") : undefined;
+    this.isAccountingFormat.set(!this.isAccountingFormat());
+    this.updateFormat(
+      this.formatProposals()[proposalIndex]?.format || this.formatProposals()[0]?.format || ""
+    );
   }
 }
