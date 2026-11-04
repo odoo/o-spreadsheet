@@ -27,6 +27,7 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
     "isDoughnut",
     "pieHolePercentage",
     "showValues",
+    "showLabels",
     "slicesColors",
   ] as const,
 
@@ -60,6 +61,7 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
       isDoughnut: context.isDoughnut,
       pieHolePercentage: context.pieHolePercentage,
       showValues: context.showValues,
+      showLabels: context.showLabels,
       humanize: context.humanize,
       slicesColors: context.slicesColors,
       annotationLink: context.annotationLink,

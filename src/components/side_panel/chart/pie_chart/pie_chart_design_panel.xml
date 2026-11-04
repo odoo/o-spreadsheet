@@ -4,6 +4,12 @@
       <t t-set-slot="general-extension">
         <ChartLegend t-props="this.props" isDisabled="this.isLegendDisabled"/>
         <Section class="'pt-0'" title.translate="Values">
+          <Checkbox
+            name="'showLabels'"
+            label.translate="Show labels"
+            value="this.showLabels"
+            onChange="(showLabels) => this.props.updateChart(this.props.chartId, { showLabels })"
+          />
           <ChartShowValues t-props="this.props"/>
         </Section>
         <Section class="'pt-0'" title.translate="Number formatting">
