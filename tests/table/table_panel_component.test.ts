@@ -24,7 +24,6 @@ import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { TableAutofillStore } from "../../src/components/autofill/table_autofill_store";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
-import { TableTerms } from "../../src/components/translations_terms";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { addPivot } from "../test_helpers/pivot_helpers";
@@ -56,7 +55,6 @@ describe("Table side panel", () => {
   });
 
   test.each([
-    "hasFilters",
     "totalRow",
     "firstColumn",
     "lastColumn",
@@ -69,15 +67,6 @@ describe("Table side panel", () => {
     expect(checkbox.checked).toBe(value);
     await click(checkbox);
     expect(getTable(model, sheetId).config[configOption]).toBe(!value);
-  });
-
-  test("Cannot add filters to a table without headers", async () => {
-    updateTableConfig(model, "A1:C3", { numberOfHeaders: 0 });
-    await nextTick();
-    const checkbox = fixture.querySelector("input[name='hasFilters']") as HTMLInputElement;
-    expect(checkbox.checked).toBe(false);
-    expect(checkbox.disabled).toBe(true);
-    expect(checkbox.parentElement?.title).toBe(TableTerms.Tooltips.filterWithoutHeader.toString());
   });
 
   test("Can change number of headers", async () => {
@@ -97,16 +86,6 @@ describe("Table side panel", () => {
     await setInputValueAndTrigger("input.o-table-n-of-headers", "-2");
     expect(getTable(model, sheetId).config.numberOfHeaders).toBe(1);
     expect(fixture.querySelector<HTMLInputElement>("input.o-table-n-of-headers")!.value).toBe("1");
-  });
-
-  test("Disabling then re-enabling the headers saves the state of the hasFilters checkbox", async () => {
-    const hasFilters = fixture.querySelector<HTMLInputElement>("input[name='hasFilters']")!;
-    await click(fixture, "input[name='hasFilters']");
-    expect(hasFilters.checked).toBe(true);
-    await click(fixture, "input[name='headerRow']");
-    expect(hasFilters.checked).toBe(false);
-    await click(fixture, "input[name='headerRow']");
-    expect(hasFilters.checked).toBe(true);
   });
 
   test("Can update table zone and it also moves the selection in the new table zone", async () => {

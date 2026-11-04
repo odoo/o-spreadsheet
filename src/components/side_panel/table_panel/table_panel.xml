@@ -31,14 +31,6 @@
               value="this.tableConfig.bandedRows"
               onChange="(val) => this.updateTableConfig('bandedRows', val)"
             />
-            <Checkbox
-              label="this.getCheckboxLabel('hasFilters')"
-              name="'hasFilters'"
-              value="this.tableConfig.hasFilters"
-              title="this.hasFilterCheckboxTooltip"
-              disabled="!this.canHaveFilters"
-              onChange.bind="this.updateHasFilters"
-            />
           </div>
           <div>
             <Checkbox
