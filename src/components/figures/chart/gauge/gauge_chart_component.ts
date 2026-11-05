@@ -4,12 +4,10 @@ import { deepEquals } from "../../../../helpers/misc";
 import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { ZoomPlugin } from "../../../../owl_plugins/zoom_plugin";
 import { EASING_FN } from "../../../../registries/cell_animation_registry";
-import { useStore } from "../../../../store_engine/store_hooks";
 import { GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
-import { Store } from "../../../../types/store_engine";
 import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
-import { ChartAnimationStore } from "../chartJs/chartjs_animation_store";
+import { ChartAnimationPlugin } from "../chartJs/chartjs_animation_owl_plugin";
 
 const ANIMATION_DURATION = 1000;
 
@@ -23,7 +21,7 @@ export class GaugeChartComponent extends OSComponent {
 
   private canvas = signal.ref(HTMLCanvasElement);
 
-  private animationStore: Store<ChartAnimationStore> | undefined;
+  private chartAnimationPlugin = usePlugin(ChartAnimationPlugin);
   private zoomPlugin = usePlugin(ZoomPlugin);
 
   get runtime(): GaugeChartRuntime {
@@ -31,28 +29,24 @@ export class GaugeChartComponent extends OSComponent {
   }
 
   setup() {
-    if (this.model().getters.isDashboard()) {
-      this.animationStore = useStore(ChartAnimationStore);
-    }
-
     let animation: Animation | null = null;
     let lastRuntime: GaugeChartRuntime | undefined = undefined;
     useLayoutEffect(
       () => {
         if (
-          this.model().getters.isDashboard() &&
+          this.chartAnimationPlugin.areAnimationsEnabled &&
           lastRuntime === undefined && // first render
-          this.animationStore?.animationPlayed[this.animationChartId] !== "gauge"
+          this.chartAnimationPlugin.animationPlayed[this.animationChartId] !== "gauge"
         ) {
           animation = this.drawGaugeWithAnimation();
-          this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
+          this.chartAnimationPlugin.disableAnimationForChart(this.animationChartId, "gauge");
         } else if (
-          this.model().getters.isDashboard() &&
+          this.chartAnimationPlugin.areAnimationsEnabled &&
           lastRuntime !== undefined && // not first render
           !deepEquals(this.runtime, lastRuntime)
         ) {
           animation = this.drawGaugeWithAnimation();
-          this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
+          this.chartAnimationPlugin.disableAnimationForChart(this.animationChartId, "gauge");
         } else {
           const zoom = this.zoomPlugin.zoomLevel();
           drawGaugeChart(this.canvasEl, this.runtime, zoom);

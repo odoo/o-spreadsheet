@@ -2,7 +2,7 @@ import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
 } from "../../../../../helpers/figures/charts/chart_common";
-import { SpreadsheetStore } from "../../../../../stores/spreadsheet_store";
+import { OwlPluginWithModel } from "../../../../../owl_plugins/owl_plugin_with_model";
 import { Command } from "../../../../../types/commands";
 import { UID } from "../../../../../types/misc";
 
@@ -18,14 +18,8 @@ export type AxesLimits = {
   [chartId: UID]: { [axisId in AxisId]?: Boundaries } & { x: Boundaries };
 };
 
-export class ZoomableChartStore extends SpreadsheetStore {
-  mutators = [
-    "resetAxisLimits",
-    "updateAxisLimits",
-    "updateTrendLineConfiguration",
-    "clearAxisLimits",
-  ] as const;
-
+export class ZoomableChartPlugin extends OwlPluginWithModel {
+  // Not signals: we don't want to trigger a chart re-render when these values change (otherwise we'd have render loops)
   originalAxisLimits: AxesLimits = {};
   currentAxesLimits: AxesLimits = {};
   private idConversion: Record<UID, Set<UID>> = {};
@@ -70,7 +64,6 @@ export class ZoomableChartStore extends SpreadsheetStore {
   clearAxisLimits(chartId: UID) {
     delete this.originalAxisLimits[chartId];
     delete this.currentAxesLimits[chartId];
-    return "noStateChange";
   }
 
   resetAxisLimits(chartId: UID, limits: { [key: string]: Boundaries }) {
@@ -84,7 +77,6 @@ export class ZoomableChartStore extends SpreadsheetStore {
         delete this.originalAxisLimits[chartId][axisId];
       }
     }
-    return "noStateChange";
   }
 
   updateAxisLimits(chartId: UID, limits: Boundaries) {
@@ -93,7 +85,6 @@ export class ZoomableChartStore extends SpreadsheetStore {
       [min, max] = [max, min];
     }
     this.currentAxesLimits[chartId] = { x: { min, max } };
-    return "noStateChange";
   }
 
   /* Update the trend line axis configuration based on the current axis limits.
@@ -105,7 +96,7 @@ export class ZoomableChartStore extends SpreadsheetStore {
    */
   updateTrendLineConfiguration(chartId: UID) {
     if (!this.originalAxisLimits[chartId]?.x || !this.currentAxesLimits[chartId]?.x) {
-      return "noStateChange";
+      return;
     }
     const chartLimits = this.originalAxisLimits[chartId].x;
     for (const axisId of TREND_LINE_AXES_IDS) {
@@ -124,6 +115,5 @@ export class ZoomableChartStore extends SpreadsheetStore {
         max: newXMax * slope + intercept,
       };
     }
-    return "noStateChange";
   }
 }

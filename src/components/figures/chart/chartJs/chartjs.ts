@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal, usePlugin, useProps } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import {
   chartJsExtensionRegistry,
@@ -6,12 +6,10 @@ import {
 } from "../../../../helpers/figures/charts/chart_js_extension";
 import { deepCopy, deepEquals } from "../../../../helpers/misc";
 import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
-import { useStore } from "../../../../store_engine/store_hooks";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
-import { Store } from "../../../../types/store_engine";
 import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
-import { ChartAnimationStore } from "./chartjs_animation_store";
+import { ChartAnimationPlugin } from "./chartjs_animation_owl_plugin";
 import { chartBackgroundPlugin } from "./chartjs_background_plugin";
 import { getCalendarChartController } from "./chartjs_calendar_chart";
 import { chartColorScalePlugin } from "./chartjs_colorscale_plugin";
@@ -93,7 +91,7 @@ export class ChartJsComponent extends OSComponent {
   protected canvas = signal.ref(HTMLCanvasElement);
   protected chart?: Chart;
   protected currentRuntime!: ChartJSRuntime;
-  protected animationStore: Store<ChartAnimationStore> | undefined;
+  protected chartAnimationPlugin = usePlugin(ChartAnimationPlugin);
 
   private currentDevicePixelRatio = window.devicePixelRatio;
 
@@ -106,9 +104,6 @@ export class ChartJsComponent extends OSComponent {
   }
 
   setup() {
-    if (this.shouldAnimate) {
-      this.animationStore = useStore(ChartAnimationStore);
-    }
     onMounted(() => {
       registerChartJSExtensions();
       const runtime = this.chartRuntime;
@@ -141,20 +136,17 @@ export class ChartJsComponent extends OSComponent {
     this.chart?.destroy();
   }
 
-  private get shouldAnimate(): boolean {
-    return this.model().getters.isDashboard();
-  }
-
   protected createChart(chartRuntime: ChartJSRuntime) {
     if (!globalThis.Chart) {
       throw new Error("Chart.js library is not loaded");
     }
+    const animationPlugin = this.chartAnimationPlugin;
     let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
-    if (this.shouldAnimate && this.animationStore) {
+    if (animationPlugin.areAnimationsEnabled) {
       const chartType = this.model().getters.getChartDefinition(this.props.chartId)?.type;
-      if (chartType && this.animationStore.animationPlayed[this.animationChartId] !== chartType) {
+      if (chartType && animationPlugin.animationPlayed[this.animationChartId] !== chartType) {
         chartData = this.enableAnimationInChartData(chartData);
-        this.animationStore.disableAnimationForChart(this.animationChartId, chartType);
+        animationPlugin.disableAnimationForChart(this.animationChartId, chartType);
       }
     }
 
@@ -168,11 +160,11 @@ export class ChartJsComponent extends OSComponent {
 
   protected updateChartJs(chartRuntime: ChartJSRuntime) {
     let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
-    if (this.shouldAnimate) {
+    if (this.chartAnimationPlugin.areAnimationsEnabled) {
       const chartType = this.model().getters.getChartDefinition(this.props.chartId)?.type;
-      if (chartType && this.hasChartDataChanged() && this.animationStore) {
+      if (chartType && this.hasChartDataChanged()) {
         chartData = this.enableAnimationInChartData(chartData);
-        this.animationStore.disableAnimationForChart(this.animationChartId, chartType);
+        this.chartAnimationPlugin.disableAnimationForChart(this.animationChartId, chartType);
       }
     }
 

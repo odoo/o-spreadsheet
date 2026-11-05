@@ -1,7 +1,7 @@
 import { ChartConfiguration } from "chart.js";
 import { Model, UID } from "../../../src";
 import { getCarouselMenuActions } from "../../../src/actions/figure_menu_actions";
-import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
+import { ChartAnimationPlugin } from "../../../src/components/figures/chart/chartJs/chartjs_animation_owl_plugin";
 import { downloadFile } from "../../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import { CAROUSEL_LAYOUT } from "../../../src/constants";
@@ -442,9 +442,9 @@ describe("Carousel figure component", () => {
     const barId = addNewChartToCarousel(model, "carouselId", { type: "bar" });
     model.updateMode("dashboard");
 
-    const { fixture, env } = await mountSpreadsheet({ model });
-    const chartAnimationStore = env.getStore(ChartAnimationStore);
-    const enableAnimationSpy = jest.spyOn(chartAnimationStore, "enableAnimationForChart");
+    const { fixture, getPlugin } = await mountSpreadsheet({ model });
+    const chartAnimationPlugin = getPlugin(ChartAnimationPlugin);
+    const enableAnimationSpy = jest.spyOn(chartAnimationPlugin, "enableAnimationForChart");
 
     await click(fixture, ".o-carousel-tab:nth-child(2)");
     expect(enableAnimationSpy).toHaveBeenLastCalledWith(barId);

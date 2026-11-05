@@ -1,4 +1,4 @@
-import { onPatched, proxy, signal, useProps } from "@odoo/owl";
+import { onPatched, proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemTitle, getCarouselLayout } from "../../../helpers/carousel_helpers";
@@ -14,7 +14,7 @@ import { CSSProperties, MenuMouseEvent } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
-import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figure_store";
+import { FullScreenFigurePlugin } from "../../full_screen_figure/full_screen_figure_owl_plugin";
 import { cellTextStyleToCss, cssPropertiesToCss, rectToCss } from "../../helpers/css";
 import { getBoundingRectAsPOJO, getElBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
@@ -22,7 +22,7 @@ import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { SidePanelStore } from "../../side_panel/side_panel/side_panel_store";
 import { StandaloneViewport } from "../../standalone_viewport/standalone_viewport";
-import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
+import { ChartAnimationPlugin } from "../chart/chartJs/chartjs_animation_owl_plugin";
 import { ChartMenu } from "../chart/chart_menu/chart_menu";
 
 export class CarouselFigure extends OSComponent {
@@ -42,13 +42,11 @@ export class CarouselFigure extends OSComponent {
   private menuState = proxy<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
   private hiddenItems: CarouselItem[] = [];
 
-  protected animationStore: Store<ChartAnimationStore> | undefined;
-  private fullScreenFigureStore!: Store<FullScreenFigureStore>;
+  protected chartAnimationPlugin = usePlugin(ChartAnimationPlugin);
+  private fullScreenFigurePlugin = usePlugin(FullScreenFigurePlugin);
   private sidePanelStore!: Store<SidePanelStore>;
 
   setup(): void {
-    this.animationStore = useStore(ChartAnimationStore);
-    this.fullScreenFigureStore = useStore(FullScreenFigureStore);
     this.sidePanelStore = useStore(SidePanelStore);
 
     onPatched(() => {
@@ -108,7 +106,7 @@ export class CarouselFigure extends OSComponent {
     });
     if (item.type === "chart") {
       const animationChartId = item.chartId + (this.props.isFullScreen ? "-fullscreen" : "");
-      this.animationStore?.enableAnimationForChart(animationChartId);
+      this.chartAnimationPlugin.enableAnimationForChart(animationChartId);
     }
   }
 
@@ -207,7 +205,7 @@ export class CarouselFigure extends OSComponent {
   }
 
   toggleFullScreen() {
-    this.fullScreenFigureStore.toggleFullScreenFigure(this.props.figureUI.id);
+    this.fullScreenFigurePlugin.toggleFullScreenFigure(this.props.figureUI.id);
   }
 
   get fullScreenButtonTitle(): string {
