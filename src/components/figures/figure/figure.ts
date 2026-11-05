@@ -1,10 +1,13 @@
 import { computed, proxy, shallowEqual, signal, useEffect, usePlugin, useProps } from "@odoo/owl";
 import { ZoomPlugin } from "../../../owl_plugins/zoom_plugin";
 import { figureRegistry } from "../../../registries/figures_registry";
+import { useStore } from "../../../store_engine/store_hooks";
+import { ClipboardStore } from "../../../stores/clipboard_store";
 import { UpdateFiguresPayload } from "../../../types/commands";
 import { AnchorOffset, FigureUI, ResizeDirection } from "../../../types/figure";
 import { CSSProperties, UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
+import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { isMobileOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
@@ -46,6 +49,7 @@ export class FigureComponent extends OSComponent {
   private figureRef = signal.ref();
 
   private zoomPlugin = usePlugin(ZoomPlugin);
+  private clipboardStore!: Store<ClipboardStore>;
 
   get isSelected(): boolean {
     return (
@@ -89,6 +93,9 @@ export class FigureComponent extends OSComponent {
     const properties: CSSProperties = {
       "border-width": `${this.borderWidth}px`,
     };
+    if (this.isSelected || this.isFigureCopied) {
+      properties["border-color"] = "transparent";
+    }
     return cssPropertiesToCss(properties) + ";" + this.props.style;
   }
 
@@ -101,6 +108,21 @@ export class FigureComponent extends OSComponent {
       classes.push("o-figure-rounded");
     }
     return classes.join(" ");
+  }
+
+  get isFigureCopied() {
+    return (
+      !this.model().getters.isDashboard() &&
+      this.clipboardStore.showFigureAsCopied(this.props.figureUI.id)
+    );
+  }
+
+  get selectionBorderStyle() {
+    const properties: CSSProperties = {};
+    if (this.isFigureCopied) {
+      properties["border-style"] = "dashed";
+    }
+    return cssPropertiesToCss(properties);
   }
 
   getResizerPosition(resizer: ResizeAnchor): string {
@@ -129,6 +151,7 @@ export class FigureComponent extends OSComponent {
       equals: shallowEqual,
     });
     const thisFigureId = computed(() => this.props.figureUI.id);
+    this.clipboardStore = useStore(ClipboardStore);
     useEffect(() => {
       const el = this.figureRef();
       if (selectedFigureIds().includes(thisFigureId())) {

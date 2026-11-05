@@ -8,7 +8,7 @@ exports[`figures selected figure snapshot 1`] = `
   <div
     class="o-figure w-100 h-100 overflow-hidden"
     data-id="someuuid"
-    style="border-width: 1px;"
+    style="border-width: 1px; border-color: transparent;"
     tabindex="0"
   >
     <div

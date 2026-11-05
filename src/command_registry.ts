@@ -507,7 +507,6 @@ registerCommand("COPY_PASTE_CELLS_ABOVE", { category: "local" });
 registerCommand("COPY_PASTE_CELLS_ON_LEFT", { category: "local" });
 registerCommand("COPY_PASTE_CELLS_ON_ZONE", { category: "local" });
 registerCommand("REPEAT_PASTE", { category: "local" });
-registerCommand("CLEAN_CLIPBOARD_HIGHLIGHT", { category: "local" });
 registerCommand("AUTOFILL_CELL", { category: "local" });
 registerCommand("PASTE_FROM_OS_CLIPBOARD", { category: "local" });
 
