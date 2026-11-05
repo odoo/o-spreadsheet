@@ -376,7 +376,7 @@ import { TopBar } from "./components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "./components/top_bar/top_bar_tools_registry";
 import { createComputeFunction } from "./functions/create_compute_function";
 import { PositionMap } from "./helpers/cells/position_map";
-import { addStyleToWorkbookData } from "./helpers/data_normalization";
+import { addStylesToWorkbookData } from "./helpers/data_normalization";
 import { parseFormat } from "./helpers/format/format_parser";
 import { replaceSymbolInFormula } from "./helpers/formulas";
 import { useEffectAfterPatch } from "./helpers/owl3_helpers";
@@ -444,7 +444,7 @@ export const helpers = {
   overlap,
   union,
   isInside,
-  addStyleToWorkbookData,
+  addStylesToWorkbookData,
   deepCopy,
   expandZoneOnInsertion,
   reduceZoneOnDeletion,
