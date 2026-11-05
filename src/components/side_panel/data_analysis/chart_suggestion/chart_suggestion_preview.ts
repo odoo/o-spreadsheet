@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, signal, useEffect, useProps } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal, useEffect, usePlugin, useProps } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { SpreadsheetChart } from "../../../../helpers/figures/chart";
 import { registerChartJSExtensions } from "../../../../helpers/figures/charts/chart_js_extension";
@@ -6,6 +6,7 @@ import { limitChartConfigDataPoints } from "../../../../helpers/figures/charts/c
 import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
 import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
+import { DevicePixelRatioPlugin } from "../../../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { OSComponent } from "../../../os_component";
@@ -24,6 +25,7 @@ export class ChartSuggestionPreview extends OSComponent {
 
   private chartCanvasRef = signal.ref(HTMLCanvasElement);
   private chart?: Chart;
+  private devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
 
   setup() {
     onMounted(() => registerChartJSExtensions());
@@ -141,6 +143,7 @@ export class ChartSuggestionPreview extends OSComponent {
       return;
     }
     const getters = this.model().getters;
+    const dpr = this.devicePixelRatioPlugin.devicePixelRatio();
     const chart = SpreadsheetChart.fromStrDefinition(
       getters,
       getters.getActiveSheetId(),
@@ -165,7 +168,7 @@ export class ChartSuggestionPreview extends OSComponent {
         { width: rect.width || 130, height: rect.height || 120 },
         runtime as ScorecardChartRuntime
       );
-      drawScoreChart(config, canvas);
+      drawScoreChart(config, canvas, dpr, 1);
     } else if (type === "gauge") {
       let gaugeRuntime = runtime as GaugeChartRuntime;
       if (gaugeRuntime.title) {
@@ -174,7 +177,7 @@ export class ChartSuggestionPreview extends OSComponent {
           title: { text: "" },
         };
       }
-      drawGaugeChart(canvas, gaugeRuntime, 1, undefined, { labelFontSize: 8 });
+      drawGaugeChart(canvas, gaugeRuntime, dpr, 1, undefined, { labelFontSize: 8 });
     }
   }
 

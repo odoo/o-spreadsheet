@@ -20,7 +20,7 @@ import {
 } from "../../../../src/types/chart/scorecard_chart";
 import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
-import { click, simulateClick } from "../../../test_helpers";
+import { click, extendMockGetBoundingClientRect, simulateClick } from "../../../test_helpers";
 import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,
@@ -91,7 +91,7 @@ function renderScorecardChart(model: Model, chartId: UID, sheetId: UID, canvas: 
   const figure = model.getters.getFigure(sheetId, figureId)!;
   const runtime = model.getters.getChartRuntime(chartId) as ScorecardChartRuntime;
   const design = getScorecardConfiguration({ width: figure.width, height: figure.height }, runtime);
-  drawScoreChart(design, canvas);
+  drawScoreChart(design, canvas, 1, 1);
 }
 
 async function mountChartSidePanel(id: UID = chartId, _model: Model = model) {
@@ -799,6 +799,8 @@ describe("Scorecard charts rendering", () => {
 });
 
 test("Scorecard is re-render on element size change", async () => {
+  let scorecardDims = { x: 0, y: 0, width: 100, height: 100 };
+  extendMockGetBoundingClientRect({ "o-scorecard": () => scorecardDims });
   const model = new Model();
   createScorecardChart(model, {});
   const { fixture } = await mountSpreadsheet({ model });
@@ -807,10 +809,14 @@ test("Scorecard is re-render on element size change", async () => {
   const ctx = canvas.getContext("2d")!;
 
   const spy = jest.spyOn(ctx, "scale"); // ctx.scale is the first thing the scorecard rendering process calls
+  scorecardDims = { x: 0, y: 0, width: 200, height: 200 };
   window.resizers.resize();
+  await nextTick();
   expect(spy).toHaveBeenCalledTimes(1);
 
+  scorecardDims = { x: 0, y: 0, width: 300, height: 300 };
   window.resizers.resize();
+  await nextTick();
   expect(spy).toHaveBeenCalledTimes(2);
 });
 

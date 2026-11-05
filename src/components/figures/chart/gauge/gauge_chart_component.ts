@@ -1,12 +1,15 @@
-import { onMounted, onWillUnmount, signal, usePlugin, useProps } from "@odoo/owl";
+import { onWillUnmount, signal, usePlugin, useProps } from "@odoo/owl";
 import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
 import { deepEquals } from "../../../../helpers/misc";
-import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
+import { useEffectAfterPatch } from "../../../../helpers/owl3_helpers";
+import { DevicePixelRatioPlugin } from "../../../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { ZoomPlugin } from "../../../../owl_plugins/zoom_plugin";
 import { EASING_FN } from "../../../../registries/cell_animation_registry";
 import { useStore } from "../../../../store_engine/store_hooks";
-import { GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
+import { GaugeAnimatedRuntime, GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
 import { Store } from "../../../../types/store_engine";
+import { useResizeObserver } from "../../../helpers/listener_hook";
+import { useElementRect } from "../../../helpers/position_hook";
 import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
 import { ChartAnimationStore } from "../chartJs/chartjs_animation_store";
@@ -25,6 +28,8 @@ export class GaugeChartComponent extends OSComponent {
 
   private animationStore: Store<ChartAnimationStore> | undefined;
   private zoomPlugin = usePlugin(ZoomPlugin);
+  private devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
+  private canvasRect = useElementRect(this.canvas);
 
   get runtime(): GaugeChartRuntime {
     return this.model().getters.getChartRuntime(this.props.chartId) as GaugeChartRuntime;
@@ -37,57 +42,38 @@ export class GaugeChartComponent extends OSComponent {
 
     let animation: Animation | null = null;
     let lastRuntime: GaugeChartRuntime | undefined = undefined;
-    useLayoutEffect(
-      () => {
-        if (
-          this.model().getters.isDashboard() &&
-          lastRuntime === undefined && // first render
-          this.animationStore?.animationPlayed[this.animationChartId] !== "gauge"
-        ) {
-          animation = this.drawGaugeWithAnimation();
-          this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
-        } else if (
-          this.model().getters.isDashboard() &&
-          lastRuntime !== undefined && // not first render
-          !deepEquals(this.runtime, lastRuntime)
-        ) {
-          animation = this.drawGaugeWithAnimation();
-          this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
-        } else {
-          const zoom = this.zoomPlugin.zoomLevel();
-          drawGaugeChart(this.canvasEl, this.runtime, zoom);
-        }
-
-        lastRuntime = this.runtime;
-        return () => animation?.stop();
-      },
-      () => {
-        const canvas = this.canvas();
-        if (!canvas) {
-          return [];
-        }
-        const rect = canvas.getBoundingClientRect();
-        return [rect.width, rect.height, this.runtime, canvas, window.devicePixelRatio];
+    useEffectAfterPatch(() => {
+      if (
+        this.model().getters.isDashboard() &&
+        lastRuntime === undefined && // first render
+        this.animationStore?.animationPlayed[this.animationChartId] !== "gauge"
+      ) {
+        animation = this.drawGaugeWithAnimation();
+        this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
+      } else if (
+        this.model().getters.isDashboard() &&
+        lastRuntime !== undefined && // not first render
+        !deepEquals(this.runtime, lastRuntime)
+      ) {
+        animation = this.drawGaugeWithAnimation();
+        this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
+      } else {
+        this.drawGaugeChart(this.runtime);
       }
-    );
-    const resizeObserver = new ResizeObserver(() => {
+
+      lastRuntime = this.runtime;
+    });
+    useResizeObserver(this.canvas, () => {
       if (animation) {
         animation.stop();
         animation = null;
       }
-      drawGaugeChart(this.canvasEl, this.runtime, this.zoomPlugin.zoomLevel());
     });
-    onMounted(() => {
-      const canvas = this.canvas();
-      if (canvas) {
-        resizeObserver.observe(canvas);
-      }
-    });
-    onWillUnmount(() => resizeObserver.disconnect());
+    onWillUnmount(() => animation?.stop());
   }
 
   drawGaugeWithAnimation() {
-    drawGaugeChart(this.canvasEl, { ...this.runtime, animationValue: 0 }, undefined);
+    this.drawGaugeChart({ ...this.runtime, animationValue: 0 });
 
     const gaugeValue = this.runtime.gaugeValue?.value || 0;
     const upperBound = this.runtime.maxValue.value;
@@ -98,7 +84,7 @@ export class GaugeChartComponent extends OSComponent {
 
     const lowerBound = this.runtime.minValue.value;
     const animation = new Animation(lowerBound, finalValue, ANIMATION_DURATION, (animationValue) =>
-      drawGaugeChart(this.canvasEl, { ...this.runtime, animationValue }, undefined)
+      this.drawGaugeChart({ ...this.runtime, animationValue })
     );
     animation.start();
     return animation;
@@ -110,6 +96,16 @@ export class GaugeChartComponent extends OSComponent {
 
   get animationChartId() {
     return this.props.isFullScreen ? this.props.chartId + "-fullscreen" : this.props.chartId;
+  }
+
+  drawGaugeChart(runtime: GaugeAnimatedRuntime) {
+    drawGaugeChart(
+      this.canvasEl,
+      runtime,
+      this.devicePixelRatioPlugin.devicePixelRatio(),
+      this.zoomPlugin.zoomLevel(),
+      this.canvasRect()
+    );
   }
 }
 
