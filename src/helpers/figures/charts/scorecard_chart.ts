@@ -385,13 +385,13 @@ type Canvas2DContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContex
 export function drawScoreChart(
   structure: ScorecardChartConfig,
   canvas: HTMLCanvasElement | OffscreenCanvas,
-  zoom: number = 1
+  dpr: number,
+  zoom: number
 ) {
   const ctx = canvas.getContext("2d") as Canvas2DContext;
   if (!ctx) {
     throw new Error("Unable to retrieve 2D context from canvas");
   }
-  const dpr = typeof globalThis.devicePixelRatio === "number" ? globalThis.devicePixelRatio : 1;
 
   canvas.width = dpr * structure.canvas.width * zoom;
   canvas.height = dpr * structure.canvas.height * zoom;

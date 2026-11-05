@@ -35,6 +35,7 @@ import { isInside, positionToZone } from "../../helpers/zones";
 import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { AutomaticSumPlugin } from "../../owl_plugins/automatic_sum_plugin";
 import { CheckboxTogglePlugin } from "../../owl_plugins/checkbox_toggle_plugin";
+import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
@@ -191,6 +192,7 @@ export class Grid extends OSComponent {
   hoveredCell!: Store<DelayedHoveredCellStore>;
   sidePanel!: Store<SidePanelStore>;
   private automaticSumPlugin!: PluginInstance<typeof AutomaticSumPlugin>;
+  private devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
 
   setup() {
     this.viewStore = useStore(ViewportsStore);
@@ -222,7 +224,7 @@ export class Grid extends OSComponent {
     useGridDrawing({
       canvasRef: this.canvasRef,
       renderingCtx: () => ({
-        dpr: window.devicePixelRatio || 1,
+        dpr: this.devicePixelRatioPlugin.devicePixelRatio() || 1,
         viewports: this.viewStore.viewports,
         ...this.model().getters.getSelectionState(),
       }),

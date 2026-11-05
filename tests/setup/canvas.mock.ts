@@ -26,6 +26,7 @@ export class MockCanvasRenderingContext2D {
   restore() {}
   setLineDash() {}
   rotate() {}
+  arc() {}
   measureText(text: string) {
     const fontSize = getContextFontSize(this.font);
     return {
