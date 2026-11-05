@@ -162,9 +162,55 @@ describe("Funnel chart show value", () => {
   });
 });
 
-describe("Combo chart show value", () => {
-  test("Can show value on a combo chart", () => {
-    const model = createModelFromGrid({ A1: "1", A2: "2", A3: "3", B1: "0", B2: "1", B3: "2.5" });
+describe("Show values with axis min/max", () => {
+  test("Values are centered in the visible part of the bars of a column chart", () => {
+    const model = createModelFromGrid({ A1: "30", A2: "80", A3: "150" });
+    const definition: Partial<BarChartDefinition<string>> & { type: "bar" } = {
+      type: "bar",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }],
+        dataSetsHaveTitle: false,
+      }),
+      showValues: true,
+      title: { text: "" },
+      legendPosition: "none",
+      axesDesign: { y: { min: 50, max: 100 } },
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+
+  test("Values are centered in the visible part of the bars of an horizontal bar chart", () => {
+    const model = createModelFromGrid({ A1: "30", A2: "80", A3: "150" });
+    const definition: Partial<BarChartDefinition<string>> & { type: "bar" } = {
+      type: "bar",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }],
+        dataSetsHaveTitle: false,
+      }),
+      showValues: true,
+      horizontal: true,
+      title: { text: "" },
+      legendPosition: "none",
+      axesDesign: { x: { min: 50, max: 100 } },
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+
+  test("Values are centered in the visible part of the bars of a combo chart", () => {
+    const model = createModelFromGrid({
+      A1: "30",
+      A2: "80",
+      A3: "150",
+      B1: "60",
+      B2: "90",
+      B3: "95",
+    });
     const definition: Partial<ComboChartDefinition<string>> & { type: "combo" } = {
       type: "combo",
       ...toChartDataSource({
@@ -174,6 +220,7 @@ describe("Combo chart show value", () => {
       showValues: true,
       title: { text: "" },
       legendPosition: "none",
+      axesDesign: { y: { min: 50, max: 100 } },
     };
     createChart(model, definition, "chartId");
 

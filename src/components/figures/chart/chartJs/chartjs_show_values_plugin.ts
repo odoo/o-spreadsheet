@@ -1,5 +1,5 @@
 import type { ChartMeta, ChartType, Plugin } from "chart.js";
-import { computeTextWidth } from "../../../../helpers";
+import { clip, computeTextWidth } from "../../../../helpers";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
 import { Color } from "../../../../types";
 import type { ChartType as AllChartType } from "../../../../types/chart";
@@ -80,6 +80,7 @@ function drawLineOrBarOrRadarChartValues(
   ctx: CanvasRenderingContext2D
 ) {
   const textsPositions: Record<number, number[]> = {};
+  const { top, bottom } = chart.chartArea;
   for (const dataset of chart._metasets) {
     if (isTrendLineAxis(dataset.xAxisID) || dataset.hidden) {
       continue;
@@ -99,14 +100,18 @@ function drawLineOrBarOrRadarChartValues(
       if (dataset.type === "line" || dataset.type === "radar") {
         yPosition = value < 0 ? point.y + 10 : point.y - 10;
       } else {
-        const yZeroLine = yAxisScale.getPixelForValue(0);
-        const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
+        // The bar geometry is not clipped to the chart area (eg. with axis min/max), only its drawing is.
+        // Use the visible part of the bar to position the value.
+        const yZeroLine = clip(yAxisScale.getPixelForValue(0), top, bottom);
+        const barHead = clip(point.y, top, bottom);
+        const distanceFromAxisOrigin = Math.abs(yZeroLine - barHead);
         const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default text height
 
         if (distanceFromAxisOrigin < textHeight) {
           yPosition = value < 0 ? yZeroLine + textHeight / 2 : yZeroLine - textHeight / 2;
         } else {
-          yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
+          const barBase = clip(point.base, top, bottom);
+          yPosition = (barHead + barBase) / 2;
         }
       }
 
@@ -187,13 +192,14 @@ function drawHorizontalBarChartValues(
   args: { offsetFromAxisOrigin?: boolean }
 ) {
   const textsPositions: Record<number, number[]> = {};
+  const { left, right } = chart.chartArea;
 
   for (const dataset of chart._metasets) {
     if (isTrendLineAxis(dataset.xAxisID)) {
       return; // ignore trend lines
     }
     const xAxisScale = chart.scales[dataset.xAxisID];
-    const xZeroLine = xAxisScale.getPixelForValue(0);
+    const xZeroLine = clip(xAxisScale.getPixelForValue(0), left, right);
 
     for (let i = 0; i < dataset._parsed.length; i++) {
       const value = Number(dataset._parsed[i].x);
@@ -210,7 +216,9 @@ function drawHorizontalBarChartValues(
         { fontSize: globalThis.Chart?.defaults.font.size ?? 12 },
         "px"
       );
-      const distanceFromAxisOrigin = Math.abs(point.x - xZeroLine);
+      const barHead = clip(point.x, left, right);
+      const barBase = clip(point.base, left, right);
+      const distanceFromAxisOrigin = Math.abs(barHead - xZeroLine);
 
       const PADDING = 3;
       let xPosition: number;
@@ -218,7 +226,7 @@ function drawHorizontalBarChartValues(
         xPosition =
           value < 0 ? xZeroLine - textWidth / 2 - PADDING : xZeroLine + textWidth / 2 + PADDING;
       } else {
-        xPosition = value < 0 ? point.x + point.width / 2 : point.x - point.width / 2;
+        xPosition = (barHead + barBase) / 2;
       }
 
       // Avoid overlapping texts with same Y
