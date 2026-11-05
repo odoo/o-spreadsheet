@@ -216,11 +216,12 @@ export function drawChartOnCanvas(
   }
   // TODO: make a registry of chart types to their rendering functions
   else {
+    const dpr = window.devicePixelRatio || 1;
     if (type === "scorecard") {
       const design = getScorecardConfiguration(size, runtime as ScorecardChartRuntime);
-      drawScoreChart(design, canvas, zoom);
+      drawScoreChart(design, canvas, dpr, zoom);
     } else if (type === "gauge") {
-      drawGaugeChart(canvas, runtime as GaugeChartRuntime, zoom, size);
+      drawGaugeChart(canvas, runtime as GaugeChartRuntime, dpr, zoom, size);
     }
   }
 

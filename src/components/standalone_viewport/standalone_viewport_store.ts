@@ -1,6 +1,8 @@
+import { usePlugin } from "@odoo/owl";
 import { DEFAULT_CELL_WIDTH } from "../../constants";
 import { deepEquals, range, sumArray } from "../../helpers/misc";
 import { isInside, isZoneValid } from "../../helpers/zones";
+import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -21,6 +23,7 @@ export class StandaloneViewportStore extends SpreadsheetStore {
   private customColWeights: number[] | undefined = undefined;
 
   private viewStore = this.get(ViewportsStore);
+  private devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
 
   constructor(get: Get, range: Range, customColWeights?: number[]) {
     super(get);
@@ -131,7 +134,7 @@ export class StandaloneViewportStore extends SpreadsheetStore {
       viewports: this.viewStore.viewports,
       hideGridLines: this.getters.isDashboard(),
       hideFrozenPaneBorder: true,
-      dpr: window.devicePixelRatio || 1,
+      dpr: this.devicePixelRatioPlugin.devicePixelRatio() || 1,
       selectedZones: [],
       activeCols: new Set(),
       activeRows: new Set(),

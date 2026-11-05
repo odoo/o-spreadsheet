@@ -1,4 +1,5 @@
 import { providePlugins, signal, usePlugin, useProps } from "@odoo/owl";
+import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { LocalRendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
@@ -47,6 +48,7 @@ export class SpreadsheetDashboard extends OSComponent {
   hoveredCell!: Store<DelayedHoveredCellStore>;
   private viewStore!: Store<ViewportsStore>;
   private zoomPlugin = usePlugin(ZoomPlugin);
+  private devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
 
   private gridRef = signal.ref();
   private canvasRef = signal.ref(HTMLCanvasElement);
@@ -63,7 +65,7 @@ export class SpreadsheetDashboard extends OSComponent {
     useGridDrawing({
       canvasRef: this.canvasRef,
       renderingCtx: () => ({
-        dpr: window.devicePixelRatio || 1,
+        dpr: this.devicePixelRatioPlugin.devicePixelRatio() || 1,
         viewports: this.viewStore.viewports,
         ...this.model().getters.getSelectionState(),
         hideGridLines: true,

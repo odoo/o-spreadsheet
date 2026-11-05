@@ -1,8 +1,16 @@
-import { PluginInstance, usePlugin } from "@odoo/owl";
+import {
+  PluginInstance,
+  providePlugins,
+  signal,
+  useEffect,
+  useListener,
+  usePlugin,
+} from "@odoo/owl";
 import { CANVAS_SHIFT } from "../../constants";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { useEffectAfterPatch } from "../../helpers/owl3_helpers";
 import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
-import { useLocalStore } from "../../store_engine/store_hooks";
+import { StoreRendererPlugin } from "../../owl_plugins/stores_render_owl_plugin";
+import { useLocalStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { GridRenderer } from "../../stores/grid_renderer_store";
 import { GridRenderingContext } from "../../types/rendering";
 import { cssPropertiesToCss } from "./css";
@@ -20,11 +28,37 @@ export function useGridDrawing({
   rendererPlugin,
   changeCanvasSizeOnZoom,
 }: GridDrawingArgs) {
-  useLayoutEffect(drawGrid);
   const renderer = rendererPlugin ?? usePlugin(RendererPlugin);
+
+  providePlugins([StoreRendererPlugin], {
+    stores: useStoreProvider(),
+    rendererPlugin: renderer,
+  });
+  const storeRendererPlugin = usePlugin(StoreRendererPlugin);
   useLocalStore(GridRenderer, { renderer });
+  const drawCanvasSignal = signal(0);
+
+  const triggerDrawSignal = () => signal.trigger(drawCanvasSignal);
+  // The browser can throw away the canvas bitmap on background tab, draw again when tab becomes visible
+  useListener(document, "visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      triggerDrawSignal();
+    }
+  });
+  // A 2d context is restored by the browser on its own, only its content has to be drawn again.
+  useEffect(() => {
+    const canvas = canvasRef();
+    if (!canvas) {
+      return;
+    }
+    canvas.addEventListener("contextrestored", triggerDrawSignal);
+    return () => canvas.removeEventListener("contextrestored", triggerDrawSignal);
+  });
+
+  useEffectAfterPatch(drawGrid);
 
   function drawGrid() {
+    drawCanvasSignal();
     const canvas = canvasRef() as HTMLCanvasElement | null;
     if (!canvas) {
       return;
@@ -49,6 +83,8 @@ export function useGridDrawing({
     });
     canvas.setAttribute("style", style);
     if (width === 0 || height === 0) {
+      // OWL3 FIXME: we need to manually read the signals on early return since the viewports are not reactive.
+      storeRendererPlugin.readSignals();
       return;
     }
     ctx.resetTransform();

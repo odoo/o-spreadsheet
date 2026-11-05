@@ -381,6 +381,7 @@ import { PositionMap } from "./helpers/cells/position_map";
 import { addStyleToWorkbookData } from "./helpers/data_normalization";
 import { parseFormat } from "./helpers/format/format_parser";
 import { replaceSymbolInFormula } from "./helpers/formulas";
+import { useEffectAfterPatch } from "./helpers/owl3_helpers";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
@@ -388,6 +389,7 @@ import {
 import { domainToColRowDomain } from "./helpers/pivot/pivot_domain_helpers";
 import { drawHighlight } from "./helpers/rendering";
 import { fuzzyLookup } from "./helpers/search";
+import { DevicePixelRatioPlugin } from "./owl_plugins/device_pixel_ratio_owl_plugin";
 import { IsSmallPlugin } from "./owl_plugins/is_small_plugin";
 import { ModelPlugin } from "./owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "./owl_plugins/navigator_clipboard_plugin";
@@ -577,6 +579,7 @@ export const hooks = {
   useHighlightsOnHover,
   provideSpreadsheetRect,
   useSpreadsheetProviders,
+  useEffectAfterPatch,
 };
 
 export const compatibility: {
@@ -624,6 +627,7 @@ export const owlPlugins = {
   NavigatorClipboardPlugin,
   ModelPlugin,
   ZoomPlugin,
+  DevicePixelRatioPlugin,
   RendererPlugin,
   HighlightPlugin,
 };

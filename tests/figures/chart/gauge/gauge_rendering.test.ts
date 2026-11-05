@@ -10,6 +10,7 @@ import {
 } from "../../../../src/helpers/figures/charts/gauge_chart_rendering";
 import { GaugeAnimatedRuntime, GaugeChartRuntime } from "../../../../src/types/chart/gauge_chart";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
+import { extendMockGetBoundingClientRect } from "../../../test_helpers";
 import {
   createGaugeChart,
   setCellContent,
@@ -296,6 +297,8 @@ describe("Gauge chart component animation", () => {
 });
 
 test("Gauge is re-render on element size change", async () => {
+  let gaugeDims = { x: 0, y: 0, width: 100, height: 100 };
+  extendMockGetBoundingClientRect({ "o-gauge-chart": () => gaugeDims });
   const model = new Model();
   createGaugeChart(model, {});
   const { fixture } = await mountSpreadsheet({ model });
@@ -304,9 +307,13 @@ test("Gauge is re-render on element size change", async () => {
   const ctx = canvas.getContext("2d")!;
 
   const spy = jest.spyOn(ctx, "scale"); // ctx.scale is the first thing the gauge rendering process calls
+  gaugeDims = { x: 0, y: 0, width: 200, height: 200 };
   window.resizers.resize();
+  await nextTick();
   expect(spy).toHaveBeenCalledTimes(1);
 
+  gaugeDims = { x: 0, y: 0, width: 300, height: 300 };
   window.resizers.resize();
+  await nextTick();
   expect(spy).toHaveBeenCalledTimes(2);
 });

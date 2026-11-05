@@ -1,8 +1,8 @@
 import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { numberToLetters } from "../helpers/coordinates";
 import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
+import { FormulaFingerprintPlugin } from "../owl_plugins/formula_fingerprints_store";
 import { ZoomPlugin } from "../owl_plugins/zoom_plugin";
-import { FormulaFingerprintStore } from "../stores/formula_fingerprints_store";
 import { _t } from "../translation";
 import { Dimension } from "../types/misc";
 import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
@@ -210,8 +210,8 @@ export const viewGridlines: ActionSpec = {
 export const irregularityMap: ActionSpec = {
   name: _t("Irregularity map"),
   execute: (env) => {
-    const fingerprintStore = env.getStore(FormulaFingerprintStore);
-    if (fingerprintStore.isEnabled) {
+    const fingerprintStore = env.getPlugin(FormulaFingerprintPlugin);
+    if (fingerprintStore.isEnabled()) {
       fingerprintStore.disable();
     } else {
       fingerprintStore.enable();

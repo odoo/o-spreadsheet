@@ -75,12 +75,12 @@ interface Segment {
 export function drawGaugeChart(
   canvas: CanvasSurface,
   runtime: GaugeAnimatedRuntime,
+  dpr: number,
   zoom: number = 1,
   dimensions?: DOMDimension,
   options?: { labelFontSize?: number }
 ) {
   const size = dimensions ?? getCanvasSize(canvas);
-  const dpr = typeof globalThis.devicePixelRatio === "number" ? globalThis.devicePixelRatio : 1;
   canvas.width = size.width * dpr;
   canvas.height = size.height * dpr;
   const ctx = canvas.getContext("2d") as Canvas2DContext;
