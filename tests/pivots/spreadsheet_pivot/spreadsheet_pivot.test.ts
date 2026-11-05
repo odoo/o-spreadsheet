@@ -2356,8 +2356,8 @@ describe("Spreadsheet Pivot", () => {
 
       // prettier-ignore
       const tabularPivotGrid = {
-        A25:"My pivot",      B25: "",                  C25: "Total",
-        A26: "Stage",        B26: "Active",            C26: "Expected Revenue",
+        A25: "Stage",        B25: "Active",            C25: "Total",
+        A26: "",             B26: "",                  C26: "Expected Revenue",
         A27: "New",          B27: "FALSE",             C27: 91000,
         A28: "New",          B28: "TRUE",              C28: 30500,
         A29: "Proposition",  B29: "FALSE",             C29: 80600,
@@ -2408,8 +2408,8 @@ describe("Spreadsheet Pivot", () => {
 
       // prettier-ignore
       expect(getGrid(model)).toMatchObject({
-        A25:"My pivot",      B25: "",        C25: "Eden",              D25: "Kevin",             E25: "Total",
-        A26: "Stage",        B26: "Active",  C26: "Expected Revenue",  D26: "Expected Revenue",  E26: "Expected Revenue",
+        A25: "Stage",        B25: "Active",  C25: "Eden",              D25: "Kevin",             E25: "Total",
+        A26: "",             B26: "",        C26: "Expected Revenue",  D26: "Expected Revenue",  E26: "Expected Revenue",
         A27: "New",          B27: "FALSE",   C27: "",                  D27: 91000,               E27: 91000,
         A28: "New",          B28: "TRUE",    C28: 24000,               D28: 6500,                E28: 30500,
         A29: "Proposition",  B29: "FALSE",   C29: 15000,               D29: 65600,               E29: 80600,
@@ -2440,8 +2440,8 @@ describe("Spreadsheet Pivot", () => {
 
       // prettier-ignore
       expect(getGrid(model)).toMatchObject({
-        A25:"My pivot",      B25: "",        C25: "Total",             D25: "",
-        A26: "Stage",        B26: "Active",  C26: "Expected Revenue",  D26: "Opportunity",
+        A25: "Stage",        B25: "Active",  C25: "Total",             D25: "",
+        A26: "",             B26: "",        C26: "Expected Revenue",  D26: "Opportunity",
         A27: "New",          B27: "FALSE",   C27: 91000,               D27: 4,
         A28: "New",          B28: "TRUE",    C28: 30500,               D28: 3,
         A29: "Proposition",  B29: "FALSE",   C29: 80600,               D29: 3,
@@ -2469,7 +2469,7 @@ describe("Spreadsheet Pivot", () => {
 
       // prettier-ignore
       expect(getGrid(model)).toMatchObject({
-        A25: "Stage",        B25: "Active",  C25: "Expected Revenue",
+        A25: "My pivot",     B25: "",        C25: "Expected Revenue",
         A26: "New",          B26: "FALSE",   C26: 91000,
         A27: "New",          B27: "TRUE",    C27: 30500,
         A28: "Proposition",  B28: "FALSE",   C28: 80600,
@@ -2497,7 +2497,7 @@ describe("Spreadsheet Pivot", () => {
 
       // prettier-ignore
       expect(getGrid(model)).toMatchObject({
-        A25:"My pivot",      B25: "",       C25: "Total",
+        A25: "Stage",        B25: "Active", C25: "Total",
         A26: "New",          B26: "FALSE",  C26: 91000,
         A27: "New",          B27: "TRUE",   C27: 30500,
         A28: "Proposition",  B28: "FALSE",  C28: 80600,
@@ -2525,8 +2525,8 @@ describe("Spreadsheet Pivot", () => {
 
       // prettier-ignore
       expect(getGrid(model, "A25:C35")).toMatchObject({
-        A25:"My pivot",      B25: "",                  C25: "Total",
-        A26: "Stage",        B26: "Active",            C26: "Expected Revenue",
+        A25: "Stage",        B25: "Active",            C25: "Total",
+        A26: "",             B26: "",                  C26: "Expected Revenue",
         A27: "New",          B27: "FALSE",             C27: 91000,
         A28: "New",          B28: "TRUE",              C28: 30500,
         A29: "Proposition",  B29: "FALSE",             C29: 80600,
@@ -2554,8 +2554,8 @@ describe("Spreadsheet Pivot", () => {
 
       // prettier-ignore
       expect(getGrid(model, "A25:D29")).toMatchObject({
-        A25:"My pivot",      B25: "",        C25: "Eden",              D25: "",
-        A26: "Stage",        B26: "Active",  C26: "Expected Revenue",  D26: "",
+        A25: "Stage",        B25: "Active",  C25: "Eden",              D25: "",
+        A26: "",             B26: "",        C26: "Expected Revenue",  D26: "",
         A27: "New",          B27: "FALSE",   C27: "",                  D27: "",
         A28: "New",          B28: "TRUE",    C28: 24000,               D28: "",
         A29: "",             B29: "",        C29: "",                  D29: "",
