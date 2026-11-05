@@ -1,6 +1,7 @@
-import { Border, CellPosition, Format, Position, Style, WorkbookData } from "../types";
+import { PositionMap } from "../plugins/ui_core_views/cell_evaluation/position_map";
+import { Border, CellPosition, Format, Position, Style, UID, WorkbookData } from "../types";
 import { recomputeZones } from "./recompute_zones";
-import { isZoneInside, positionToZone, toZone, zoneToXc } from "./zones";
+import { positionToZone, toZone, zoneToXc } from "./zones";
 
 type ReverseLookup = Map<string, number>;
 type ItemsDic<T> = { [id: number]: T };
@@ -45,6 +46,19 @@ export function groupItemIdsByZones(positionsByItemId: { [id: number]: Position[
   return result;
 }
 
+export function* iterateItemIdsPositions(sheetId: UID, itemIdsByZones: Record<string, number>) {
+  for (const zoneXc in itemIdsByZones) {
+    const zone = toZone(zoneXc);
+    const itemId = itemIdsByZones[zoneXc];
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        const position = { sheetId, col, row };
+        yield [position, itemId] as const;
+      }
+    }
+  }
+}
+
 export function getCanonicalRepresentation(item: any): string {
   if (item === null) {
     return "null";
@@ -80,35 +94,45 @@ export function getCanonicalRepresentation(item: any): string {
 }
 
 /**
- * This adds a border/style/format to the cell position in the workbook data, updating the zonified structure accordingly.
+ * This adds borders/styles/formats to the given cell positions in the workbook data,
+ * updating the zonified structure accordingly.
  */
-export function addStyleToWorkbookData(
+export function addStylesToWorkbookData(
   workbookData: WorkbookData,
   key: "borders" | "formats" | "styles",
-  position: CellPosition,
-  newItem: Border | Format | Style
+  items: { position: CellPosition; item: Border | Format | Style }[]
 ) {
-  const sheetData = workbookData.sheets.find((sheet) => sheet.id === position.sheetId);
-  if (!sheetData) {
-    throw new Error(`Sheet with id ${position.sheetId} not found`);
+  const itemsBySheetId = new Map<UID, typeof items>();
+  for (const item of items) {
+    const sheetItems = itemsBySheetId.get(item.position.sheetId);
+    if (sheetItems) {
+      sheetItems.push(item);
+    } else {
+      itemsBySheetId.set(item.position.sheetId, [item]);
+    }
   }
 
-  const id = getItemId(newItem, workbookData[key]);
+  for (const [sheetId, sheetItems] of itemsBySheetId) {
+    const sheetData = workbookData.sheets.find((sheet) => sheet.id === sheetId);
+    if (!sheetData) {
+      throw new Error(`Sheet with id ${sheetId} not found`);
+    }
 
-  const zonifiedData = sheetData[key];
-  const zone = positionToZone(position);
-  const styleXc = Object.keys(zonifiedData).find((styleXc) => isZoneInside(zone, toZone(styleXc)));
+    const itemIdsByPosition = new PositionMap<number>();
+    for (const [position, id] of iterateItemIdsPositions(sheetId, sheetData[key])) {
+      itemIdsByPosition.set(position, id);
+    }
 
-  if (!styleXc) {
-    zonifiedData[zoneToXc(zone)] = id;
-    return;
+    for (const { position, item } of sheetItems) {
+      itemIdsByPosition.set(position, getItemId(item, workbookData[key]));
+    }
+
+    const positionsByItemId: { [id: number]: Position[] } = {};
+    for (const position of itemIdsByPosition.keys()) {
+      const itemId = itemIdsByPosition.get(position)!;
+      positionsByItemId[itemId] ??= [];
+      positionsByItemId[itemId].push(position);
+    }
+    sheetData[key] = groupItemIdsByZones(positionsByItemId);
   }
-
-  const existingStyle = zonifiedData[styleXc];
-  const remainingZones = recomputeZones([toZone(styleXc)], [zone]);
-  delete zonifiedData[styleXc];
-  for (const remainingZone of remainingZones) {
-    zonifiedData[zoneToXc(remainingZone)] = existingStyle;
-  }
-  zonifiedData[zoneToXc(zone)] = id;
 }

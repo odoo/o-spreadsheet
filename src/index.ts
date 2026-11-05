@@ -79,7 +79,7 @@ import {
 import {
   ColorGenerator,
   UuidGenerator,
-  addStyleToWorkbookData,
+  addStylesToWorkbookData,
   colorToRGBA,
   computeTextWidth,
   createCurrencyFormat,
@@ -342,7 +342,7 @@ export const helpers = {
   overlap,
   union,
   isInside,
-  addStyleToWorkbookData,
+  addStylesToWorkbookData,
   deepCopy,
   expandZoneOnInsertion,
   reduceZoneOnDeletion,
