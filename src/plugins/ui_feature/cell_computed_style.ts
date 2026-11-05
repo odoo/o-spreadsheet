@@ -1,7 +1,7 @@
 import { LINK_COLOR } from "../../constants";
+import { addStylesToWorkbookData } from "../../helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { toCartesian } from "../../helpers/coordinates";
-import { addStyleToWorkbookData } from "../../helpers/data_normalization";
 import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/misc";
 import {
   Command,
@@ -97,6 +97,7 @@ export class CellComputedStylePlugin extends UIPlugin {
   }
 
   exportForExcel(data: ExcelWorkbookData) {
+    const stylesToAdd: { position: CellPosition; item: Style }[] = [];
     for (const sheet of data.sheets) {
       for (const xc in sheet.cells) {
         const position = { sheetId: sheet.id, ...toCartesian(xc) };
@@ -106,9 +107,10 @@ export class CellComputedStylePlugin extends UIPlugin {
           continue;
         }
         const newStyle = { ...computedStyle, textColor: LINK_COLOR };
-        addStyleToWorkbookData(data, "styles", position, newStyle);
+        stylesToAdd.push({ position, item: newStyle });
       }
     }
+    addStylesToWorkbookData(data, "styles", stylesToAdd);
   }
 
   private computeCellBorder(position: CellPosition): Border | null {
