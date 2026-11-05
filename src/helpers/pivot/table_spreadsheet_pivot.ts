@@ -234,7 +234,7 @@ export class SpreadsheetPivotTable {
     const isMeasureHeader = row === colHeadersHeight - 1 && col >= rowHeadersWidth;
     const isRowHeader = row > colHeadersHeight - 1 && col < rowHeadersWidth;
     const isPivotValue = row > colHeadersHeight - 1 && col >= rowHeadersWidth;
-    const isRowGroupName = isTabularForm && row === colHeadersHeight - 1 && col < rowHeadersWidth;
+    const isRowGroupName = isTabularForm && row === colHeadersHeight - 2 && col < rowHeadersWidth;
 
     if (isTabularForm && isRowHeader) {
       const rowIndex = row - colHeadersHeight;
