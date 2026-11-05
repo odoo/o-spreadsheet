@@ -1,6 +1,7 @@
 import { providePlugins, Signal, usePlugin } from "@odoo/owl";
 import { providePluginsIfNotPresent } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
+import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { FormulaFingerprintPlugin } from "../../owl_plugins/formula_fingerprints_store";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin";
@@ -46,9 +47,11 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
       FormulaFingerprintPlugin,
       NavigatorClipboardPlugin,
       ImageProviderPlugin,
+      DevicePixelRatioPlugin,
       TableResizePlugin,
       TrimWhitespacePlugin,
       SplitToColumnsPlugin,
+      FormulaFingerprintPlugin,
     ],
     {
       popoverContainerRectSignal: spreadsheetRectPlugin.rect,

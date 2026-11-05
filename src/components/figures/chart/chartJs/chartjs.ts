@@ -1,11 +1,12 @@
-import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal, usePlugin, useProps } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import {
   chartJsExtensionRegistry,
   registerChartJSExtensions,
 } from "../../../../helpers/figures/charts/chart_js_extension";
 import { deepCopy, deepEquals } from "../../../../helpers/misc";
-import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
+import { useEffectAfterPatch } from "../../../../helpers/owl3_helpers";
+import { DevicePixelRatioPlugin } from "../../../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { Store } from "../../../../types/store_engine";
@@ -95,7 +96,8 @@ export class ChartJsComponent extends OSComponent {
   protected currentRuntime!: ChartJSRuntime;
   protected animationStore: Store<ChartAnimationStore> | undefined;
 
-  private currentDevicePixelRatio = window.devicePixelRatio;
+  devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
+  private currentDevicePixelRatio = this.devicePixelRatioPlugin.devicePixelRatio();
 
   get chartRuntime(): ChartJSRuntime {
     const runtime = this.model().getters.getChartRuntime(this.props.chartId);
@@ -117,7 +119,8 @@ export class ChartJsComponent extends OSComponent {
       this.createChart(deepCopy(runtime));
     });
     onWillUnmount(this.unmount.bind(this));
-    useLayoutEffect(() => {
+
+    useEffectAfterPatch(() => {
       const runtime = this.chartRuntime;
       if (
         runtime !== this.currentRuntime &&
@@ -130,8 +133,8 @@ export class ChartJsComponent extends OSComponent {
           this.updateChartJs(deepCopy(runtime));
         }
         this.currentRuntime = runtime;
-      } else if (this.currentDevicePixelRatio !== window.devicePixelRatio) {
-        this.currentDevicePixelRatio = window.devicePixelRatio;
+      } else if (this.currentDevicePixelRatio !== this.devicePixelRatioPlugin.devicePixelRatio()) {
+        this.currentDevicePixelRatio = this.devicePixelRatioPlugin.devicePixelRatio();
         this.updateChartJs(deepCopy(this.currentRuntime));
       }
     });

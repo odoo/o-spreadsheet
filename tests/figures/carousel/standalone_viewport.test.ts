@@ -6,6 +6,7 @@ import { StandaloneViewport } from "../../../src/components/standalone_viewport/
 import { DEFAULT_CELL_HEIGHT, TABLE_HOVER_BACKGROUND_COLOR } from "../../../src/constants";
 import { buildSheetLink, range } from "../../../src/helpers/misc";
 import { zoneToXc } from "../../../src/helpers/zones";
+import { DevicePixelRatioPlugin } from "../../../src/owl_plugins/device_pixel_ratio_owl_plugin";
 import { FormulaFingerprintPlugin } from "../../../src/owl_plugins/formula_fingerprints_store";
 import { LocalRendererPlugin } from "../../../src/owl_plugins/renderer_plugin";
 import { ZoomPlugin } from "../../../src/owl_plugins/zoom_plugin";
@@ -376,7 +377,7 @@ describe("Standalone viewport", () => {
     expect(drawCount).toBe(2);
   });
 
-  test("Standalone viewport is drawn with the window devicePixelRatio", async () => {
+  test("Standalone viewport is drawn with the device pixel ratio", async () => {
     const { getPlugin } = await mountViewport("A1:A2");
     const rendererPlugin = getPlugin(LocalRendererPlugin);
 
@@ -390,13 +391,10 @@ describe("Standalone viewport", () => {
     await nextTick();
     expect(lastDpr).toEqual(1);
 
-    const originalDpr = window.devicePixelRatio;
-    window.devicePixelRatio = 2;
+    subActionEnv.getPlugin(DevicePixelRatioPlugin).devicePixelRatio.set(2);
     setCellContent(model, "A1", "There");
     await nextTick();
     expect(lastDpr).toEqual(2);
-
-    window.devicePixelRatio = originalDpr;
   });
 
   test("Animation is cancelled when the standalone viewport is destroyed", async () => {
