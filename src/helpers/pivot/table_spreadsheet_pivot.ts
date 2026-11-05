@@ -414,16 +414,17 @@ export class SpreadsheetPivotTable {
     if (this.isSorted) {
       return;
     }
-    const getSortValue = (measure: string, domain: PivotDomain): number => {
-      const rawValue = getValue(measure, domain).value;
-      return typeof rawValue === "number" ? rawValue : -Infinity;
-    };
     const sortColDomain = sortedColumn.domain;
-
+    const orderMultiplier = sortedColumn.order === "asc" ? 1 : -1;
     const sortFn = (rowDomain1: PivotDomain, rowDomain2: PivotDomain) => {
-      const value1 = getSortValue(measure, [...rowDomain1, ...sortColDomain]);
-      const value2 = getSortValue(measure, [...rowDomain2, ...sortColDomain]);
-      return sortedColumn.order === "asc" ? value1 - value2 : value2 - value1;
+      const value1 = getValue(measure, [...rowDomain1, ...sortColDomain]).value;
+      const value2 = getValue(measure, [...rowDomain2, ...sortColDomain]).value;
+      if (value1 === null) {
+        return orderMultiplier;
+      } else if (value2 === null) {
+        return -orderMultiplier;
+      }
+      return orderMultiplier * (value1 < value2 ? -1 : 1);
     };
     const sortedRowTree = sortPivotTree(this.rowTree(), [], sortFn);
     this.rowTree = lazy(sortedRowTree);
