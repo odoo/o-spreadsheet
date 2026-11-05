@@ -1,14 +1,14 @@
 import seedrandom from "seedrandom";
 import { Model } from "../../src";
 import {
-  addStyleToWorkbookData,
+  addStylesToWorkbookData,
   DateTime,
   deepCopy,
   deepEquals,
   UuidGenerator,
 } from "../../src/helpers";
 import { groupConsecutive, isConsecutive, lazy, memoize, range } from "../../src/helpers/misc";
-import { getCell, setFormat, setStyle } from "../test_helpers";
+import { createSheet, getBorder, getCell, setBorders, setFormat, setStyle } from "../test_helpers";
 
 describe("Misc", () => {
   test("range", () => {
@@ -322,7 +322,7 @@ describe("UUID", () => {
   });
 });
 
-describe("addStyleToWorkbookData", () => {
+describe("addStylesToWorkbookData", () => {
   test("Can add style to workbook data", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
@@ -331,14 +331,14 @@ describe("addStyleToWorkbookData", () => {
     const data = model.exportData();
 
     const A2 = { sheetId, col: 0, row: 1 };
-    addStyleToWorkbookData(data, "styles", A2, { italic: true });
-    expect(data.sheets[0].styles).toEqual({ A1: 1, A2: 3, "A3:A4": 1, "B1:B4": 2 });
+    addStylesToWorkbookData(data, "styles", [{ position: A2, item: { italic: true } }]);
 
     const newModel = new Model(data);
     expect(getCell(newModel, "A1")?.style).toEqual({ bold: true });
     expect(getCell(newModel, "A2")?.style).toEqual({ italic: true });
     expect(getCell(newModel, "A3")?.style).toEqual({ bold: true });
     expect(getCell(newModel, "A4")?.style).toEqual({ bold: true });
+    expect(getCell(newModel, "B2")?.style).toEqual({ align: "center" });
   });
 
   test("Can add format to workbook data", () => {
@@ -348,12 +348,68 @@ describe("addStyleToWorkbookData", () => {
     const data = model.exportData();
 
     const C3 = { sheetId, col: 2, row: 2 };
-    addStyleToWorkbookData(data, "formats", C3, "0.00");
-    expect(data.sheets[0].formats).toEqual({ B3: 1, C3: 2, D3: 1 });
+    addStylesToWorkbookData(data, "formats", [{ position: C3, item: "0.00" }]);
 
     const newModel = new Model(data);
     expect(getCell(newModel, "B3")?.format).toEqual("0%");
     expect(getCell(newModel, "C3")?.format).toEqual("0.00");
     expect(getCell(newModel, "D3")?.format).toEqual("0%");
+  });
+
+  test("Can add border to workbook data", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const border = { top: { style: "thin" as const, color: "#000000" } };
+    setBorders(model, "A1", border);
+    setBorders(model, "A2", border);
+    const data = model.exportData();
+
+    const A2 = { sheetId, col: 0, row: 1 };
+    const newBorder = { bottom: { style: "thin" as const, color: "#FF0000" } };
+    addStylesToWorkbookData(data, "borders", [{ position: A2, item: newBorder }]);
+
+    const newModel = new Model(data);
+    expect(getBorder(newModel, "A1")).toMatchObject(border);
+    expect(getBorder(newModel, "A2")).toMatchObject(newBorder);
+  });
+
+  test("Can add several styles at once, including in the same zone", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setStyle(model, "A1:A4", { bold: true });
+    const data = model.exportData();
+
+    addStylesToWorkbookData(data, "styles", [
+      { position: { sheetId, col: 0, row: 1 }, item: { italic: true } },
+      { position: { sheetId, col: 0, row: 2 }, item: { underline: true } },
+      { position: { sheetId, col: 1, row: 0 }, item: { italic: true } },
+    ]);
+
+    const newModel = new Model(data);
+    expect(getCell(newModel, "A1")?.style).toEqual({ bold: true });
+    expect(getCell(newModel, "A2")?.style).toEqual({ italic: true });
+    expect(getCell(newModel, "A3")?.style).toEqual({ underline: true });
+    expect(getCell(newModel, "A4")?.style).toEqual({ bold: true });
+    expect(getCell(newModel, "B1")?.style).toEqual({ italic: true });
+  });
+
+  test("Can add styles on several sheets at once", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sheet2" });
+    setStyle(model, "A1:A2", { bold: true });
+    setStyle(model, "A1:A2", { bold: true }, "sheet2");
+    const data = model.exportData();
+
+    addStylesToWorkbookData(data, "styles", [
+      { position: { sheetId, col: 0, row: 0 }, item: { italic: true } },
+      { position: { sheetId: "sheet2", col: 0, row: 1 }, item: { underline: true } },
+    ]);
+
+    const newModel = new Model(data);
+    expect(getCell(newModel, "A1")?.style).toEqual({ italic: true });
+    expect(getCell(newModel, "A2")?.style).toEqual({ bold: true });
+    expect(getCell(newModel, "A1", "sheet2")?.style).toEqual({ bold: true });
+    expect(getCell(newModel, "A2", "sheet2")?.style).toEqual({ underline: true });
   });
 });
