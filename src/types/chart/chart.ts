@@ -176,7 +176,7 @@ export interface ChartRangeDataSource<T extends string | Range = Range> {
   readonly type: "range";
   readonly dataSets: { dataSetId: UID; dataRange: T }[];
   readonly dataSetsHaveTitle: boolean;
-  readonly labelRange?: T;
+  readonly labelRanges?: T[];
 }
 
 export interface ChartPivotDataSource {
@@ -222,7 +222,7 @@ export interface ExcelChartDefinition {
   readonly title?: TitleDesign;
   readonly type: ExcelChartType;
   readonly dataSets: ExcelChartDataset[];
-  readonly labelRange?: string;
+  readonly labelRanges?: string[];
   readonly backgroundColor: XlsxHexColor;
   readonly fontColor: XlsxHexColor;
   readonly legendPosition: LegendPosition;
@@ -284,6 +284,8 @@ export interface ChartCreationContext {
   readonly colorScale?: ChartColorScale;
   readonly missingValueColor?: Color;
   readonly gaugeMetricFormula?: string;
+  readonly groupByParentCategories?: boolean;
+  readonly mergeGroups?: boolean;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;
@@ -291,12 +293,14 @@ export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefi
 export interface ChartData {
   dataSetsValues: DatasetValues[];
   labelValues: LabelValues;
+  secondaryLabelValues?: LabelValues[];
 }
 
 export interface ChartRuntimeGenerationArgs {
   dataSetsValues: DatasetValues[];
   axisFormats: ChartAxisFormats;
   labels: string[];
+  parentCategories?: string[][];
   locale: Locale;
   trendDataSetsValues?: (Point[] | undefined)[];
   axisType?: AxisType;

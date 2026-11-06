@@ -67,13 +67,13 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
     };
   },
 
-  getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
+  getDefinitionForExcel(getters, definition, { dataSets, labelRanges }) {
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(definition.background || DEFAULT_CHART_BACKGROUND_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
-      labelRange,
+      labelRanges,
     };
   },
 
