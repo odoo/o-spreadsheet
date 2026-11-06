@@ -1533,11 +1533,19 @@ describe("evaluate formula getter", () => {
 
   test("Getter getEvaluatedCells return spreaded cells", () => {
     setCellContent(model, "A1", "=MUNIT(3)");
-    expect(model.getters.getEvaluatedCells(sheetId)).toHaveLength(9);
+    expect([...model.getters.getEvaluatedCells(sheetId)]).toHaveLength(9);
   });
 
   test("Getter getEvaluatedCells does not return cells with only a style", () => {
+<<<<<<< acde7b4f68601750d7c346e4060ac2f247891719
     setFormatting(model, "B1", { fillColor: "red" });
     expect(model.getters.getEvaluatedCells(sheetId)).toHaveLength(0);
+||||||| afef4f1ef3c2c993aed0a2ac86261b11647f83b2
+    setStyle(model, "B1", { fillColor: "red" });
+    expect(model.getters.getEvaluatedCells(sheetId)).toHaveLength(0);
+=======
+    setStyle(model, "B1", { fillColor: "red" });
+    expect([...model.getters.getEvaluatedCells(sheetId)]).toHaveLength(0);
+>>>>>>> e81b3ee637b49e3338d4b9e029d953048862cb5e
   });
 });
