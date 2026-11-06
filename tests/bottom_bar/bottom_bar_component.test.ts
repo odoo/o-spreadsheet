@@ -1,5 +1,6 @@
 import { CommandResult, DispatchResult, Pixel, UID } from "../../src";
 import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
+import { LONG_PRESS_DURATION } from "../../src/components/helpers/touch_handlers_hook";
 import { toHex } from "../../src/helpers/color";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";
@@ -29,6 +30,7 @@ import {
   keyDown,
   simulateClick,
   triggerMouseEvent,
+  triggerTouchEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import {
@@ -124,6 +126,15 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+  });
+
+  test("Can open context menu of a sheet with a long press", async () => {
+    useJestFakeTimers();
+    await mountBottomBar();
+    triggerTouchEvent(".o-sheet", "touchstart", { clientX: 10, clientY: 10 });
+    jest.advanceTimersByTime(LONG_PRESS_DURATION);
+    await nextTick();
+    expect(".o-menu").toHaveCount(1);
   });
 
   test("Can open context menu of a sheet with the arrow", async () => {
