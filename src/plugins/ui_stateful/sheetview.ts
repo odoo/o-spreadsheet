@@ -910,11 +910,11 @@ export class SheetViewPlugin extends UIPlugin {
     const row = y >= 0 ? this.getRowIndex(y) : this.getRowIndexTopOfMainViewport(y);
     const { x: colX, y: rowY } = this.getRect(positionToZone({ col, row }));
     return {
-      col,
-      row,
+      col: Math.max(0, col),
+      row: Math.max(0, row),
       offset: {
-        x: Math.max(x - colX + this.gridOffsetX, 0),
-        y: Math.max(y - rowY + this.gridOffsetY, 0),
+        x: col === -1 ? 0 : Math.max(x - colX + this.gridOffsetX, 0),
+        y: row === -1 ? 0 : Math.max(y - rowY + this.gridOffsetY, 0),
       },
     };
   }
