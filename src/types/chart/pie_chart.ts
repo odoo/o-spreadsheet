@@ -9,8 +9,8 @@ export interface PieChartDefinition<T extends string | Range = Range>
   readonly slicesColors?: Color[];
   readonly aggregated?: boolean;
   readonly isDoughnut?: boolean;
-  readonly showValues?: boolean;
   readonly pieHolePercentage?: number;
+  readonly showLabels?: boolean;
 }
 
 export type PieChartRuntime = {
