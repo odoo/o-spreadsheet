@@ -1,9 +1,18 @@
+import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
+import {
+  applyClipboardHandlersPaste,
+  getPasteTargetFromHandlers,
+} from "../../helpers/clipboard/clipboard_helpers";
+import { boundColRowOffsetInSheet } from "../../helpers/figures/figure/figure";
 import { UuidGenerator } from "../../helpers/uuid";
+import { clipboardHandlersRegistries } from "../../registries/clipboard_handlers_registries";
+import { ClipboardOptions, MinimalClipboardData } from "../../types/clipboard";
 import {
   CommandResult,
   CreateChartAndMergeIntoCarouselCommand,
   DeleteFiguresCommand,
   MergeIntoCarouselCommand,
+  MoveFiguresToSheetCommand,
   UpdateFiguresCommand,
 } from "../../types/commands";
 import { Figure, FigureUI } from "../../types/figure";
@@ -18,6 +27,7 @@ export class FigureUIPlugin extends UIPlugin {
     DELETE_FIGURES: this.checkFiguresExist,
     MERGE_CHART_FIGURES_INTO_CAROUSEL: this.checkMergedFiguresAreCharts,
     CREATE_CHART_AND_MERGE_INTO_CAROUSEL: this.checkCreateChartAndMerge,
+    MOVE_FIGURES_TO_SHEET: this.checkCanMoveFiguresToSheet,
   };
 
   handlers = {
@@ -25,6 +35,7 @@ export class FigureUIPlugin extends UIPlugin {
     DELETE_FIGURES: this.onDeleteFigures,
     MERGE_CHART_FIGURES_INTO_CAROUSEL: this.onMergeChartFiguresIntoCarousel,
     CREATE_CHART_AND_MERGE_INTO_CAROUSEL: this.onCreateChartAndMergeIntoCarousel,
+    MOVE_FIGURES_TO_SHEET: this.onMoveFiguresToSheet,
   };
 
   private onCreateChartAndMergeIntoCarousel(cmd: CreateChartAndMergeIntoCarouselCommand) {
@@ -121,6 +132,93 @@ export class FigureUIPlugin extends UIPlugin {
       return CommandResult.InvalidFigureId;
     }
     return baseFigure.tag !== "chart" ? CommandResult.FigureDoesNotExist : CommandResult.Success;
+  }
+
+  private checkCanMoveFiguresToSheet(cmd: MoveFiguresToSheetCommand) {
+    if (
+      cmd.sheetId === cmd.sheetIdTo ||
+      !this.getters.tryGetSheet(cmd.sheetIdTo) ||
+      !cmd.figures.length
+    ) {
+      return CommandResult.InvalidSheetId;
+    }
+    if (cmd.figures.some(({ id }) => !this.getters.getFigure(cmd.sheetId, id))) {
+      return CommandResult.FigureDoesNotExist;
+    }
+    const overlappingFigure = cmd.overlappingFigureId
+      ? this.getters.getFigure(cmd.sheetIdTo, cmd.overlappingFigureId)
+      : undefined;
+    if (
+      cmd.overlappingFigureId &&
+      (!overlappingFigure || !["chart", "carousel"].includes(overlappingFigure.tag))
+    ) {
+      return CommandResult.InvalidFigureId;
+    }
+    return CommandResult.Success;
+  }
+
+  /**
+   * Move figures to another sheet, either in a as normal figures or merged into a carousel if dropped onto a chart/carousel.
+   */
+  private onMoveFiguresToSheet(cmd: MoveFiguresToSheetCommand) {
+    const { sheetId, sheetIdTo, figures, overlappingFigureId } = cmd;
+    const figureIds = figures.map((figure) => figure.id);
+
+    const handlers: { handlerName: string; handler: ClipboardHandler<any> }[] =
+      clipboardHandlersRegistries.figureHandlers.getKeys().map((handlerName) => {
+        const Handler = clipboardHandlersRegistries.figureHandlers.get(handlerName);
+        return { handlerName, handler: new Handler(this.getters, this.dispatch) };
+      });
+    const options: ClipboardOptions = { isCutOperation: true };
+    const copiedData: MinimalClipboardData = { figureIds, sheetId, zones: [] };
+    for (const { handlerName, handler } of handlers) {
+      copiedData[handlerName] = handler.copy({ figureIds, sheetId }, options.isCutOperation);
+    }
+
+    // Paste at A1, we will move them later since clipboard do not support exact pixel positions to paste figures
+    const zones = [{ left: 0, top: 0, right: 0, bottom: 0 }];
+    const { target } = getPasteTargetFromHandlers(sheetIdTo, zones, handlers, copiedData, options);
+    applyClipboardHandlersPaste(handlers, copiedData, target, options, {
+      sheetId: copiedData.sheetId,
+      zones: copiedData.zones,
+    });
+
+    const movedFigureIds = target.figureIds ?? {};
+    const overlappingFigure = overlappingFigureId
+      ? this.getters.getFigure(sheetIdTo, overlappingFigureId)
+      : undefined;
+    if (!overlappingFigure) {
+      // Move figures to correct position
+      this.dispatch("UPDATE_FIGURES", {
+        figures: figures.map((figure) => {
+          const figureId = movedFigureIds[figure.id];
+          const movedFigure = { ...this.getters.getFigure(sheetIdTo, figureId)!, ...figure };
+          const { col, row } = movedFigure;
+          return {
+            sheetId: sheetIdTo,
+            figureId,
+            width: movedFigure.width,
+            height: movedFigure.height,
+            ...boundColRowOffsetInSheet(this.getters, sheetIdTo, { col, row }, movedFigure),
+          };
+        }),
+      });
+    } else if (overlappingFigure.tag === "carousel") {
+      this.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
+        sheetId: sheetIdTo,
+        carouselFigureId: overlappingFigure.id,
+        chartFigureIds: figureIds.map((figureId) => movedFigureIds[figureId]),
+      });
+    } else {
+      this.dispatch("MERGE_CHART_FIGURES_INTO_CAROUSEL", {
+        sheetId: sheetIdTo,
+        baseFigureId: overlappingFigure.id,
+        chartFigureIds: [
+          overlappingFigure.id,
+          ...figureIds.map((figureId) => movedFigureIds[figureId]),
+        ],
+      });
+    }
   }
 
   getFigureUI(sheetId: UID, figure: Figure): FigureUI {

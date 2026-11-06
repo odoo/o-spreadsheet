@@ -213,6 +213,8 @@ export class FiguresContainer extends OSComponent {
       return;
     }
 
+    const sheetIdFrom = this.model().getters.getActiveSheetId();
+
     const onMouseUpWithoutDrag = () => {
       if (selected) {
         if (ev.shiftKey || isCtrlKey(ev)) {
@@ -229,6 +231,15 @@ export class FiguresContainer extends OSComponent {
       overlappingFigureId: UID | undefined
     ) => {
       const sheetId = this.model().getters.getActiveSheetId();
+      if (sheetId !== sheetIdFrom) {
+        this.model().dispatch("MOVE_FIGURES_TO_SHEET", {
+          sheetId: sheetIdFrom,
+          sheetIdTo: sheetId,
+          figures: droppedFigures.map((figureUI) => ({ figureId: figureUI.id, ...figureUI })),
+          overlappingFigureId,
+        });
+        return;
+      }
       const overlappingFigure = overlappingFigureId
         ? this.model().getters.getFigure(sheetId, overlappingFigureId)
         : undefined;
@@ -257,12 +268,11 @@ export class FiguresContainer extends OSComponent {
       }
     };
 
-    const sheetId = this.model().getters.getActiveSheetId();
     const initialFigures = this.model()
       .getters.getSelectedFigureIds()
-      .map((id) => this.model().getters.getFigure(sheetId, id))
+      .map((id) => this.model().getters.getFigure(sheetIdFrom, id))
       .filter(isDefined)
-      .map((f) => this.model().getters.getFigureUI(sheetId, f));
+      .map((f) => this.model().getters.getFigureUI(sheetIdFrom, f));
 
     this.draggedFigurePlugin.startDraggingFigure(ev, {
       draggedFigureId: figureUI.id,
