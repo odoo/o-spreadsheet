@@ -80,6 +80,20 @@ describe("Checkbox component", () => {
     expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
   });
 
+  test("can not check and uncheck with space key in readonly mode", async () => {
+    const model = new Model();
+    addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
+    await mountSpreadsheet({ model });
+    expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
+    await keyDown({ key: " " });
+    expect(getCellContent(model, "A1")).toBe("TRUE");
+    expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_CHECKED);
+    model.updateMode("readonly");
+    await keyDown({ key: " " });
+    expect(getCellContent(model, "A1")).toBe("TRUE");
+    expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_CHECKED);
+  });
+
   test("Can toggle checkbox in selection with space key", async () => {
     const model = new Model();
     addDataValidation(model, "B2:B3", "id", { type: "isBoolean", values: [] });
