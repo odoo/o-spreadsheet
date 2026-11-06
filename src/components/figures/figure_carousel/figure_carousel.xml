@@ -104,6 +104,8 @@
           canResizeColumns="this.canResizeDataViewColumns"
           onResizeColumns.bind="this.onResizeColumns"
           size="this.carouselLayout.contentRect"
+          initialScroll="this.dataViewInitialScroll"
+          onWillUnmount.bind="this.saveDataViewScroll"
         />
       </div>
     </div>

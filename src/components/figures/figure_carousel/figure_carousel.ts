@@ -1,4 +1,4 @@
-import { onPatched, proxy, signal, useProps } from "@odoo/owl";
+import { onPatched, proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemTitle, getCarouselLayout } from "../../../helpers/carousel_helpers";
@@ -12,7 +12,7 @@ import { CellValueType } from "../../../types/cells";
 import { Carousel, CarouselItem } from "../../../types/figure";
 import { CSSProperties, MenuMouseEvent } from "../../../types/misc";
 import { Range } from "../../../types/range";
-import { Rect } from "../../../types/rendering";
+import { Rect, SheetDOMScrollInfo } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
 import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figure_store";
 import { cellTextStyleToCss, cssPropertiesToCss, rectToCss } from "../../helpers/css";
@@ -24,6 +24,7 @@ import { SidePanelStore } from "../../side_panel/side_panel/side_panel_store";
 import { StandaloneViewport } from "../../standalone_viewport/standalone_viewport";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
 import { ChartMenu } from "../chart/chart_menu/chart_menu";
+import { CarouselDataViewScrollPlugin } from "./carousel_data_view_scroll_owl_plugin";
 
 export class CarouselFigure extends OSComponent {
   static template = "o-spreadsheet-CarouselFigure";
@@ -45,6 +46,7 @@ export class CarouselFigure extends OSComponent {
   protected animationStore: Store<ChartAnimationStore> | undefined;
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
   private sidePanelStore!: Store<SidePanelStore>;
+  private dataViewScrollPlugin = usePlugin(CarouselDataViewScrollPlugin);
 
   setup(): void {
     this.animationStore = useStore(ChartAnimationStore);
@@ -280,5 +282,13 @@ export class CarouselFigure extends OSComponent {
   get carouselLayout() {
     const rect: Rect = { ...this.props.figureUI, x: 0, y: 0 }; // {0, 0} to have positions relative to the figure
     return getCarouselLayout(rect, this.carousel, this.selectedCarouselItem);
+  }
+
+  get dataViewInitialScroll(): SheetDOMScrollInfo | undefined {
+    return this.dataViewScrollPlugin.getScroll(this.props.figureUI.id);
+  }
+
+  saveDataViewScroll(scroll: SheetDOMScrollInfo) {
+    this.dataViewScrollPlugin.saveScroll(this.props.figureUI.id, scroll);
   }
 }
