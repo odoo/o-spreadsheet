@@ -1,3 +1,4 @@
+import { doesFontExist } from "./helpers/font";
 import { ChartColorScale, ChartStyle } from "./types/chart/chart";
 import { Currency } from "./types/currency";
 import { BorderDescr, Color, Style } from "./types/misc";
@@ -191,6 +192,7 @@ export const DEFAULT_STYLE = {
   textColor: "",
   rotation: 0,
   hideGridLines: false,
+  font: "",
 } satisfies Required<Style>;
 
 export const ROTATION_EPSILON = 0.001;
@@ -205,7 +207,18 @@ export const DEFAULT_TEXT_HIGHLIGHT_PERCENT = 0.25;
 export const DEFAULT_FONT_WEIGHT = 400;
 export const DEFAULT_FONT_SIZE = DEFAULT_STYLE.fontSize;
 export const HEADER_FONT_SIZE = 11;
-export const DEFAULT_FONT = "'Roboto', arial, 'Liberation Sans'";
+export const AVAILABLE_FONTS = [
+  { name: "Roboto", description: "sans-serif" },
+  { name: "Arial", description: "sans-serif" },
+  { name: "Liberation Sans", description: "sans-serif" },
+  { name: "Verdana", description: "sans-serif" },
+  { name: "Tahoma", description: "sans-serif" },
+  { name: "Trebuchet MS", description: "sans-serif" },
+  { name: "Courier New", description: "monospace" },
+] as const;
+
+export const USABLE_FONTS = AVAILABLE_FONTS.filter((f) => doesFontExist(f.name));
+export const DEFAULT_FONT = USABLE_FONTS.length ? USABLE_FONTS[0].name : "Roboto";
 
 // Borders
 export const DEFAULT_BORDER_DESC: BorderDescr = { style: "thin", color: "#000000" };

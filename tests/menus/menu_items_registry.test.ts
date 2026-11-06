@@ -66,6 +66,11 @@ import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { FR_LOCALE } from "../test_helpers/constants";
 
+jest.mock("../../src/constants", () => {
+  const actual = jest.requireActual("../../src/constants");
+  return { ...actual, DEFAULT_FONT: "Roboto", USABLE_FONTS: actual.AVAILABLE_FONTS };
+});
+
 const TEST_CURRENCY: Partial<Currency> = {
   symbol: "€",
   decimalPlaces: 3,
@@ -1362,6 +1367,41 @@ describe("Menu Item actions", () => {
       target: env.model().getters.getSelectedZones(),
       style: { fontSize },
     });
+  });
+
+  test("Format -> font", async () => {
+    await doAction(["format", "format_font", "font_Verdana"], env);
+    expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      sheetId: env.model().getters.getActiveSheetId(),
+      target: env.model().getters.getSelectedZones(),
+      style: { font: "Verdana" },
+    });
+  });
+
+  test("Format -> font lists the fonts with their description", () => {
+    const fonts = getNode(["format", "format_font"], env)
+      .children(env)
+      .map((node) => [node.name(env), node.description(env)]);
+    expect(fonts).toEqual([
+      ["Roboto", "sans-serif"],
+      ["Arial", "sans-serif"],
+      ["Liberation Sans", "sans-serif"],
+      ["Verdana", "sans-serif"],
+      ["Tahoma", "sans-serif"],
+      ["Trebuchet MS", "sans-serif"],
+      ["Courier New", "monospace"],
+    ]);
+  });
+
+  test("Format -> font marks the font of the selection as active", () => {
+    const isFontActive = (font: string) =>
+      getNode(["format", "format_font", `font_${font}`], env).isActive!(env);
+    expect(isFontActive("Roboto")).toBe(true);
+    expect(isFontActive("Verdana")).toBe(false);
+
+    setFormatting(model, "A1", { font: "Verdana" });
+    expect(isFontActive("Roboto")).toBe(false);
+    expect(isFontActive("Verdana")).toBe(true);
   });
 
   describe("Format -> Alignment", () => {

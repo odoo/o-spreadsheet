@@ -80,6 +80,11 @@ afterEach(() => {
   window.Chart = originalChart;
 });
 
+jest.mock("../../../src/constants", () => {
+  const actual = jest.requireActual("../../../src/constants");
+  return { ...actual, DEFAULT_FONT: "Roboto", USABLE_FONTS: actual.AVAILABLE_FONTS };
+});
+
 beforeEach(() => {
   model = new Model({
     sheets: [

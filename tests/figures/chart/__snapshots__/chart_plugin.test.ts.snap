@@ -84,6 +84,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
           "color": "#666666",
           "display": true,
           "font": {
+            "family": "Roboto",
             "size": 16,
             "style": "normal",
             "weight": "normal",
@@ -365,6 +366,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
           "color": "#666666",
           "display": true,
           "font": {
+            "family": "Roboto",
             "size": 16,
             "style": "normal",
             "weight": "normal",

@@ -25,7 +25,7 @@ import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_cha
 import { COLORSCHEMES } from "../../helpers/color";
 import { Format } from "../format";
 import { Locale } from "../locale";
-import { Align, Color, FunctionResultObject, UID, VerticalAlign } from "../misc";
+import { Align, Color, Font, FunctionResultObject, UID, VerticalAlign } from "../misc";
 import { Range } from "../range";
 import { BubbleChartDefinition, BubbleChartRuntime, BubbleColorMode } from "./bubble_chart";
 export const CHART_TYPES = [
@@ -151,6 +151,7 @@ export interface ChartStyle {
   readonly color?: Color;
   readonly fontSize?: number;
   readonly fillColor?: Color;
+  readonly font?: Font;
 }
 
 export interface TitleDesign extends ChartStyle {

@@ -795,6 +795,7 @@ export function chartStyleToCellStyle(style: ChartStyle): Style {
     fontSize: style.fontSize,
     textColor: style.color,
     align: style.align,
+    font: style.font,
   };
 }
 
