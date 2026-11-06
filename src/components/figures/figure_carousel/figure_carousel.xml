@@ -104,6 +104,7 @@
           canResizeColumns="this.canResizeDataViewColumns"
           onResizeColumns.bind="this.onResizeColumns"
           size="this.carouselLayout.contentRect"
+          viewportId="this.props.figureUI.id"
         />
       </div>
     </div>
