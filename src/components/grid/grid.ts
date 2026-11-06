@@ -652,6 +652,9 @@ export class Grid extends OSComponent {
   }
 
   private processSpaceKey(ev: KeyboardEvent) {
+    if (this.model().getters.isReadonly()) {
+      return;
+    }
     if (this.checkboxTogglePlugin.selectedZonesContainsBooleanValidation()) {
       ev.preventDefault();
       ev.stopPropagation();
