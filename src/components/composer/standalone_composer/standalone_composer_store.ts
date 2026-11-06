@@ -1,6 +1,6 @@
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
-import { rangeTokenize } from "../../../formulas/range_tokenizer";
 import { Token } from "../../../formulas/tokenizer";
+import { adaptFormulaToSheet } from "../../../helpers/formulas";
 import { canonicalizeContent, localizeContent } from "../../../helpers/locale";
 import { setXcToFixedReferenceType } from "../../../helpers/references";
 import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes/auto_complete_registry";
@@ -9,7 +9,7 @@ import { Get } from "../../../types/store_engine";
 import { AbstractComposerStore } from "../composer/abstract_composer_store";
 
 export interface StandaloneComposerArgs {
-  onConfirm: (content: string) => void;
+  onConfirm: (content: string, sheetId: UID) => void;
   content: string;
   /**
    * the sheet id to which unqualified references (A1 vs Sheet1!A1)
@@ -52,24 +52,21 @@ export class StandaloneComposerStore extends AbstractComposerStore {
     // We here force the sheet name prefix for all references that are not in
     // the current active sheet
     const defaultRangeSheetId = this.args().defaultRangeSheetId;
-    const content = rangeTokenize(this.args().content)
-      .map((token) => {
-        if (token.type === "REFERENCE") {
-          const range = this.getters.getRangeFromSheetXC(defaultRangeSheetId, token.value);
-          return this.getters.getRangeString(range, this.getters.getActiveSheetId());
-        }
-        return token.value;
-      })
-      .join("");
+    const content = adaptFormulaToSheet(
+      this.getters,
+      this.args().content,
+      this.getters.getActiveSheetId(),
+      defaultRangeSheetId
+    );
     return { text: localizeContent(content, this.getters.getLocale()) };
   }
 
   stopEdition() {
-    this._stopEdition();
+    this._stopEdition({ activateSheet: false });
   }
 
   protected confirmEdition(content: string) {
-    this.args().onConfirm(content);
+    this.args().onConfirm(content, this.sheetId);
   }
 
   protected getTokenColor(token: EnrichedToken): string {

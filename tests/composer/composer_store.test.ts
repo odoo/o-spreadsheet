@@ -341,7 +341,7 @@ describe("edition", () => {
 
   test("cancel edition reset current content", () => {
     composerStore.startEdition("=SUM(A2:A3, B5)");
-    composerStore.cancelEdition();
+    composerStore.cancelEdition({ resetContent: true, activateSheet: true });
     expect(composerStore.currentContent).toBe("");
   });
 
@@ -349,7 +349,7 @@ describe("edition", () => {
     setCellContent(model, "A1", "=A12+");
     composerStore.startEdition();
     expect(composerStore.editionMode).toBe("selecting");
-    composerStore.cancelEdition();
+    composerStore.cancelEdition({ resetContent: true, activateSheet: true });
     expect(composerStore.currentContent).toBe("=A12+");
     expect(composerStore.editionMode).toBe("inactive");
   });

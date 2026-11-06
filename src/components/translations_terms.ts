@@ -150,7 +150,9 @@ export const DVTerms = {
     positiveNumber: _t("The value must be a positive number"),
   },
   Errors: {
+    [CommandResult.EmptyRange]: _t("A range needs to be defined"),
     [CommandResult.InvalidRange]: _t("The range is invalid."),
+    [CommandResult.InvalidSheetId]: _t("The range is invalid."),
     [CommandResult.InvalidDataValidationCriterionValue]: _t(
       "One or more of the provided criteria values are invalid. Please review and correct them."
     ),

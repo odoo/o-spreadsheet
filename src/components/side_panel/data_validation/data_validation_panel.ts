@@ -25,6 +25,7 @@ export class DataValidationPanel extends OSComponent {
   addDataValidationRule() {
     this.sidePanelStore.replace("DataValidationEditor", "DataValidation", {
       ruleId: UuidGenerator.smallUuid(),
+      sheetId: this.model().getters.getActiveSheetId(),
     });
   }
 

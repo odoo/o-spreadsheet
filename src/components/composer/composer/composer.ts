@@ -329,7 +329,7 @@ export class Composer extends OSComponent {
   }
 
   private processEscapeKey(ev) {
-    this.props.composerStore.cancelEdition();
+    this.props.composerStore.cancelEdition({ resetContent: true, activateSheet: true });
     ev.stopPropagation();
     ev.preventDefault();
   }

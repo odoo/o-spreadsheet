@@ -992,6 +992,20 @@ export interface UpdateColorSchemeCommand {
   colorScheme: ColorThemeName;
 }
 
+export interface UpdateConditionalFormatsCommand {
+  type: "UPDATE_CONDITIONAL_FORMATS";
+  cfId: UID;
+  sheetIdsToRemove?: UID[];
+  rulesBySheetId?: { [key: UID]: { cf: Omit<ConditionalFormat, "ranges">; ranges: RangeData[] } };
+}
+
+export interface UpdateDataValidationsCommand {
+  type: "UPDATE_DATA_VALIDATION_RULES";
+  ruleId: UID;
+  sheetIdsToRemove?: UID[];
+  rulesBySheetId: { [key: UID]: { rule: Omit<DataValidationRule, "ranges">; ranges: RangeData[] } };
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1167,7 +1181,9 @@ export type LocalCommand =
   | MergeIntoCarouselCommand
   | CreateChartAndMergeIntoCarouselCommand
   | ClearAllStylingCommand
-  | ColorAllCellsBackground;
+  | ColorAllCellsBackground
+  | UpdateConditionalFormatsCommand
+  | UpdateDataValidationsCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
