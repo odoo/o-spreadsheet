@@ -100,7 +100,7 @@ describe("Calendar chart side panel", () => {
       );
       await openChartConfigSidePanel(model, env, chartId);
 
-      expect(".o-horizontal-group-by").toHaveText("Hour");
+      expect(".o-horizontal-group-by").toHaveText("Hour of Day");
       await editSelectComponent(".o-horizontal-group-by", "day_of_week");
       expect(getCalendarChartDefinition(chartId)?.horizontalGroupBy).toEqual("day_of_week");
       expect(".o-horizontal-group-by").toHaveText("Day of Week");
