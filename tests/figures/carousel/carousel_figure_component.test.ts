@@ -5,6 +5,7 @@ import { ChartAnimationStore } from "../../../src/components/figures/chart/chart
 import { downloadFile } from "../../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import { CAROUSEL_LAYOUT } from "../../../src/constants";
+import { range } from "../../../src/helpers/misc";
 import { toZone } from "../../../src/helpers/zones";
 import { NavigatorClipboardPlugin } from "../../../src/owl_plugins/navigator_clipboard_plugin";
 import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
@@ -20,6 +21,7 @@ import {
   selectCarouselItem,
   selectFigure,
   setCellContent,
+  setViewportOffset,
   undo,
   updateCarousel,
 } from "../../test_helpers/commands_helpers";
@@ -29,6 +31,7 @@ import {
   doubleClick,
   getElStyle,
   triggerMouseEvent,
+  triggerWheelEvent,
 } from "../../test_helpers/dom_helper";
 import {
   makeSpreadsheetActionTestEnv,
@@ -702,5 +705,48 @@ describe("Carousel figure component", () => {
     deleteSheet(model, "sheet2");
     await nextTick();
     expect(".o-figure .o-standalone-viewport").toHaveCount(0);
+  });
+
+  describe("Data view scroll state", () => {
+    async function mountCarouselWithScrollableDataView() {
+      setGrid(model, Object.fromEntries(range(1, 51).map((row) => [`A${row}`, `${row}`])));
+      createCarouselWithDataView(model, toRangeData(sheetId, "A1:A50"), "carouselId", sheetId, {
+        size: { width: 200, height: 200 },
+      });
+      return mountSpreadsheet({ model });
+    }
+
+    function getDataViewScrollTop() {
+      return document.querySelector<HTMLElement>(".o-carousel .o-scrollbar.vertical")!.scrollTop;
+    }
+
+    test("Scroll is kept when the carousel is scrolled out of the grid and back", async () => {
+      const { env } = await mountCarouselWithScrollableDataView();
+      triggerWheelEvent(".o-carousel .o-standalone-viewport", { deltaY: 100 });
+      await nextTick();
+      expect(getDataViewScrollTop()).toBe(100);
+
+      setViewportOffset(env, 0, 5000);
+      await nextTick();
+      expect(".o-carousel").toHaveCount(0);
+
+      setViewportOffset(env, 0, 0);
+      await nextTick();
+      expect(getDataViewScrollTop()).toBe(100);
+    });
+
+    test("Scroll is kept when switching to another carousel item and back", async () => {
+      await mountCarouselWithScrollableDataView();
+      const dataViewItem = model.getters.getCarousel("carouselId").items[0];
+      triggerWheelEvent(".o-carousel .o-standalone-viewport", { deltaY: 100 });
+
+      addNewChartToCarousel(model, "carouselId", { type: "bar" });
+      await nextTick();
+      expect(".o-carousel .o-standalone-viewport").toHaveCount(0);
+
+      selectCarouselItem(model, "carouselId", dataViewItem);
+      await nextTick();
+      expect(getDataViewScrollTop()).toBe(100);
+    });
   });
 });
