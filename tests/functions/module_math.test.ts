@@ -830,7 +830,7 @@ describe("COUNTIF formula", () => {
     expect(grid5Result.J82).toBe(1);
   });
 
-  test("COUNTIF does not accept errors in first parameter", () => {
+  test("COUNTIF accept errors in first parameter", () => {
     // prettier-ignore
     const grid = {
       A1: "=KABOUM", B1: "42",
@@ -839,14 +839,10 @@ describe("COUNTIF formula", () => {
     expect(evaluateCell("A3", { A3: "=COUNTIF(A1:B2, 42)", ...grid })).toBe(2);
   });
 
-  // @compatibility: should be able to count errors !
-  test("COUNTIF can't count errors", () => {
-    // prettier-ignore
-    const grid = {
-      A1: "40", B1: "41",
-      A2: "42", B2: "43",
-    };
-    expect(evaluateCell("A3", { A3: "=COUNTIF(A1:B2, KABOUM)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 4
+  test("COUNTIF can count errors", () => {
+    expect(evaluateCell("A41", { A41: '=COUNTIF(A39, "#DIV/0!")', A39: "=1/0" })).toBe(1);
+    expect(evaluateCell("A41", { A41: '=COUNTIF(A39, "#REF")', A39: "=#REF" })).toBe(1);
+    expect(evaluateCell("A41", { A41: '=COUNTIF(A39, "#REF")', A39: "=Random!A1" })).toBe(1);
   });
 
   test("COUNTIF on empty range", () => {
@@ -953,7 +949,7 @@ describe("COUNTIFS formula", () => {
     expect(gridResult.D9).toBe(4);
   });
 
-  test("COUNTIFS does not accept errors in 2n+1 parameters", () => {
+  test("COUNTIFS accept errors in 2n+1 parameters", () => {
     // prettier-ignore
     const grid = {
       A1: "=KABOUM", B1: "42",
@@ -963,7 +959,7 @@ describe("COUNTIFS formula", () => {
   });
 
   // @compatibility: should be able to count errors !
-  test("COUNTIFS does not accept errors on 2n parameters", () => {
+  test("COUNTIFS accept errors on 2n parameters", () => {
     // prettier-ignore
     const grid = {
       A1: "40", B1: "41",

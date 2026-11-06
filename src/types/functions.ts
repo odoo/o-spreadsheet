@@ -10,6 +10,7 @@ export type ArgType =
   | "NUMBER"
   | "STRING"
   | "DATE"
+  | "ERROR"
   | "RANGE"
   | "RANGE<BOOLEAN>"
   | "RANGE<NUMBER>"
