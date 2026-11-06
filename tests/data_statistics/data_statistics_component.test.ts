@@ -178,6 +178,23 @@ describe("data statistics", () => {
       await nextTick();
       expect(model.getters.getChartIds(sheetId)).toHaveLength(0);
     });
+
+    test("stat rows cannot be dragged in readonly mode", async () => {
+      const model = createModelFromGrid({ A1: "apple", A2: "banana", A3: "banana" });
+      const sheetId = model.getters.getActiveSheetId();
+      await mountSpreadsheet({ model });
+      setSelection(model, ["A1:A3"]);
+      await simulateClick(".o-data-analysis-button");
+      expect(".o-data-analysis-item-draggable").not.toHaveCount(0);
+
+      model.updateMode("readonly");
+      await nextTick();
+      expect(".o-data-analysis-item-draggable").toHaveCount(0);
+
+      await clickAndDrag(".o-data-analysis-item", { x: 150, y: 100 }, undefined, true);
+      expect(".o-chart-drag-preview").toHaveCount(0);
+      expect(model.getters.getChartIds(sheetId)).toHaveLength(0);
+    });
   });
 
   describe("context menu", () => {

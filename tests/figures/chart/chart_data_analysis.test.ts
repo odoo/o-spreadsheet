@@ -225,4 +225,22 @@ describe("drag and drop chart suggestions", () => {
     await nextTick();
     expect(".o-chart-drag-preview").toHaveCount(0);
   });
+
+  test("chart suggestions cannot be dragged in readonly mode", async () => {
+    const { model } = await mountSpreadsheet();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "1");
+    selectCell(model, "A1");
+    await simulateClick(".o-data-analysis-button");
+    expect(".o-suggestion-canvas-wrap").toHaveClass("o-grabbable");
+
+    model.updateMode("readonly");
+    await nextTick();
+    expect(".o-suggestion-canvas-wrap").not.toHaveClass("o-grabbable");
+    expect(".o-suggestion-insert-icon").toHaveCount(0);
+
+    await clickAndDrag(".o-suggestion-canvas-wrap", { x: 150, y: 100 }, undefined, true);
+    expect(".o-chart-drag-preview").toHaveCount(0);
+    expect(model.getters.getChartIds(sheetId)).toHaveLength(0);
+  });
 });
