@@ -38,7 +38,7 @@ export type ParsedOsClipboardContentWithImageData = ParsedOSClipboardContent & {
 
 export interface ClipboardOptions {
   isCutOperation: boolean;
-  pasteOption?: ClipboardPasteOptions;
+  pasteOptions?: ClipboardPasteOptions[];
   selectTarget?: boolean;
 }
 
@@ -49,7 +49,8 @@ export interface ClipboardPositions {
   columnsIndexes?: HeaderIndex[];
 }
 
-export type ClipboardPasteOptions = "onlyFormat" | "asValue";
+export type ClipboardPasteOptions = "format" | "value" | "formula" | "transpose";
+
 export type ClipboardCopyOptions = "copyPaste" | "shiftCells";
 export type ClipboardOperation = "CUT" | "COPY";
 
