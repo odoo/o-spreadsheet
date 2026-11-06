@@ -691,6 +691,6 @@ export const CREATE_OR_REMOVE_FILTER_ACTION: ActionSpec = {
     SELECTED_TABLE_HAS_FILTERS(env) ? _t("Remove selected filters") : _t("Add filters"),
   isEnabled: (env) => IS_SELECTION_CONTINUOUS(env),
   execute: (env) =>
-    SELECTED_TABLE_HAS_FILTERS(env) ? REMOVE_DATA_FILTER(env) : ADD_DATA_FILTER(env),
+    SELECTED_TABLE_HAS_FILTERS(env) ? DELETE_SELECTED_TABLE(env) : ADD_DATA_FILTER(env),
   icon: "o-spreadsheet-Icon.FILTER_ICON_ACTIVE",
 };
