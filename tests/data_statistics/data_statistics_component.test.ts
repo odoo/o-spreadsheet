@@ -159,7 +159,7 @@ describe("data statistics", () => {
       const definition = model.getters.getChartDefinition(chartIds[0]);
       expect(definition).toMatchObject({
         type: "scorecard",
-        keyValue: "=COUNTA(Sheet1!A1:A3)",
+        keyValue: '=COUNTIF(Sheet1!A1:A3,"<>")',
         title: { text: "Non-empty cells" },
       });
     });
@@ -218,7 +218,7 @@ describe("data statistics", () => {
       const clipboard = await clipboardPlugin.read();
       expect(clipboard.status).toBe("ok");
       if (clipboard.status === "ok") {
-        expect(clipboard.content[ClipboardMIMEType.PlainText]).toBe("=COUNTA(Sheet1!A1:A3)");
+        expect(clipboard.content[ClipboardMIMEType.PlainText]).toBe('=COUNTIF(Sheet1!A1:A3,"<>")');
       }
     });
 

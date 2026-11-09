@@ -42,7 +42,7 @@ export const GENERIC_STAT_ITEMS: StatItemConfig[] = [
   {
     id: "non_empty",
     getName: () => _t("Non-empty cells"),
-    formula: (range) => `=COUNTA(${range})`,
+    formula: (range) => `=COUNTIF(${range},"<>")`,
     types: ALL_TYPES,
   },
   {
