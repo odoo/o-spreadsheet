@@ -4,7 +4,13 @@ import { Image } from "../../types/image";
 import { HeaderIndex } from "../../types/misc";
 import { FigureData, HeaderData, SheetData } from "../../types/workbook_data";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
-import { DRAWING_NS_A, DRAWING_NS_C, NAMESPACE, RELATIONSHIP_NSR } from "../constants";
+import {
+  DRAWING_NS_A,
+  DRAWING_NS_C,
+  NAMESPACE,
+  RELATIONSHIP_NSR,
+  XLSX_FIGURE_BORDER,
+} from "../constants";
 import { convertChartId, convertDotValueToEMU, convertImageId } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
 
@@ -226,6 +232,11 @@ function createImageDrawing(
             <a:avLst/>
           </a:prstGeom>
           <a:noFill/>
+          <a:ln w="${convertDotValueToEMU(XLSX_FIGURE_BORDER.width)}" cmpd="sng">
+            <a:solidFill>
+              <a:srgbClr val="${XLSX_FIGURE_BORDER.color}"/>
+            </a:solidFill>
+          </a:ln>
         </xdr:spPr>
       </xdr:pic>
       <xdr:clientData fLocksWithSheet="0"/>
