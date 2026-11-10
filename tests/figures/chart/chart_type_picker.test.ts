@@ -34,6 +34,9 @@ describe("Chart type picker component", () => {
     await pointerDown(".o-type-selector");
     expect(fixture.querySelector(".o-chart-select-popover")).not.toBeNull();
 
+    await pointerDown(".o-popover");
+    expect(fixture.querySelector(".o-chart-select-popover")).not.toBeNull();
+
     await pointerDown(".o-chart-select-popover");
     expect(fixture.querySelector(".o-chart-select-popover")).not.toBeNull();
 
