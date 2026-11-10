@@ -84,13 +84,26 @@ function makeDataAnalysisStore(grid: Record<string, string>, selection: string) 
 }
 
 describe("data analysis store occurrences", () => {
-  const grid = { A1: "banana", A2: "cherry", A3: "cherry", A4: "apple", A5: "apple", A6: "apple" };
+  const grid = {
+    A1: "banana",
+    A2: "cherry",
+    A3: "cherry",
+    A4: "apple",
+    A5: "apple",
+    A6: "apple",
+    A7: '=""',
+  };
 
   test("general statistics", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A6");
+    const { store } = makeDataAnalysisStore(grid, "A1:A7");
     expect(store.generalStatItems).toMatchObject([
-      { formula: "=COUNTA(Sheet1!A1:A6)", id: "non_empty", name: "Non-empty cells", value: "6" },
-      { formula: "=COUNTUNIQUE(Sheet1!A1:A6)", id: "unique", name: "Unique values", value: "3" },
+      {
+        formula: '=COUNTIF(Sheet1!A1:A7,"<>")',
+        id: "non_empty",
+        name: "Non-empty cells",
+        value: "6",
+      },
+      { formula: "=COUNTUNIQUE(Sheet1!A1:A7)", id: "unique", name: "Unique values", value: "3" },
       { formula: "", id: "sum", name: "Sum", value: "—" },
       { formula: "", id: "median", name: "Median", value: "—" },
       { formula: "", id: "average", name: "Average", value: "—" },
@@ -182,7 +195,7 @@ describe("data analysis store occurrences", () => {
   });
 
   test("percentage of the total count are computed in each item", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A6");
+    const { store } = makeDataAnalysisStore(grid, "A1:A7");
     expect(store.displayedOccurrencesItems).toMatchObject([
       { name: "apple", percentage: "(50%)" },
       { name: "cherry", percentage: "(33%)" },
@@ -203,23 +216,34 @@ describe("data analysis store occurrences", () => {
 });
 
 describe("data analysis for date", () => {
-  const grid = { A1: "2023-01-15", A2: "2023-03-10", A3: "2023-03-20", A4: "2024-11-05" };
+  const grid = {
+    A1: "2023-01-15",
+    A2: "2023-03-10",
+    A3: "2023-03-20",
+    A4: "2024-11-05",
+    A5: '=""',
+  };
 
   test("general statistics", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A4");
+    const { store } = makeDataAnalysisStore(grid, "A1:A5");
     expect(store.generalStatItems).toMatchObject([
-      { formula: "=COUNTA(Sheet1!A1:A4)", id: "non_empty", name: "Non-empty cells", value: "4" },
-      { formula: "=COUNTUNIQUE(Sheet1!A1:A4)", id: "unique", name: "Unique values", value: "4" },
+      {
+        formula: '=COUNTIF(Sheet1!A1:A5,"<>")',
+        id: "non_empty",
+        name: "Non-empty cells",
+        value: "4",
+      },
+      { formula: "=COUNTUNIQUE(Sheet1!A1:A5)", id: "unique", name: "Unique values", value: "4" },
       { formula: "", id: "sum", name: "Sum", value: "—" },
-      { formula: "=MEDIAN(Sheet1!A1:A4)", id: "median", name: "Median", value: "2023-03-15" },
-      { formula: "=AVERAGE(Sheet1!A1:A4)", id: "average", name: "Average", value: "2023-07-28" },
-      { formula: "=MIN(Sheet1!A1:A4)", id: "min", name: "Earliest date", value: "2023-01-15" },
-      { formula: "=MAX(Sheet1!A1:A4)", id: "max", name: "Latest date", value: "2024-11-05" },
+      { formula: "=MEDIAN(Sheet1!A1:A5)", id: "median", name: "Median", value: "2023-03-15" },
+      { formula: "=AVERAGE(Sheet1!A1:A5)", id: "average", name: "Average", value: "2023-07-28" },
+      { formula: "=MIN(Sheet1!A1:A5)", id: "min", name: "Earliest date", value: "2023-01-15" },
+      { formula: "=MAX(Sheet1!A1:A5)", id: "max", name: "Latest date", value: "2024-11-05" },
     ]);
   });
 
   test("date occurrences are displayed by month in chronological order by default", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A4");
+    const { store } = makeDataAnalysisStore(grid, "A1:A5");
     expect(store.dateGranularity).toBe("month");
     expect(store.displayedDateItems.map((item) => item.id)).toEqual([
       "m0",

@@ -35,7 +35,7 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
   const sheetId = getters.getActiveSheetId();
   const cells = getters
     .getEvaluatedCellsInZone(sheetId, zone)
-    .filter((c) => c.type !== CellValueType.empty);
+    .filter((c) => c.type !== CellValueType.empty && c.formattedValue !== "");
 
   if (!cells.length) {
     return {
