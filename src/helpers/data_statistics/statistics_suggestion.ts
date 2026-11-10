@@ -196,11 +196,12 @@ export function buildDateStatSections(
 ): DateSections {
   const { range } = getColumnDataRange(getters, col, sheetId);
   const yearCount: Map<number, number> = new Map();
-  const monthCount: number[] = new Array(12).fill(0);
-  const weekdayCount: number[] = new Array(7).fill(0);
+  const monthCount: number[] = Array.from<number>({ length: 12 }).fill(0);
+  const weekdayCount: number[] = Array.from<number>({ length: 7 }).fill(0);
   const weekCount: Map<number, number> = new Map();
   const dateCount: Map<number, number> = new Map();
-  const dayCount: number[] = new Array(31).fill(0);
+  const dateLabels: Map<number, string> = new Map();
+  const dayCount: number[] = Array.from<number>({ length: 31 }).fill(0);
   for (const cell of col.nonEmpty) {
     const value = cell.value;
     if (typeof value !== "number") {
@@ -215,6 +216,9 @@ export function buildDateStatSections(
     weekCount.set(week, (weekCount.get(week) ?? 0) + 1);
     const day = Math.floor(value);
     dateCount.set(day, (dateCount.get(day) ?? 0) + 1);
+    if (!dateLabels.has(day)) {
+      dateLabels.set(day, cell.formattedValue);
+    }
     dayCount[date.getDate() - 1]++;
   }
   const earliestYear = Math.min(...yearCount.keys());
@@ -286,7 +290,7 @@ export function buildDateStatSections(
     .map((date) =>
       createStatItem(getters, sheetId, {
         id: String(date),
-        name: formatValue(date, { locale, format: locale.dateFormat }),
+        name: dateLabels.get(date) || formatValue(date, { locale, format: locale.dateFormat }),
         formula: `=SUM(COUNTIF(INT(${range}),${date}))`,
         computedValue: { value: dateCount.get(date)! },
       })
