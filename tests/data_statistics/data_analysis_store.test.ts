@@ -357,8 +357,20 @@ describe("data analysis for date", () => {
     );
     store.setDateGranularity("date");
     expect(store.displayedDateItems).toMatchObject([
-      { name: "1/15/2023", value: "2", percentage: "(50%)" },
-      { name: "3/10/2023", value: "2", percentage: "(50%)" },
+      { name: "2023-01-15", value: "2", percentage: "(50%)" },
+      { name: "2023-03-10", value: "2", percentage: "(50%)" },
+    ]);
+  });
+
+  test("date occurrences by date are named with the formatted value of the cells", () => {
+    const model = createModelFromGrid({ A1: "2023-03-10", A2: "2023-01-15" });
+    setFormat(model, "A1:A2", "dddd d mmmm yyyy");
+    const { store } = makeStoreWithModel(model, DataAnalysisStore);
+    setSelection(model, ["A1:A2"]);
+    store.setDateGranularity("date");
+    expect(getNames(store.displayedDateItems)).toEqual([
+      "Sunday 15 January 2023",
+      "Friday 10 March 2023",
     ]);
   });
 
