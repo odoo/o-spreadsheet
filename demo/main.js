@@ -68,6 +68,9 @@ class Demo extends Component {
       name: "Local",
     };
     this.fileStore = new FileStore();
+    this.startInSafeMode = ["1", "true"].includes(
+      new URLSearchParams(window.location.search).get("safe_mode")
+    );
 
     topbarMenuRegistry.addChild("clear", ["file"], {
       name: "Clear",
@@ -122,6 +125,20 @@ class Demo extends Component {
       isVisible: () => this.model.config.mode !== "normal",
       execute: () => this.model.updateMode("normal"),
       icon: "o-spreadsheet-Icon.OPEN_READ_WRITE",
+      isEnabledOnLockedSheet: true,
+    });
+
+    topbarMenuRegistry.addChild("safe_mode", ["file"], {
+      name: () => "Open in safe mode",
+      sequence: 14,
+      isReadonlyAllowed: true,
+      isVisible: () => this.model.getters.isAutomaticEvaluationEnabled(),
+      execute: () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set("safe_mode", "true");
+        window.location.search = urlParams.toString();
+      },
+      icon: "o-spreadsheet-Icon.CALCULATOR",
       isEnabledOnLockedSheet: true,
     });
 
@@ -347,9 +364,11 @@ class Demo extends Component {
         client: this.client,
         mode: "normal",
         colorScheme: prefersDark ? "dark" : "light",
+        automaticEvaluation: !this.startInSafeMode,
       },
       this.stateUpdateMessages
     );
+    this.startInSafeMode = false;
     markRaw(this.model);
     o_spreadsheet.__DEBUG__ = o_spreadsheet.__DEBUG__ || {};
     o_spreadsheet.__DEBUG__.model = this.model;

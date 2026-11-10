@@ -47,7 +47,7 @@ import { BoundedRange, Range } from "../../../types/range";
 
 const MAX_ITERATION = 30;
 
-const EMPTY_CELL = Object.freeze(createEvaluatedCell({ value: null }));
+export const EMPTY_CELL = Object.freeze(createEvaluatedCell({ value: null }));
 
 const FUNCTION_TO_OPERATOR: Record<string, string> = {};
 for (const [op, fn] of Object.entries(OPERATOR_MAP)) {
@@ -68,7 +68,15 @@ export class Evaluator {
   private perfProfile: PerfProfile | undefined;
   private usedZones: Record<UID, Zone> = {};
 
-  constructor(private readonly context: ModelConfig["custom"], getters: EvaluationGetters) {
+  /**
+   * @param readReference when it returns a cell, the referenced cell is read
+   * from it instead of being computed.
+   */
+  constructor(
+    private readonly context: ModelConfig["custom"],
+    getters: EvaluationGetters,
+    private readonly readReference: (position: CellPosition) => EvaluatedCell | undefined
+  ) {
     this.getters = getters;
     this.getters.getSheetIds().forEach((sheetId) => {
       this.usedZones[sheetId] = this.getters.getSheetZone(sheetId);
@@ -76,7 +84,7 @@ export class Evaluator {
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
-      this.computeAndSave.bind(this)
+      this.computeReference.bind(this)
     );
   }
 
@@ -98,6 +106,29 @@ export class Evaluator {
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
     return this.evaluatedCells.get(position) || EMPTY_CELL;
+  }
+
+  /**
+   * Returns the evaluated cell, or undefined if it is not evaluated (or empty)
+   */
+  tryGetEvaluatedCell(position: CellPosition): EvaluatedCell | undefined {
+    return this.evaluatedCells.get(position);
+  }
+
+  /**
+   * Forgets the evaluation of a cell, without evaluating it nor its dependents
+   */
+  deleteEvaluatedCell(position: CellPosition) {
+    this.evaluatedCells.delete(position);
+  }
+
+  /**
+   * Forgets the evaluation of all cells, without evaluating anything
+   */
+  discardEvaluatedCells() {
+    this.evaluatedCells = new PositionMap();
+    this.spreadingRelations = new SpreadingRelation();
+    this.blockedArrayFormulas = new PositionSet({});
   }
 
   getSpreadZone(position: CellPosition, options = { ignoreSpillError: false }): Zone | undefined {
@@ -170,7 +201,7 @@ export class Evaluator {
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
-      this.computeAndSave.bind(this)
+      this.computeReference.bind(this)
     );
     this.compilationParams.evalContext.__originCellPosition = originCellPosition;
     this.compilationParams.evalContext.updateDependencies = undefined;
@@ -187,7 +218,7 @@ export class Evaluator {
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
-      this.computeAndSave.bind(this)
+      this.computeReference.bind(this)
     );
     this.compilationParams.evalContext.updateDependencies = this.updateDependencies.bind(this);
     this.compilationParams.evalContext.addDependencies = this.addDependencies.bind(this);
@@ -219,17 +250,6 @@ export class Evaluator {
     rangesToCompute.addMany(this.getCellsDependingOn(arrayFormulasPositions));
     this.evaluate(rangesToCompute);
     console.debug("evaluate Cells", performance.now() - start, "ms");
-  }
-
-  /**
-   * Evaluates the given cells without propagating to their dependents.
-   * Used when automatic evaluation is disabled, to show the result of a
-   * directly modified cell without triggering a potentially expensive cascade.
-   */
-  evaluateCellsWithoutCascade(positions: CellPosition[]) {
-    const rangesToCompute = new RangeSet();
-    rangesToCompute.addManyPositions(positions);
-    this.evaluate(rangesToCompute);
   }
 
   private getArrayFormulasImpactedByChangesOf(positions: Iterable<CellPosition>): RangeSet {
@@ -458,6 +478,10 @@ export class Evaluator {
       this.usedZones[sheetId].top = Math.min(this.usedZones[sheetId].top, row);
       this.usedZones[sheetId].bottom = Math.max(this.usedZones[sheetId].bottom, row);
     }
+  }
+
+  private computeReference(position: CellPosition): EvaluatedCell {
+    return this.readReference(position) ?? this.computeAndSave(position);
   }
 
   private computeAndSave(position: CellPosition) {
