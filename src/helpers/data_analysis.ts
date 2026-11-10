@@ -26,6 +26,11 @@ export interface ColumnAnalysis {
   nonEmpty: EvaluatedCell[];
 }
 
+export function hasSameRowSpan(zones: Zone[]) {
+  const firstZone = zones[0];
+  return zones.every((zone) => zone.top === firstZone.top && zone.bottom === firstZone.bottom);
+}
+
 export function analyzeColumns(zones: Zone[], getters: Getters): ColumnAnalysis[] {
   return getZonesByColumns(zones).map((zone) => analyzeColumn(zone, getters));
 }
