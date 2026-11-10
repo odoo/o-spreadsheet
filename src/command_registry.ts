@@ -294,6 +294,9 @@ registerCommand("CHANGE_CONDITIONAL_FORMAT_PRIORITY", {
   category: "core",
   invalidatesConditionalFormatEvaluation: true,
 });
+registerCommand("UPDATE_CONDITIONAL_FORMATS", {
+  category: "local",
+});
 
 // FIGURES
 registerCommand("CREATE_FIGURE", {
@@ -411,6 +414,7 @@ registerCommand("FOLD_HEADER_GROUPS_IN_ZONE", {
 
 // DATA VALIDATION
 registerCommand("ADD_DATA_VALIDATION_RULE", { category: "core" });
+registerCommand("UPDATE_DATA_VALIDATION_RULES", { category: "local" });
 registerCommand("REMOVE_DATA_VALIDATION_RULE", { category: "core" });
 
 // MISC

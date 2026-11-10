@@ -1,14 +1,53 @@
 import { isBoolean } from "../../helpers/misc";
 import { getCellPositionsInRanges } from "../../helpers/range";
 import { CellValueType } from "../../types/cells";
-import { AddDataValidationCommand } from "../../types/commands";
+import {
+  AddDataValidationCommand,
+  CommandResult,
+  DispatchResult,
+  UpdateDataValidationsCommand,
+} from "../../types/commands";
 import { isMatrix } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class DataValidationInsertionPlugin extends UIPlugin {
+  validators = {
+    UPDATE_DATA_VALIDATION_RULES: this.checkUpdateDataValidationRules,
+  };
+
   handlers = {
     ADD_DATA_VALIDATION_RULE: this.onAddDataValidationRule,
+    UPDATE_DATA_VALIDATION_RULES: this.onUpdateDataValidationRules,
   };
+
+  private checkUpdateDataValidationRules(cmd: UpdateDataValidationsCommand) {
+    const results: DispatchResult[] = [];
+    for (const sheetId of cmd.sheetIdsToRemove || []) {
+      results.push(
+        this.canDispatch("REMOVE_DATA_VALIDATION_RULE", {
+          sheetId,
+          id: cmd.ruleId,
+        })
+      );
+    }
+    for (const sheetId in cmd.rulesBySheetId) {
+      results.push(
+        this.canDispatch("ADD_DATA_VALIDATION_RULE", {
+          sheetId,
+          rule: cmd.rulesBySheetId[sheetId].rule,
+          ranges: cmd.rulesBySheetId[sheetId].ranges,
+        })
+      );
+    }
+    const reasons = results
+      .map((result) => result.reasons)
+      .flat()
+      .filter((r) => r !== CommandResult.NoChanges);
+    if (reasons.length) {
+      return reasons;
+    }
+    return CommandResult.Success;
+  }
 
   private onAddDataValidationRule(cmd: AddDataValidationCommand) {
     if (cmd.rule.criterion.type !== "isBoolean") {
@@ -40,6 +79,19 @@ export class DataValidationInsertionPlugin extends UIPlugin {
       } else if (evaluatedCell.type !== CellValueType.boolean) {
         this.dispatch("UPDATE_CELL", { ...position, content: "FALSE" });
       }
+    }
+  }
+
+  private onUpdateDataValidationRules(cmd: UpdateDataValidationsCommand) {
+    for (const sheetId of cmd.sheetIdsToRemove || []) {
+      this.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: cmd.ruleId });
+    }
+    for (const sheetId in cmd.rulesBySheetId) {
+      this.dispatch("ADD_DATA_VALIDATION_RULE", {
+        sheetId,
+        ranges: cmd.rulesBySheetId[sheetId].ranges,
+        rule: cmd.rulesBySheetId[sheetId].rule,
+      });
     }
   }
 }

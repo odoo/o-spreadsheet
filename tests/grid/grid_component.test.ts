@@ -802,7 +802,7 @@ describe("Grid component", () => {
       selectCell(model, "B2");
       await keyDown({ key: "=", altKey: true });
       expect(composerStore.currentContent).toBe("=SUM(A1)");
-      composerStore.cancelEdition();
+      composerStore.cancelEdition({ resetContent: true, activateSheet: true });
       selectCell(model, "B1");
       await keyDown({ key: "=", altKey: true });
       expect(composerStore.currentContent).toBe("=SUM(A1)");

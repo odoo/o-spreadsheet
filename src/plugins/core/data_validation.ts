@@ -1,6 +1,6 @@
 import { CompiledFormula } from "../../formulas/compiler";
 import { toXC } from "../../helpers/coordinates";
-import { deepCopy } from "../../helpers/misc";
+import { deepCopy, deepEquals } from "../../helpers/misc";
 import { duplicateRangeInDuplicatedSheet, getCellPositionsInRanges } from "../../helpers/range";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside } from "../../helpers/zones";
@@ -129,7 +129,7 @@ export class DataValidationPlugin
             break;
           case "RESIZE":
           case "MOVE":
-          case "CHANGE":
+          case "RENAME":
             this.history.update("rules", sheetId, ruleIndex, "ranges", rangeIndex, change.range);
             break;
         }
@@ -242,8 +242,20 @@ export class DataValidationPlugin
 
     const adaptedRules = this.removeRangesFromRules(sheetId, newRule.ranges, rules, newRule.id);
     const ruleIndex = adaptedRules.findIndex((rule) => rule.id === newRule.id);
-
-    if (ruleIndex !== -1) {
+    const similarRuleIndex = adaptedRules.findIndex(
+      (rule) =>
+        rule.id !== newRule.id &&
+        deepEquals(rule.criterion, newRule.criterion) &&
+        rule.isBlocking === newRule.isBlocking
+    );
+    if (similarRuleIndex !== -1) {
+      const similarRule = adaptedRules[similarRuleIndex];
+      similarRule.ranges = [...similarRule.ranges, ...newRule.ranges];
+      if (ruleIndex !== -1) {
+        adaptedRules.splice(ruleIndex, 1);
+      }
+      this.history.update("rules", sheetId, adaptedRules);
+    } else if (ruleIndex !== -1) {
       adaptedRules[ruleIndex] = newRule;
       this.history.update("rules", sheetId, adaptedRules);
     } else {
@@ -385,6 +397,9 @@ export class DataValidationPlugin
 
   private checkValidRange(cmd: AddDataValidationCommand): CommandResult {
     const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
+    if (ranges.some((range) => range.sheetId !== cmd.sheetId)) {
+      return CommandResult.InvalidSheetId;
+    }
     const stringRanges = ranges.map((range) => this.getters.getRangeString(range, cmd.sheetId));
     if (stringRanges.some((xc) => !this.getters.isRangeValid(xc))) {
       return CommandResult.InvalidRange;
