@@ -1595,6 +1595,21 @@ describe("Test XLSX export", () => {
       expect(exported.sheets[0].images.length).toBe(1);
     });
 
+    test("Images and charts exported as images have a border, like regular charts", async () => {
+      const model = new Model();
+      createGaugeChart(model, TEST_CHART_DATA.gauge);
+      createImage(model, {});
+      const exportedXlsx = await model.exportXLSX();
+      const drawing = exportedXlsx.files.find((f) => f["contentType"] === "drawing")!["content"];
+      const pictures = [...parseXML(drawing).getElementsByTagName("xdr:pic")];
+      expect(pictures.length).toBe(2);
+      for (const picture of pictures) {
+        const border = picture.getElementsByTagName("a:ln")[0];
+        expect(border.getAttribute("w")).toBe("9525");
+        expect(border.getElementsByTagName("a:srgbClr")[0]?.getAttribute("val")).toBe("D9D9D9");
+      }
+    });
+
     test("stacked bar chart", async () => {
       const model = new Model(chartData);
       createChart(

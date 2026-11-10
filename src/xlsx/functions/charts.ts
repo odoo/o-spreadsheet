@@ -11,6 +11,7 @@ import {
   DRAWING_NS_A,
   DRAWING_NS_C,
   RELATIONSHIP_NSR,
+  XLSX_FIGURE_BORDER,
 } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";
 import { convertDotValueToEMU, getRangeSize } from "../helpers/content_helpers";
@@ -59,7 +60,7 @@ export function createChart(
 
   const chartShapeProperty = shapeProperty({
     backgroundColor: chart.data.backgroundColor,
-    line: { color: "000000" },
+    line: XLSX_FIGURE_BORDER,
   });
   // <manualLayout/> to manually position the chart in the figure container
   let title = escapeXml``;
