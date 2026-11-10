@@ -24,6 +24,7 @@ export type OSClipboardContent = {
 export interface SpreadsheetClipboardData extends MinimalClipboardData {
   version?: string;
   clipboardId?: string;
+  crossSpreadsheetData?: Record<string, any>;
 }
 
 export type ParsedOSClipboardContent = {
@@ -175,6 +176,7 @@ export type CompactBorderHandlerData = {
 };
 
 export type CompactCellHandlerData = {
+  sheetId: UID;
   rows: number;
   cols: number;
   items: { r: number; c: number; v: CompactClipboardCell }[];

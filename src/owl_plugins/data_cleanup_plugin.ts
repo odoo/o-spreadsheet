@@ -123,11 +123,10 @@ export class DataCleanupPlugin extends OwlPluginWithModel {
 
     const clipboardPositions = getClipboardDataPositions(sheetId, rowsToKeep);
     const handler = new CellClipboardHandler(this.model().getters, this.model().dispatch);
-    const compactData = handler.copy(clipboardPositions, false);
-    if (!compactData) {
+    const data = handler.copy(clipboardPositions, false);
+    if (!data) {
       return;
     }
-    const data = handler.expand(compactData);
 
     this.model().dispatch("CLEAR_CELLS", { target: [zone], sheetId });
 
