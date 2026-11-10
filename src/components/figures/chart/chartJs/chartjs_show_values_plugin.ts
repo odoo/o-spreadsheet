@@ -29,6 +29,7 @@ interface CallbackArgs {
 export interface ChartShowValuesPluginOptions {
   type: AllChartType;
   showValues: boolean;
+  showLabels?: boolean;
   background: (value: number | string, dataset: ChartMeta, index: number) => Color | undefined;
   horizontal?: boolean;
   callback: (value: number | string, dataset: ChartMeta, index: number) => string;
@@ -105,10 +106,11 @@ function drawValues(args: {
   direction: "horizontal" | "vertical";
   getNumberValue: (dataset: any, valueIndex: number) => number | undefined;
   getValuePosition: (args: CallbackArgs) => { x: number; y: number };
+  getLabel?: (dataset: any, valueIndex: number) => string;
   shouldSkipValue: (args: CallbackArgs) => boolean;
   getTextColors: (args: CallbackArgs) => TextStyle;
 }) {
-  const { chart, options, getNumberValue, direction } = args;
+  const { chart, options, getNumberValue, getLabel, direction } = args;
   const ctx = chart.ctx as CanvasRenderingContext2D;
   ctx.save();
 
@@ -123,8 +125,9 @@ function drawValues(args: {
     }
 
     for (let i = 0; i < dataset._parsed.length; i++) {
-      const numberValue = getNumberValue(dataset, i);
-      if (numberValue === undefined || isNaN(numberValue)) {
+      const numberValue = options.showValues ? getNumberValue(dataset, i) : undefined;
+      const label = options.showLabels ? getLabel?.(dataset, i) : undefined;
+      if ((numberValue === undefined || isNaN(numberValue)) && !label) {
         continue;
       }
       const chartElement = dataset.data[i]; // BarElement, PointElement or ArcElement depending on the chart type
@@ -134,13 +137,20 @@ function drawValues(args: {
       if (!elementColor || colorToRGBA(elementColor).a !== 1) {
         continue;
       }
+      const valuesToDisplay: string[] = [];
+      if (numberValue !== undefined && !isNaN(numberValue)) {
+        valuesToDisplay.push(options.callback(numberValue, dataset, i));
+      }
+      if (label) {
+        valuesToDisplay.push(label);
+      }
+      const textSize = getTextDimensions(valuesToDisplay, ctx);
 
-      const valueToDisplay = options.callback(numberValue, dataset, i);
-      const textSize = getTextDimensions(valueToDisplay, ctx);
+      const value = numberValue ?? 0;
       const callbackArgs = {
         dataset,
         chartElement,
-        numberValue,
+        numberValue: value,
         valueIndex: i,
         textSize,
         options,
@@ -160,7 +170,7 @@ function drawValues(args: {
         }
         for (const otherPosition of textsPositions[key] || []) {
           if (Math.abs(otherPosition - position.y) < MINIMAL_VERTICAL_DISTANCE) {
-            position.y = otherPosition + MINIMAL_VERTICAL_DISTANCE * (numberValue < 0 ? 1 : -1);
+            position.y = otherPosition + MINIMAL_VERTICAL_DISTANCE * (value < 0 ? 1 : -1);
           }
         }
         textsPositions[key].push(position.y);
@@ -173,7 +183,7 @@ function drawValues(args: {
         for (const otherPosition of textsPositions[key]) {
           if (Math.abs(otherPosition - position.x) < textSize.width) {
             position.x =
-              numberValue < 0
+              value < 0
                 ? otherPosition - textSize.width - HORIZONTAL_PADDING
                 : otherPosition + textSize.width + HORIZONTAL_PADDING;
           }
@@ -185,11 +195,23 @@ function drawValues(args: {
       if (!!strokeColor) {
         ctx.strokeStyle = strokeColor;
         ctx.lineWidth = 3; // Stroke the text with a big lineWidth width to have some kind of background
-        ctx.strokeText(valueToDisplay, position.x, position.y);
+        if (valuesToDisplay.length === 1) {
+          ctx.strokeText(valuesToDisplay[0], position.x, position.y);
+        } else if (valuesToDisplay.length === 2) {
+          const height = textSize.height;
+          ctx.strokeText(valuesToDisplay[0], position.x, position.y - height / 2);
+          ctx.strokeText(valuesToDisplay[1], position.x, position.y + height / 2);
+        }
       }
       ctx.fillStyle = textColor;
       ctx.lineWidth = 1;
-      ctx.fillText(valueToDisplay, position.x, position.y);
+      if (valuesToDisplay.length === 1) {
+        ctx.fillText(valuesToDisplay[0], position.x, position.y);
+      } else if (valuesToDisplay.length === 2) {
+        const height = textSize.height;
+        ctx.fillText(valuesToDisplay[0], position.x, position.y - height / 2);
+        ctx.fillText(valuesToDisplay[1], position.x, position.y + height / 2);
+      }
     }
   }
 
@@ -360,6 +382,7 @@ function drawPieValues(chart: any, options: ChartShowValuesPluginOptions) {
       const y = chartElement.y + midRadius * Math.sin(midAngle);
       return { x, y };
     },
+    getLabel: (dataset, valueIndex) => dataset._parsed[valueIndex],
     shouldSkipValue: ({ chartElement, textSize }) => {
       const { midRadius } = getSliceDimensions(chartElement);
       const sliceAngle = chartElement.endAngle - chartElement.startAngle;
@@ -370,9 +393,17 @@ function drawPieValues(chart: any, options: ChartShowValuesPluginOptions) {
   });
 }
 
-function getTextDimensions(text: string, ctx: CanvasRenderingContext2D): Dimensions {
+function getTextDimensions(text: string[], ctx: CanvasRenderingContext2D): Dimensions {
   const font = computeTextFont({ fontSize: globalThis.Chart?.defaults.font.size ?? 12 }, "px");
-  return computeCachedTextDimension(ctx, text, font);
+  return text
+    .map((text) => computeCachedTextDimension(ctx, text, font))
+    .reduce(
+      (acc, dim) => ({
+        width: Math.max(acc.width, dim.width),
+        height: acc.height + dim.height,
+      }),
+      { width: 0, height: 0 }
+    );
 }
 
 function chartBackgroundColoredTextWithElementColoredHalo(args: CallbackArgs) {
