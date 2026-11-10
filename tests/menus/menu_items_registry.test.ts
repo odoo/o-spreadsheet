@@ -1844,7 +1844,7 @@ describe("Menu Item actions", () => {
         expect(getName(filterPath, env)).toBe("Remove selected filters");
         await doAction(filterPath, env);
         const table = model.getters.getTable({ sheetId, row: 0, col: 0 });
-        expect(table?.config.hasFilters).toBe(false);
+        expect(table).toBe(undefined);
       });
 
       test("Filters -> Add/Remove filters with multiple table in the selection works only on first table", async () => {
@@ -1862,7 +1862,6 @@ describe("Menu Item actions", () => {
 
         await doAction(filterPath, env);
         expect(model.getters.getTables(sheetId)).toMatchObject([
-          { range: { zone: toZone("A1:A5") }, config: { hasFilters: false } },
           { range: { zone: toZone("B1:B5") }, config: { hasFilters: false } },
         ]);
       });
