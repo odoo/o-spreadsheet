@@ -1,9 +1,12 @@
+import { Model } from "../../../src";
 import { DataAnalysisStore } from "../../../src/components/side_panel/data_analysis/data_analysis_store";
 import {
   clickAndDrag,
   createCarousel,
   createChart,
+  createSheet,
   extendMockGetBoundingClientRect,
+  hoverBottomBarSheet,
   selectCell,
   setCellContent,
   setViewportOffset,
@@ -224,5 +227,28 @@ describe("drag and drop chart suggestions", () => {
     triggerMouseEvent(".o-suggestion-canvas-wrap", "pointermove", 200, 200, { button: 1 });
     await nextTick();
     expect(".o-chart-drag-preview").toHaveCount(0);
+  });
+
+  test("can drop the chart in another sheet", async () => {
+    const model = new Model();
+    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    const { fixture } = await mountSpreadsheet({ model });
+
+    // const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "1");
+    selectCell(model, "A1");
+    await simulateClick(".o-data-analysis-button");
+    expect(fixture.querySelector(".o-suggestion-canvas-wrap")).toBeTruthy();
+
+    await clickAndDrag(".o-suggestion-canvas-wrap", { x: 150, y: 100 }, undefined, false);
+    await hoverBottomBarSheet("sh2");
+    expect(model.getters.getActiveSheetId()).toBe("sh2");
+
+    triggerMouseEvent(window, "pointerup"); // end drag & drop
+    await nextTick();
+    expect(model.getters.getChartIds("sh2").length).toBe(1);
+    expect(model.getters.getChartDefinition(model.getters.getChartIds("sh2")[0])).toMatchObject({
+      keyValue: "=Sheet1!A1", // Reference points to the original sheet
+    });
   });
 });

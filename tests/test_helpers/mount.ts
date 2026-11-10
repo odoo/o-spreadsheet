@@ -172,6 +172,7 @@ interface MountComponentArgs<Props extends ComponentProps> {
   fixture?: HTMLElement;
   renderOnModelUpdate?: boolean; // true by default
   providedPlugins?: PluginConstructor[];
+  configPlugins?: Record<string, any>;
   callbackInComponentSetup?: () => void;
 }
 
@@ -230,6 +231,7 @@ async function _mount<Props extends ComponentProps>(
     test: true,
     translateFn: _t,
     plugins: [...(optionalArgs.providedPlugins || [])],
+    config: optionalArgs.configPlugins || {},
   });
   const root = app.createRoot(rootComponent, { props: rootProps });
   const fixture = optionalArgs?.fixture || makeTestFixture();

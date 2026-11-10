@@ -11,6 +11,10 @@
       }
     }
 
+    .o-bottom-bar-scroll-overlay {
+      width: 30px;
+    }
+
     .o-all-sheets {
       max-width: 70%;
       .o-bottom-bar-fade-out {
