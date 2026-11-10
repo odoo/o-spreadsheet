@@ -6,7 +6,7 @@ import {
 } from "../../../constants";
 import { Canvas2DContext, CanvasSurface } from "../../../types/canvas";
 import { GaugeAnimatedRuntime } from "../../../types/chart/gauge_chart";
-import { Color, PixelPosition } from "../../../types/misc";
+import { Color, Font, PixelPosition } from "../../../types/misc";
 import { DOMDimension, Rect } from "../../../types/rendering";
 import { clip } from "../../misc";
 import {
@@ -50,6 +50,7 @@ interface TextProperties {
   textPosition: PixelPosition;
   fontSize: number;
   color: Color;
+  font: Font;
 }
 
 interface InflectionValue {
@@ -183,7 +184,7 @@ function drawInflectionValues(ctx: CanvasRenderingContext2D, config: RenderingPa
 function drawTitle(ctx: CanvasRenderingContext2D, config: RenderingParams) {
   ctx.save();
   const title = config.title;
-  ctx.font = getDefaultContextFont(title.fontSize, title.bold, title.italic);
+  ctx.font = getDefaultContextFont(title.fontSize, title.bold, title.italic, title.font);
   ctx.textBaseline = "middle";
   ctx.fillStyle = title.color;
   ctx.fillText(title.label, title.textPosition.x, title.textPosition.y);
@@ -281,6 +282,7 @@ export function getGaugeRenderingConfig(
       color: runtime.title.color ?? textColor,
       bold: runtime.title.bold,
       italic: runtime.title.italic,
+      font: runtime.title.font || DEFAULT_FONT,
     },
     backgroundColor: runtime.background,
     gauge: {
@@ -295,18 +297,21 @@ export function getGaugeRenderingConfig(
       textPosition: gaugeValuePosition,
       fontSize: gaugeValueFontSize,
       color: textColor,
+      font: DEFAULT_FONT,
     },
     minLabel: {
       label: runtime.minValue.label,
       textPosition: minLabelPosition,
       fontSize: labelFontSize,
       color: textColor,
+      font: DEFAULT_FONT,
     },
     maxLabel: {
       label: runtime.maxValue.label,
       textPosition: maxLabelPosition,
       fontSize: labelFontSize,
       color: textColor,
+      font: DEFAULT_FONT,
     },
   };
 }

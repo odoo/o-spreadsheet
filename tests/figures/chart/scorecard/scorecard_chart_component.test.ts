@@ -407,6 +407,32 @@ describe("Scorecard charts computation", () => {
     }
   });
 
+  test("Key value is displayed with the cell font", () => {
+    createScorecardChart(model, { keyValue: "=A1", baseline: "=A1" }, chartId);
+    setFormatting(model, "A1", { font: "Courier New" });
+    const chartDesign = getChartDesign(model, chartId, sheetId);
+    expect(chartDesign.key?.style.font).toContain("Courier New");
+    expect(chartDesign.baseline?.style.font).toContain("Courier New");
+  });
+
+  test("Title and descriptions are displayed with their font", () => {
+    createScorecardChart(
+      model,
+      {
+        keyValue: "=A1",
+        baseline: "=B1",
+        title: { text: "title", font: "Verdana" },
+        keyDescr: { text: "key descr", font: "Tahoma" },
+        baselineDescr: { text: "baseline descr", font: "Courier New" },
+      },
+      chartId
+    );
+    const chartDesign = getChartDesign(model, chartId, sheetId);
+    expect(chartDesign.title?.style.font).toContain("Verdana");
+    expect(chartDesign.keyDescr?.style.font).toContain("Tahoma");
+    expect(chartDesign.baselineDescr?.style.font).toContain("Courier New");
+  });
+
   test("Scorecard elements take the bold/italic style into account when finding the best font size", () => {
     const string = "This is a long string that will be the keyvalue";
     setCellContent(model, "A3", string);

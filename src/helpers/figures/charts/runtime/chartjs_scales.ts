@@ -13,6 +13,7 @@ import {
   CHART_PADDING_TOP,
   COLOR_TRANSPARENT,
   DEFAULT_CHART_COLOR_SCALE,
+  DEFAULT_FONT,
   GRAY_300,
 } from "../../../../constants";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
@@ -37,7 +38,7 @@ import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { ScatterChartDefinition } from "../../../../types/chart/scatter_chart";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
 import { LocaleFormat } from "../../../../types/format";
-import { Color, DeepPartial } from "../../../../types/misc";
+import { Color, DeepPartial, Font } from "../../../../types/misc";
 import { Range } from "../../../../types/range";
 import { isNumberResult } from "../../../cells/cell_evaluation";
 import { getChartTimeOptions } from "../../../chart_date";
@@ -517,6 +518,7 @@ function getChartAxisTitleRuntime(design?: AxisDesign):
         style: "italic" | "normal";
         weight: "bold" | "normal";
         size: number;
+        family: Font;
       };
       align: "start" | "center" | "end";
     }
@@ -531,6 +533,7 @@ function getChartAxisTitleRuntime(design?: AxisDesign):
         style: italic ? "italic" : "normal",
         weight: bold ? "bold" : "normal",
         size: design.title.fontSize ?? CHART_AXIS_TITLE_FONT_SIZE,
+        family: design.title.font ?? DEFAULT_FONT,
       },
       align: align === "left" ? "start" : align === "right" ? "end" : "center",
     };

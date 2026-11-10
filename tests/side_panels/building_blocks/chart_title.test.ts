@@ -4,6 +4,11 @@ import { PropsOf } from "../../../src/types/props_of";
 import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { mountComponent } from "../../test_helpers/helpers";
 
+jest.mock("../../../src/constants", () => {
+  const actual = jest.requireActual("../../../src/constants");
+  return { ...actual, DEFAULT_FONT: "Roboto", USABLE_FONTS: actual.AVAILABLE_FONTS };
+});
+
 let fixture: HTMLElement;
 
 async function mountChartTitle(props: Partial<PropsOf<ChartTitle>>) {
@@ -107,6 +112,48 @@ describe("Chart title", () => {
 });
 
 describe("TextStyler", () => {
+  function getFontEditorButton() {
+    return fixture.querySelector<HTMLElement>(
+      ".o-dropdown .o-menu-item-button[style*='font-family']"
+    )!;
+  }
+
+  function getFontOption(font: string) {
+    return [...fixture.querySelectorAll(".o-popover .o-text-options > div")].find(
+      (el) => el.querySelector("span")!.textContent === font
+    )!;
+  }
+
+  test.each([
+    [{}, {}, "Roboto"],
+    [{}, { font: "Tahoma" }, "Tahoma"],
+    [{ font: "Verdana" }, { font: "Tahoma" }, "Verdana"],
+  ] as const)(
+    "Font editor displays the style font, then the default style font, then the default font",
+    async (style, defaultStyle, expectedFont) => {
+      await mountTextStyler({ style, defaultStyle });
+      expect(getFontEditorButton()).toHaveText(expectedFont);
+    }
+  );
+
+  test("Can change font", async () => {
+    const updateStyle = jest.fn();
+    await mountTextStyler({ updateStyle, style: { bold: true } });
+    await click(getFontEditorButton());
+    await click(getFontOption("Courier New"));
+    expect(updateStyle).toHaveBeenCalledWith({ bold: true, font: "Courier New" });
+    expect(".o-popover .o-text-options").toHaveCount(0);
+  });
+
+  test("Opening the font dropdown closes other dropdowns", async () => {
+    await mountTextStyler({});
+    await click(fixture, ".o-color-picker-button[title='Text color']");
+    expect(".o-color-picker").toHaveCount(1);
+    await click(getFontEditorButton());
+    expect(".o-color-picker").toHaveCount(0);
+    expect(".o-popover .o-text-options > div").toHaveCount(7);
+  });
+
   test("Alignments buttons are not visible by default", async () => {
     await mountTextStyler({});
 

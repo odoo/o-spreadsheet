@@ -9,6 +9,7 @@ import { PaintFormatButton } from "../paint_format_button/paint_format_button";
 import { TableDropdownButton } from "../tables/table_dropdown_button/table_dropdown_button";
 import { TopBarColorEditor } from "./color_editor/color_editor";
 import { DropdownAction } from "./dropdown_action/dropdown_action";
+import { TopBarFontEditor } from "./font_editor/font_editor";
 import { TopBarFontSizeEditor } from "./font_size_editor/font_size_editor";
 import { NumberFormatsTool } from "./number_formats_tool/number_formats_tool";
 import { ToolBarZoom } from "./zoom_editor/zoom_editor";
@@ -96,6 +97,16 @@ topBarToolBarRegistry
       class: "o-menu-item-button o-hoverable-button o-toolbar-button",
     },
     sequence: 4,
+  })
+  .add("font")
+  .addChild("font", {
+    name: "fontEditor",
+    component: TopBarFontEditor,
+    props: {
+      fontActions: ACTION_FORMAT.formatFontsList,
+      class: "o-hoverable-button o-toolbar-button",
+    },
+    sequence: 1,
   })
   .add("fontSize")
   .addChild("fontSize", {

@@ -1,0 +1,13 @@
+.o-spreadsheet {
+  .o-font-editor {
+    .o-font-editor-button {
+      width: 120px;
+      justify-content: space-between;
+
+      .o-font-editor-name {
+        min-width: 0;
+        flex: 1 1 auto;
+      }
+    }
+  }
+}
