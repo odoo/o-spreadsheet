@@ -46,7 +46,7 @@ export class ChartTypePickerPopover extends OSComponent {
 
   onExternalClick(ev: MouseEvent) {
     if (
-      isChildEvent(this.popoverRef()?.parentElement, ev) ||
+      isChildEvent(this.popoverRef()?.closest(".o-popover"), ev) ||
       isChildEvent(this.props.parentRef?.(), ev)
     ) {
       return;
