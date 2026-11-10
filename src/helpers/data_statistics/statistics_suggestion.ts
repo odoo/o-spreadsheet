@@ -246,6 +246,7 @@ export function buildDateStatSections(
   const weekdayCount: number[] = Array.from<number>({ length: 7 }).fill(0);
   const weekCount: Map<number, number> = new Map();
   const dateCount: Map<number, number> = new Map();
+  const dateLabels: Map<number, string> = new Map();
   const dayCount: number[] = Array.from<number>({ length: 31 }).fill(0);
   for (const cell of col.nonEmpty) {
     const value = cell.value;
@@ -261,6 +262,9 @@ export function buildDateStatSections(
     weekCount.set(week, (weekCount.get(week) ?? 0) + 1);
     const day = Math.floor(value);
     dateCount.set(day, (dateCount.get(day) ?? 0) + 1);
+    if (!dateLabels.has(day)) {
+      dateLabels.set(day, cell.formattedValue);
+    }
     dayCount[date.getDate() - 1]++;
   }
   const earliestYear = Math.min(...yearCount.keys());
@@ -332,7 +336,7 @@ export function buildDateStatSections(
     .map((date) =>
       createStatItem(getters, sheetId, {
         id: String(date),
-        name: formatValue(date, { locale, format: locale.dateFormat }),
+        name: dateLabels.get(date) || formatValue(date, { locale, format: locale.dateFormat }),
         formula: `=SUM(COUNTIF(INT(${range}),${date}))`,
         computedValue: { value: dateCount.get(date)! },
       })
@@ -393,6 +397,7 @@ export function buildSumByDateSections(
   const weekdaySum: number[] = Array.from<number>({ length: 7 }).fill(0);
   const weekSum: Map<number, number> = new Map();
   const dateSum: Map<number, number> = new Map();
+  const dateLabels: Map<number, string> = new Map();
   const daySum: number[] = Array.from<number>({ length: 31 }).fill(0);
   let totalSum = 0;
   for (let i = 0; i < dateCells.length; i++) {
@@ -410,6 +415,9 @@ export function buildSumByDateSections(
     weekSum.set(week, (weekSum.get(week) ?? 0) + value);
     const day = Math.floor(dateValue);
     dateSum.set(day, (dateSum.get(day) ?? 0) + value);
+    if (!dateLabels.has(day)) {
+      dateLabels.set(day, dateCells[i].formattedValue);
+    }
     daySum[date.getDate() - 1] += value;
     totalSum += value;
   }
@@ -491,7 +499,7 @@ export function buildSumByDateSections(
     .map((date) =>
       createStatItem(getters, sheetId, {
         id: String(date),
-        name: formatValue(date, { locale, format: locale.dateFormat }),
+        name: dateLabels.get(date) || formatValue(date, { locale, format: locale.dateFormat }),
         formula: `=SUMIF(FILTER(INT(${datesRange}), ${datesRange}), ${date}, FILTER(${valuesRange}, ${datesRange}))`,
         computedValue: { value: dateSum.get(date)! },
         format,

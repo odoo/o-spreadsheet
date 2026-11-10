@@ -436,8 +436,20 @@ describe("data analysis for date", () => {
     );
     store.setDateGranularity("date");
     expect(store.displayedDateItems).toMatchObject([
-      { name: "1/15/2023", formattedValue: "2", percentage: "(50%)" },
-      { name: "3/10/2023", formattedValue: "2", percentage: "(50%)" },
+      { name: "2023-01-15", formattedValue: "2", percentage: "(50%)" },
+      { name: "2023-03-10", formattedValue: "2", percentage: "(50%)" },
+    ]);
+  });
+
+  test("date occurrences by date are named with the formatted value of the cells", () => {
+    const model = createModelFromGrid({ A1: "2023-03-10", A2: "2023-01-15" });
+    setFormat(model, "A1:A2", "dddd d mmmm yyyy");
+    const { store } = makeStoreWithModel(model, DataAnalysisStore);
+    setSelection(model, ["A1:A2"]);
+    store.setDateGranularity("date");
+    expect(getNames(store.displayedDateItems)).toEqual([
+      "Sunday 15 January 2023",
+      "Friday 10 March 2023",
     ]);
   });
 
@@ -659,13 +671,13 @@ describe("buildSumByDateSections", () => {
         date: [
           {
             id: "46054",
-            name: "2/1/2026",
+            name: "2026-02-01",
             formula: `=SUMIF(FILTER(INT(Sheet1!A1:A5), Sheet1!A1:A5), 46054, FILTER(Sheet1!B1:B5, Sheet1!A1:A5))`,
             rawValue: 8000,
           },
           {
             id: "46055",
-            name: "2/2/2026",
+            name: "2026-02-02",
             formula: `=SUMIF(FILTER(INT(Sheet1!A1:A5), Sheet1!A1:A5), 46055, FILTER(Sheet1!B1:B5, Sheet1!A1:A5))`,
             rawValue: 20000,
           },
@@ -783,6 +795,13 @@ describe("buildSumByDateSections", () => {
       expect(nonEmpty(dateItems.date)).toMatchObject(expectedDateSection.date);
     }
   );
+
+  test("sums by date are named with the formatted value of the dates", () => {
+    const model = createModelFromGrid({ A1: "2023-03-10", A2: "2023-01-15", B1: "1", B2: "2" });
+    setFormat(model, "A1:A2", "dddd d mmmm yyyy");
+    const { date } = dateSums(model, "A1:A2", "B1:B2");
+    expect(getNames(date)).toEqual(["Sunday 15 January 2023", "Friday 10 March 2023"]);
+  });
 
   test("generalStatItems is empty when selecting more than 1 column", () => {
     const model = createModelFromGrid({
