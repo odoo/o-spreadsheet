@@ -605,10 +605,11 @@ migrationStepRegistry
         }
         definition = { ...definition };
         const styles = {};
+        const labelRanges = definition.labelRange ? [definition.labelRange] : undefined;
         definition.dataSource = {
           type: "range",
           dataSetsHaveTitle: definition.dataSetsHaveTitle,
-          labelRange: definition.labelRange,
+          labelRanges,
           dataSets: definition.dataSets.map((ds, i) => {
             const dataSetId = i.toString();
             const dataRange = ds.dataRange;
@@ -721,6 +722,31 @@ migrationStepRegistry
             for (const chartId in figure.data.chartDefinitions) {
               const definition = figure.data.chartDefinitions[chartId];
               figure.data.chartDefinitions[chartId] = upgrade(definition);
+            }
+          }
+        }
+      }
+      return data;
+    },
+  })
+  .add("20.1.3", {
+    migrate(data: WorkbookData): any {
+      function upgrade(data: any) {
+        if (data.dataSource && "labelRange" in data.dataSource) {
+          if (data.dataSource.labelRange) {
+            data.dataSource.labelRanges = [data.dataSource.labelRange];
+          }
+          delete data.dataSource.labelRange;
+        }
+      }
+      for (const sheet of data.sheets ?? []) {
+        for (const figure of sheet.figures ?? []) {
+          if (figure.tag === "chart") {
+            upgrade(figure.data);
+          }
+          if (figure.tag === "carousel") {
+            for (const definition of Object.values<any>(figure.data.chartDefinitions) ?? []) {
+              upgrade(definition);
             }
           }
         }

@@ -21,6 +21,7 @@ import {
   getFunnelChartElement,
 } from "./chartjs_funnel_chart";
 import { geoChartPlugin } from "./chartjs_geo_plugin";
+import { chartGroupedLabelsPlugin } from "./chartjs_grouped_labels_plugin";
 import { chartMinorGridPlugin } from "./chartjs_minor_grid_plugin";
 import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
 import { sunburstHoverPlugin } from "./chartjs_sunburst_hover_plugin";
@@ -80,6 +81,10 @@ chartJsExtensionRegistry.add("chartBackgroundPlugin", {
 chartJsExtensionRegistry.add("geoChartPlugin", {
   register: (Chart) => Chart.register(geoChartPlugin),
   unregister: (Chart) => Chart.unregister(geoChartPlugin),
+});
+chartJsExtensionRegistry.add("chartGroupedLabelsPlugin", {
+  register: (Chart) => Chart.register(chartGroupedLabelsPlugin),
+  unregister: (Chart) => Chart.unregister(chartGroupedLabelsPlugin),
 });
 
 export class ChartJsComponent extends OSComponent {
