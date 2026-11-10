@@ -51,6 +51,26 @@ describe("getChartSuggestions", () => {
     expect(suggestions(model, "A1:A2")).toHaveLength(0);
   });
 
+  test("returns empty for non-contiguous zones in a column", () => {
+    const model = createModelFromGrid({ A1: "alice", A2: "alice", A3: "bob", A4: "bob" });
+    expect(suggestions(model, ["A1:A2", "A4"])).toHaveLength(0);
+  });
+
+  test("contiguous zones covering the same rows are treated as one selection", () => {
+    const model = createModelFromGrid({
+      A1: "alice",
+      A2: "bob",
+      A3: "carol",
+      B1: "1",
+      B2: "2",
+      B3: "3",
+    });
+    const expected = suggestions(model, "A1:B3");
+    expect(expected.length).toBeGreaterThan(0);
+    expect(suggestions(model, ["A1:A3", "B1:B2", "B3"])).toEqual(expected);
+    expect(suggestions(model, ["A1:B2", "A3:B3"])).toEqual(expected);
+  });
+
   // Pattern A — single number column
   describe("Pattern A — single number column", () => {
     test("1 row → KPI card shows cell value, no bar chart suggested", () => {
@@ -311,7 +331,7 @@ describe("getChartSuggestions", () => {
         B3: "5",
         B4: "30",
       });
-      const defs = suggestions(model, ["A1:A3", "B1:B4"]).map((s) => s.definition);
+      const defs = suggestions(model, ["A1:A4", "B1:B4"]).map((s) => s.definition);
       expect(defs[0].title.text).toBe("Sales by apple");
     });
   });
@@ -619,7 +639,7 @@ describe("getChartSuggestions", () => {
       setCellContent(model, "C2", "10");
       setCellContent(model, "C3", "20");
       setCellContent(model, "C4", "30");
-      const defs = suggestions(model, ["A1:A5", "B1:B4", "C1:C4"]).map((s) => s.definition);
+      const defs = suggestions(model, ["A1:A5", "B1:B5", "C1:C5"]).map((s) => s.definition);
       expect(defs[0].title.text).toBe("Sales by Direction over Time");
     });
   });
