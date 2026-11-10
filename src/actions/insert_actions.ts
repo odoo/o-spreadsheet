@@ -7,6 +7,7 @@ import { UuidGenerator } from "../helpers/uuid";
 import { ImageProviderPlugin } from "../owl_plugins/image_provider_owl_plugin";
 import { IsSmallPlugin } from "../owl_plugins/is_small_plugin";
 import { _t } from "../translation";
+import { FormattedValue } from "../types/format";
 import { ActionBuilder, ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
@@ -324,6 +325,13 @@ export const insertDropdown: ActionSpec = {
     const zones = env.model().getters.getSelectedZones();
     const sheetId = env.model().getters.getActiveSheetId();
     const ranges = zones.map((zone) => env.model().getters.getRangeDataFromZone(sheetId, zone));
+    const values: Set<FormattedValue> = new Set();
+    zones.forEach((zone) =>
+      env
+        .model()
+        .getters.getEvaluatedCellsInZone(sheetId, zone)
+        .forEach((cell) => values.add(cell.formattedValue))
+    );
     const ruleId = UuidGenerator.smallUuid();
     env.model().dispatch("ADD_DATA_VALIDATION_RULE", {
       ranges,
@@ -332,7 +340,7 @@ export const insertDropdown: ActionSpec = {
         id: ruleId,
         criterion: {
           type: "isValueInList",
-          values: [],
+          values: [...values],
           displayStyle: "chip",
         },
       },
