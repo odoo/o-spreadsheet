@@ -1,4 +1,5 @@
 import { Model } from "../../../src";
+import { DataAnalysisStore } from "../../../src/components/side_panel/data_analysis/data_analysis_store";
 import {
   ChartSuggestion,
   getChartSuggestions,
@@ -7,8 +8,14 @@ import { toZone } from "../../../src/helpers/zones";
 import { ChartDefinition } from "../../../src/types/chart/chart";
 import { GaugeChartRuntime } from "../../../src/types/chart/gauge_chart";
 import { ScorecardChartRuntime } from "../../../src/types/chart/scorecard_chart";
-import { createChart, setCellContent, setFormat } from "../../test_helpers/commands_helpers";
+import {
+  createChart,
+  setCellContent,
+  setFormat,
+  setSelection,
+} from "../../test_helpers/commands_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
+import { makeStoreWithModel } from "../../test_helpers/stores";
 
 function suggestions(model: Model, xcs: string | string[]): ChartSuggestion[] {
   const zones = (Array.isArray(xcs) ? xcs : [xcs]).map(toZone);
@@ -49,6 +56,13 @@ describe("getChartSuggestions", () => {
   test("returns empty for all-error selection", () => {
     const model = createModelFromGrid({ A1: "=1/0", A2: "=1/0" });
     expect(suggestions(model, "A1:A2")).toHaveLength(0);
+  });
+
+  test("chartSuggestions are suggested only if one zone is selected in a same row", () => {
+    const model = createModelFromGrid({ A1: "alice", A2: "alice", A3: "bob", A4: "bob" });
+    const { store } = makeStoreWithModel(model, DataAnalysisStore);
+    setSelection(model, ["A1:A2", "A4:A4"]);
+    expect(store.chartSuggestions).toEqual([]);
   });
 
   // Pattern A — single number column

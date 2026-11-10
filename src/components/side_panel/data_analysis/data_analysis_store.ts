@@ -1,3 +1,4 @@
+import { hasSameRowSpan } from "../../../helpers/data_analysis";
 import {
   ChartSuggestion,
   getChartSuggestions,
@@ -60,14 +61,16 @@ export class DataAnalysisStore extends SpreadsheetStore {
     const sheetId = this.getters.getActiveSheetId();
     const zones = this.getters.getSelectedZones();
     this.ranges = zones.map(zoneToXc);
+    this.chartSuggestions = [];
 
     this.hasData = zones.some((zone) =>
       this.getters
         .getEvaluatedCellsInZone(sheetId, zone)
         .some((cell) => cell.type !== CellValueType.empty)
     );
-
-    const suggestions = this.hasData ? getChartSuggestions(zones, this.getters) : [];
-    this.chartSuggestions = suggestions;
+    if (!hasSameRowSpan(zones) || !this.hasData) {
+      return;
+    }
+    this.chartSuggestions = getChartSuggestions(zones, this.getters);
   }
 }
