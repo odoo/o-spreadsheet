@@ -4,7 +4,7 @@ import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_s
 import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
-import { deepEquals } from "../helpers/misc";
+import { UuidGenerator } from "../helpers/uuid";
 import { ImageProviderPlugin } from "../owl_plugins/image_provider_owl_plugin";
 import { IsSmallPlugin } from "../owl_plugins/is_small_plugin";
 import { NavigatorClipboardPlugin } from "../owl_plugins/navigator_clipboard_plugin";
@@ -13,6 +13,7 @@ import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
 import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { Action, ActionSpec, createActions } from "./action";
+import * as ACTIONS from "./menu_items_actions";
 
 export function getChartMenuActions(figureId: UID, env: SpreadsheetActionEnv): Action[] {
   const chartId = env.model().getters.getChartIdFromFigureId(figureId);
@@ -33,6 +34,16 @@ export function getChartMenuActions(figureId: UID, env: SpreadsheetActionEnv): A
     },
     getCopyMenuItem(figureId, env),
     getCutMenuItem(figureId, env),
+    {
+      id: "paste_into_chart",
+      name: _t("Paste and create carousel"),
+      execute: (env) => {
+        env.model().dispatch("SELECT_FIGURE", { figureId });
+        return ACTIONS.PASTE_ACTION(env);
+      },
+      icon: "o-spreadsheet-Icon.PASTE",
+      isVisible: (env) => env.getStore(ClipboardStore).canPasteChartsOrUniqueZone(figureId),
+    },
     getCopyAsImageMenuItem(figureId, env),
     getDownloadChartMenuItem(figureId, env),
     getDeleteMenuItem(figureId, env),
@@ -112,6 +123,16 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetActionEnv)
     },
     { ...getCutMenuItem(figureId, env), name: _t("Cut carousel") },
     {
+      id: "paste_into_carousel",
+      name: _t("Paste into carousel"),
+      execute: (env) => {
+        env.model().dispatch("SELECT_FIGURE", { figureId });
+        return ACTIONS.PASTE_ACTION(env);
+      },
+      icon: "o-spreadsheet-Icon.PASTE",
+      isVisible: (env) => env.getStore(ClipboardStore).canPasteChartsOrUniqueZone(figureId),
+    },
+    {
       ...getDeleteMenuItem(figureId, env),
       name: _t("Delete carousel"),
       separator: true,
@@ -165,12 +186,12 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetActionEnv)
         return item?.type === "chart" ? _t("Delete chart") : _t("Delete data view");
       },
       execute: () => {
-        const item = env.model().getters.getSelectedCarouselItem(figureId);
-        if (!item) {
+        const index = env.model().getters.getSelectedCarouselItemIndex(figureId);
+        if (index === undefined) {
           return;
         }
         const carousel = env.model().getters.getCarousel(figureId);
-        const items = carousel.items.filter((itm) => !deepEquals(itm, item));
+        const items = carousel.items.filter((_, i) => i !== index);
         env.model().dispatch("UPDATE_CAROUSEL", {
           figureId,
           sheetId: env.model().getters.getActiveSheetId(),
@@ -359,6 +380,7 @@ function getMergeCarouselMenuItem(figureId: UID, env: SpreadsheetActionEnv): Act
         sheetId,
         baseFigureId: figureId,
         chartFigureIds,
+        newCarouselId: UuidGenerator.smallUuid(),
       });
     },
     icon: "o-spreadsheet-Icon.CAROUSEL",

@@ -2,7 +2,7 @@ import { onPatched, proxy, signal, useProps } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemTitle, getCarouselLayout } from "../../../helpers/carousel_helpers";
-import { chartStyleToCellStyle, deepEquals } from "../../../helpers/misc";
+import { chartStyleToCellStyle } from "../../../helpers/misc";
 import { cellPositions } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
@@ -60,6 +60,10 @@ export class CarouselFigure extends OSComponent {
     return this.model().getters.getCarousel(this.props.figureUI.id);
   }
 
+  get selectedCarouselItemIndex(): number | undefined {
+    return this.model().getters.getSelectedCarouselItemIndex(this.props.figureUI.id);
+  }
+
   get selectedCarouselItem(): CarouselItem | undefined {
     return this.model().getters.getSelectedCarouselItem(this.props.figureUI.id);
   }
@@ -94,21 +98,21 @@ export class CarouselFigure extends OSComponent {
     this.sidePanelStore.open("ChartPanel", { chartId });
   }
 
-  isItemSelected(item: CarouselItem): boolean {
-    const selectedItem = this.selectedCarouselItem;
-    return deepEquals(selectedItem, item);
+  isItemSelected(itemIndex: number): boolean {
+    return this.selectedCarouselItemIndex === itemIndex;
   }
 
   getItemTitle(item: CarouselItem): string {
     return getCarouselItemTitle(this.model().getters, item);
   }
 
-  onCarouselTabClick(item: CarouselItem) {
+  onCarouselTabClick(itemIndex: number) {
     this.model().dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
-      figureId: this.props.figureUI.id,
+      carouselId: this.props.figureUI.id,
       sheetId: this.model().getters.getActiveSheetId(),
-      item,
+      itemIndex,
     });
+    const item = this.carousel.items[itemIndex];
     if (item.type === "chart") {
       const animationChartId = item.chartId + (this.props.isFullScreen ? "-fullscreen" : "");
       this.animationStore?.enableAnimationForChart(animationChartId);
@@ -198,12 +202,16 @@ export class CarouselFigure extends OSComponent {
       return;
     }
     const rect = getElBoundingRect(this.carouselTabsDropdownRef());
-    const menuItems: ActionSpec[] = this.hiddenItems.map((item) => ({
-      name: this.getItemTitle(item),
-      execute: () => this.onCarouselTabClick(item),
-      isActive: () => this.isItemSelected(item),
-      isReadonlyAllowed: true,
-    }));
+    const numberOfShownItems = this.carousel.items.length - this.hiddenItems.length;
+    const menuItems: ActionSpec[] = this.hiddenItems.map((item, i) => {
+      const itemIndex = numberOfShownItems + i;
+      return {
+        name: this.getItemTitle(item),
+        execute: () => this.onCarouselTabClick(itemIndex),
+        isActive: () => this.isItemSelected(itemIndex),
+        isReadonlyAllowed: true,
+      };
+    });
     this.menuState.isOpen = true;
     this.menuState.anchorRect = rect;
     this.menuState.menuItems = createActions(menuItems);
@@ -254,13 +262,11 @@ export class CarouselFigure extends OSComponent {
     if (selectedItem?.type !== "carouselDataView") {
       return;
     }
-
     const carousel = this.model().getters.getCarousel(this.props.figureUI.id);
-    const index = carousel.items.findIndex((item) => deepEquals(item, selectedItem));
-    if (index === -1) {
+    const index = this.selectedCarouselItemIndex;
+    if (index === undefined) {
       return;
     }
-
     const newItems = [...carousel.items];
     newItems[index] = { ...selectedItem, columnWeights };
     this.model().dispatch("UPDATE_CAROUSEL", {
