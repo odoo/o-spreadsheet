@@ -20,9 +20,9 @@ exports[`Test XLSX export Charts Chart legend is set to none position 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -660,9 +660,9 @@ exports[`Test XLSX export Charts Export chart overflowing outside the sheet 1`] 
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -1304,9 +1304,9 @@ exports[`Test XLSX export Charts chart dataset without title 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -1949,9 +1949,9 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
         <a:solidFill>
             <a:srgbClr val="EFEFEF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -2262,9 +2262,9 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
         <a:solidFill>
             <a:srgbClr val="EEEEEE"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -2470,9 +2470,9 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
         <a:solidFill>
             <a:srgbClr val="DDDDDD"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -2806,9 +2806,9 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
         <a:solidFill>
             <a:srgbClr val="EEEEEE"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -2892,9 +2892,9 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
         <a:solidFill>
             <a:srgbClr val="EEEEEE"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -3229,9 +3229,9 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
         <a:solidFill>
             <a:srgbClr val="EEEEEE"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -4193,9 +4193,9 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -4702,9 +4702,9 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -5299,9 +5299,9 @@ exports[`Test XLSX export Charts doughnut chart 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -5878,9 +5878,9 @@ exports[`Test XLSX export Charts exported results will not be influenced by \`da
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -6191,9 +6191,9 @@ exports[`Test XLSX export Charts exported results will not be influenced by \`da
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -6897,9 +6897,9 @@ exports[`Test XLSX export Charts horizontal bar chart 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -7555,9 +7555,9 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -7891,9 +7891,9 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -8597,9 +8597,9 @@ exports[`Test XLSX export Charts pie chart with only title dataset 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -8919,9 +8919,9 @@ exports[`Test XLSX export Charts pyramid chart 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -9722,9 +9722,9 @@ exports[`Test XLSX export Charts simple bar chart with customized axis 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -10328,9 +10328,9 @@ exports[`Test XLSX export Charts simple bar chart with customized dataset 1`] = 
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -10937,9 +10937,9 @@ exports[`Test XLSX export Charts simple bar chart with customized title 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -11548,9 +11548,9 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object] ] 1`] 
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -12159,9 +12159,9 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object], [Obje
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -12817,9 +12817,9 @@ exports[`Test XLSX export Charts simple combo chart with customized axis 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -13431,9 +13431,9 @@ exports[`Test XLSX export Charts simple combo chart with customized dataset 1`] 
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -14039,9 +14039,9 @@ exports[`Test XLSX export Charts simple combo chart with customized title 1`] = 
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -14649,9 +14649,9 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object] ] 1`
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -15259,9 +15259,9 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -15946,9 +15946,9 @@ exports[`Test XLSX export Charts simple line chart with customized axis 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -16571,9 +16571,9 @@ exports[`Test XLSX export Charts simple line chart with customized dataset 1`] =
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -17190,9 +17190,9 @@ exports[`Test XLSX export Charts simple line chart with customized title 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -17811,9 +17811,9 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object] ] 1`]
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -18432,9 +18432,9 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object], [Obj
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -19113,9 +19113,9 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object] ] 1`] 
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -19618,9 +19618,9 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Obje
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -20197,9 +20197,9 @@ exports[`Test XLSX export Charts simple radar chart with customized axis 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -20817,9 +20817,9 @@ exports[`Test XLSX export Charts simple radar chart with customized dataset 1`] 
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -21435,9 +21435,9 @@ exports[`Test XLSX export Charts simple radar chart with customized title 1`] = 
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -22055,9 +22055,9 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object] ] 1`
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -22675,9 +22675,9 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object], [Ob
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -23355,9 +23355,9 @@ exports[`Test XLSX export Charts simple scatter chart with customized axis 1`] =
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -23981,9 +23981,9 @@ exports[`Test XLSX export Charts simple scatter chart with customized dataset 1`
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -24601,9 +24601,9 @@ exports[`Test XLSX export Charts simple scatter chart with customized title 1`] 
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -25223,9 +25223,9 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object] ] 
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -25845,9 +25845,9 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object], [
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -26527,9 +26527,9 @@ exports[`Test XLSX export Charts stacked bar chart 1`] = `
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -30198,6 +30198,11 @@ exports[`Test XLSX export Images image larger than the sheet 1`] = `
                     <a:avLst/>
                 </a:prstGeom>
                 <a:noFill/>
+                <a:ln w="9525" cmpd="sng">
+                    <a:solidFill>
+                        <a:srgbClr val="D9D9D9"/>
+                    </a:solidFill>
+                </a:ln>
             </xdr:spPr>
         </xdr:pic>
         <xdr:clientData fLocksWithSheet="0"/>
@@ -30442,6 +30447,11 @@ exports[`Test XLSX export Images image overflowing outside the sheet 1`] = `
                     <a:avLst/>
                 </a:prstGeom>
                 <a:noFill/>
+                <a:ln w="9525" cmpd="sng">
+                    <a:solidFill>
+                        <a:srgbClr val="D9D9D9"/>
+                    </a:solidFill>
+                </a:ln>
             </xdr:spPr>
         </xdr:pic>
         <xdr:clientData fLocksWithSheet="0"/>
@@ -30687,6 +30697,11 @@ exports[`Test XLSX export Images images in different sheets 1`] = `
                     <a:avLst/>
                 </a:prstGeom>
                 <a:noFill/>
+                <a:ln w="9525" cmpd="sng">
+                    <a:solidFill>
+                        <a:srgbClr val="D9D9D9"/>
+                    </a:solidFill>
+                </a:ln>
             </xdr:spPr>
         </xdr:pic>
         <xdr:clientData fLocksWithSheet="0"/>
@@ -30790,6 +30805,11 @@ exports[`Test XLSX export Images images in different sheets 1`] = `
                     <a:avLst/>
                 </a:prstGeom>
                 <a:noFill/>
+                <a:ln w="9525" cmpd="sng">
+                    <a:solidFill>
+                        <a:srgbClr val="D9D9D9"/>
+                    </a:solidFill>
+                </a:ln>
             </xdr:spPr>
         </xdr:pic>
         <xdr:clientData fLocksWithSheet="0"/>
@@ -31056,6 +31076,11 @@ exports[`Test XLSX export Images multiple images in the same sheet 1`] = `
                     <a:avLst/>
                 </a:prstGeom>
                 <a:noFill/>
+                <a:ln w="9525" cmpd="sng">
+                    <a:solidFill>
+                        <a:srgbClr val="D9D9D9"/>
+                    </a:solidFill>
+                </a:ln>
             </xdr:spPr>
         </xdr:pic>
         <xdr:clientData fLocksWithSheet="0"/>
@@ -31108,6 +31133,11 @@ exports[`Test XLSX export Images multiple images in the same sheet 1`] = `
                     <a:avLst/>
                 </a:prstGeom>
                 <a:noFill/>
+                <a:ln w="9525" cmpd="sng">
+                    <a:solidFill>
+                        <a:srgbClr val="D9D9D9"/>
+                    </a:solidFill>
+                </a:ln>
             </xdr:spPr>
         </xdr:pic>
         <xdr:clientData fLocksWithSheet="0"/>
@@ -31353,6 +31383,11 @@ exports[`Test XLSX export Images simple image 1`] = `
                     <a:avLst/>
                 </a:prstGeom>
                 <a:noFill/>
+                <a:ln w="9525" cmpd="sng">
+                    <a:solidFill>
+                        <a:srgbClr val="D9D9D9"/>
+                    </a:solidFill>
+                </a:ln>
             </xdr:spPr>
         </xdr:pic>
         <xdr:clientData fLocksWithSheet="0"/>
@@ -39091,9 +39126,9 @@ exports[`Test XLSX export multiple elements are exported in the correct order 1`
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -39663,9 +39698,9 @@ exports[`Test XLSX export references with headers should be converted to referen
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -40028,9 +40063,9 @@ exports[`Test XLSX export references with headers should be converted to referen
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -40369,9 +40404,9 @@ exports[`Test XLSX export references with headers should be converted to referen
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -42098,9 +42133,9 @@ exports[`Test XLSX export references with headers should be converted to referen
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
@@ -42465,9 +42500,9 @@ exports[`Test XLSX export references with headers should be converted to referen
         <a:solidFill>
             <a:srgbClr val="FFFFFF"/>
         </a:solidFill>
-        <a:ln cmpd="sng">
+        <a:ln cmpd="sng" w="9525">
             <a:solidFill>
-                <a:srgbClr val="000000"/>
+                <a:srgbClr val="D9D9D9"/>
             </a:solidFill>
         </a:ln>
     </c:spPr>
