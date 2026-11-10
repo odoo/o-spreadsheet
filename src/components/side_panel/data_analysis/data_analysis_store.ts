@@ -1,5 +1,9 @@
 import { invalidateEvaluationCommands } from "../../../command_registry";
-import { analyzeColumns, ExtendedColumnType } from "../../../helpers/data_statistics/data_analysis";
+import {
+  analyzeColumns,
+  ExtendedColumnType,
+  hasSameRowSpan,
+} from "../../../helpers/data_statistics/data_analysis";
 import {
   DateGranularity,
   DateSections,
@@ -204,6 +208,10 @@ export class DataAnalysisStore extends SpreadsheetStore {
     this.generalStatItems = [];
     this.occurrencesItems = [];
     this.dateStatSections = this.defaultDateSections;
+    if (!hasSameRowSpan(zones)) {
+      return;
+    }
+
     if (this.hasData && this.shape.length === 1) {
       const col = cols[0];
       this.generalStatItems = buildGeneralStatItems(this.getters, col, sheetId);
