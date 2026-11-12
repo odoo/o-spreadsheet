@@ -12,6 +12,7 @@ import {
   createSheet,
   hideColumns,
   hideSheet,
+  selectColumn,
   setInputValueAndTrigger,
   setSelection,
   simulateClick,
@@ -68,6 +69,27 @@ describe("Named ranges topbar selector", () => {
       name: "RenamedRange",
       range: { zone: toZone("A1:B2") },
     });
+  });
+
+  test("Selecting a full column shows the name of the matching unbounded named range", async () => {
+    createNamedRange(model, "MyColumn", "B:B");
+    await mountRangeSelector();
+
+    selectColumn(model, 1, "overrideSelection");
+    await nextTick();
+    expect(".o-named-range-selector input").toHaveValue("MyColumn");
+  });
+
+  test("Can rename an unbounded named range from range selector", async () => {
+    createNamedRange(model, "MyColumn", "B:B");
+    await mountRangeSelector();
+    selectColumn(model, 1, "overrideSelection");
+
+    await setInputValueAndTrigger(".o-named-range-selector input", "RenamedColumn");
+    expect(model.getters.getNamedRanges()).toHaveLength(1);
+    const namedRange = model.getters.getNamedRanges()[0];
+    expect(namedRange.name).toBe("RenamedColumn");
+    expect(model.getters.getRangeString(namedRange.range)).toBe("Sheet1!B:B");
   });
 
   test("Entering spaces with replace them by underscores", async () => {
