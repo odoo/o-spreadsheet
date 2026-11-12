@@ -1,8 +1,9 @@
 import { deepEquals } from "../helpers/misc";
+import { getFullReference, splitReference } from "../helpers/references";
 import { UuidGenerator } from "../helpers/uuid";
 import { positionToZone } from "../helpers/zones";
 import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
-import { ConditionalFormat } from "../types/conditional_formatting";
+import { ConditionalFormat, ConditionalFormatRule } from "../types/conditional_formatting";
 import { CellPosition, HeaderIndex, Maybe, UID, Zone } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
@@ -102,7 +103,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
           this.adaptCFRules(origin.position.sheetId, rule, [zone], toRemoveZones);
         } else {
           this.adaptCFRules(origin.position.sheetId, rule, [], toRemoveZones);
-          const cfToCopyTo = this.getCFToCopyTo(target.sheetId, rule);
+          const cfToCopyTo = this.getCFToCopyTo(rule, origin.position.sheetId, target.sheetId);
           this.adaptCFRules(target.sheetId, cfToCopyTo, [zone], []);
         }
       }
@@ -149,19 +150,39 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     }
   }
 
-  private getCFToCopyTo(targetSheetId: UID, originCF: ConditionalFormat): ConditionalFormat {
+  private getCFToCopyTo(
+    originCF: ConditionalFormat,
+    originSheetId: UID,
+    targetSheetId: UID
+  ): ConditionalFormat {
+    const rule = this.getRuleForSheet(originCF.rule, originSheetId);
     let targetCF = this.getters
       .getConditionalFormats(targetSheetId)
-      .find((cf) => cf.stopIfTrue === originCF.stopIfTrue && deepEquals(cf.rule, originCF.rule));
+      .find((cf) => cf.stopIfTrue === originCF.stopIfTrue && deepEquals(cf.rule, rule));
 
     const queuedCfs = this.queuedChanges[targetSheetId];
     if (!targetCF && queuedCfs) {
       targetCF = queuedCfs.find(
-        (queued) =>
-          queued.cf.stopIfTrue === originCF.stopIfTrue && deepEquals(queued.cf.rule, originCF.rule)
+        (queued) => queued.cf.stopIfTrue === originCF.stopIfTrue && deepEquals(queued.cf.rule, rule)
       )?.cf;
     }
 
-    return targetCF || { ...originCF, id: UuidGenerator.smallUuid(), ranges: [] };
+    return targetCF || { ...originCF, rule, id: UuidGenerator.smallUuid(), ranges: [] };
+  }
+
+  /**
+   * When a data bar rule is copied to another sheet, its range of values must
+   * keep pointing to the original sheet.
+   */
+  private getRuleForSheet(rule: ConditionalFormatRule, originSheetId: UID): ConditionalFormatRule {
+    if (rule.type !== "DataBarRule" || !rule.rangeValues) {
+      return rule;
+    }
+    const { sheetName, xc } = splitReference(rule.rangeValues);
+    if (sheetName) {
+      return rule;
+    }
+    const originSheetName = this.getters.getSheetName(originSheetId);
+    return { ...rule, rangeValues: getFullReference(originSheetName, xc) };
   }
 }
