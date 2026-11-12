@@ -2494,8 +2494,10 @@ describe("conditional formats types", () => {
     setCellContent(model, "A1", "2", "Sheet2");
     setCellContent(model, "A2", "4", "Sheet2");
     setCellContent(model, "A3", "8", "Sheet2");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: {
+    addCf(
+      model,
+      "B1:B3",
+      {
         id: "1",
         rule: {
           type: "DataBarRule",
@@ -2503,9 +2505,8 @@ describe("conditional formats types", () => {
           rangeValues: "Sheet2!A1:A3",
         },
       },
-      ranges: toRangesData(sheetId, "B1:B3"),
-      sheetId,
-    });
+      sheetId
+    );
     expect(getDataBarFill(model, "B1")?.percentage).toBe(25);
     expect(getDataBarFill(model, "B2")?.percentage).toBe(50);
     expect(getDataBarFill(model, "B3")?.percentage).toBe(100);
