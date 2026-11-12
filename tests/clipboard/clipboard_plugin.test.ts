@@ -32,6 +32,7 @@ import { MockClipboardData } from "../test_helpers/clipboard";
 import {
   activateSheet,
   addCellToSelection,
+  addCf,
   addColumns,
   addDataValidation,
   addEqualCf,
@@ -82,6 +83,7 @@ import {
   getCellRawContent,
   getCellText,
   getClipboardVisibleZones,
+  getDataBarFill,
   getEvaluatedCell,
   getEvaluatedGrid,
   getStyle,
@@ -1936,6 +1938,37 @@ describe("clipboard", () => {
     expect(getStyle(model, "A2", "s2")).toEqual({
       fillColor: "#FF0000",
     });
+  });
+
+  test("can copy and paste a conditional formatted cell with a data bar to another page", () => {
+    model = createModelFromGrid({ B1: "1", B2: "2" });
+    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    const sheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sh2" });
+    addCf(
+      model,
+      "A1:A2",
+      {
+        id: "cf",
+        rule: {
+          type: "DataBarRule",
+          color: 0xd9ead3,
+          rangeValues: "B1:B2",
+        },
+      },
+      sheetId
+    );
+    copy(model, "A1:A2");
+    activateSheet(model, "sh2");
+    paste(model, "A1");
+    expect(model.getters.getConditionalFormats("sh2")).toMatchObject([
+      {
+        ranges: ["A1:A2"],
+        rule: { type: "DataBarRule", color: 0xd9ead3, rangeValues: "Sheet1!B1:B2" },
+      },
+    ]);
+    expect(getDataBarFill(model, "A1", "sh2")?.percentage).toBe(50);
+    expect(getDataBarFill(model, "A2", "sh2")?.percentage).toBe(100);
   });
 
   test("can cut and paste a conditional formatted zone to another page", () => {
