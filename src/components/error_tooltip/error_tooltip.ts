@@ -1,7 +1,9 @@
 import { Component } from "@odoo/owl";
-import { deepEquals, positionToZone } from "../../helpers";
+import { deepEquals, getMissingHeadersForSpreadResult, positionToZone } from "../../helpers";
+import { _t } from "../../translation";
 import { CellPosition, CellValueType, SpreadsheetChildEnv } from "../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
+import { CellErrorType } from "../../types/errors";
 import { css } from "../helpers/css";
 
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
@@ -76,6 +78,65 @@ export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildE
       });
     }
     this.env.model.selection.selectCell(position.col, position.row);
+  }
+
+  get isSpillErrorBecauseOfMissingHeaders() {
+    const evaluationError = this.evaluationError;
+    return (
+      evaluationError?.value === CellErrorType.SpilledBlocked &&
+      !evaluationError.errorOriginPosition &&
+      !this.env.model.getters.getSpreadZone(this.props.cellPosition, { ignoreSpillError: true })
+    );
+  }
+
+  getMissingHeadersForSpread() {
+    if (!this.isSpillErrorBecauseOfMissingHeaders) {
+      return;
+    }
+    const cell = this.env.model.getters.getCell(this.props.cellPosition);
+    if (!cell || !cell.isFormula) {
+      return;
+    }
+    const formula = cell.content;
+    return getMissingHeadersForSpreadResult(
+      this.env.model.getters,
+      this.props.cellPosition,
+      formula
+    );
+  }
+
+  addMissingHeaders({ missingCols, missingRows }: { missingCols: number; missingRows: number }) {
+    const sheetId = this.props.cellPosition.sheetId;
+    if (missingCols > 0) {
+      this.env.model.dispatch("ADD_COLUMNS_ROWS", {
+        sheetId,
+        sheetName: this.env.model.getters.getSheetName(sheetId),
+        dimension: "COL",
+        base: this.env.model.getters.getNumberCols(sheetId) - 1,
+        position: "after",
+        quantity: missingCols + 20,
+      });
+    }
+    if (missingRows > 0) {
+      this.env.model.dispatch("ADD_COLUMNS_ROWS", {
+        sheetId,
+        sheetName: this.env.model.getters.getSheetName(sheetId),
+        dimension: "ROW",
+        base: this.env.model.getters.getNumberRows(sheetId) - 1,
+        position: "after",
+        quantity: missingRows + 50,
+      });
+    }
+  }
+
+  getAddMissingHeadersButtonText(missingHeaders: { missingCols: number; missingRows: number }) {
+    if (missingHeaders.missingCols > 0 && missingHeaders.missingRows > 0) {
+      return _t("Add missing columns and rows");
+    } else if (missingHeaders.missingCols > 0) {
+      return _t("Add missing columns");
+    } else {
+      return _t("Add missing rows");
+    }
   }
 }
 
