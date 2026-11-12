@@ -147,6 +147,19 @@ describe("Error tooltip component", () => {
     await mountErrorTooltip(model, "F1");
     expect("#missing-headers").toHaveCount(0);
   });
+
+  test.each(["readonly", "dashboard"] as const)(
+    "Button to add missing header is not there in %s mode",
+    async (mode) => {
+      const model = new Model(
+        { sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1, cells: { A1: "=MUNIT(3)" } }] },
+        { mode }
+      );
+      expect(getCellContent(model, "A1")).toBe("#SPILL!");
+      await mountErrorTooltip(model, "A1");
+      expect("#missing-headers").toHaveCount(0);
+    }
+  );
 });
 
 describe("Grid integration", () => {

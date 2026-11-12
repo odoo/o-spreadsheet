@@ -81,6 +81,9 @@ export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildE
   }
 
   get isSpillErrorBecauseOfMissingHeaders() {
+    if (this.env.model.getters.isReadonly()) {
+      return false;
+    }
     const evaluationError = this.evaluationError;
     return (
       evaluationError?.value === CellErrorType.SpilledBlocked &&
