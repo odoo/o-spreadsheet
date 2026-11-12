@@ -2,9 +2,9 @@
 // Miscellaneous
 //------------------------------------------------------------------------------
 import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, NEWLINE } from "../constants";
-import { ChartStyle, ConsecutiveIndexes, Lazy, UID } from "../types";
+import { CellPosition, ChartStyle, ConsecutiveIndexes, Getters, Lazy, UID } from "../types";
 import { SearchOptions } from "../types/find_and_replace";
-import { Cloneable, DebouncedFunction, Style } from "./../types/misc";
+import { Cloneable, DebouncedFunction, isMatrix, Style } from "./../types/misc";
 
 const sanitizeSheetNameRegex = new RegExp(FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, "g");
 
@@ -752,4 +752,32 @@ export function chartStyleToCellStyle(style: ChartStyle): Style {
     textColor: style.color,
     align: style.align,
   };
+}
+
+/** Return the number of cols/rows missing for result of the formula to be able to spread */
+export function getMissingHeadersForSpreadResult(
+  getters: Getters,
+  position: CellPosition,
+  formula: string
+) {
+  const { sheetId, col, row } = position;
+  if (!isFormula(formula)) {
+    return;
+  }
+
+  const evaluated = getters.evaluateFormula(sheetId, formula, {
+    sheetId: sheetId,
+    col: col,
+    row: row,
+  });
+  if (!isMatrix(evaluated)) {
+    return;
+  }
+
+  const numberOfRows = getters.getNumberRows(sheetId);
+  const numberOfCols = getters.getNumberCols(sheetId);
+
+  const missingRows = row + evaluated[0].length - numberOfRows;
+  const missingCols = col + evaluated.length - numberOfCols;
+  return { missingRows, missingCols };
 }
