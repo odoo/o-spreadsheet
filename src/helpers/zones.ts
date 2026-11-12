@@ -406,12 +406,12 @@ export function isInside(col: number, row: number, zone: Zone): boolean {
 /**
  * Check if a zone is inside another
  */
-export function isZoneInside(smallZone: Zone, biggerZone: Zone): boolean {
+export function isZoneInside(smallZone: Zone, biggerZone: Zone | UnboundedZone): boolean {
   return (
     smallZone.left >= biggerZone.left &&
-    smallZone.right <= biggerZone.right &&
+    (biggerZone.right === undefined || smallZone.right <= biggerZone.right) &&
     smallZone.top >= biggerZone.top &&
-    smallZone.bottom <= biggerZone.bottom
+    (biggerZone.bottom === undefined || smallZone.bottom <= biggerZone.bottom)
   );
 }
 

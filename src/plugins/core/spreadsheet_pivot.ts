@@ -1,4 +1,4 @@
-import { isZoneValid } from "../../helpers/zones";
+import { boundUnboundedZone, isZoneValid } from "../../helpers/zones";
 import { AddPivotCommand, CommandResult, UpdatePivotCommand } from "../../types/commands";
 import { PivotCoreDefinition } from "../../types/pivot";
 import { CorePlugin } from "../core_plugin";
@@ -22,7 +22,8 @@ export class SpreadsheetPivotCorePlugin extends CorePlugin<typeof SpreadsheetPiv
       if (!sheetId || !this.getters.tryGetSheet(sheetId) || !zone || !isZoneValid(zone)) {
         return CommandResult.InvalidDataSet;
       }
-      return this.getters.checkZonesExistInSheet(sheetId, [zone]);
+      const boundedZone = boundUnboundedZone(zone, this.getters.getSheetSize(sheetId));
+      return this.getters.checkZonesExistInSheet(sheetId, [boundedZone]);
     }
     return CommandResult.Success;
   }

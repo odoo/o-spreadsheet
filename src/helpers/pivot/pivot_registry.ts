@@ -86,7 +86,7 @@ pivotRegistry.add("SPREADSHEET", {
 
     const dataSet = adaptedRange && {
       sheetId: adaptedRange.sheetId,
-      zone: adaptedRange.zone,
+      zone: adaptedRange.unboundedZone,
     };
     return { ...definition, dataSet };
   },

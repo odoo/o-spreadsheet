@@ -7,12 +7,14 @@ import {
   TableStyle,
 } from "../../../src";
 import { GRID_ICON_MARGIN, PIVOT_INDENT } from "../../../src/constants";
+import { numberToLetters } from "../../../src/helpers/coordinates";
 import { removeFalsyAttributes } from "../../../src/helpers/misc";
 import { resetMapValueDimensionDate } from "../../../src/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { PIVOT_TABLE_PRESETS } from "../../../src/helpers/pivot_table_presets";
 import { positions, toZone } from "../../../src/helpers/zones";
 import { CellValue, CellValueType } from "../../../src/types/cells";
 import {
+  addColumns,
   addRows,
   createSheet,
   deleteContent,
@@ -719,6 +721,41 @@ describe("Spreadsheet Pivot", () => {
     redo(model);
     expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     expect(getEvaluatedCell(model, "A27").value).toEqual("My pivot");
+  });
+
+  test("Unbounded pivot dataset includes data in rows added at the end of the sheet", () => {
+    const model = createModelFromGrid({ A1: "Name", B1: "Amount", A2: "Alice", B2: "10" });
+    addPivot(model, "A:B", {
+      measures: [{ id: "Amount:sum", fieldName: "Amount", aggregator: "sum" }],
+    });
+    setCellContent(model, "D1", '=PIVOT.VALUE(1, "Amount:sum")');
+    expect(getEvaluatedCell(model, "D1").value).toBe(10);
+
+    const sheetId = model.getters.getActiveSheetId();
+    addRows(model, "after", model.getters.getNumberRows(sheetId) - 1, 100);
+    setCellContent(model, "A150", "Bob");
+    setCellContent(model, "B150", "5");
+    expect(getEvaluatedCell(model, "D1").value).toBe(15);
+  });
+
+  test("Unbounded pivot dataset includes data in columns added at the end of the sheet", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const numberOfCols = model.getters.getNumberCols(sheetId);
+    // A pivot dataset cannot have empty headers: fill the whole first row
+    for (let col = 0; col < numberOfCols; col++) {
+      setCellContent(model, `${numberToLetters(col)}1`, `Header ${col}`);
+    }
+    addPivot(model, "A1:2", {});
+    addColumns(model, "after", numberToLetters(numberOfCols - 1), 1);
+    const newCol = numberToLetters(numberOfCols);
+    setCellContent(model, `${newCol}1`, "Price");
+    setCellContent(model, `${newCol}2`, "7");
+    updatePivot(model, "1", {
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+    });
+    setCellContent(model, "A5", '=PIVOT.VALUE(1, "Price:sum")');
+    expect(getEvaluatedCell(model, "A5").value).toBe(7);
   });
 
   test("Sum with a field that contains a string should work", () => {
