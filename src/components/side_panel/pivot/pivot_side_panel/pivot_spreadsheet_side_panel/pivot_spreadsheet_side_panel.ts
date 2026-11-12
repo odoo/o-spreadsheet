@@ -99,12 +99,8 @@ export class PivotSpreadsheetSidePanel extends OSComponent {
       return;
     }
 
-    // Unbounded ranges are not supported as a dataset: display the bounded range once confirmed,
-    // not while typing, to avoid rewriting the input under the user's cursor.
-    this.state.range = this.model().getters.getRangeString(range, "forceSheetReference", {
-      useBoundedReference: true,
-    });
-    const dataSet = { sheetId: range.sheetId, zone: range.zone };
+    this.state.range = this.model().getters.getRangeString(range, "forceSheetReference");
+    const dataSet = { sheetId: range.sheetId, zone: range.unboundedZone };
     this.store.update({ dataSet });
     // Immediately apply the update to recompute the pivot fields
     this.store.applyUpdate();

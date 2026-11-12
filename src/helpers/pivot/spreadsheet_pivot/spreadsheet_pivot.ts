@@ -165,10 +165,18 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     actualDefinition: SpreadsheetPivotCoreDefinition,
     nextDefinition: SpreadsheetPivotCoreDefinition
   ): ReloadType {
-    if (deepEquals(actualDefinition.dataSet, nextDefinition.dataSet)) {
-      return ReloadType.DEFINITION;
+    if (!deepEquals(actualDefinition.dataSet, nextDefinition.dataSet)) {
+      return ReloadType.ALL;
     }
-    return ReloadType.ALL;
+    const previousZone = this._definition?.range?.zone;
+    const nextZone =
+      nextDefinition.dataSet &&
+      this.getters.getRangeFromZone(nextDefinition.dataSet.sheetId, nextDefinition.dataSet.zone)
+        .zone;
+    if (!deepEquals(previousZone, nextZone)) {
+      return ReloadType.ALL;
+    }
+    return ReloadType.DEFINITION;
   }
 
   get isInvalidRange() {

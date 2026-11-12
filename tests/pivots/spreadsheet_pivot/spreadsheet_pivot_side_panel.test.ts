@@ -10,7 +10,7 @@ import {
 import { toXC } from "../../../src/helpers/coordinates";
 import { datetimeGranularities } from "../../../src/helpers/pivot/pivot_registry";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
-import { toZone } from "../../../src/helpers/zones";
+import { toUnboundedZone, toZone } from "../../../src/helpers/zones";
 import { NotificationPlugin } from "../../../src/owl_plugins/notification_owl_plugin";
 import { topbarMenuRegistry } from "../../../src/registries/menus/topbar_menu_registry";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
@@ -88,13 +88,15 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotName("1")).toEqual("New Pivot Name");
   });
 
-  test("Cannot add an unbounded zone as the pivot dataset", async () => {
+  test("Can add an unbounded zone as the pivot dataset", async () => {
     await setInputValueAndTrigger(".o-selection-input input", "A:C");
     await nextTick();
     await simulateClick(".o-selection-ok");
 
-    expect(".o-selection-input input").toHaveValue("Sheet1!A1:C100");
-    expect(model.getters.getPivotCoreDefinition("1")["dataSet"].zone).toEqual(toZone("A1:C100"));
+    expect(".o-selection-input input").toHaveValue("Sheet1!A:C");
+    expect(model.getters.getPivotCoreDefinition("1")["dataSet"].zone).toEqual(
+      toUnboundedZone("A:C")
+    );
   });
 
   test("Dataset range is not rewritten while typing", async () => {
