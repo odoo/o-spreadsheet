@@ -1,7 +1,11 @@
 import type { Chart, ChartMeta, ChartType, Plugin, PointElement } from "chart.js";
 import { colorToRGBA } from "../../../../helpers/color";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
-import { computeCachedTextDimension, computeTextFont } from "../../../../helpers/text_helper";
+import {
+  clipTextWithEllipsis,
+  computeCachedTextDimension,
+  computeTextFont,
+} from "../../../../helpers/text_helper";
 import type { ChartType as AllChartType } from "../../../../types/chart/chart";
 import { Color } from "../../../../types/misc";
 
@@ -105,8 +109,8 @@ function drawValues(args: {
   options: ChartShowValuesPluginOptions;
   direction: "horizontal" | "vertical";
   getNumberValue: (dataset: any, valueIndex: number) => number | undefined;
-  getValuePosition: (args: CallbackArgs) => { x: number; y: number };
-  getLabel?: (dataset: any, valueIndex: number) => string;
+  getValuePosition: (args: CallbackArgs) => { x: number; y: number; a?: number; w?: number };
+  getLabel?: (chart: any, dataset: any, valueIndex: number) => string;
   shouldSkipValue: (args: CallbackArgs) => boolean;
   getTextColors: (args: CallbackArgs) => TextStyle;
 }) {
@@ -126,7 +130,7 @@ function drawValues(args: {
 
     for (let i = 0; i < dataset._parsed.length; i++) {
       const numberValue = options.showValues ? getNumberValue(dataset, i) : undefined;
-      const label = options.showLabels ? getLabel?.(dataset, i) : undefined;
+      const label = options.showLabels ? getLabel?.(chart, dataset, i) : undefined;
       if ((numberValue === undefined || isNaN(numberValue)) && !label) {
         continue;
       }
@@ -192,26 +196,43 @@ function drawValues(args: {
       }
 
       const { strokeColor, textColor } = args.getTextColors(callbackArgs);
+      let { x, y, a, w } = position;
+      ctx.save();
+      ctx.translate(x, y);
+      if (a !== undefined) {
+        if (a > Math.PI / 2) {
+          a += Math.PI;
+        }
+        ctx.rotate(a);
+        x = x * Math.cos(a) - y * Math.sin(a);
+        y = x * Math.sin(a) + y * Math.cos(a);
+      }
+      if (w !== undefined) {
+        for (const i in valuesToDisplay) {
+          valuesToDisplay[i] = clipTextWithEllipsis(ctx, valuesToDisplay[i], w);
+        }
+      }
       if (!!strokeColor) {
         ctx.strokeStyle = strokeColor;
         ctx.lineWidth = 3; // Stroke the text with a big lineWidth width to have some kind of background
         if (valuesToDisplay.length === 1) {
-          ctx.strokeText(valuesToDisplay[0], position.x, position.y);
+          ctx.strokeText(valuesToDisplay[0], 0, 0);
         } else if (valuesToDisplay.length === 2) {
           const height = textSize.height;
-          ctx.strokeText(valuesToDisplay[0], position.x, position.y - height / 2);
-          ctx.strokeText(valuesToDisplay[1], position.x, position.y + height / 2);
+          ctx.strokeText(valuesToDisplay[0], 0, 0 - height / 4);
+          ctx.strokeText(valuesToDisplay[1], 0, 0 + height / 4);
         }
       }
       ctx.fillStyle = textColor;
       ctx.lineWidth = 1;
       if (valuesToDisplay.length === 1) {
-        ctx.fillText(valuesToDisplay[0], position.x, position.y);
+        ctx.fillText(valuesToDisplay[0], 0, 0);
       } else if (valuesToDisplay.length === 2) {
         const height = textSize.height;
-        ctx.fillText(valuesToDisplay[0], position.x, position.y - height / 2);
-        ctx.fillText(valuesToDisplay[1], position.x, position.y + height / 2);
+        ctx.fillText(valuesToDisplay[0], 0, 0 - height / 4);
+        ctx.fillText(valuesToDisplay[1], 0, 0 + height / 4);
       }
+      ctx.restore();
     }
   }
 
@@ -377,17 +398,34 @@ function drawPieValues(chart: any, options: ChartShowValuesPluginOptions) {
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i]),
     getValuePosition: ({ chartElement }) => {
-      const { midAngle, midRadius } = getSliceDimensions(chartElement);
-      const x = chartElement.x + midRadius * Math.cos(midAngle);
-      const y = chartElement.y + midRadius * Math.sin(midAngle);
-      return { x, y };
+      const { midAngle: a, midRadius } = getSliceDimensions(chartElement);
+      const x = chartElement.x + midRadius * Math.cos(a);
+      const y = chartElement.y + midRadius * Math.sin(a);
+      return { x, y, a, w: 0.9 * (chartElement.outerRadius - chartElement.innerRadius) };
     },
-    getLabel: (dataset, valueIndex) => dataset._parsed[valueIndex],
+    getLabel: (chart, dataset, valueIndex) => chart.data.labels[valueIndex],
     shouldSkipValue: ({ chartElement, textSize }) => {
-      const { midRadius } = getSliceDimensions(chartElement);
-      const sliceAngle = chartElement.endAngle - chartElement.startAngle;
-      const midWidth = 2 * midRadius * Math.tan(sliceAngle / 2);
-      return sliceAngle < Math.PI / 2 && (textSize.width >= midWidth || midWidth < textSize.height);
+      const { midAngle } = getSliceDimensions(chartElement);
+      const { innerRadius, outerRadius, endAngle, startAngle } = chartElement;
+      const { width, height } = textSize;
+      const deltaX = outerRadius + innerRadius - width;
+      const bottomLeft = {
+        x: deltaX * Math.cos(midAngle) + height * Math.sin(midAngle),
+        y: deltaX * Math.sin(midAngle) - height * Math.cos(midAngle),
+      };
+      const topLeft = {
+        x: deltaX * Math.cos(midAngle) - height * Math.sin(midAngle),
+        y: deltaX * Math.sin(midAngle) + height * Math.cos(midAngle),
+      };
+      let bottomLeftAngle = Math.atan(bottomLeft.y / bottomLeft.x);
+      let topLeftAngle = Math.atan(topLeft.y / topLeft.x);
+      if (bottomLeft.x < 0) {
+        bottomLeftAngle += Math.PI;
+      }
+      if (topLeft.x < 0) {
+        topLeftAngle += Math.PI;
+      }
+      return bottomLeftAngle < startAngle || topLeftAngle > endAngle;
     },
     getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
   });
