@@ -1,7 +1,7 @@
 import { CellValue } from "./cells";
 import { Format } from "./format";
 import { Locale } from "./locale";
-import { Dimension, FunctionResultObject, SortDirection, UID, Zone } from "./misc";
+import { Dimension, FunctionResultObject, SortDirection, UID, UnboundedZone } from "./misc";
 import { CriterionFilter, ValuesFilter } from "./table";
 
 export type Aggregator =
@@ -107,7 +107,7 @@ export interface SpreadsheetPivotCoreDefinition extends CommonPivotCoreDefinitio
   type: "SPREADSHEET";
   dataSet?: {
     sheetId: UID;
-    zone: Zone;
+    zone: UnboundedZone;
   };
 }
 

@@ -1,6 +1,6 @@
 import { Model, SpreadsheetPivotCoreDefinition } from "../../src";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
-import { toZone, zoneToXc } from "../../src/helpers/zones";
+import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { createSheet, deleteSheet } from "../test_helpers/commands_helpers";
@@ -120,7 +120,7 @@ describe("Pivot side panel", () => {
       (model.getters.getPivotCoreDefinition("1") as SpreadsheetPivotCoreDefinition).dataSet
     ).toMatchObject({
       sheetId: model.getters.getActiveSheetId(),
-      zone: toZone("A1:A100"),
+      zone: toUnboundedZone("A:A"),
     });
   });
 

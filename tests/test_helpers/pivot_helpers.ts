@@ -1,6 +1,6 @@
 import { DispatchResult, Model, UID } from "../../src";
 import { deepCopy } from "../../src/helpers/misc";
-import { toZone } from "../../src/helpers/zones";
+import { toUnboundedZone, toZone } from "../../src/helpers/zones";
 import { PivotMeasureDisplay, SpreadsheetPivotCoreDefinition } from "../../src/types/pivot";
 import { pivotModelData } from "../pivots/pivot_data";
 import { setCellContent } from "./commands_helpers";
@@ -37,7 +37,7 @@ export function addPivot(
     ...pivotData,
   };
   if (zone) {
-    pivot.dataSet!.zone = toZone(zone);
+    pivot.dataSet!.zone = toUnboundedZone(zone);
   }
   const result = model.dispatch("ADD_PIVOT", { pivot, pivotId });
   if (!result.isSuccessful) {
