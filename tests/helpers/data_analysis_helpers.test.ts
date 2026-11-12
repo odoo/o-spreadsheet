@@ -140,7 +140,8 @@ describe("header detection", () => {
     const model = createModelFromGrid({ A2: "100", A3: "200" });
     createTable(model, "A1:A3");
     const col = analyzeColumn(model, "A1:A3");
-    expect(col.headerInZone).toBe(true);
+    expect(col.zone).toEqual(toZone("A2:A3"));
+    expect(col.headerInZone).toBe(false);
     expect(col.title).toBeUndefined();
     expect(col.rowCount).toBe(2);
   });
