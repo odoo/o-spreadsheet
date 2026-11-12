@@ -250,6 +250,16 @@ describe("Named range plugin", () => {
     expect(getEvaluatedCell(model, "A4").value).toBe(null);
   });
 
+  test("Can get an unbounded named range from its bounded zone", () => {
+    createSheet(model, { sheetId: "sh2", rows: 3 });
+    createNamedRange(model, "MyRange", "A:A", "sh2");
+
+    expect(model.getters.getNamedRangeFromZone("sh2", toZone("A1:A3"))).toMatchObject({
+      name: "MyRange",
+    });
+    expect(model.getters.getNamedRangeFromZone("sh2", toZone("A1:A2"))).toBeUndefined();
+  });
+
   test("Creating/updating/deleting a named range re-evaluate cells", () => {
     setCellContent(model, "A1", "10");
     setCellContent(model, "B1", "=SUM(MyRange)");

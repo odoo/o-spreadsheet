@@ -8,7 +8,7 @@ import {
   UpdateNamedRangeCommand,
 } from "../../types/commands";
 import { DEFAULT_LOCALE } from "../../types/locale";
-import { NamedRange, RangeAdapterFunctions, UID, UnboundedZone, Zone } from "../../types/misc";
+import { NamedRange, RangeAdapterFunctions, UID, Zone } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
@@ -114,10 +114,10 @@ export class NamedRangesPlugin
     return this.namedRanges[this.getNamedRangeIndex(name)];
   }
 
-  getNamedRangeFromZone(sheetId: UID, zone: Zone | UnboundedZone): NamedRange | undefined {
+  getNamedRangeFromZone(sheetId: UID, zone: Zone): NamedRange | undefined {
     for (const namedRange of this.namedRanges) {
       const range = namedRange.range;
-      if (range.sheetId === sheetId && deepEquals(range.unboundedZone, zone)) {
+      if (range.sheetId === sheetId && deepEquals(range.zone, zone)) {
         return namedRange;
       }
     }
