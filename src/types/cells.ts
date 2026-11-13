@@ -8,6 +8,11 @@ interface CellAttributes {
   // readonly format?: Format;
 }
 
+interface StoredCellAttributes {
+  readonly style?: Style;
+  readonly format?: Format;
+}
+
 export interface LiteralCell extends CellAttributes {
   /**
    * Raw cell content
@@ -27,10 +32,9 @@ export type Cell = LiteralCell | FormulaCell;
 // MAWAT
 // Cell containing only its own stored style and format, so not default
 // style/format from sheet/col/row
-export type StoredCell = Cell & {
-  readonly style?: Style;
-  readonly format?: Format;
-};
+export interface StoredLiteralCell extends LiteralCell, StoredCellAttributes {}
+export interface StoredFormulaCell extends FormulaCell, StoredCellAttributes {}
+export type StoredCell = StoredLiteralCell | StoredFormulaCell;
 
 interface EvaluatedCellProperties extends FunctionResultObject {
   readonly format?: Format;
