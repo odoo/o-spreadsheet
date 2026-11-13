@@ -746,8 +746,8 @@ export function getTreeMapChartDatasets(
     datasetEntries[i].value = Number(labels[i]);
   }
 
-  const showLabels = definition.showLabels ?? TreeMapChartDefaults.showLabels;
-  const showValues = definition.showValues ?? TreeMapChartDefaults.showValues;
+  const showLabels = definition.showData?.labels ?? TreeMapChartDefaults.showLabels;
+  const showValues = definition.showData?.values ?? TreeMapChartDefaults.showValues;
 
   const coloringOption = definition.coloringOptions || TreeMapChartDefaults.coloringOptions;
   let colorScale: ((value: number) => string) | undefined;
@@ -762,7 +762,7 @@ export function getTreeMapChartDatasets(
       labels: {
         display: showLabels || showValues,
         overflow: "hidden",
-        ...getTextStyle(definition.valuesDesign, TreeMapChartDefaults.valuesDesign),
+        ...getTextStyle(definition.showData?.valuesDesign, TreeMapChartDefaults.valuesDesign),
         formatter: (ctx) => {
           return [
             showLabels ? ctx.raw.g : undefined, // group name

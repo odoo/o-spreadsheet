@@ -4,7 +4,7 @@
       <t t-set-slot="general-extension">
         <ChartLegend t-props="this.props" isDisabled="this.isLegendDisabled"/>
         <Section class="'pt-0'" title.translate="Values">
-          <ChartShowValues t-props="this.props"/>
+          <ChartShowValues t-props="this.props" showAdvancedOptions="true"/>
         </Section>
         <Section class="'pt-0'" title.translate="Number formatting">
           <ChartHumanizeNumbers t-props="this.props"/>

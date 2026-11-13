@@ -50,23 +50,13 @@
         </Section>
 
         <Section title.translate="Labels" class="'pt-0 pb-0'">
-          <div class="d-flex flex-row gap-4">
-            <Checkbox
-              name="'showLabels'"
-              label.translate="Show labels"
-              value="this.showLabels"
-              onChange="(showLabels) => this.props.updateChart(this.props.chartId, { showLabels })"
-            />
-            <ChartShowValues t-props="this.props" defaultValue="this.defaults.showValues"/>
-          </div>
-        </Section>
-        <Section class="'pt-0'" t-if="this.showValues || this.showLabels">
-          <TextStyler
-            class="'pt-0 o-values-style'"
-            updateStyle="(valuesDesign) => this.props.updateChart(this.props.chartId, { valuesDesign })"
-            style="this.props.definition.valuesDesign || {}"
-            defaultStyle="this.defaults.valuesDesign"
+          <ChartShowValues
+            t-props="this.props"
+            defaultValue="this.defaults.showValues"
+            defaultShowLabels="this.defaults.showLabels"
             hasVerticalAlign="true"
+            defaultStyle="this.defaults.valuesDesign"
+            showAdvancedOptions="true"
           />
         </Section>
         <Section class="'pt-0'" title.translate="Number formatting">

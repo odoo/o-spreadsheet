@@ -23,6 +23,7 @@ import {
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
 import { COLORSCHEMES } from "../../helpers/color";
+import { ChartShowValues } from "../../helpers/figures/charts/runtime/chartjs_show_values";
 import { Format } from "../format";
 import { Locale } from "../locale";
 import { Align, Color, FunctionResultObject, UID, VerticalAlign } from "../misc";
@@ -258,12 +259,10 @@ export interface ChartCreationContext {
   readonly legendPosition?: LegendPosition;
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
-  readonly showValues?: boolean;
+  readonly showData?: ChartShowValues;
   readonly showTotalLine?: boolean;
   readonly funnelColors?: FunnelChartColors;
-  readonly showLabels?: boolean;
   readonly hideDataMarkers?: boolean;
-  readonly valuesDesign?: ChartStyle;
   readonly groupColors?: (Color | undefined | null)[];
   readonly horizontal?: boolean;
   readonly isDoughnut?: boolean;

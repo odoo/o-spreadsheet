@@ -43,7 +43,7 @@ export const HeatmapChart: ChartTypeBuilder<"heatmap"> = {
     "colorScale",
     "missingValueColor",
     "axesDesign",
-    "showValues",
+    "showData",
   ],
 
   fromStrDefinition(definition, sheetId, getters) {
@@ -143,7 +143,7 @@ export const HeatmapChart: ChartTypeBuilder<"heatmap"> = {
       colorScale: context.colorScale,
       missingValueColor: context.missingValueColor,
       axesDesign: context.axesDesign,
-      showValues: context.showValues,
+      showData: context.showData,
       humanize: context.humanize,
       annotationText: context.annotationText,
       annotationLink: context.annotationLink,

@@ -128,11 +128,9 @@ describe("TreeMap chart", () => {
       }),
       auxiliaryRange: "Sheet1!A1:A4",
       aggregated: true,
-      showValues: false,
+      showData: { values: false, labels: false, valuesDesign: { italic: true } },
       headerDesign: { bold: false },
       showHeaders: true,
-      showLabels: false,
-      valuesDesign: { italic: true },
       treemapColoringOptions: { type: "categoryColor", colors: [], useValueBasedGradient: true },
     };
     const definition = createChartDefinitionFromContext("treemap", context);
@@ -146,11 +144,9 @@ describe("TreeMap chart", () => {
         dataSetsHaveTitle: true,
       }),
       legendPosition: "bottom",
-      showValues: false,
+      showData: { values: false, labels: false, valuesDesign: { italic: true } },
       headerDesign: { bold: false },
       showHeaders: true,
-      showLabels: false,
-      valuesDesign: { italic: true },
       coloringOptions: { type: "categoryColor", colors: [], useValueBasedGradient: true },
       humanize: false,
       annotationText: "This is an annotation text",
@@ -390,7 +386,7 @@ describe("TreeMap chart", () => {
         dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }],
         labelRange: "C1:C2",
       }),
-      valuesDesign: { bold: true, italic: true, align: "right", color: "#123456" },
+      showData: { valuesDesign: { bold: true, italic: true, align: "right", color: "#123456" } },
     });
     let labelConfig = getTreeMapDatasetConfig(chartId).labels as any;
     expect(labelConfig).toMatchObject({
@@ -404,13 +400,13 @@ describe("TreeMap chart", () => {
       "45",
     ]);
 
-    updateChart(model, chartId, { showLabels: false });
+    updateChart(model, chartId, { showData: { labels: false, values: true } });
     labelConfig = getTreeMapDatasetConfig(chartId).labels as any;
     expect(labelConfig?.formatter?.(getTreeMapElement({ value: 45, group: "Parent" }))).toEqual([
       "45",
     ]);
 
-    updateChart(model, chartId, { showValues: false });
+    updateChart(model, chartId, { showData: { values: false, labels: false } });
     labelConfig = getTreeMapDatasetConfig(chartId).labels as any;
     expect(labelConfig?.display).toEqual(false);
   });

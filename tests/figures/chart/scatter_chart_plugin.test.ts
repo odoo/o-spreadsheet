@@ -31,7 +31,7 @@ describe("scatter chart", () => {
       legendPosition: "bottom",
       labelsAsText: true,
       axesDesign: {},
-      showValues: false,
+      showData: { values: false, labels: false },
       humanize: false,
       annotationText: "This is an annotation text",
       annotationLink: "https://www.odoo.com",

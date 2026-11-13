@@ -41,7 +41,7 @@ describe("line chart", () => {
       cumulative: true,
       axesDesign: {},
       fillArea: true,
-      showValues: false,
+      showData: { values: false, labels: false },
       hideDataMarkers: false,
       zoomable: true,
       humanize: false,

@@ -41,7 +41,7 @@ describe("combo chart", () => {
       legendPosition: "bottom",
       aggregated: true,
       axesDesign: {},
-      showValues: false,
+      showData: { values: false, labels: false },
       hideDataMarkers: false,
       zoomable: true,
       humanize: false,

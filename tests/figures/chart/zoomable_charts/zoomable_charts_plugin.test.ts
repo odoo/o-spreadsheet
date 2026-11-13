@@ -15,7 +15,12 @@ describe("Zoomable chart configuration tests", () => {
   test("Master charts do not contain title/legend/tooltips", () => {
     createChart(
       model,
-      { type: "line", legendPosition: "top", title: { text: "myTitle" }, showValues: true },
+      {
+        type: "line",
+        legendPosition: "top",
+        title: { text: "myTitle" },
+        showData: { values: true },
+      },
       "chartId"
     );
 

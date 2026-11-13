@@ -133,7 +133,7 @@ function convertChartData(
     horizontal: chartData.horizontal,
     isDoughnut: chartData.isDoughnut,
     pieHolePercentage: chartData.pieHolePercentage,
-    showValues: chartData.showValues,
+    showData: { values: chartData.showValues },
     axesDesign: chartData.axesDesign,
     slicesColors: chartData.slicesColors,
   };

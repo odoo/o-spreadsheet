@@ -100,8 +100,7 @@ describe("TreeMap chart side panel", () => {
         background: "#00FF00",
         showHeaders: true,
         headerDesign: { fillColor: "#0000FF", italic: true },
-        showLabels: false,
-        valuesDesign: { bold: false, color: "#FF0000" },
+        showData: { labels: false, values: true, valuesDesign: { bold: false, color: "#FF0000" } },
         coloringOptions: {
           type: "categoryColor",
           colors: ["#FFFFFF"],
@@ -128,7 +127,7 @@ describe("TreeMap chart side panel", () => {
     });
 
     test("Can change headers style", async () => {
-      const chartId = createTreeMapChart(model, {});
+      const chartId = createTreeMapChart(model, { showData: { values: true } });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await simulateClick(".o-header-style [title=Italic]");
@@ -145,7 +144,7 @@ describe("TreeMap chart side panel", () => {
     });
 
     test("Can change values style", async () => {
-      const chartId = createTreeMapChart(model, {});
+      const chartId = createTreeMapChart(model, { showData: { values: true } });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await simulateClick(".o-values-style [title=Italic]");
@@ -153,7 +152,7 @@ describe("TreeMap chart side panel", () => {
       await click(fixture, ".o-values-style .o-menu-item-button[title='Vertical alignment']");
       await click(fixture, ".o-values-style .o-menu-item-button[title='Top']");
 
-      expect(getTreeMapChartDefinition(chartId)?.valuesDesign).toMatchObject({
+      expect(getTreeMapChartDefinition(chartId)?.showData?.valuesDesign).toMatchObject({
         italic: true,
         color: "#FF0000",
         verticalAlign: "top",
@@ -161,8 +160,8 @@ describe("TreeMap chart side panel", () => {
 
       await click(fixture, "input[name='showValues']");
       await click(fixture, "input[name='showLabels']");
-      expect(getTreeMapChartDefinition(chartId)?.showValues).toBe(false);
-      expect(getTreeMapChartDefinition(chartId)?.showLabels).toBe(false);
+      expect(getTreeMapChartDefinition(chartId)?.showData?.values).toBe(false);
+      expect(getTreeMapChartDefinition(chartId)?.showData?.labels).toBe(false);
       expect(".o-values-style").toHaveCount(0);
     });
 

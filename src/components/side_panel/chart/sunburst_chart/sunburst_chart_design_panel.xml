@@ -26,22 +26,12 @@
           </t>
         </Section>
         <Section title.translate="Labels" class="'pt-0 pb-0'">
-          <div class="d-flex flex-row gap-4">
-            <Checkbox
-              name="'showLabels'"
-              label.translate="Show labels"
-              value="this.showLabels"
-              onChange="(showLabels) => this.props.updateChart(this.props.chartId, { showLabels })"
-            />
-            <ChartShowValues t-props="this.props" defaultValue="this.defaults.showValues"/>
-          </div>
-        </Section>
-        <Section class="'pt-0'" t-if="this.showValues || this.showLabels">
-          <TextStyler
-            class="'o-values-style'"
-            updateStyle="(valuesDesign) => this.props.updateChart(this.props.chartId, { valuesDesign })"
-            style="this.props.definition.valuesDesign || {}"
+          <ChartShowValues
+            t-props="this.props"
+            defaultValue="this.defaults.showValues"
+            defaultShowLabels="this.defaults.showLabels"
             defaultStyle="this.defaults.valuesDesign"
+            showAdvancedOptions="true"
           />
         </Section>
         <PieHoleSize
