@@ -1,4 +1,5 @@
 import { Model, SpreadsheetPivotCoreDefinition, UID } from "../../src";
+import { toXC } from "../../src/helpers/coordinates";
 import { zoneToXc } from "../../src/helpers/zones";
 import {
   addEqualCf,
@@ -7,6 +8,7 @@ import {
   merge,
   setBordersOnTarget,
   setCellContent,
+  setFormat,
   setFormatting,
   undo,
 } from "../test_helpers";
@@ -102,5 +104,24 @@ describe("CLEAR_ALL_STYLING command", () => {
 
     clearAllStyling(model, "A30:A100"); // until the bottom of the sheet
     expect(model.getters.getConditionalFormats(sheetId)[0].ranges).toEqual(["A2:A3", "A6:A29"]);
+  });
+});
+
+//MAWAT2
+describe("getCellText", () => {
+  test("Repeated character format uses the column font size to fill the cell", () => {
+    const A1 = { sheetId, col: 0, row: 0 };
+    setCellContent(model, "A1", "5");
+    setFormat(model, "A1", "*-0");
+
+    // font size set on the cell itself
+    setFormatting(model, "A1", { fontSize: 30 });
+    const textWithCellStyle = model.getters.getCellText(A1, { availableWidth: 96 });
+
+    // same font size, but set on the whole column
+    setFormatting(model, "A1", { fontSize: undefined });
+    const columnA = toXC(0, 0) + ":" + toXC(0, model.getters.getNumberRows(sheetId) - 1);
+    setFormatting(model, columnA, { fontSize: 30 });
+    expect(model.getters.getCellText(A1, { availableWidth: 96 })).toBe(textWithCellStyle);
   });
 });
