@@ -589,6 +589,21 @@ describe("Transform adapt string formulas on row deletion", () => {
       expect(result).toEqual(expected);
     }
   );
+
+  test.each(getFormulaStringCommands(sheetId, "=C1", "=#REF"))(
+    "reference to deleted columns becomes #REF %s",
+    (cmd, expected) => {
+      const removeColumnsCmd: RemoveColumnsRowsCommand = {
+        ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+        dimension: "COL",
+        elements: [1, 2],
+        sheetId,
+        sheetName,
+      };
+      const result = transform(cmd, removeColumnsCmd);
+      expect(result).toEqual(expected);
+    }
+  );
 });
 
 describe("OT with RemoveColumns and UPDATE_CHART/CREATE_CHART", () => {
