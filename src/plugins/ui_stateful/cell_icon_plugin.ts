@@ -37,10 +37,16 @@ export class CellIconPlugin extends UIPlugin {
 
   getCellIconRect(icon: GridIcon, cellRect: Rect): Rect {
     const cellPosition = icon.position;
-    const cell = this.getters.getCell(cellPosition);
+    // const cell = this.getters.getCell(cellPosition);
 
     const x = this.getIconHorizontalPosition(cellRect, icon.horizontalAlign, icon);
-    const y = this.getters.computeTextYCoordinate(cellRect, icon.size, cell?.style?.verticalAlign);
+    //MAWAT5
+    const y = this.getters.computeTextYCoordinate(
+      cellRect,
+      icon.size,
+      this.getters.getCellStyle(cellPosition).verticalAlign
+    );
+    // const y = this.getters.computeTextYCoordinate(cellRect, icon.size, cell?.style?.verticalAlign);
 
     return { x: x, y: y, width: icon.size, height: icon.size };
   }
