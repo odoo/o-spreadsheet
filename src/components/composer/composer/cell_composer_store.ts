@@ -193,14 +193,17 @@ export class CellComposerStore extends AbstractComposerStore {
 
   protected confirmEdition(content: string) {
     let result: DispatchResult;
+    const sheetId = this.getters.getActiveSheetId();
+    const position = { sheetId, col: this.col, row: this.row };
     if (content) {
-      const sheetId = this.getters.getActiveSheetId();
-      const position = { sheetId, col: this.col, row: this.row };
+      //FIXME: what if the selection is altered by someone else? I will
+      // write on another cell than the one I thought
       const cell = this.getters.getEvaluatedCell(position);
       if (cell.link && !isFormula(content)) {
         content = markdownLink(content, cell.link.url);
+        // "[text](odoo://view:form;)"
       }
-      const currentFormat = this.getters.getCell(position)?.format;
+      const currentFormat = this.getters.getCellFormat(position);
       const isCurrentFormatDate = currentFormat && isDateTimeFormat(currentFormat);
       const contentDateFormat = detectDateFormat(content, this.getters.getLocale());
       let afterFormat: Format | undefined;
@@ -213,6 +216,7 @@ export class CellComposerStore extends AbstractComposerStore {
       }
 
       this.addHeadersForSpreadingFormula(content);
+      // FIXME: when we go through this UPDATE_CELL, we have a strange permutation in format d/m/y <=> m/d/y
       result = this.model.dispatch("UPDATE_CELL", {
         ...this.currentEditedCell,
         content,
@@ -224,6 +228,7 @@ export class CellComposerStore extends AbstractComposerStore {
         content: "",
       });
     }
+
     if (result.isSuccessful) {
       this.model.dispatch("AUTOFILL_TABLE_COLUMN", { ...this.currentEditedCell });
     }

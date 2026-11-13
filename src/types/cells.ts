@@ -4,8 +4,8 @@ import { CellPosition, FunctionResultObject, Link, Style } from "./misc";
 
 interface CellAttributes {
   readonly id: number;
-  readonly style?: Style;
-  readonly format?: Format;
+  // readonly style?: Style;
+  // readonly format?: Format;
 }
 
 interface StoredCellAttributes {
