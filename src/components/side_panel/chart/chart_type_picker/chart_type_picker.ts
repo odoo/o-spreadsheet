@@ -84,7 +84,7 @@ export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
 
   onExternalClick(ev: MouseEvent) {
     if (
-      isChildEvent(this.popoverRef.el?.parentElement, ev) ||
+      isChildEvent(this.popoverRef.el?.parentElement?.parentElement, ev) ||
       isChildEvent(this.selectRef.el, ev)
     ) {
       return;
