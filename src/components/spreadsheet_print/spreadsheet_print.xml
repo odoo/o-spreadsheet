@@ -68,6 +68,17 @@
                 label.translate="Show gridlines"
               />
             </Section>
+
+            <Section t-if="this.printPlugin.toggleShowFilters()">
+              <div class="o-section-title">Filters</div>
+              <Checkbox
+                name="'showFilters'"
+                value="!this.printPlugin.showFilters()"
+                onChange.bind="this.setFiltersVisibility"
+                className="'mt-2'"
+                label.translate="Show filters"
+              />
+            </Section>
           </div>
         </div>
       </div>

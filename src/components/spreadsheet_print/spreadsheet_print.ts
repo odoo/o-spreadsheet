@@ -64,6 +64,10 @@ export class SpreadsheetPrint extends OSComponent {
     this.printPlugin.setGridLinesVisibility(!value);
   }
 
+  setFiltersVisibility(value: boolean) {
+    this.printPlugin.setFiltersVisibility(!value);
+  }
+
   changeOrientation(value: Orientation) {
     this.printPlugin.changePrintOrientation(value);
   }

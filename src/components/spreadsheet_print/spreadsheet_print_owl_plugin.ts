@@ -42,6 +42,8 @@ export class SpreadsheetPrintPlugin extends OwlPluginWithModel {
     this.model().getters.isDashboard() ||
       !this.model().getters.getGridLinesVisibility(this.model().getters.getActiveSheetId())
   );
+  toggleShowFilters = signal(this.model().getters.isDashboard());
+  showFilters = signal(false);
 
   printPages = computed((): PagePrintInfo[] => {
     if (this.printSelection() === "selection") {
@@ -77,6 +79,15 @@ export class SpreadsheetPrintPlugin extends OwlPluginWithModel {
 
   changePrintOrientation(value: Orientation) {
     this.orientation.set(value);
+  }
+
+  enableShowFilters(value: boolean) {
+    this.toggleShowFilters.set(value);
+    this.showFilters.set(value);
+  }
+
+  setFiltersVisibility(value: boolean) {
+    this.showFilters.set(value);
   }
 
   private splitZoneToPrintPages(sheetId: UID, printZone: Zone): PagePrintInfo[] {
