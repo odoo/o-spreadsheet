@@ -30,11 +30,13 @@ import {
   gridMouseEvent,
   keyDown,
   setInputValueAndTrigger,
+  simulateClick,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getCellContent, getCellIcons } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
+  createModelFromGrid,
   getDataValidationRules,
   mountComponent,
   mountComposerWrapper,
@@ -52,6 +54,19 @@ let env: SpreadsheetActionEnv;
 beforeEach(async () => {
   model = new Model();
   sheetId = model.getters.getActiveSheetId();
+});
+
+test("Dropdown list is filled with cells values when created", async () => {
+  const model = createModelFromGrid({ A1: "testing", A2: "2.4", B4: "3", B5: "3" });
+  ({ fixture, env } = await mountSpreadsheet({ model }));
+  setSelection(model, ["A1", "A1:A2", "B4:B5"]);
+  await simulateClick(".o-topbar-menu[data-id=insert]");
+  await simulateClick(".o-menu-item[data-name='insert_dropdown']");
+  const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
+  expect(inputs).toHaveLength(3);
+  expect(inputs[0].value).toBe("testing");
+  expect(inputs[1].value).toBe("2.4");
+  expect(inputs[2].value).toBe("3");
 });
 
 describe("Edit criterion in side panel", () => {
