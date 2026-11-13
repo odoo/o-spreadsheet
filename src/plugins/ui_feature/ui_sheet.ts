@@ -185,10 +185,12 @@ export class SheetUIPlugin extends UIPlugin {
       }
     }
     const evaluatedCell = this.getters.getEvaluatedCell(position);
+    // MAWAT2
+    const style = this.getters.getCellStyle(position);
     const formatWidth = args?.availableWidth
       ? {
           availableWidth: args.availableWidth,
-          measureText: (text: string) => computeTextWidth(this.ctx, text, cell?.style || {}),
+          measureText: (text: string) => computeTextWidth(this.ctx, text, style || {}),
         }
       : undefined;
     return formatValue(evaluatedCell.value, {
@@ -344,18 +346,20 @@ export class SheetUIPlugin extends UIPlugin {
         if (!cell) {
           continue;
         }
+        // MAWAT2
         const position = this.getters.getCellPosition(cell.id);
         const colSize = this.getters.getColSize(sheetId, position.col);
+        const style = this.getters.getCellStyle(position);
 
         if (cell.isFormula || this.getters.getArrayFormulaSpreadingOn(position)) {
           const content = this.getters.getEvaluatedCell(position).formattedValue;
-          const evaluatedSize = getCellContentHeight(this.ctx, content, cell?.style, colSize);
+          const evaluatedSize = getCellContentHeight(this.ctx, content, style, colSize);
           if (evaluatedSize > evaluatedRowSize && evaluatedSize > DEFAULT_CELL_HEIGHT) {
             evaluatedRowSize = evaluatedSize;
           }
         } else {
           const content = cell.content;
-          const dynamicRowSize = getCellContentHeight(this.ctx, content, cell?.style, colSize);
+          const dynamicRowSize = getCellContentHeight(this.ctx, content, style, colSize);
           // Only keep the size of evaluated cells if it's bigger than the dynamic row size
           if (dynamicRowSize >= evaluatedRowSize && dynamicRowSize > DEFAULT_CELL_HEIGHT) {
             evaluatedRowSize = 0;

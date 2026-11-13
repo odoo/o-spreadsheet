@@ -9,7 +9,7 @@ import {
   toHex,
 } from "../../helpers/color";
 import { isDefined } from "../../helpers/misc";
-import { Cell } from "../../types/cells";
+import { StoredCell } from "../../types/cells";
 import { ColorSheetBackgroundCommand, ColorSheetCommand } from "../../types/commands";
 import { Color, Immutable, RGBA, UID } from "../../types/misc";
 import { TableElementStyle } from "../../types/table";
@@ -165,7 +165,8 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
   }
 
   private getColorsFromCells(sheetId: UID): Color[] {
-    const cells: Cell[] = Object.values(this.getters.getCells(sheetId));
+    // FIXME : We need to explore cells as quickly as possible but we only need their styles
+    const cells: StoredCell[] = this.getters.getCells(sheetId);
     const defaultColors = this.getters.getDefaultStyleColors();
     const colors: Set<Color> = new Set(defaultColors);
     for (const cell of cells) {

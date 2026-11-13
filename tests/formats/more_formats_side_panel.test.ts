@@ -1,6 +1,7 @@
 import { Model } from "../../src";
 import { MoreFormatsPanel } from "../../src/components/side_panel/more_formats/more_formats";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
+import { toXC } from "../../src/helpers/coordinates";
 import { click, setInputValueAndTrigger } from "../test_helpers";
 import { selectCell, setFormat } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
@@ -50,6 +51,23 @@ describe("more formats side panel component", () => {
     selectCell(model, "C3");
     await nextTick();
     expect(".o-badge-selection .selected").toHaveText("Number");
+  });
+
+  test("Category is correctly detected from the column format", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const columnB = toXC(1, 0) + ":" + toXC(1, model.getters.getNumberRows(sheetId) - 1);
+    setFormat(model, columnB, "dd/mm/yyyy");
+
+    selectCell(model, "A1");
+    // mount whole spreadsheet because onWillUpdateProps doesn't trigger on render if mounting only MoreFormatsPanel
+    const { env } = await mountSpreadsheet({ model });
+    env.getStore(SidePanelStore).open("MoreFormats");
+    await nextTick();
+    expect(".o-badge-selection .selected").toHaveText("Number");
+
+    selectCell(model, "B2");
+    await nextTick();
+    expect(".o-badge-selection .selected").toHaveText("Date");
   });
 
   test("Changing category applies the category default format", async () => {

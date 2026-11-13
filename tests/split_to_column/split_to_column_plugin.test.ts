@@ -8,6 +8,7 @@ import {
   redo,
   setCellContent,
   setCellFormat,
+  setFormatting,
   setSelection,
   splitTextToColumns,
   undo,
@@ -171,6 +172,18 @@ describe("Split text into columns", () => {
       B1: {},
       A2: { italic: true },
       B2: { italic: true },
+    });
+  });
+
+  test("Default style overwrite cell styles", () => {
+    setCellContent(model, "A1", "a,b,c");
+    setFormatting(model, "A1:A10", { bold: true });
+    splitTextToColumns(model, plugin, ",", "A1", { force: true });
+    expect(getGrid(model)).toEqual({ A1: "a", B1: "b", C1: "c" });
+    expect(getGridStyle(model)).toEqual({
+      A1: { bold: true },
+      B1: { bold: true },
+      C1: { bold: true },
     });
   });
 

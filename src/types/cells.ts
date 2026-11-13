@@ -4,6 +4,11 @@ import { CellPosition, FunctionResultObject, Link, Style } from "./misc";
 
 interface CellAttributes {
   readonly id: number;
+  // readonly style?: Style;
+  // readonly format?: Format;
+}
+
+interface StoredCellAttributes {
   readonly style?: Style;
   readonly format?: Format;
 }
@@ -23,6 +28,13 @@ export interface FormulaCell extends CellAttributes {
 }
 
 export type Cell = LiteralCell | FormulaCell;
+
+// MAWAT
+// Cell containing only its own stored style and format, so not default
+// style/format from sheet/col/row
+export interface StoredLiteralCell extends LiteralCell, StoredCellAttributes {}
+export interface StoredFormulaCell extends FormulaCell, StoredCellAttributes {}
+export type StoredCell = StoredLiteralCell | StoredFormulaCell;
 
 interface EvaluatedCellProperties extends FunctionResultObject {
   readonly format?: Format;

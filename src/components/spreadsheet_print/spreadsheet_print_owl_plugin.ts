@@ -235,7 +235,12 @@ export class SpreadsheetPrintPlugin extends OwlPluginWithModel {
 
     for (const position of cellPositions(sheetId, zone)) {
       const coreCell = this.model().getters.getCell(position);
-      if (coreCell && (coreCell.style || coreCell.isFormula || coreCell.content)) {
+      if (
+        coreCell &&
+        (this.model().getters.getCellHardcodedStyle(position) ||
+          coreCell.isFormula ||
+          coreCell.content)
+      ) {
         return true;
       }
       const evaluatedCell = this.model().getters.getEvaluatedCell(position);

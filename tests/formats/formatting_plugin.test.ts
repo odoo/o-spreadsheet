@@ -15,7 +15,7 @@ import { arg } from "../../src/functions/arguments";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toScalar } from "../../src/functions/helper_matrices";
 import { toString } from "../../src/functions/helpers";
-import { toCartesian } from "../../src/helpers/coordinates";
+import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { fontSizeInPixels, getCellContentHeight } from "../../src/helpers/text_helper";
 import { Model } from "../../src/model";
 import {
@@ -771,6 +771,17 @@ describe("Autoresize", () => {
       MIN_CELL_TEXT_MARGIN +
       2 * PADDING_AUTORESIZE_VERTICAL;
     expect(model.getters.getRowSize(sheetId, 0)).toBe(expectedHeight);
+  });
+
+  // MAWAT2
+  test("Can autoresize a row with evaluated content wrapped by a column style", () => {
+    setCellContent(model, "A1", '="This is a very long text that should be wrapped"');
+    const columnA = toXC(0, 0) + ":" + toXC(0, model.getters.getNumberRows(sheetId) - 1);
+    setFormatting(model, columnA, { wrapping: "wrap" });
+    expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
+
+    autoresizeRows(model, [0]);
+    expect(model.getters.getRowSize(sheetId, 0)).toBeGreaterThan(DEFAULT_CELL_HEIGHT);
   });
 
   test("Evaluated multi-line content have no impact on autoresize if it's not taller than non-evaluated content", () => {
