@@ -17,6 +17,7 @@ import {
   triggerMouseEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
+import { getCellContent } from "../test_helpers/getters_helpers";
 import {
   makeTestComposerStore,
   mockChart,
@@ -117,6 +118,48 @@ describe("Error tooltip component", () => {
     await mountErrorTooltip(model, "A1");
     expect(".fst-italic").toHaveCount(0);
   });
+
+  test("Can add missing headers if the formula is #SPILL", async () => {
+    const model = new Model({ sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1 }] });
+    setCellContent(model, "A1", "=MUNIT(3)");
+    await mountErrorTooltip(model, "A1");
+    await click(fixture, "#missing-headers");
+    expect(model.getters.getNumberRows("sheet1")).toBe(3 + 50); // +50/+20 because we add some padding
+    expect(model.getters.getNumberCols("sheet1")).toBe(3 + 20);
+  });
+
+  test("Button to add missing header is not there for #SPILL not caused by too few headers", async () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=MUNIT(3)");
+    setCellContent(model, "B1", "BlockingSpill");
+    expect(getCellContent(model, "A1")).toBe("#SPILL!");
+
+    await mountErrorTooltip(model, "A1");
+    expect("#missing-headers").toHaveCount(0);
+  });
+
+  test("Button to add missing header is not there for #SPILL of referenced cell", async () => {
+    const model = new Model({ sheets: [{ id: "sheet1", colNumber: 10, rowNumber: 1 }] });
+    setCellContent(model, "A1", "=MUNIT(3)");
+    expect(getCellContent(model, "A1")).toBe("#SPILL!");
+
+    setCellContent(model, "F1", "=A1");
+    await mountErrorTooltip(model, "F1");
+    expect("#missing-headers").toHaveCount(0);
+  });
+
+  test.each(["readonly", "dashboard"] as const)(
+    "Button to add missing header is not there in %s mode",
+    async (mode) => {
+      const model = new Model(
+        { sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1, cells: { A1: "=MUNIT(3)" } }] },
+        { mode }
+      );
+      expect(getCellContent(model, "A1")).toBe("#SPILL!");
+      await mountErrorTooltip(model, "A1");
+      expect("#missing-headers").toHaveCount(0);
+    }
+  );
 });
 
 describe("Grid integration", () => {
