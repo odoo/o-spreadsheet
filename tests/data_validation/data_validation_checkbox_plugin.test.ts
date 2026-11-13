@@ -35,6 +35,18 @@ describe("Checkbox in model", () => {
     });
   });
 
+  test("Adding a checkbox rule does not overwrite the default style of the cell", () => {
+    setFormatting(model, "A1:Z1", { align: "left", verticalAlign: "top" });
+    setFormatting(model, "A2:Z2", { fillColor: "#FF0000" });
+    addDataValidation(model, "A1:A2", "id", { type: "isBoolean", values: [] });
+    expect(getStyle(model, "A1")).toMatchObject({ align: "left", verticalAlign: "top" });
+    expect(getStyle(model, "A2")).toMatchObject({
+      fillColor: "#FF0000",
+      align: "center",
+      verticalAlign: "middle",
+    });
+  });
+
   test("Checkbox are removed when clearing the content of the cell", () => {
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     expect(getDataValidationRules(model, sheetId)).toMatchObject([

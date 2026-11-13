@@ -12,7 +12,7 @@ import {
   RemoveDataValidationCommand,
 } from "../../types/commands";
 import { DataValidationRule } from "../../types/data_validation";
-import { CellPosition, RangeAdapterFunctions, Style, UID } from "../../types/misc";
+import { CellPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
@@ -275,11 +275,11 @@ export class DataValidationPlugin
 
   private setCenterStyleToBooleanCells(rule: DataValidationRule) {
     for (const position of getCellPositionsInRanges(rule.ranges)) {
-      const cell = this.getters.getCell(position);
-      const style: Style = {
-        ...cell?.style,
-        align: !cell?.style?.align || cell.style.align === "default" ? "center" : cell.style.align,
-        verticalAlign: cell?.style?.verticalAlign ?? "middle",
+      let style = this.getters.getCellStyle(position);
+      style = {
+        ...style,
+        align: !style.align || style.align === "default" ? "center" : style.align,
+        verticalAlign: style.verticalAlign ?? "middle",
       };
       this.dispatch("UPDATE_CELL", { ...position, style });
     }
