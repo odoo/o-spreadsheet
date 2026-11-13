@@ -2518,16 +2518,16 @@ describe("charts", () => {
       await mountChartSidePanel();
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
-      expect(model.getters.getChartDefinition(chartId)["showValues"]).toBeFalsy();
+      expect(model.getters.getChartDefinition(chartId)["showData"]?.values).toBeFalsy();
 
       let options = getChartConfiguration(model, chartId).options;
-      expect(options.plugins.chartShowValuesPlugin.showValues).toBeFalsy();
+      expect(options.plugins.chartShowValuesPlugin.display.values).toBeFalsy();
 
       await simulateClick("input[name='showValues']");
-      expect(model.getters.getChartDefinition(chartId)["showValues"]).toBeTruthy();
+      expect(model.getters.getChartDefinition(chartId)["showData"]?.values).toBeTruthy();
 
       options = getChartConfiguration(model, chartId).options;
-      expect(options.plugins.chartShowValuesPlugin.showValues).toBeTruthy();
+      expect(options.plugins.chartShowValuesPlugin.display.values).toBeTruthy();
     }
   );
 

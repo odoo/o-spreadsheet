@@ -1,14 +1,14 @@
 import { ChartType, Plugin } from "chart.js";
 import { relativeLuminance } from "../../../../helpers/color";
 import { GHOST_SUNBURST_VALUE } from "../../../../helpers/figures/charts/runtime/chartjs_dataset";
+import { ChartShowValues } from "../../../../helpers/figures/charts/runtime/chartjs_show_values";
 import { isDefined } from "../../../../helpers/misc";
 import { getDefaultContextFont, sliceTextToFitWidth } from "../../../../helpers/text_helper";
 import { SunburstChartRawData } from "../../../../types/chart/sunburst_chart";
 import { Style } from "../../../../types/misc";
 
 export interface ChartSunburstLabelsPluginOptions {
-  showValues: boolean;
-  showLabels: boolean;
+  display: ChartShowValues;
   style: Style;
   callback: (value: number, axisId?: string) => string;
 }
@@ -24,7 +24,10 @@ const Y_PADDING = 3;
 export const sunburstLabelsPlugin: Plugin = {
   id: "sunburstLabelsPlugin",
   afterDatasetsDraw(chart: any, args, options: ChartSunburstLabelsPluginOptions) {
-    if ((!options.showValues && !options.showLabels) || chart.config.type !== "doughnut") {
+    if (
+      (!options.display?.values && !options.display?.labels) ||
+      chart.config.type !== "doughnut"
+    ) {
       return;
     }
     const ctx = chart.ctx as CanvasRenderingContext2D;
@@ -48,8 +51,8 @@ function drawSunburstChartValues(
         continue;
       }
       const valuesToDisplay = [
-        options.showLabels ? rawData.label : undefined,
-        options.showValues ? options.callback(rawData.value, "y") : undefined,
+        options.display?.labels ? rawData.label : undefined,
+        options.display?.values ? options.callback(rawData.value, "y") : undefined,
       ].filter(isDefined);
 
       const arc = dataset.data[i];

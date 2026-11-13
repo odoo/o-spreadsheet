@@ -69,7 +69,7 @@ describe("Funnel chart side panel", () => {
           dataSets: [{ dataRange: "A1:A3" }],
         }),
         title: { text: "My Funnel chart" },
-        showValues: true,
+        showData: { values: true },
         funnelColors: ["#FF0000", "#00FF00"],
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);
@@ -89,7 +89,7 @@ describe("Funnel chart side panel", () => {
           dataSets: [{ dataRange: "A1:A3" }],
         }),
         title: { text: "My Funnel chart" },
-        showValues: true,
+        showData: { values: true },
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
@@ -114,7 +114,7 @@ describe("Funnel chart side panel", () => {
           labelRange: "A1:A3",
         }),
         title: { text: "My Funnel chart" },
-        showValues: true,
+        showData: { values: true },
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 

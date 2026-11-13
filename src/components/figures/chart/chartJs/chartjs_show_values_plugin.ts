@@ -1,6 +1,7 @@
 import type { Chart, ChartMeta, ChartType, Plugin, PointElement } from "chart.js";
 import { colorToRGBA } from "../../../../helpers/color";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
+import { ChartShowValues } from "../../../../helpers/figures/charts/runtime/chartjs_show_values";
 import {
   clipTextWithEllipsis,
   computeCachedTextDimension,
@@ -32,8 +33,7 @@ interface CallbackArgs {
 
 export interface ChartShowValuesPluginOptions {
   type: AllChartType;
-  showValues: boolean;
-  showLabels?: boolean;
+  display?: ChartShowValues;
   background: (value: number | string, dataset: ChartMeta, index: number) => Color | undefined;
   horizontal?: boolean;
   callback: (value: number | string, dataset: ChartMeta, index: number) => string;
@@ -59,7 +59,7 @@ function isLineOverlayOnBarChart(
 export const chartShowValuesPlugin: Plugin = {
   id: "chartShowValuesPlugin",
   afterDatasetsDraw(chart: any, args, options: ChartShowValuesPluginOptions) {
-    if (!options.showValues) {
+    if (!options.display?.values && !options.display?.labels && !options.display?.percentages) {
       return;
     }
     const drawData = chart._metasets?.[0]?.data;
@@ -109,12 +109,13 @@ function drawValues(args: {
   options: ChartShowValuesPluginOptions;
   direction: "horizontal" | "vertical";
   getNumberValue: (dataset: any, valueIndex: number) => number | undefined;
+  getPercentage?: (dataset: any, valueIndex: number) => number | undefined;
   getValuePosition: (args: CallbackArgs) => { x: number; y: number; a?: number; w?: number };
   getLabel?: (chart: any, dataset: any, valueIndex: number) => string;
   shouldSkipValue: (args: CallbackArgs) => boolean;
   getTextColors: (args: CallbackArgs) => TextStyle;
 }) {
-  const { chart, options, getNumberValue, getLabel, direction } = args;
+  const { chart, options, getNumberValue, getLabel, getPercentage, direction } = args;
   const ctx = chart.ctx as CanvasRenderingContext2D;
   ctx.save();
 
@@ -129,9 +130,14 @@ function drawValues(args: {
     }
 
     for (let i = 0; i < dataset._parsed.length; i++) {
-      const numberValue = options.showValues ? getNumberValue(dataset, i) : undefined;
-      const label = options.showLabels ? getLabel?.(chart, dataset, i) : undefined;
-      if ((numberValue === undefined || isNaN(numberValue)) && !label) {
+      const numberValue = options.display?.values ? getNumberValue(dataset, i) : undefined;
+      const label = options.display?.labels ? getLabel?.(chart, dataset, i) : undefined;
+      const percentage = options.display?.percentages ? getPercentage?.(dataset, i) : undefined;
+      if (
+        (numberValue === undefined || isNaN(numberValue)) &&
+        !label &&
+        (percentage === undefined || isNaN(percentage))
+      ) {
         continue;
       }
       const chartElement = dataset.data[i]; // BarElement, PointElement or ArcElement depending on the chart type
@@ -142,11 +148,19 @@ function drawValues(args: {
         continue;
       }
       const valuesToDisplay: string[] = [];
-      if (numberValue !== undefined && !isNaN(numberValue)) {
-        valuesToDisplay.push(options.callback(numberValue, dataset, i));
-      }
       if (label) {
         valuesToDisplay.push(label);
+      }
+      let displayedValue = "";
+      if (numberValue !== undefined && !isNaN(numberValue)) {
+        displayedValue = options.callback(numberValue, dataset, i);
+      }
+      if (percentage !== undefined && !isNaN(percentage)) {
+        displayedValue +=
+          (displayedValue ? " (" : "") + `${percentage.toFixed(2)}%` + (displayedValue ? ")" : "");
+      }
+      if (displayedValue) {
+        valuesToDisplay.push(displayedValue);
       }
       const textSize = getTextDimensions(valuesToDisplay, ctx);
 
@@ -199,6 +213,9 @@ function drawValues(args: {
       let { x, y, a, w } = position;
       ctx.save();
       ctx.translate(x, y);
+      if (label === undefined && percentage === undefined) {
+        a = 0;
+      }
       if (a !== undefined) {
         if (a > Math.PI / 2) {
           a += Math.PI;
@@ -397,6 +414,10 @@ function drawPieValues(chart: any, options: ChartShowValuesPluginOptions) {
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i]),
+    getPercentage: (dataset, i) => {
+      const total = dataset._parsed.reduce((sum: number, value: number) => sum + Number(value), 0);
+      return total === 0 ? 0 : (Number(dataset._parsed[i]) / total) * 100;
+    },
     getValuePosition: ({ chartElement }) => {
       const { midAngle: a, midRadius } = getSliceDimensions(chartElement);
       const x = chartElement.x + midRadius * Math.cos(a);

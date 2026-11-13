@@ -26,7 +26,7 @@ describe("radar chart", () => {
         labelRange: "Sheet1!A1:A4",
         dataSetsHaveTitle: true,
       }),
-      showValues: true,
+      showData: { values: true },
       funnelColors: [],
     };
     const definition = createChartDefinitionFromContext("radar", context);
@@ -43,7 +43,7 @@ describe("radar chart", () => {
       aggregated: true,
       fillArea: true,
       stacked: true,
-      showValues: true,
+      showData: { values: true },
       hideDataMarkers: false,
       humanize: false,
       annotationText: "This is an annotation text",

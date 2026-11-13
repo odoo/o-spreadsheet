@@ -364,7 +364,7 @@ describe("Export data to xlsx then import it", () => {
       legendPosition: "top" as const,
       stacked: false,
       labelsAsText: false,
-      showValues: true,
+      showData: { values: true },
     },
     {
       title: { text: "demo chart" },
@@ -381,7 +381,7 @@ describe("Export data to xlsx then import it", () => {
       legendPosition: "top" as const,
       stacked: false,
       labelsAsText: false,
-      showValues: false,
+      showData: { values: false },
     },
     {
       title: { text: "demo chart 2" },
@@ -398,7 +398,7 @@ describe("Export data to xlsx then import it", () => {
       legendPosition: "bottom" as const,
       stacked: true,
       horizontal: false,
-      showValues: true,
+      showData: { values: true },
     },
     {
       title: { text: "demo horizontal bar chart 2" },
@@ -412,7 +412,7 @@ describe("Export data to xlsx then import it", () => {
       legendPosition: "top" as const,
       stacked: true,
       horizontal: true,
-      showValues: true,
+      showData: { values: true },
     },
     {
       title: { text: "pie demo chart" },
@@ -430,7 +430,7 @@ describe("Export data to xlsx then import it", () => {
       stacked: false,
       isDoughnut: false,
       pieHolePercentage: 0,
-      showValues: true,
+      showData: { values: true },
     },
     {
       title: { text: "doughnut demo chart" },
@@ -448,7 +448,7 @@ describe("Export data to xlsx then import it", () => {
       stacked: false,
       isDoughnut: true,
       pieHolePercentage: 50,
-      showValues: true,
+      showData: { values: true },
     },
     {
       title: { text: "demo chart4" },
@@ -462,7 +462,7 @@ describe("Export data to xlsx then import it", () => {
       legendPosition: "top" as const,
       stacked: true,
       labelsAsText: false,
-      showValues: true,
+      showData: { values: true },
     },
     {
       title: { text: "demo chart 5" },
@@ -481,7 +481,7 @@ describe("Export data to xlsx then import it", () => {
       background: "#AAAAAA",
       legendPosition: "bottom" as const,
       stacked: true,
-      showValues: true,
+      showData: { values: true },
     },
     {
       title: { text: "demo chart6" },
@@ -495,7 +495,7 @@ describe("Export data to xlsx then import it", () => {
       legendPosition: "top" as const,
       labelsAsText: false,
       fillArea: false,
-      showValues: true,
+      showData: { values: true },
     },
   ])("Charts %s", async (chartDef: any) => {
     createChart(model, chartDef, "1");

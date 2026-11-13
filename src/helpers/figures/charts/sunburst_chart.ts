@@ -1,6 +1,6 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { SunburstChartRuntime } from "../../../types/chart/sunburst_chart";
+import { SunburstChartDefaults, SunburstChartRuntime } from "../../../types/chart/sunburst_chart";
 import { CommandResult } from "../../../types/commands";
 import { ColorThemeName } from "../../../types/rendering";
 import { AbstractChart } from "./abstract_chart";
@@ -20,9 +20,7 @@ export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
     "dataSource",
     "legendPosition",
     "dataSetStyles",
-    "showValues",
-    "showLabels",
-    "valuesDesign",
+    "showData",
     "groupColors",
     "pieHolePercentage",
   ],
@@ -51,9 +49,11 @@ export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "sunburst",
-      showValues: context.showValues,
-      showLabels: context.showLabels,
-      valuesDesign: context.valuesDesign,
+      showData: context.showData ?? {
+        labels: SunburstChartDefaults.showLabels,
+        values: SunburstChartDefaults.showValues,
+        valuesDesign: SunburstChartDefaults.valuesDesign,
+      },
       groupColors: context.groupColors,
       humanize: context.humanize,
       pieHolePercentage: context.pieHolePercentage,

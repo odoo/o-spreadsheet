@@ -43,12 +43,12 @@ export class TreeMapChartDesignPanel extends OSComponent {
     SidePanelCollapsible,
     ChartShowValues,
     Checkbox,
-    TextStyler,
     RoundColorPicker,
     BadgeSelection,
     TreeMapCategoryColors,
     TreeMapColorScale,
     ChartHumanizeNumbers,
+    TextStyler,
   };
   protected props = useProps(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
     TreeMapChartDefinition<string>
@@ -63,14 +63,6 @@ export class TreeMapChartDesignPanel extends OSComponent {
 
   get showHeaders() {
     return this.props.definition.showHeaders ?? TreeMapChartDefaults.showHeaders;
-  }
-
-  get showValues() {
-    return this.props.definition.showValues ?? TreeMapChartDefaults.showValues;
-  }
-
-  get showLabels() {
-    return this.props.definition.showLabels ?? TreeMapChartDefaults.showLabels;
   }
 
   get coloringOptions() {

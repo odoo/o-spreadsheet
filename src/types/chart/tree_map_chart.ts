@@ -10,7 +10,6 @@ export interface TreeMapChartDefinition<T extends string | Range = Range>
   readonly type: "treemap";
   readonly showHeaders?: boolean;
   readonly headerDesign?: TitleDesign;
-  readonly valuesDesign?: TitleDesign;
   readonly coloringOptions?: TreeMapColoringOptions;
 }
 

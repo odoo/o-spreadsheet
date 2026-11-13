@@ -62,8 +62,8 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         "chartShowValuesPlugin": {
           "background": [Function],
           "callback": [Function],
+          "display": {},
           "horizontal": false,
-          "showValues": false,
           "type": "bar",
         },
         "legend": {
@@ -343,8 +343,8 @@ exports[`datasource tests create chart with column datasets 1`] = `
         "chartShowValuesPlugin": {
           "background": [Function],
           "callback": [Function],
+          "display": {},
           "horizontal": false,
-          "showValues": false,
           "type": "line",
         },
         "legend": {

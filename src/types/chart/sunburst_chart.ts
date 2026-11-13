@@ -7,7 +7,6 @@ import { HierarchicalChartDefinition } from "./common_chart";
 export interface SunburstChartDefinition<T extends string | Range = Range>
   extends HierarchicalChartDefinition<T> {
   readonly type: "sunburst";
-  readonly valuesDesign?: ChartStyle;
   readonly groupColors?: (Color | undefined | null)[];
   readonly pieHolePercentage?: number;
 }

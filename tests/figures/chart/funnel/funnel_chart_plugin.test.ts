@@ -43,7 +43,7 @@ describe("Funnel chart", () => {
       legendPosition: "none",
       aggregated: true,
       axesDesign: {},
-      showValues: false,
+      showData: { values: false, labels: false },
       horizontal: true,
       funnelColors: ["#ff0000", "#00ff00"],
       cumulative: true,

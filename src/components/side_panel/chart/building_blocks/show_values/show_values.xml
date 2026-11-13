@@ -2,9 +2,32 @@
   <t t-name="o-spreadsheet-ChartShowValues">
     <Checkbox
       name="'showValues'"
-      label.translate="Show values"
-      value="this.props.definition.showValues ?? this.props.defaultValue"
-      onChange="(showValues) => this.props.updateChart(this.props.chartId, { showValues })"
+      label.translate="Show Value"
+      value="this.showValues"
+      onChange="showValues => this.updateShowData('values', showValues)"
     />
+    <div t-if="this.props.showAdvancedOptions">
+      <Checkbox
+        name="'showPercentages'"
+        label.translate="Show Percentages"
+        value="this.props.definition.showData?.percentages"
+        onChange="showPercentages => this.updateShowData('percentages', showPercentages)"
+      />
+      <Checkbox
+        name="'showLabels'"
+        label.translate="Show Labels"
+        value="this.showLabels"
+        onChange="showLabels => this.updateShowData('labels', showLabels)"
+      />
+    </div>
+    <Section class="'pt-0'" t-if="this.showValues || this.showLabels">
+      <TextStyler
+        class="'o-values-style'"
+        updateStyle.bind="this.updateValuesDesign"
+        style="this.props.definition.showData?.valuesDesign || {}"
+        defaultStyle="this.props.defaultStyle ?? {}"
+        hasVerticalAlign="this.props.hasVerticalAlign"
+      />
+    </Section>
   </t>
 </templates>

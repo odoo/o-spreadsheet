@@ -52,10 +52,6 @@ export class PieChartDesignPanel extends OSComponent {
     return labels?.map((label, index) => (label === "" ? `Slice ${index + 1}` : label)) || [];
   }
 
-  get showLabels() {
-    return this.props.definition.showLabels ?? false;
-  }
-
   onPieHoleSizeChange(pieHolePercentage: number) {
     this.props.updateChart(this.props.chartId, {
       ...this.props.definition,
