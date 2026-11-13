@@ -15,6 +15,7 @@ import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   addDataValidation,
   createTableWithFilter,
+  resizeRows,
   setCellContent,
   setFormat,
   setFormatting,
@@ -533,6 +534,20 @@ describe("Selection arrow icon in grid", () => {
     const textSize = computeTextFontSizeInPixels(cellStyle);
     expect(rect.x).toEqual(DEFAULT_CELL_WIDTH - 4 - textSize); // Cell width - icon margin - icon size;
     expect(rect.y).toEqual(1 + DEFAULT_CELL_HEIGHT - textSize - MIN_CELL_TEXT_MARGIN); // +1 to skip grid lines
+  });
+
+  test("Icon takes default style in account to position itself", () => {
+    const icon = getCellIcons(model, "A1")[0];
+    expect(icon.type).toEqual("data_validation_list_chip_icon");
+    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    resizeRows(model, [0], 100);
+    // default style on the column
+    setFormatting(model, "A1:A100", { verticalAlign: "top" });
+    const rect = model.getters.getCellIconRect(
+      icon,
+      viewStore.viewports.getRect(model.getters.getActiveSheetId(), toZone("A1"))
+    );
+    expect(rect.y).toEqual(1 + MIN_CELL_TEXT_MARGIN); // +1 to skip grid lines - aligns with the top of the cell
   });
 
   test("Clicking on the icon opens the composer with suggestions", async () => {

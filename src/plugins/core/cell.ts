@@ -77,6 +77,8 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
     "getCell",
     "getCellStyle",
     "getCellFormat",
+    "getCellHardcodedFormat",
+    "getCellHardcodedStyle",
   ] as const;
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: StoredCell } } = {};
@@ -436,6 +438,16 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   // GETTERS
   // ---------------------------------------------------------------------------
   // Stored cells (internal use only)
+  getCellHardcodedStyle(position: CellPosition): Style {
+    return {
+      ...this.getStoredCell(position)?.style,
+    };
+  }
+
+  getCellHardcodedFormat(position: CellPosition): Format | undefined {
+    const cell = this.getStoredCell(position);
+    return cell?.format;
+  }
 
   private getStoredCells(sheetId: UID): StoredCell[] {
     return Object.values(this.cells[sheetId] || {});
