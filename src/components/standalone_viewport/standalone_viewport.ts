@@ -1,4 +1,13 @@
-import { providePlugins, proxy, signal, useEffect, usePlugin, useProps } from "@odoo/owl";
+import {
+  onMounted,
+  onWillUnmount,
+  providePlugins,
+  proxy,
+  signal,
+  useEffect,
+  usePlugin,
+  useProps,
+} from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
 import { LocalRendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
@@ -23,6 +32,7 @@ import { OSComponent } from "../os_component";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
+import { StandaloneViewportScrollPlugin } from "./standalone_viewport_scroll_owl_plugin";
 import { StandaloneViewportStore } from "./standalone_viewport_store";
 
 interface ColResizer {
@@ -44,6 +54,7 @@ export class StandaloneViewport extends OSComponent {
     onResizeColumns: types.function<(columnWeights: number[] | undefined) => void>().optional(),
     columnWeights: types.array<number>().optional(),
     size: types.object<DOMDimension>(),
+    viewportId: types.string().optional(),
   });
 
   private canvasRef = signal.ref(HTMLCanvasElement);
@@ -75,12 +86,26 @@ export class StandaloneViewport extends OSComponent {
     this.cellPopoverStore = useStore(CellPopoverStore);
     providePlugins([LocalRendererPlugin], { layers: ["Background", "Chart"] });
     const rendererPlugin = usePlugin(LocalRendererPlugin);
+    const scrollPlugin = usePlugin(StandaloneViewportScrollPlugin);
     useEffect(() => {
       this.store.setRange(this.props.range);
       if (this.dndState.col === undefined) {
         this.store.setCustomColWeights(this.props.columnWeights);
       }
       this.store.setContainerSize(this.contentWidth, this.props.size.height);
+    });
+    onMounted(() => {
+      const viewportId = this.props.viewportId;
+      const scroll = viewportId ? scrollPlugin.getScroll(viewportId) : undefined;
+      if (scroll) {
+        this.viewStore.setViewportOffset({ offsetX: scroll.scrollX, offsetY: scroll.scrollY });
+      }
+    });
+    onWillUnmount(() => {
+      const { viewportId, range } = this.props;
+      if (viewportId && this.model().getters.tryGetSheet(range.sheetId)) {
+        scrollPlugin.saveScroll(viewportId, this.viewStore.activeSheetScrollInfo);
+      }
     });
 
     useGridDrawing({
