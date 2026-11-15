@@ -6,20 +6,21 @@ skip and cheap to fix, so do not suppress one for being small.
 
 ## Correctness
 
-- `handle()` produces the correct state transition; invalid input is rejected in `allowDispatch`,
-  not swallowed in `handle`.
+- `handlers` produce the correct state transition; invalid input is rejected in `validators`,
+  not swallowed in `handlers`.
 - Off-by-one and bounds on headers, zones, and ranges — especially at sheet edges and on empty zones.
 - No accidental mutation of shared objects. A getter that returns an internal array or object hands
   the caller a live reference; callers mutate it eventually.
-- New `allowDispatch` refusals return a `CommandResult` that the UI actually handles.
+- New refusals in `validators` return a `CommandResult` that the UI actually handles.
 
 ## Model integrity
 
 - **Undo/redo** — every `CorePlugin` state mutation goes through `this.history.update(...)`.
   Direct assignment to plugin state is invisible to the history and silently breaks undo.
-- **Collaborative** — a new `CoreCommand` needs an inverse in
-  `src/registries/inverse_command_registry.ts` and transformations in `src/collaborative/ot/`
-  wherever it can race another command. Missing transforms diverge clients without any error.
+- **Collaborative** — a new `CoreCommand` needs an `inverse` in its `registerCommand` declaration
+  (inverse functions live in `src/registries/inverse_commands.ts`) and transformations in
+  `src/collaborative/ot/` wherever it can race another command. Missing transforms diverge clients
+  without any error.
 - **Ranges** — core plugins store `Range` objects, never `A1` strings, and implement `adaptRanges`
   (`src/plugins/core_plugin.ts`) so references survive row/column insert and delete. UI layers
   convert to strings only for display.
@@ -36,10 +37,17 @@ skip and cheap to fix, so do not suppress one for being small.
 - Right base class and folder: `CorePlugin` → `core/`, `EvaluationPlugin` → `evaluation/`,
   `UIPlugin` → `ui_stateful/` (UI state) or `ui_feature/` (features expressible as command sequences).
 - Getter scope respected: `CoreGetters` ⊂ `EvaluationGetters` ⊂ `RenderingGetters` ⊂ `Getters`.
-  A core plugin reaching for an evaluation getter is a layering break.
+  A core plugin reaching for an evaluation getter is a layering break. A core plugin's
+  `this.getters` is typed from its `static dependencies` (see `doc/extending/plugin.md`): when it
+  starts reading another core plugin's getters, that plugin belongs in `dependencies`, not behind a
+  cast of `this.getters`, which hides the dependency.
 - Command scope: a `CorePlugin` handles only `CoreCommand`; an `EvaluationPlugin` only
   `EvaluationCommand`.
-- Evaluation commands skip `allowDispatch`; an `EvaluationPlugin` may dispatch those and nothing
+- New commands are declared with `registerCommand` (`src/command_registry.ts`) with the right
+  `category` and `invalidates*` flags. Both fail silently: a core plugin's handler for a command
+  declared `local` is never registered, and a missing `invalidates*` flag leaves evaluated values,
+  charts or styles stale.
+- Evaluation commands skip the `validators`; an `EvaluationPlugin` may dispatch those and nothing
   else; no non-evaluation command may be dispatched while a top-level evaluation command is handled.
 - `drawLayer` comes from `UIPlugin` or a `SpreadsheetStore` — never from an `EvaluationPlugin`.
 - No business logic in components — delegate to plugins or stores.
@@ -95,5 +103,5 @@ skip and cheap to fix, so do not suppress one for being small.
 
 ## Docs
 
-- Commands documented when added, changed, or removed; docs rebuilt (`npm run doc`).
+- Commands documented when added, changed, or removed.
 - Breaking changes called out explicitly.
