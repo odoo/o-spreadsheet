@@ -7,8 +7,8 @@ import {
   getTimeDifferenceInWholeYears,
 } from "../helpers/dates";
 import { isDateTimeFormat } from "../helpers/format/format";
-import { AutofillModifier } from "../types/autofill";
-import { Cell, CellValueType, EvaluatedCell, LiteralCell } from "../types/cells";
+import { AutofillCell, AutofillModifier } from "../types/autofill";
+import { CellValueType, EvaluatedCell, LiteralCell } from "../types/cells";
 import { DEFAULT_LOCALE } from "../types/locale";
 import { DIRECTION } from "../types/misc";
 import { Registry } from "./registry";
@@ -21,8 +21,12 @@ import { Registry } from "./registry";
  * (ordered by sequence), and we generate the AutofillModifier with generateRule
  */
 export interface AutofillRule {
-  condition: (cell: Cell, cells: (Cell | undefined)[]) => boolean;
-  generateRule: (cell: Cell, cells: (Cell | undefined)[], direction: DIRECTION) => AutofillModifier;
+  condition: (cell: AutofillCell, cells: (AutofillCell | undefined)[]) => boolean;
+  generateRule: (
+    cell: AutofillCell,
+    cells: (AutofillCell | undefined)[],
+    direction: DIRECTION
+  ) => AutofillModifier;
   sequence: number;
 }
 
@@ -44,8 +48,8 @@ const leadingZerosRegex = /^0*/;
  * Return the one which contains the given cell
  */
 function getGroup(
-  cell: Cell,
-  cells: (Cell | undefined)[],
+  cell: AutofillCell,
+  cells: (AutofillCell | undefined)[],
   filter: (evaluatedCell: EvaluatedCell) => boolean
 ) {
   let group: EvaluatedCell[] = [];
@@ -176,7 +180,7 @@ function calculateDateIncrementBasedOnGroup(group: number[]) {
 
 autofillRulesRegistry
   .add("simple_value_copy", {
-    condition: (cell: Cell, cells: (Cell | undefined)[]) => {
+    condition: (cell, cells) => {
       return (
         cells.length === 1 && !cell.isFormula && !(cell.format && isDateTimeFormat(cell.format))
       );
@@ -187,11 +191,11 @@ autofillRulesRegistry
     sequence: 10,
   })
   .add("increment_alphanumeric_value", {
-    condition: (cell: Cell) =>
+    condition: (cell) =>
       !cell.isFormula &&
       evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.text &&
       alphaNumericValueRegExp.test(cell.content),
-    generateRule: (cell: LiteralCell, cells: Cell[], direction: DIRECTION) => {
+    generateRule: (cell: LiteralCell, cells, direction) => {
       const numberPostfix = parseInt(cell.content.match(numberPostfixRegExp)![0]);
       const prefix = cell.content.match(stringPrefixRegExp)![0];
       const group = getGroup(
@@ -229,7 +233,7 @@ autofillRulesRegistry
     sequence: 15,
   })
   .add("copy_text", {
-    condition: (cell: Cell) =>
+    condition: (cell) =>
       !cell.isFormula &&
       evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.text,
     generateRule: () => {
@@ -238,14 +242,14 @@ autofillRulesRegistry
     sequence: 20,
   })
   .add("update_formula", {
-    condition: (cell: Cell) => cell.isFormula,
-    generateRule: (_, cells: (Cell | undefined)[]) => {
+    condition: (cell) => cell.isFormula,
+    generateRule: (_, cells) => {
       return { type: "FORMULA_MODIFIER", increment: cells.length, current: 0 };
     },
     sequence: 30,
   })
   .add("increment_dates", {
-    condition: (cell: Cell, cells: (Cell | undefined)[]) => {
+    condition: (cell) => {
       return (
         !cell.isFormula &&
         evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.number &&
@@ -253,7 +257,7 @@ autofillRulesRegistry
         isDateTimeFormat(cell.format)
       );
     },
-    generateRule: (cell: LiteralCell, cells: (Cell | undefined)[]) => {
+    generateRule: (cell: LiteralCell, cells) => {
       const group = getGroup(
         cell,
         cells,
@@ -286,10 +290,10 @@ autofillRulesRegistry
     sequence: 25,
   })
   .add("increment_number", {
-    condition: (cell: Cell) =>
+    condition: (cell) =>
       !cell.isFormula &&
       evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.number,
-    generateRule: (cell: LiteralCell, cells: (Cell | undefined)[], direction: DIRECTION) => {
+    generateRule: (cell: LiteralCell, cells, direction) => {
       const group = getGroup(
         cell,
         cells,

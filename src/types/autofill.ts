@@ -63,8 +63,13 @@ export interface AutofillCellData extends UpdateCellData {
   border?: Border;
 }
 
+export type AutofillCell = Cell & {
+  style?: Style;
+  format?: Format;
+};
+
 export interface AutofillData {
-  cell?: Cell;
+  cell?: AutofillCell;
   col: number;
   row: number;
   sheetId: UID;
