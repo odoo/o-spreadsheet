@@ -8,7 +8,7 @@ import { Section } from "../../components/section/section";
 import { ChartAnnotation } from "../building_blocks/annotation/annotation";
 import { ColorScalePicker } from "../building_blocks/color_scale/color_scale_picker";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
-import { ChartShowValues } from "../building_blocks/show_values/show_values";
+import { ChartShowValuesComponent } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 import { useProps } from "@odoo/owl";
@@ -22,7 +22,7 @@ export abstract class ChartWithColorScaleDesignPanel extends OSComponent {
     ChartAnnotation,
     SidePanelCollapsible,
     Section,
-    ChartShowValues,
+    ChartShowValuesComponent,
     ColorScalePicker,
     RoundColorPicker,
     Select,

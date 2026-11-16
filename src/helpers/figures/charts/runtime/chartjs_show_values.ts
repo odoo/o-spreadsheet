@@ -2,7 +2,11 @@ import { ChartMeta } from "chart.js";
 import { Range } from "../../../..";
 import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
 import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
-import { ChartDefinition, ChartRuntimeGenerationArgs } from "../../../../types/chart/chart";
+import {
+  ChartDefinition,
+  ChartRuntimeGenerationArgs,
+  ChartShowValues,
+} from "../../../../types/chart/chart";
 import { ColorGridChartDefinition } from "../../../../types/chart/common_chart";
 import { PyramidChartDefinition } from "../../../../types/chart/pyramid_chart";
 import {
@@ -16,13 +20,14 @@ import { formatChartDatasetValue } from "../chart_common";
 
 export function getChartShowValues(
   definition: ChartDefinition<Range>,
-  args: ChartRuntimeGenerationArgs
+  args: ChartRuntimeGenerationArgs,
+  defaultOptions: ChartShowValues = {}
 ): ChartShowValuesPluginOptions {
   const { axisFormats, locale } = args;
   return {
     type: definition.type,
     horizontal: "horizontal" in definition && definition.horizontal,
-    showValues: "showValues" in definition ? !!definition.showValues : false,
+    display: { showData: defaultOptions, ...definition }.showData,
     background: () => definition.background,
     callback: (value: number | string, dataset: ChartMeta) => {
       const axisId = getDatasetAxisId(definition, dataset);
@@ -39,7 +44,7 @@ export function getColorGridChartShowValues(
   return {
     type: definition.type,
     horizontal: false,
-    showValues: "showValues" in definition ? !!definition.showValues : false,
+    display: definition.showData ?? {},
     background: () => definition.background,
     callback: (_value: number | string, dataset: ChartMeta, index) => {
       const cell = dataSetsValues[dataset.index]?.data[index];
@@ -53,16 +58,22 @@ export function getSunburstShowValues(
   args: ChartRuntimeGenerationArgs
 ): ChartSunburstLabelsPluginOptions {
   const { axisFormats, locale } = args;
+  const design = {
+    ...SunburstChartDefaults.showData.valuesDesign,
+    ...definition.showData?.valuesDesign,
+  };
   return {
     callback: formatChartDatasetValue(axisFormats, locale, definition.humanize),
-    showLabels: definition.showLabels ?? SunburstChartDefaults.showLabels,
-    showValues: definition.showValues ?? SunburstChartDefaults.showValues,
+    display: {
+      ...SunburstChartDefaults.showData,
+      ...definition.showData,
+    },
     style: {
-      fontSize: definition.valuesDesign?.fontSize ?? SunburstChartDefaults.valuesDesign.fontSize,
-      align: definition.valuesDesign?.align ?? SunburstChartDefaults.valuesDesign.align,
-      bold: definition.valuesDesign?.bold ?? SunburstChartDefaults.valuesDesign.bold,
-      italic: definition.valuesDesign?.italic ?? SunburstChartDefaults.valuesDesign.italic,
-      textColor: definition.valuesDesign?.color ?? SunburstChartDefaults.valuesDesign.color,
+      fontSize: design.fontSize,
+      align: design.align,
+      bold: design.bold,
+      italic: design.italic,
+      textColor: design.color,
     },
   };
 }
@@ -75,7 +86,7 @@ export function getPyramidChartShowValues(
   return {
     type: "pyramid",
     horizontal: true,
-    showValues: "showValues" in definition ? !!definition.showValues : false,
+    display: definition.showData ?? {},
     background: () => definition.background,
     callback: (value: number | string, dataset: ChartMeta) => {
       value = Math.abs(Number(value));
@@ -99,7 +110,7 @@ export function getWaterfallChartShowValues(
 
   return {
     type: "waterfall",
-    showValues: "showValues" in definition ? !!definition.showValues : false,
+    display: definition.showData ?? {},
     background: () => definition.background,
     callback: (value: number | string, dataset: any, index: number) => {
       const raw = dataset._dataset.data[index];

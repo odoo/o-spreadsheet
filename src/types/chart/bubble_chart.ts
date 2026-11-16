@@ -1,5 +1,5 @@
 import { ChartConfiguration } from "chart.js";
-import { AxesDesign, Color, Range } from "../..";
+import { AxesDesign, ChartShowValues, Color, Range } from "../..";
 import {
   LegendPosition,
   NonDataSourceBaseChartDefinition,
@@ -16,7 +16,7 @@ export interface BubbleChartDefinition<T extends string | Range = string>
   readonly type: "bubble";
   readonly legendPosition: LegendPosition;
   readonly axesDesign?: AxesDesign;
-  readonly showValues?: boolean;
+  readonly showData?: ChartShowValues;
   readonly dataSetsHaveTitle: boolean;
   readonly yRanges: T[];
   readonly xRange?: T;

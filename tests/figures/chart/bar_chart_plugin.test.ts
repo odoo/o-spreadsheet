@@ -44,7 +44,7 @@ describe("bar chart", () => {
       aggregated: true,
       stacked: true,
       axesDesign: {},
-      showValues: false,
+      showData: { values: false, labels: false },
       showTotalLine: false,
       horizontal: false,
       zoomable: true,

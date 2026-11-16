@@ -2,7 +2,11 @@ import type { Chart, ChartMeta, ChartType, Plugin, PointElement } from "chart.js
 import { colorToRGBA } from "../../../../helpers/color";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
 import { computeCachedTextDimension, computeTextFont } from "../../../../helpers/text_helper";
-import type { ChartType as AllChartType } from "../../../../types/chart/chart";
+import type {
+  ChartType as AllChartType,
+  ChartShowValues,
+  ChartStyle,
+} from "../../../../types/chart/chart";
 import { Color } from "../../../../types/misc";
 
 interface Dimensions {
@@ -28,7 +32,7 @@ interface CallbackArgs {
 
 export interface ChartShowValuesPluginOptions {
   type: AllChartType;
-  showValues: boolean;
+  display?: ChartShowValues;
   background: (value: number | string, dataset: ChartMeta, index: number) => Color | undefined;
   horizontal?: boolean;
   callback: (value: number | string, dataset: ChartMeta, index: number) => string;
@@ -54,7 +58,7 @@ function isLineOverlayOnBarChart(
 export const chartShowValuesPlugin: Plugin = {
   id: "chartShowValuesPlugin",
   afterDatasetsDraw(chart: any, args, options: ChartShowValuesPluginOptions) {
-    if (!options.showValues) {
+    if (!options.display?.values && !options.display?.labels && !options.display?.percentages) {
       return;
     }
     const drawData = chart._metasets?.[0]?.data;
@@ -104,13 +108,28 @@ function drawValues(args: {
   options: ChartShowValuesPluginOptions;
   direction: "horizontal" | "vertical";
   getNumberValue: (dataset: any, valueIndex: number) => number | undefined;
-  getValuePosition: (args: CallbackArgs) => { x: number; y: number };
+  getPercentage?: (dataset: any, valueIndex: number) => number | undefined;
+  getValuePosition: (args: CallbackArgs) => { x: number; y: number; w?: number };
+  getLabel?: (chart: any, dataset: any, valueIndex: number) => string;
   shouldSkipValue: (args: CallbackArgs) => boolean;
   getTextColors: (args: CallbackArgs) => TextStyle;
+  style?: ChartStyle;
 }) {
-  const { chart, options, getNumberValue, direction } = args;
+  const { chart, options, getNumberValue, getLabel, getPercentage, direction, style } = args;
   const ctx = chart.ctx as CanvasRenderingContext2D;
   ctx.save();
+
+  const font = computeTextFont(
+    {
+      fontSize: style?.fontSize ?? globalThis.Chart?.defaults.font.size ?? 12,
+      bold: style?.bold,
+      italic: style?.italic,
+    },
+    "px"
+  );
+  if (style) {
+    ctx.font = font;
+  }
 
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
@@ -123,8 +142,14 @@ function drawValues(args: {
     }
 
     for (let i = 0; i < dataset._parsed.length; i++) {
-      const numberValue = getNumberValue(dataset, i);
-      if (numberValue === undefined || isNaN(numberValue)) {
+      const numberValue = options.display?.values ? getNumberValue(dataset, i) : undefined;
+      const label = options.display?.labels ? getLabel?.(chart, dataset, i) : undefined;
+      const percentage = options.display?.percentages ? getPercentage?.(dataset, i) : undefined;
+      if (
+        (numberValue === undefined || isNaN(numberValue)) &&
+        !label &&
+        (percentage === undefined || isNaN(percentage))
+      ) {
         continue;
       }
       const chartElement = dataset.data[i]; // BarElement, PointElement or ArcElement depending on the chart type
@@ -134,13 +159,28 @@ function drawValues(args: {
       if (!elementColor || colorToRGBA(elementColor).a !== 1) {
         continue;
       }
+      const valuesToDisplay: string[] = [];
+      if (label) {
+        valuesToDisplay.push(label);
+      }
+      let displayedValue = "";
+      if (numberValue !== undefined && !isNaN(numberValue)) {
+        displayedValue = options.callback(numberValue, dataset, i);
+      }
+      if (percentage !== undefined && !isNaN(percentage)) {
+        displayedValue +=
+          (displayedValue ? " (" : "") + `${percentage.toFixed(2)}%` + (displayedValue ? ")" : "");
+      }
+      if (displayedValue) {
+        valuesToDisplay.push(displayedValue);
+      }
+      const textSize = getTextDimensions(valuesToDisplay, ctx, font);
 
-      const valueToDisplay = options.callback(numberValue, dataset, i);
-      const textSize = getTextDimensions(valueToDisplay, ctx);
+      const value = numberValue ?? 0;
       const callbackArgs = {
         dataset,
         chartElement,
-        numberValue,
+        numberValue: value,
         valueIndex: i,
         textSize,
         options,
@@ -160,7 +200,7 @@ function drawValues(args: {
         }
         for (const otherPosition of textsPositions[key] || []) {
           if (Math.abs(otherPosition - position.y) < MINIMAL_VERTICAL_DISTANCE) {
-            position.y = otherPosition + MINIMAL_VERTICAL_DISTANCE * (numberValue < 0 ? 1 : -1);
+            position.y = otherPosition + MINIMAL_VERTICAL_DISTANCE * (value < 0 ? 1 : -1);
           }
         }
         textsPositions[key].push(position.y);
@@ -173,7 +213,7 @@ function drawValues(args: {
         for (const otherPosition of textsPositions[key]) {
           if (Math.abs(otherPosition - position.x) < textSize.width) {
             position.x =
-              numberValue < 0
+              value < 0
                 ? otherPosition - textSize.width - HORIZONTAL_PADDING
                 : otherPosition + textSize.width + HORIZONTAL_PADDING;
           }
@@ -181,15 +221,29 @@ function drawValues(args: {
         textsPositions[key].push(position.x);
       }
 
-      const { strokeColor, textColor } = args.getTextColors(callbackArgs);
+      const textColors = args.getTextColors(callbackArgs);
+      const strokeColor = textColors.strokeColor;
+      const textColor = style?.color ?? textColors.textColor;
       if (!!strokeColor) {
         ctx.strokeStyle = strokeColor;
         ctx.lineWidth = 3; // Stroke the text with a big lineWidth width to have some kind of background
-        ctx.strokeText(valueToDisplay, position.x, position.y);
+        if (valuesToDisplay.length === 1) {
+          ctx.strokeText(valuesToDisplay[0], position.x, position.y);
+        } else if (valuesToDisplay.length === 2) {
+          const height = textSize.height;
+          ctx.strokeText(valuesToDisplay[0], position.x, position.y - height / 4);
+          ctx.strokeText(valuesToDisplay[1], position.x, position.y + height / 4);
+        }
       }
       ctx.fillStyle = textColor;
       ctx.lineWidth = 1;
-      ctx.fillText(valueToDisplay, position.x, position.y);
+      if (valuesToDisplay.length === 1) {
+        ctx.fillText(valuesToDisplay[0], position.x, position.y);
+      } else if (valuesToDisplay.length === 2) {
+        const height = textSize.height;
+        ctx.fillText(valuesToDisplay[0], position.x, position.y - height / 4);
+        ctx.fillText(valuesToDisplay[1], position.x, position.y + height / 4);
+      }
     }
   }
 
@@ -370,9 +424,20 @@ function drawPieValues(chart: any, options: ChartShowValuesPluginOptions) {
   });
 }
 
-function getTextDimensions(text: string, ctx: CanvasRenderingContext2D): Dimensions {
-  const font = computeTextFont({ fontSize: globalThis.Chart?.defaults.font.size ?? 12 }, "px");
-  return computeCachedTextDimension(ctx, text, font);
+function getTextDimensions(
+  text: string[],
+  ctx: CanvasRenderingContext2D,
+  font: string
+): Dimensions {
+  return text
+    .map((text) => computeCachedTextDimension(ctx, text, font))
+    .reduce(
+      (acc, dim) => ({
+        width: Math.max(acc.width, dim.width),
+        height: acc.height + dim.height,
+      }),
+      { width: 0, height: 0 }
+    );
 }
 
 function chartBackgroundColoredTextWithElementColoredHalo(args: CallbackArgs) {

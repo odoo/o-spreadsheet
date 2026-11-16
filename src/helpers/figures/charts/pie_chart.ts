@@ -26,7 +26,7 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
     "aggregated",
     "isDoughnut",
     "pieHolePercentage",
-    "showValues",
+    "showData",
     "slicesColors",
   ] as const,
 
@@ -59,7 +59,7 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
       aggregated: context.aggregated ?? false,
       isDoughnut: context.isDoughnut,
       pieHolePercentage: context.pieHolePercentage,
-      showValues: context.showValues,
+      showData: context.showData,
       humanize: context.humanize,
       slicesColors: context.slicesColors,
       annotationLink: context.annotationLink,
@@ -74,6 +74,7 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
       fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
       labelRange,
+      showValues: definition.showData?.values ?? false,
     };
   },
 

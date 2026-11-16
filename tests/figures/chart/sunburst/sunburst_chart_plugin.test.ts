@@ -52,9 +52,7 @@ describe("Sunburst chart chart", () => {
   test("Can create a sunburst chart from a creation context", () => {
     const context: Required<ChartCreationContext> = {
       ...GENERAL_CHART_CREATION_CONTEXT,
-      showLabels: true,
-      showValues: true,
-      valuesDesign: { italic: true },
+      showData: { values: true, labels: true, valuesDesign: { italic: true } },
       groupColors: ["#123456", "#654321"],
     };
     const definition = createChartDefinitionFromContext("sunburst", context);
@@ -68,9 +66,7 @@ describe("Sunburst chart chart", () => {
         dataSetsHaveTitle: true,
       }),
       legendPosition: "bottom",
-      showValues: true,
-      showLabels: true,
-      valuesDesign: { italic: true },
+      showData: { values: true, labels: true, valuesDesign: { italic: true } },
       groupColors: ["#123456", "#654321"],
       humanize: false,
       pieHolePercentage: 0,
@@ -516,15 +512,16 @@ describe("Sunburst chart chart", () => {
         dataSets: [{ dataRange: "A1:A2" }],
         labelRange: "B1:B2",
       }),
-      showLabels: true,
-      showValues: true,
-      valuesDesign: { fontSize: 12, bold: true, italic: true, color: "#FF0000" },
+      showData: {
+        values: true,
+        labels: true,
+        valuesDesign: { fontSize: 12, bold: true, italic: true, color: "#FF0000" },
+      },
     });
 
     const config = getSunburstRuntime(chartId).chartJsConfig;
     expect(config.options?.plugins?.sunburstLabelsPlugin).toMatchObject({
-      showLabels: true,
-      showValues: true,
+      display: { labels: true, values: true },
       style: { fontSize: 12, bold: true, italic: true, textColor: "#FF0000" },
     });
     expect(config.options?.plugins?.sunburstLabelsPlugin?.callback?.(10, "y")).toBe("10 ( •⩊• )");

@@ -31,7 +31,7 @@ export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
     "subTotalValuesColor",
     "zoomable",
     "axesDesign",
-    "showValues",
+    "showData",
   ],
 
   fromStrDefinition: (definition) => definition,
@@ -66,7 +66,7 @@ export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
       showConnectorLines: context.showConnectorLines ?? true,
       firstValueAsSubtotal: context.firstValueAsSubtotal ?? false,
       axesDesign: context.axesDesign,
-      showValues: context.showValues,
+      showData: context.showData,
       zoomable: context.zoomable ?? false,
       humanize: context.humanize,
       annotationLink: context.annotationLink,

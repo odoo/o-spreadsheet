@@ -10,7 +10,6 @@ export interface TreeMapChartDefinition<T extends string | Range = Range>
   readonly type: "treemap";
   readonly showHeaders?: boolean;
   readonly headerDesign?: TitleDesign;
-  readonly valuesDesign?: TitleDesign;
   readonly coloringOptions?: TreeMapColoringOptions;
 }
 
@@ -52,13 +51,15 @@ export const TreeMapChartDefaults = {
     bold: true,
     fontSize: 15,
   } as TitleDesign,
-  showValues: true,
-  showLabels: true,
-  valuesDesign: {
-    align: "left",
-    verticalAlign: "bottom",
-    fontSize: 12,
-  } as TitleDesign,
+  showData: {
+    values: true,
+    labels: true,
+    valuesDesign: {
+      align: "left",
+      verticalAlign: "bottom",
+      fontSize: 12,
+    } as TitleDesign,
+  },
   coloringOptions: {
     type: "categoryColor",
     colors: [],

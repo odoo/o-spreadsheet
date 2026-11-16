@@ -28,7 +28,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
     "axesDesign",
     "stacked",
     "aggregated",
-    "showValues",
+    "showData",
     "showTotalLine",
     "zoomable",
   ] as const,
@@ -65,7 +65,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
       title: context.title || { text: "" },
       type: "bar",
       axesDesign: context.axesDesign,
-      showValues: context.showValues,
+      showData: context.showData,
       showTotalLine: context.showTotalLine,
       horizontal: context.horizontal,
       zoomable: context.zoomable,
@@ -83,6 +83,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
+      showValues: definition.showData?.values ?? false,
     };
   },
 

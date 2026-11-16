@@ -14,7 +14,7 @@ import { GeneralDesignEditor } from "../building_blocks/general_design/general_d
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { PieHoleSize } from "../building_blocks/pie_hole_size/pie_hole_size";
-import { ChartShowValues } from "../building_blocks/show_values/show_values";
+import { ChartShowValuesComponent } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 export class PieChartDesignPanel extends OSComponent {
@@ -24,7 +24,7 @@ export class PieChartDesignPanel extends OSComponent {
     ChartAnnotation,
     Section,
     ChartLegend,
-    ChartShowValues,
+    ChartShowValuesComponent,
     PieHoleSize,
     Checkbox,
     ChartHumanizeNumbers,

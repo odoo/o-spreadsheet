@@ -69,6 +69,7 @@ export class ChartSuggestionPreview extends OSComponent {
           legend: { display: false },
           title: { display: false },
           tooltip: { enabled: false },
+          chartShowValuesPlugin: { display: {} },
         },
         events: [],
         animation: false,

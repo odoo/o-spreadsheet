@@ -15,8 +15,7 @@ import { GeneralDesignEditor } from "../building_blocks/general_design/general_d
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { PieHoleSize } from "../building_blocks/pie_hole_size/pie_hole_size";
-import { ChartShowValues } from "../building_blocks/show_values/show_values";
-import { TextStyler } from "../building_blocks/text_styler/text_styler";
+import { ChartShowValuesComponent } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 import { useProps } from "@odoo/owl";
@@ -27,9 +26,8 @@ export class SunburstChartDesignPanel extends OSComponent {
     ChartAnnotation,
     Section,
     SidePanelCollapsible,
-    ChartShowValues,
+    ChartShowValuesComponent,
     Checkbox,
-    TextStyler,
     RoundColorPicker,
     ChartLegend,
     PieHoleSize,
@@ -40,14 +38,6 @@ export class SunburstChartDesignPanel extends OSComponent {
   >;
 
   defaults = SunburstChartDefaults;
-
-  get showValues() {
-    return this.props.definition.showValues ?? SunburstChartDefaults.showValues;
-  }
-
-  get showLabels() {
-    return this.props.definition.showLabels ?? SunburstChartDefaults.showLabels;
-  }
 
   get groupColors() {
     const chartId = this.props.chartId;

@@ -24,7 +24,7 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
     "dataSource",
     "legendPosition",
     "dataSetStyles",
-    "showValues",
+    "showData",
     "aggregated",
     "stacked",
     "fillArea",
@@ -60,7 +60,7 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
       title: context.title || { text: "" },
       type: "radar",
       fillArea: context.fillArea ?? false,
-      showValues: context.showValues ?? false,
+      showData: context.showData ?? {},
       hideDataMarkers: context.hideDataMarkers,
       humanize: context.humanize,
       annotationLink: context.annotationLink,
@@ -75,6 +75,7 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
       fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
       labelRange,
+      showValues: definition.showData?.values ?? false,
     };
   },
 

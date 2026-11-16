@@ -39,7 +39,7 @@ describe("population pyramid chart", () => {
       stacked: true,
       axesDesign: {},
       horizontal: true,
-      showValues: false,
+      showData: { values: false, labels: false },
       humanize: false,
       annotationText: "This is an annotation text",
       annotationLink: "https://www.odoo.com",

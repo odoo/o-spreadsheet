@@ -1,6 +1,13 @@
 import { Color } from "../misc";
 import { Range } from "../range";
-import { AxesDesign, ChartColorScale, ChartDataSource, DataSetStyle, TitleDesign } from "./chart";
+import {
+  AxesDesign,
+  ChartColorScale,
+  ChartDataSource,
+  ChartShowValues,
+  DataSetStyle,
+  TitleDesign,
+} from "./chart";
 
 export type VerticalAxisPosition = "left" | "right";
 export type LegendPosition = "top" | "bottom" | "left" | "right" | "none";
@@ -45,7 +52,7 @@ export interface DataSourceChartDefinition<T extends string | Range = Range>
   readonly legendPosition: LegendPosition;
   readonly aggregated?: boolean;
   readonly axesDesign?: AxesDesign;
-  readonly showValues?: boolean;
+  readonly showData?: ChartShowValues;
 }
 
 export interface NonDataSourceBaseChartDefinition extends BaseChartDefinition {
@@ -56,8 +63,7 @@ export interface HierarchicalChartDefinition<T extends string | Range = Range>
   extends BaseChartDefinition {
   readonly dataSetStyles: DataSetStyle;
   readonly dataSource: ChartDataSource<T>;
-  readonly showValues?: boolean;
-  readonly showLabels?: boolean;
+  readonly showData?: ChartShowValues;
   readonly legendPosition: LegendPosition;
 }
 
@@ -67,6 +73,6 @@ export interface ColorGridChartDefinition {
   readonly missingValueColor?: Color;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
-  readonly showValues?: boolean;
+  readonly showData?: ChartShowValues;
   readonly axesDesign?: AxesDesign;
 }

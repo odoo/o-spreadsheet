@@ -7,7 +7,6 @@ import { HierarchicalChartDefinition } from "./common_chart";
 export interface SunburstChartDefinition<T extends string | Range = Range>
   extends HierarchicalChartDefinition<T> {
   readonly type: "sunburst";
-  readonly valuesDesign?: ChartStyle;
   readonly groupColors?: (Color | undefined | null)[];
   readonly pieHolePercentage?: number;
 }
@@ -28,12 +27,14 @@ export interface SunburstTreeNode extends SunburstChartRawData {
 }
 
 export const SunburstChartDefaults = {
-  showValues: false,
-  showLabels: true,
-  valuesDesign: {
-    align: "center",
-    fontSize: 13,
-  } as ChartStyle,
+  showData: {
+    values: false,
+    labels: true,
+    valuesDesign: {
+      align: "center",
+      fontSize: 13,
+    } as ChartStyle,
+  },
 };
 
 export interface SunburstChartJSDataset extends ChartDataset<"doughnut"> {

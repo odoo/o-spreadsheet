@@ -31,7 +31,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
     "cumulative",
     "axesDesign",
     "fillArea",
-    "showValues",
+    "showData",
     "hideDataMarkers",
     "zoomable",
   ] as const,
@@ -68,7 +68,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
       cumulative: context.cumulative ?? false,
       axesDesign: context.axesDesign,
       fillArea: context.fillArea,
-      showValues: context.showValues,
+      showData: context.showData,
       hideDataMarkers: context.hideDataMarkers,
       zoomable: context.zoomable,
       humanize: context.humanize,
@@ -85,6 +85,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
+      showValues: definition.showData?.values ?? false,
     };
   },
 
