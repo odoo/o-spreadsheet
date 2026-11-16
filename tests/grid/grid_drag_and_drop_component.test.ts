@@ -418,7 +418,7 @@ test("Drag&drop is stopped when the calling component is unmounted", async () =>
   jest.advanceTimersByTime(advanceTimer);
   expect(selectedCol).toEqual(1);
   expect(mouseUpFn).toHaveBeenCalledTimes(1);
-  expect(spyRemoveEventListener).toHaveBeenCalledTimes(5);
+  expect(spyRemoveEventListener).toHaveBeenCalledTimes(6);
 });
 
 test("Drag&drop is stopped when mouseup is called on an element that stops pointer events", async () => {

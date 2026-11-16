@@ -163,6 +163,11 @@ export const DATA_VALIDATION_CHIP_MARGIN = 5;
 // Typically inside Odoo, it is the threshold for switching to mobile view
 export const MOBILE_WIDTH_BREAKPOINT = 768;
 
+// Wheel gesture: ends after an idle time or a pointer move, as in Chromium
+// Ref: https://chromium.googlesource.com/chromium/src/+/HEAD/content/browser/renderer_host/input/mouse_wheel_phase_handler.h#20
+export const WHEEL_GESTURE_TIMEOUT = 500; // in milliseconds
+export const WHEEL_GESTURE_MOVE_THRESHOLD = 10; // in pixels
+
 // Menus
 export const MENU_WIDTH = 250;
 export const MENU_VERTICAL_PADDING = 6;

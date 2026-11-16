@@ -4,6 +4,7 @@ import {
   signal,
   Signal,
   useListener,
+  useOnChange,
   usePlugin,
   useProps,
 } from "@odoo/owl";
@@ -11,6 +12,7 @@ import { FOOTER_HEIGHT } from "../../constants";
 import { deepEquals } from "../../helpers/misc";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
+import { WheelGesturePlugin } from "../../owl_plugins/wheel_gesture_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
@@ -22,7 +24,13 @@ import { Store } from "../../types/store_engine";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { cssPropertiesToCss } from "../helpers/css";
-import { getElBoundingRect, isChildEvent, isCtrlKey, isMobileOS } from "../helpers/dom_helpers";
+import {
+  getElBoundingRect,
+  isChildEvent,
+  isCtrlKey,
+  isMobileOS,
+  zoomCorrectedElementRect,
+} from "../helpers/dom_helpers";
 import { useInterval } from "../helpers/time_hooks";
 import { ZoomedMouseEvent } from "../helpers/zoom";
 import { OSComponent } from "../os_component";
@@ -39,6 +47,7 @@ function useCellHovered(
   const cellHoverOverlay = useStore(CellHoverOverlayStore);
   const viewStore = useStore(ViewportsStore);
   const zoomPlugin = usePlugin(ZoomPlugin);
+  const wheelGesturePlugin = usePlugin(WheelGesturePlugin);
   const hoveredPosition: Partial<Position> = {
     col: undefined,
     row: undefined,
@@ -85,15 +94,36 @@ function useCellHovered(
   }
   function updateMousePosition(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>) {
     if (isChildEvent(gridRef(), zoomedMouseEvent.ev)) {
-      ({ x, y } = getOffsetRelativeToOverlay(zoomedMouseEvent));
-      lastMoved = Date.now();
-      const position = getPosition();
-      if (position.col < 0 || position.row < 0) {
-        cellHoverOverlay.hover(undefined);
-      } else {
-        cellHoverOverlay.hover(getPosition());
-      }
+      hover(getOffsetRelativeToOverlay(zoomedMouseEvent));
     }
+  }
+
+  function hover(offset: DOMCoordinates | undefined) {
+    x = offset?.x;
+    y = offset?.y;
+    lastMoved = Date.now();
+    const position = getPosition();
+    cellHoverOverlay.hover(position.col < 0 || position.row < 0 ? undefined : position);
+  }
+
+  useOnChange(
+    () => [wheelGesturePlugin.isScrolling()],
+    (isScrolling) => {
+      if (!isScrolling) {
+        hoverUnderPointer();
+      }
+    },
+    { initialRun: false }
+  );
+
+  function hoverUnderPointer() {
+    const grid = gridRef();
+    const pointer = wheelGesturePlugin.pointer;
+    if (!grid || !pointer) {
+      return hover(undefined);
+    }
+    const gridRect = zoomCorrectedElementRect(grid, zoomPlugin.zoomLevel());
+    hover(getOffsetRelativeToOverlay(zoomPlugin.getZoomedEvent(pointer, gridRect)));
   }
 
   function recompute() {
