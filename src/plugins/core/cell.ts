@@ -637,12 +637,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   getCellStyle(position: CellPosition): Style {
     return {
       ...this.getters.getCellDefaultStyle(position),
-      ...this.getters.getCell(position)?.style,
+      ...this.getCell(position)?.style,
     };
   }
 
   getCellFormat(position: CellPosition): Format | undefined {
-    const cell = this.getters.getCell(position);
+    const cell = this.getCell(position);
     if (cell?.format !== undefined) {
       return cell?.format;
     }
