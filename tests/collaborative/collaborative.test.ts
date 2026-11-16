@@ -912,9 +912,17 @@ describe("Multi users synchronisation", () => {
     });
     const colSize = alice.getters.getColSize("sheet2", 0);
     const ctx = document.createElement("canvas").getContext("2d")!;
+    const position = { sheetId: "sheet2", col: 0, row: 0 };
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getRowSize("sheet2", 0),
-      getDefaultCellHeight(ctx, getCell(alice, "A1"), DEFAULT_LOCALE, colSize)
+      getDefaultCellHeight(
+        ctx,
+        getCell(alice, "A1"),
+        alice.getters.getCellStyle(position),
+        alice.getters.getCellFormat(position),
+        DEFAULT_LOCALE,
+        colSize
+      )
     );
   });
 
