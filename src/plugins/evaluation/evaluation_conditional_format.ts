@@ -303,7 +303,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
   ): void {
     const rangeValues = this.getters.getRangeFromSheetXC(sheetId, rule.rangeValues || range);
     const allValues = this.getters
-      .getEvaluatedCellsInZone(sheetId, rangeValues.zone)
+      .getEvaluatedCellsInZone(rangeValues.sheetId, rangeValues.zone)
       .filter((cell): cell is NumberCell => cell.type === CellValueType.number)
       .map((cell) => cell.value);
     const max = largeMax(allValues);
@@ -319,7 +319,11 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
       for (let col = zone.left; col <= zone.right; col++) {
         const targetCol = col - zone.left + zoneOfValues.left;
         const targetRow = row - zone.top + zoneOfValues.top;
-        const cell = this.getters.getEvaluatedCell({ sheetId, col: targetCol, row: targetRow });
+        const cell = this.getters.getEvaluatedCell({
+          sheetId: rangeValues.sheetId,
+          col: targetCol,
+          row: targetRow,
+        });
         if (
           !isInside(targetCol, targetRow, zoneOfValues) ||
           cell.type !== CellValueType.number ||
