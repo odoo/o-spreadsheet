@@ -8,6 +8,7 @@ import {
   addRows,
   changeCFPriority,
   createSheet,
+  createSheetWithName,
   deleteCells,
   deleteColumns,
   deleteRows,
@@ -2702,6 +2703,33 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "B3")?.percentage).toBe(100);
   });
 
+  test("Can add a data bar cf based on a range on another sheet", () => {
+    const grid = {
+      B1: "Hello",
+      B2: "World",
+      B3: "!",
+    };
+    const model = createModelFromGrid(grid);
+    createSheetWithName(model, { sheetId: "Sheet2" }, "Sheet2");
+    setCellContent(model, "A1", "2", "Sheet2");
+    setCellContent(model, "A2", "4", "Sheet2");
+    setCellContent(model, "A3", "8", "Sheet2");
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          type: "DataBarRule",
+          color: 0xff0000,
+          rangeValues: "Sheet2!A1:A3",
+        },
+      },
+      ranges: toRangesData(sheetId, "B1:B3"),
+      sheetId,
+    });
+    expect(getDataBarFill(model, "B1")?.percentage).toBe(25);
+    expect(getDataBarFill(model, "B2")?.percentage).toBe(50);
+    expect(getDataBarFill(model, "B3")?.percentage).toBe(100);
+  });
   test("Adding a data bar rule with rangeValues having smaller size than cf range should only apply rule on matching cells", () => {
     // prettier-ignore
     const grid = {
