@@ -1,6 +1,10 @@
 import { proxy, useProps } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
-import { PieChartDefinition, PieChartRuntime } from "../../../../types/chart/pie_chart";
+import {
+  PieChartDefaults,
+  PieChartDefinition,
+  PieChartRuntime,
+} from "../../../../types/chart/pie_chart";
 import { ValueAndLabel } from "../../../../types/misc";
 import { DEFAULT_DOUGHNUT_CHART_HOLE_SIZE } from "../../../../xlsx/constants";
 import { OSComponent } from "../../../os_component";
@@ -35,6 +39,8 @@ export class PieChartDesignPanel extends OSComponent {
   protected props = useProps(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
     PieChartDefinition<string>
   >;
+
+  defaults = PieChartDefaults;
 
   protected state = proxy({ index: 0 });
 

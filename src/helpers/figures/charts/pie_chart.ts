@@ -1,7 +1,7 @@
 import type { ChartConfiguration } from "chart.js";
 import { DEFAULT_CHART_BACKGROUND_COLOR } from "../../../constants";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { PieChartRuntime } from "../../../types/chart/pie_chart";
+import { PieChartDefaults, PieChartRuntime } from "../../../types/chart/pie_chart";
 import { CommandResult } from "../../../types/commands";
 import { ColorThemeName } from "../../../types/rendering";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
@@ -106,7 +106,11 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
           title: getChartTitle(definition, getters),
           legend: getPieChartLegend(definition, chartData),
           tooltip: getPieChartTooltip(definition, chartData),
-          chartShowValuesPlugin: getChartShowValues(definition, chartData),
+          chartShowValuesPlugin: getChartShowValues(
+            definition,
+            chartData,
+            PieChartDefaults.showData
+          ),
           background: { color: chartData.background },
         },
         ...eventHandlers,

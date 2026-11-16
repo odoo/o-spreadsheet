@@ -1,12 +1,17 @@
 import type { Chart, ChartMeta, ChartType, Plugin, PointElement } from "chart.js";
 import { colorToRGBA } from "../../../../helpers/color";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
-import { computeCachedTextDimension, computeTextFont } from "../../../../helpers/text_helper";
+import {
+  clipTextWithEllipsis,
+  computeCachedTextDimension,
+  computeTextFont,
+} from "../../../../helpers/text_helper";
 import type {
   ChartType as AllChartType,
   ChartShowValues,
   ChartStyle,
 } from "../../../../types/chart/chart";
+import { PieChartDefaults } from "../../../../types/chart/pie_chart";
 import { Color } from "../../../../types/misc";
 
 interface Dimensions {
@@ -109,7 +114,12 @@ function drawValues(args: {
   direction: "horizontal" | "vertical";
   getNumberValue: (dataset: any, valueIndex: number) => number | undefined;
   getPercentage?: (dataset: any, valueIndex: number) => number | undefined;
-  getValuePosition: (args: CallbackArgs) => { x: number; y: number; w?: number };
+  getValuePosition: (args: CallbackArgs) => {
+    x: number;
+    y: number;
+    angle?: number;
+    maxWidth?: number;
+  };
   getLabel?: (chart: any, dataset: any, valueIndex: number) => string;
   shouldSkipValue: (args: CallbackArgs) => boolean;
   getTextColors: (args: CallbackArgs) => TextStyle;
@@ -224,26 +234,44 @@ function drawValues(args: {
       const textColors = args.getTextColors(callbackArgs);
       const strokeColor = textColors.strokeColor;
       const textColor = style?.color ?? textColors.textColor;
+      let { x, y, angle, maxWidth } = position;
+      ctx.save();
+      ctx.translate(x, y);
+      if (label === undefined && percentage === undefined) {
+        angle = 0;
+      }
+      if (angle !== undefined) {
+        if (angle > Math.PI / 2) {
+          angle += Math.PI;
+        }
+        ctx.rotate(angle);
+      }
+      if (maxWidth !== undefined) {
+        for (const i in valuesToDisplay) {
+          valuesToDisplay[i] = clipTextWithEllipsis(ctx, valuesToDisplay[i], maxWidth);
+        }
+      }
       if (!!strokeColor) {
         ctx.strokeStyle = strokeColor;
         ctx.lineWidth = 3; // Stroke the text with a big lineWidth width to have some kind of background
         if (valuesToDisplay.length === 1) {
-          ctx.strokeText(valuesToDisplay[0], position.x, position.y);
+          ctx.strokeText(valuesToDisplay[0], 0, 0);
         } else if (valuesToDisplay.length === 2) {
           const height = textSize.height;
-          ctx.strokeText(valuesToDisplay[0], position.x, position.y - height / 4);
-          ctx.strokeText(valuesToDisplay[1], position.x, position.y + height / 4);
+          ctx.strokeText(valuesToDisplay[0], 0, -height / 4);
+          ctx.strokeText(valuesToDisplay[1], 0, height / 4);
         }
       }
       ctx.fillStyle = textColor;
       ctx.lineWidth = 1;
       if (valuesToDisplay.length === 1) {
-        ctx.fillText(valuesToDisplay[0], position.x, position.y);
+        ctx.fillText(valuesToDisplay[0], 0, 0);
       } else if (valuesToDisplay.length === 2) {
         const height = textSize.height;
-        ctx.fillText(valuesToDisplay[0], position.x, position.y - height / 4);
-        ctx.fillText(valuesToDisplay[1], position.x, position.y + height / 4);
+        ctx.fillText(valuesToDisplay[0], 0, -height / 4);
+        ctx.fillText(valuesToDisplay[1], 0, height / 4);
       }
+      ctx.restore();
     }
   }
 
@@ -408,19 +436,42 @@ function drawPieValues(chart: any, options: ChartShowValuesPluginOptions) {
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i]),
-    getValuePosition: ({ chartElement }) => {
-      const { midAngle, midRadius } = getSliceDimensions(chartElement);
-      const x = chartElement.x + midRadius * Math.cos(midAngle);
-      const y = chartElement.y + midRadius * Math.sin(midAngle);
-      return { x, y };
+    getPercentage: (dataset, i) => {
+      const total = dataset._parsed.reduce((sum: number, value: number) => sum + Number(value), 0);
+      return total === 0 ? 0 : (Number(dataset._parsed[i]) / total) * 100;
     },
+    getValuePosition: ({ chartElement }) => {
+      const { midAngle: angle, midRadius } = getSliceDimensions(chartElement);
+      const x = chartElement.x + midRadius * Math.cos(angle);
+      const y = chartElement.y + midRadius * Math.sin(angle);
+      return { x, y, angle, maxWidth: 0.9 * (chartElement.outerRadius - chartElement.innerRadius) };
+    },
+    getLabel: (chart, dataset, valueIndex) => chart.data.labels[valueIndex],
     shouldSkipValue: ({ chartElement, textSize }) => {
-      const { midRadius } = getSliceDimensions(chartElement);
-      const sliceAngle = chartElement.endAngle - chartElement.startAngle;
-      const midWidth = 2 * midRadius * Math.tan(sliceAngle / 2);
-      return sliceAngle < Math.PI / 2 && (textSize.width >= midWidth || midWidth < textSize.height);
+      const { midAngle } = getSliceDimensions(chartElement);
+      const { innerRadius, outerRadius, endAngle, startAngle } = chartElement;
+      const { width, height } = textSize;
+      const deltaX = outerRadius + innerRadius - width;
+      const bottomLeft = {
+        x: deltaX * Math.cos(midAngle) + height * Math.sin(midAngle),
+        y: deltaX * Math.sin(midAngle) - height * Math.cos(midAngle),
+      };
+      const topLeft = {
+        x: deltaX * Math.cos(midAngle) - height * Math.sin(midAngle),
+        y: deltaX * Math.sin(midAngle) + height * Math.cos(midAngle),
+      };
+      let bottomLeftAngle = Math.atan(bottomLeft.y / bottomLeft.x);
+      let topLeftAngle = Math.atan(topLeft.y / topLeft.x);
+      if (bottomLeft.x < 0) {
+        bottomLeftAngle += Math.PI;
+      }
+      if (topLeft.x < 0) {
+        topLeftAngle += Math.PI;
+      }
+      return bottomLeftAngle < startAngle || topLeftAngle > endAngle;
     },
     getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
+    style: { ...PieChartDefaults.showData.valuesDesign, ...options.display?.valuesDesign },
   });
 }
 

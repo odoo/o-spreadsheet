@@ -168,6 +168,53 @@ describe("Pie chart show value", () => {
     const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
   });
+  test.each([
+    ["labels", { labels: true }],
+    ["percentages", { percentages: true }],
+    ["values and percentages", { values: true, percentages: true }],
+    ["labels and percentages", { labels: true, percentages: true }],
+    ["labels, values and percentages", { labels: true, values: true, percentages: true }],
+  ])("Can show %s on a pie chart", (_, showData) => {
+    const model = createModelFromGrid({ A1: "a", A2: "b", A3: "c", B1: "1", B2: "2", B3: "3" });
+    const definition: Partial<PieChartDefinition<string>> & { type: "pie" } = {
+      type: "pie",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B3" }],
+        labelRange: "A1:A3",
+        dataSetsHaveTitle: false,
+      }),
+      showData,
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+
+  test("Values design is applied to the values of a pie chart", () => {
+    const model = createModelFromGrid({ A1: "a", A2: "b", A3: "c", B1: "1", B2: "2", B3: "3" });
+    const definition: Partial<PieChartDefinition<string>> & { type: "pie" } = {
+      type: "pie",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B3" }],
+        labelRange: "A1:A3",
+        dataSetsHaveTitle: false,
+      }),
+      showData: {
+        values: true,
+        labels: true,
+        valuesDesign: { bold: true, italic: true, fontSize: 20, color: "#FF0000" },
+      },
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
 });
 
 describe("Line chart show value", () => {
