@@ -310,6 +310,8 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
     return this.mapOnElements({ parent: row, query: "c" }, (cellElement): XLSXCell => {
       const xc = this.extractAttr(cellElement, "r", { required: true }).asString();
       const formula = this.extractCellFormula(cellElement);
+      const cellType =
+        CELL_TYPE_CONVERSION_MAP[this.extractAttr(cellElement, "t", { default: "n" }).asString()];
 
       if (formula?.ref && formula.sharedIndex === undefined) {
         const zone = toZone(formula.ref);
@@ -320,15 +322,19 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
           }
         }
       }
+      let cellValue: string | undefined;
 
       const isSpilled = spilledCells.has(xc);
+      if (!isSpilled) {
+        const textSelector = cellType === "inlineStr" ? "is" : "v";
+        cellValue = this.extractChildTextContent(cellElement, textSelector) ?? undefined;
+      }
+
       return {
         xc,
         styleIndex: this.extractAttr(cellElement, "s")?.asNum(),
-        type: CELL_TYPE_CONVERSION_MAP[
-          this.extractAttr(cellElement, "t", { default: "n" }).asString()
-        ],
-        value: isSpilled ? undefined : this.extractChildTextContent(cellElement, "v") ?? undefined,
+        type: cellType,
+        value: cellValue,
         formula: isSpilled ? undefined : formula,
       };
     });

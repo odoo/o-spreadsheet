@@ -1067,6 +1067,40 @@ test("Can import a file with absolute relationship targets", () => {
   expect(sheet.tables).toMatchObject([{ range: "A1:A2" }]);
 });
 
+test("Can import inline strings", () => {
+  const ns = `xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"`;
+  const relsNs = `xmlns="http://schemas.openxmlformats.org/package/2006/relationships"`;
+  const reader = new XlsxReader({
+    "[Content_Types].xml": `
+      <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+        <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" />
+        <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" />
+        <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" />
+      </Types>`,
+    "_rels/.rels": `
+      <Relationships ${relsNs}>
+        <Relationship Id="R1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml" />
+      </Relationships>`,
+    "xl/workbook.xml": `
+      <workbook ${ns}>
+        <sheets><sheet name="MySheet" sheetId="1" r:id="R2" /></sheets>
+      </workbook>`,
+    "xl/_rels/workbook.xml.rels": `
+      <Relationships ${relsNs}>
+        <Relationship Id="R2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml" />
+      </Relationships>`,
+    "xl/worksheets/sheet1.xml": `
+      <worksheet ${ns}>
+        <sheetData>
+          <row r="1"><c r="A1" t="inlineStr"><is><t>hello</t></is></c></row>
+        </sheetData>
+      </worksheet>`,
+    "xl/styles.xml": `<styleSheet ${ns} />`,
+  });
+  const sheet = getWorkbookSheet("MySheet", reader.convertXlsx())!;
+  expect(getWorkbookCell(0, 0, sheet)?.content).toEqual("hello");
+});
+
 test.each([
   ["xl/workbook.xml", "worksheets/sheet1.xml", "xl/worksheets/sheet1.xml"],
   ["xl/workbook.xml", "/xl/worksheets/sheet1.xml", "xl/worksheets/sheet1.xml"],
