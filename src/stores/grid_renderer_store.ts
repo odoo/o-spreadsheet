@@ -35,7 +35,7 @@ import { Model } from "../model";
 import { cellAnimationRegistry } from "../registries/cell_animation_registry";
 import { DisposableStore } from "../store_engine/store";
 import { CellValueType } from "../types/cells";
-import { Command } from "../types/commands";
+import { Command, CoreCommand } from "../types/commands";
 import { RenderingGetters } from "../types/getters";
 import { Align, CellPosition, HeaderIndex, Pixel, UID, Zone } from "../types/misc";
 import {
@@ -112,19 +112,10 @@ export class GridRenderer extends DisposableStore {
         break;
       case "REDO":
         this.zonesWithPreventedAnimationsInNextFrame = {};
+        this.preventAnimationsOnStructuralChange(cmd.commands);
         break;
       case "UNDO":
-        for (const command of cmd.commands) {
-          if (
-            command.type === "ADD_COLUMNS_ROWS" ||
-            command.type === "REMOVE_COLUMNS_ROWS" ||
-            command.type === "RESIZE_COLUMNS_ROWS"
-          ) {
-            this.animations.clear();
-            this.preventNewAnimationsInNextFrame = true;
-            break;
-          }
-        }
+        this.preventAnimationsOnStructuralChange(cmd.commands);
         break;
       case "PASTE":
         this.preventNewAnimationsInNextFrame = true;
@@ -136,6 +127,20 @@ export class GridRenderer extends DisposableStore {
         }
         this.zonesWithPreventedAnimationsInNextFrame[cmd.sheetId].push(zone);
         break;
+    }
+  }
+
+  private preventAnimationsOnStructuralChange(commands: readonly CoreCommand[]) {
+    for (const command of commands) {
+      if (
+        command.type === "ADD_COLUMNS_ROWS" ||
+        command.type === "REMOVE_COLUMNS_ROWS" ||
+        command.type === "RESIZE_COLUMNS_ROWS"
+      ) {
+        this.animations.clear();
+        this.preventNewAnimationsInNextFrame = true;
+        break;
+      }
     }
   }
 

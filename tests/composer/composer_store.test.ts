@@ -11,9 +11,11 @@ import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";
 import { Store } from "../../src/types/store_engine";
+import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
 import {
   activateSheet,
   addCellToSelection,
+  addColumns,
   copy,
   createSheet,
   createSheetWithName,
@@ -1361,4 +1363,18 @@ describe("edition", () => {
       "=SUM(11111111, 22222222, 33333333, 44444444, 55555555, 66666666, 77777777, 88888888)"
     );
   });
+});
+
+test("edited cell follows a column added by another user", () => {
+  const { alice, bob } = setupCollaborativeEnv();
+  const { store } = makeStoreWithModel(alice, CellComposerStore);
+  selectCell(alice, "B1");
+  store.startEdition();
+  addColumns(bob, "before", "A", 1);
+  expect(store.currentEditedCell).toEqual({
+    sheetId: alice.getters.getActiveSheetId(),
+    col: 2,
+    row: 0,
+  });
+  expect(getActivePosition(alice)).toBe("C1");
 });
