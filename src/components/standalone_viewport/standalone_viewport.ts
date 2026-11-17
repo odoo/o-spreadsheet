@@ -10,7 +10,7 @@ import { DOMDimension, Rect } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { ClickableCellsStore } from "../dashboard/clickable_cell_store";
-import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
+import { DelayedHoveredCellPlugin } from "../grid/delayed_hovered_cell_owl_plugin";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { HoveredIconStore } from "../grid_overlay/hovered_icon_store";
 import { GridPopover } from "../grid_popover/grid_popover";
@@ -62,12 +62,11 @@ export class StandaloneViewport extends OSComponent {
   cellPopoverStore!: Store<CellPopoverStore>;
 
   setup() {
-    providePlugins([ViewportsPlugin]);
+    providePlugins([ViewportsPlugin, DelayedHoveredCellPlugin]);
     useChildStoreProvider([
       HoveredIconStore,
       ClickableCellsStore,
       CellHoverOverlayStore,
-      DelayedHoveredCellStore,
       CellPopoverStore,
     ]);
     this.viewPlugin = usePlugin(ViewportsPlugin);
