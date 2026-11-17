@@ -18,6 +18,7 @@ import {
   createTreeMapChart,
   setCellContent,
   setFormat,
+  updateChart,
 } from "../../../test_helpers/commands_helpers";
 import { setGrid } from "../../../test_helpers/helpers";
 
@@ -525,6 +526,21 @@ describe("Sunburst chart chart", () => {
       style: { fontSize: 12, bold: true, italic: true, textColor: "#FF0000" },
     });
     expect(config.options?.plugins?.sunburstLabelsPlugin?.callback?.(10, "y")).toBe("10 ( •⩊• )");
+  });
+
+  test("Sunburst show value plugin displays percentages if enabled", () => {
+    setGrid(model, { A2: "Group1", B2: "10" });
+    const dataSource = toChartDataSource({
+      dataSets: [{ dataRange: "A1:A2" }],
+      labelRange: "B1:B2",
+    });
+    const chartId = createSunburstChart(model, dataSource);
+    let config = getSunburstRuntime(chartId).chartJsConfig;
+    expect(config.options?.plugins?.sunburstLabelsPlugin?.display?.percentages).toBeFalsy();
+
+    updateChart(model, chartId, { showData: { percentages: true } });
+    config = getSunburstRuntime(chartId).chartJsConfig;
+    expect(config.options?.plugins?.sunburstLabelsPlugin?.display?.percentages).toBe(true);
   });
 
   test("Sunburst hover plugin is enabled", () => {

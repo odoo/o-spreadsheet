@@ -1,6 +1,10 @@
 import type { Chart, ChartMeta, ChartType, Plugin, PointElement } from "chart.js";
 import { colorToRGBA } from "../../../../helpers/color";
-import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
+import {
+  chartFontColor,
+  formatValueWithPercentage,
+  isTrendLineAxis,
+} from "../../../../helpers/figures/charts/chart_common";
 import {
   clipTextWithEllipsis,
   computeCachedTextDimension,
@@ -173,14 +177,12 @@ function drawValues(args: {
       if (label) {
         valuesToDisplay.push(label);
       }
-      let displayedValue = "";
-      if (numberValue !== undefined && !isNaN(numberValue)) {
-        displayedValue = options.callback(numberValue, dataset, i);
-      }
-      if (percentage !== undefined && !isNaN(percentage)) {
-        displayedValue +=
-          (displayedValue ? " (" : "") + `${percentage.toFixed(2)}%` + (displayedValue ? ")" : "");
-      }
+      const displayedValue = formatValueWithPercentage(
+        numberValue !== undefined && !isNaN(numberValue)
+          ? options.callback(numberValue, dataset, i)
+          : undefined,
+        percentage
+      );
       if (displayedValue) {
         valuesToDisplay.push(displayedValue);
       }

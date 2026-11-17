@@ -7,6 +7,7 @@ import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../../src/types/chart/pie_chart";
 import { RadarChartDefinition } from "../../../src/types/chart/radar_chart";
 import { ScatterChartDefinition } from "../../../src/types/chart/scatter_chart";
+import { SunburstChartDefinition } from "../../../src/types/chart/sunburst_chart";
 import { drawChartOnNodeCanvas, toChartDataSource } from "../../test_helpers/chart_helpers";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
@@ -207,6 +208,38 @@ describe("Pie chart show value", () => {
         labels: true,
         valuesDesign: { bold: true, italic: true, fontSize: 20, color: "#FF0000" },
       },
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+});
+
+describe("Sunburst chart show value", () => {
+  test.each([
+    ["percentages", { labels: false, values: false, percentages: true }],
+    ["values and percentages", { labels: false, values: true, percentages: true }],
+    ["labels, values and percentages", { labels: true, values: true, percentages: true }],
+  ])("Can show %s on a sunburst chart", (_, showData) => {
+    // prettier-ignore
+    const grid = {
+      A1: "A", B1: "A1", C1: "1",
+      A2: "A", B2: "A2", C2: "2",
+      A3: "B", B3: "B1", C3: "3",
+      A4: "B", B4: "B2", C4: "4",
+    };
+    const model = createModelFromGrid(grid);
+    const definition: Partial<SunburstChartDefinition<string>> & { type: "sunburst" } = {
+      type: "sunburst",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A4" }, { dataRange: "B1:B4" }],
+        labelRange: "C1:C4",
+        dataSetsHaveTitle: false,
+      }),
+      showData,
       title: { text: "" },
       legendPosition: "none",
     };

@@ -29,6 +29,7 @@
           <ChartShowValuesComponent
             t-props="this.props"
             showLabelCheckbox="true"
+            showPercentageCheckbox="true"
             default="this.defaults.showData"
           />
         </Section>

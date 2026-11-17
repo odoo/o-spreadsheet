@@ -411,6 +411,31 @@ describe("TreeMap chart", () => {
     expect(labelConfig?.display).toEqual(false);
   });
 
+  test("TreeMap percentages are computed on the total of the chart", () => {
+    // prettier-ignore
+    setGrid(model, {
+      A1: "Year", B1: "Quarter", C1: "Sales",
+      A2: "2024", B2: "Q1",      C2: "100",
+      A3: "2024", B3: "Q2",      C3: "300",
+    });
+    const chartId = createTreeMapChart(model, {
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }],
+        labelRange: "C1:C3",
+      }),
+      showData: { labels: false, values: false, percentages: true },
+    });
+    const q1Element = getTreeMapElement({ value: 100, group: "Q1" });
+
+    let labelConfig = getTreeMapDatasetConfig(chartId).labels as any;
+    expect(labelConfig?.display).toBe(true);
+    expect(labelConfig?.formatter?.(q1Element)).toEqual(["25.00%"]);
+
+    updateChart(model, chartId, { showData: { labels: true, values: true, percentages: true } });
+    labelConfig = getTreeMapDatasetConfig(chartId).labels as any;
+    expect(labelConfig?.formatter?.(q1Element)).toEqual(["Q1", "100 (25.00%)"]);
+  });
+
   describe("TreeMap background colors", () => {
     function getBackgroundColorCallback(chartId: UID) {
       const runtime = model.getters.getChartRuntime(chartId) as TreeMapChartRuntime;

@@ -165,6 +165,10 @@ describe("TreeMap chart side panel", () => {
       await click(fixture, "input[name='showLabels']");
       expect(getTreeMapChartDefinition(chartId)?.showData?.labels).toBe(false);
       expect(".o-values-style").toHaveCount(0);
+
+      await click(fixture, "input[name='showPercentages']");
+      expect(getTreeMapChartDefinition(chartId)?.showData?.percentages).toBe(true);
+      expect(".o-values-style").toHaveCount(1);
     });
 
     test("Can change categories colors", async () => {

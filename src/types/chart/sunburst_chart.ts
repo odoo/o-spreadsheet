@@ -28,7 +28,7 @@ export interface SunburstTreeNode extends SunburstChartRawData {
 
 export const SunburstChartDefaults = {
   showData: {
-    values: false,
+    values: true,
     labels: true,
     valuesDesign: {
       align: "center",

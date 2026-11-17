@@ -121,27 +121,35 @@ describe("Sunburst chart side panel", () => {
       expect(definition.background).toEqual("#000000");
     });
 
-    test("Can display or not the labels/values", async () => {
+    test("Can display/hide the labels/values/percentages", async () => {
       const chartId = createSunburstChart(model, {});
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       expect('input[name="showLabels"]').toHaveValue(true);
-      expect('input[name="showValues"]').toHaveValue(false);
+      expect('input[name="showValues"]').toHaveValue(true);
+      expect('input[name="showPercentages"]').toHaveValue(false);
       expect(".o-values-style").toHaveCount(1);
 
       await simulateClick('input[name="showLabels"]');
 
       expect('input[name="showLabels"]').toHaveValue(false);
-      expect('input[name="showValues"]').toHaveValue(false);
-      expect(".o-values-style").toHaveCount(0);
+      expect('input[name="showValues"]').toHaveValue(true);
+      expect('input[name="showPercentages"]').toHaveValue(false);
+      expect(".o-values-style").toHaveCount(1);
       expect(getSunburstDefinition(chartId).showData?.labels).toEqual(false);
 
       await simulateClick('input[name="showValues"]');
 
       expect('input[name="showLabels"]').toHaveValue(false);
-      expect('input[name="showValues"]').toHaveValue(true);
+      expect('input[name="showValues"]').toHaveValue(false);
+      expect('input[name="showPercentages"]').toHaveValue(false);
+      expect(".o-values-style").toHaveCount(0);
+      expect(getSunburstDefinition(chartId).showData?.values).toEqual(false);
+
+      await simulateClick('input[name="showPercentages"]');
+      expect('input[name="showPercentages"]').toHaveValue(true);
       expect(".o-values-style").toHaveCount(1);
-      expect(getSunburstDefinition(chartId).showData?.values).toEqual(true);
+      expect(getSunburstDefinition(chartId).showData?.percentages).toEqual(true);
     });
 
     test("Can change Sunburst label style", async () => {

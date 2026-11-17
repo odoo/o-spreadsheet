@@ -54,6 +54,7 @@
             t-props="this.props"
             hasVerticalAlign="true"
             showLabelCheckbox="true"
+            showPercentageCheckbox="true"
             default="this.defaults.showData"
           />
         </Section>
