@@ -19,7 +19,7 @@ import { CellPosition, GridClickModifiers, HeaderIndex, Position } from "../../t
 import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
-import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
+import { DelayedHoveredCellPlugin } from "../grid/delayed_hovered_cell_owl_plugin";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect, isChildEvent, isCtrlKey, isMobileOS } from "../helpers/dom_helpers";
@@ -35,7 +35,7 @@ function useCellHovered(
   env: SpreadsheetChildEnv,
   gridRef: Signal<HTMLElement | null>
 ): Partial<Position> {
-  const delayedHoveredCell = useStore(DelayedHoveredCellStore);
+  const delayedHoveredCell = usePlugin(DelayedHoveredCellPlugin);
   const cellHoverOverlay = useStore(CellHoverOverlayStore);
   const viewPlugin = usePlugin(ViewportsPlugin);
   const zoomPlugin = usePlugin(ZoomPlugin);

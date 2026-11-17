@@ -7,7 +7,6 @@ import { ChartJsComponent } from "./components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "./components/figures/chart/scorecard/chart_scorecard";
 import { FigureComponent } from "./components/figures/figure/figure";
 import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
-import { DelayedHoveredCellStore } from "./components/grid/delayed_hovered_cell_store";
 import { Grid } from "./components/grid/grid";
 import { GridOverlay } from "./components/grid_overlay/grid_overlay";
 import { useDragAndDropListItems } from "./components/helpers/drag_and_drop_dom_items_hook";
@@ -356,6 +355,7 @@ import { TableAutofillStore } from "./components/autofill/table_autofill_store";
 import { Composer } from "./components/composer/composer/composer";
 import { StandaloneComposer } from "./components/composer/standalone_composer/standalone_composer";
 import { CarouselFigure } from "./components/figures/figure_carousel/figure_carousel";
+import { DelayedHoveredCellPlugin } from "./components/grid/delayed_hovered_cell_owl_plugin";
 import {
   getBoundingRectWithMargins,
   hasInteractiveElementInEventTree,
@@ -602,7 +602,6 @@ export const stores = {
   ComposerFocusStore,
   CellComposerStore,
   FindAndReplaceStore,
-  DelayedHoveredCellStore,
   HoveredTableStore,
   ModelStore,
   SelectionInputStore,
@@ -634,6 +633,7 @@ export const owlPlugins = {
   DevicePixelRatioPlugin,
   RendererPlugin,
   HighlightPlugin,
+  DelayedHoveredCellPlugin,
 };
 
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";

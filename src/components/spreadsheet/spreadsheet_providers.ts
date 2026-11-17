@@ -24,6 +24,7 @@ import { ChartAnimationPlugin } from "../figures/chart/chartJs/chartjs_animation
 import { ZoomableChartPlugin } from "../figures/chart/chartJs/zoomable_chart/zoomable_chart_owl_plugin";
 import { DraggedFigurePlugin } from "../figures/figure_dnd_container/figure_dnd_owl_plugin";
 import { FullScreenFigurePlugin } from "../full_screen_figure/full_screen_figure_owl_plugin";
+import { DelayedHoveredCellPlugin } from "../grid/delayed_hovered_cell_owl_plugin";
 import { provideSpreadsheetRect } from "../helpers/position_hook";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { SplitToColumnsPlugin } from "../side_panel/split_to_columns_panel/split_to_columns_owl_plugin";
@@ -56,6 +57,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
       TrimWhitespacePlugin,
       SplitToColumnsPlugin,
       FormulaFingerprintPlugin,
+      DelayedHoveredCellPlugin,
       FullScreenFigurePlugin,
       ChartAnimationPlugin,
       ZoomableChartPlugin,
