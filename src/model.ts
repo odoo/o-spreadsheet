@@ -604,7 +604,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       }
       handler.handle(command);
     }
-    this.trigger("command-dispatched", command);
+    // Replayed commands should not trigger the "command-dispatched" event
+    if (!this.isReplayingCommand) {
+      this.trigger("command-dispatched", command);
+    }
   }
 
   // ---------------------------------------------------------------------------

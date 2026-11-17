@@ -12,9 +12,11 @@ import { DependencyContainer, Store } from "../../src/store_engine";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";
 import { CellValueType, DEFAULT_LOCALE } from "../../src/types";
+import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
 import {
   activateSheet,
   addCellToSelection,
+  addColumns,
   copy,
   createSheet,
   createSheetWithName,
@@ -43,7 +45,7 @@ import {
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
 let composerStore: Store<CellComposerStore>;
@@ -1168,4 +1170,18 @@ describe("edition", () => {
     expect(composerHighlights[0]).toMatchObject({ zone: toZone("A1"), color: colors[0] });
     expect(composerHighlights[1]).toMatchObject({ zone: toZone("A2"), color: colors[1] });
   });
+});
+
+test("edited cell follows a column added by another user", () => {
+  const { alice, bob } = setupCollaborativeEnv();
+  const { store } = makeStoreWithModel(alice, CellComposerStore);
+  selectCell(alice, "B1");
+  store.startEdition();
+  addColumns(bob, "before", "A", 1);
+  expect(store.currentEditedCell).toEqual({
+    sheetId: alice.getters.getActiveSheetId(),
+    col: 2,
+    row: 0,
+  });
+  expect(getActivePosition(alice)).toBe("C1");
 });
