@@ -48,6 +48,7 @@ import {
   CellPosition,
   CellValueType,
   Command,
+  CoreCommand,
   GridRenderingContext,
   HeaderIndex,
   LayerName,
@@ -101,19 +102,10 @@ export class GridRenderer extends SpreadsheetStore {
         break;
       case "REDO":
         this.zonesWithPreventedAnimationsInNextFrame = [];
+        this.preventAnimationsOnStructuralChange(cmd.commands);
         break;
       case "UNDO":
-        for (const command of cmd.commands) {
-          if (
-            command.type === "ADD_COLUMNS_ROWS" ||
-            command.type === "REMOVE_COLUMNS_ROWS" ||
-            command.type === "RESIZE_COLUMNS_ROWS"
-          ) {
-            this.animations.clear();
-            this.preventNewAnimationsInNextFrame = true;
-            break;
-          }
-        }
+        this.preventAnimationsOnStructuralChange(cmd.commands);
         break;
       case "PASTE":
         this.zonesWithPreventedAnimationsInNextFrame.push(...this.getters.getSelectedZones());
@@ -122,6 +114,20 @@ export class GridRenderer extends SpreadsheetStore {
         const zones = this.getters.getCommandZones(cmd);
         this.zonesWithPreventedAnimationsInNextFrame.push(...zones);
         break;
+    }
+  }
+
+  private preventAnimationsOnStructuralChange(commands: readonly CoreCommand[]) {
+    for (const command of commands) {
+      if (
+        command.type === "ADD_COLUMNS_ROWS" ||
+        command.type === "REMOVE_COLUMNS_ROWS" ||
+        command.type === "RESIZE_COLUMNS_ROWS"
+      ) {
+        this.animations.clear();
+        this.preventNewAnimationsInNextFrame = true;
+        break;
+      }
     }
   }
 
