@@ -1,6 +1,8 @@
 import type { Chart, ChartMeta, ChartType, Plugin, PointElement } from "chart.js";
 import { colorToRGBA } from "../../../../helpers/color";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
+import { clip } from "../../../../helpers/misc";
+import { isPointInsideRect } from "../../../../helpers/rectangle";
 import { computeCachedTextDimension, computeTextFont } from "../../../../helpers/text_helper";
 import type { ChartType as AllChartType } from "../../../../types/chart/chart";
 import { Color } from "../../../../types/misc";
@@ -202,7 +204,8 @@ function drawVerticalBarValues(chart: any, options: ChartShowValuesPluginOptions
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
     getValuePosition: getVerticalBarValuePosition,
-    shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
+    shouldSkipValue: (args) =>
+      isLineOverlayOnBarChart(options, args.dataset) || isBarOutsideChartArea(args),
     getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
   });
 }
@@ -232,7 +235,7 @@ function drawLineValues(chart: any, options: ChartShowValuesPluginOptions) {
       x: chartElement.x,
       y: chartElement.y - 10,
     }),
-    shouldSkipValue: () => false,
+    shouldSkipValue: isPointOutsideChartArea,
     getTextColors: chartElementColoredTextWithChartBackgroundHalo,
   });
 }
@@ -247,7 +250,8 @@ function drawComboValues(chart: any, options: ChartShowValuesPluginOptions) {
       args.dataset.type === "line"
         ? { x: args.chartElement.x, y: args.chartElement.y - 10 }
         : getVerticalBarValuePosition(args),
-    shouldSkipValue: () => false,
+    shouldSkipValue: (args) =>
+      args.dataset.type === "line" ? isPointOutsideChartArea(args) : isBarOutsideChartArea(args),
     getTextColors: (args) =>
       args.dataset.type === "line"
         ? chartElementColoredTextWithChartBackgroundHalo(args)
@@ -311,17 +315,19 @@ function drawHorizontalBarValues(chart: any, options: ChartShowValuesPluginOptio
       const distanceFromAxisOrigin = Math.abs(chartElement.x - xZeroLine);
       let xPosition: number;
       const sign = numberValue < 0 ? -1 : 1;
+      const { left, right } = chart.chartArea;
       if (distanceFromAxisOrigin < textSize.width) {
         xPosition = xZeroLine + sign * (textSize.width / 2 + HORIZONTAL_PADDING);
       } else {
-        xPosition = chartElement.x - sign * (chartElement.width / 2);
+        xPosition = getVisibleSegmentCenter(chartElement.x, chartElement.base, left, right);
       }
       return {
-        x: xPosition,
+        x: clip(xPosition, left + textSize.width / 2, right - textSize.width / 2),
         y: chartElement.y,
       };
     },
-    shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
+    shouldSkipValue: (args) =>
+      isLineOverlayOnBarChart(options, args.dataset) || isBarOutsideChartArea(args),
     getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
   });
 }
@@ -395,14 +401,43 @@ function getVerticalBarValuePosition(args: CallbackArgs) {
   const yAxisScale = chart.scales[dataset.yAxisID];
   const yZeroLine = yAxisScale.getPixelForValue(0);
   const distanceFromAxisOrigin = Math.abs(yZeroLine - chartElement.y);
+  const { top, bottom } = chart.chartArea;
 
   const sign = numberValue < 0 ? -1 : 1;
   let yPosition = 0;
   if (distanceFromAxisOrigin < textSize.height) {
     yPosition = yZeroLine - sign * (textSize.height / 2);
   } else {
-    yPosition = chartElement.y + sign * (chartElement.height / 2);
+    yPosition = getVisibleSegmentCenter(chartElement.y, chartElement.base, top, bottom);
   }
+  yPosition = clip(yPosition, top + textSize.height / 2, bottom - textSize.height / 2);
 
   return { x: chartElement.x, y: yPosition };
+}
+
+/** A segment only touching the edge of the range is outside, unless it has a zero length */
+function isSegmentOutsideRange(from: number, to: number, rangeStart: number, rangeEnd: number) {
+  const segmentStart = Math.min(from, to);
+  const segmentEnd = Math.max(from, to);
+  if (segmentStart === segmentEnd) {
+    return segmentStart < rangeStart || segmentStart > rangeEnd;
+  }
+  return segmentEnd <= rangeStart || segmentStart >= rangeEnd;
+}
+
+function isBarOutsideChartArea({ chartElement: bar, chart }: CallbackArgs) {
+  const { top, bottom, left, right } = chart.chartArea;
+  if (bar.horizontal) {
+    return isSegmentOutsideRange(bar.x, bar.base, left, right);
+  }
+  return isSegmentOutsideRange(bar.y, bar.base, top, bottom);
+}
+
+function getVisibleSegmentCenter(from: number, to: number, rangeStart: number, rangeEnd: number) {
+  return (clip(from, rangeStart, rangeEnd) + clip(to, rangeStart, rangeEnd)) / 2;
+}
+
+function isPointOutsideChartArea({ chartElement: { x, y }, chart }: CallbackArgs) {
+  const { left, top, width, height } = chart.chartArea;
+  return !isPointInsideRect(x, y, { x: left, y: top, width, height });
 }
