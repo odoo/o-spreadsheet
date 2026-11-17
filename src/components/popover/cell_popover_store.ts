@@ -1,3 +1,4 @@
+import { usePlugin } from "@odoo/owl";
 import { positionToZone } from "../../helpers/zones";
 import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
@@ -11,14 +12,14 @@ import {
 import { Command } from "../../types/commands";
 import { CellPosition, Position } from "../../types/misc";
 import { Rect } from "../../types/rendering";
-import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
+import { DelayedHoveredCellPlugin } from "../grid/delayed_hovered_cell_owl_plugin";
 
 export class CellPopoverStore extends SpreadsheetStore {
   mutators = ["open", "close"] as const;
 
   private persistentPopover?: CellPosition & { type: CellPopoverType };
 
-  protected hoveredCell = this.get(DelayedHoveredCellStore);
+  protected hoveredCell = usePlugin(DelayedHoveredCellPlugin);
   private viewStore = this.get(ViewportsStore);
 
   handle(cmd: Command) {
@@ -73,7 +74,8 @@ export class CellPopoverStore extends SpreadsheetStore {
             anchorRect: this.computePopoverAnchorRect(this.persistentPopover),
           };
     }
-    const { col, row } = this.hoveredCell;
+    const col = this.hoveredCell.col();
+    const row = this.hoveredCell.row();
     if (
       col === undefined ||
       row === undefined ||
