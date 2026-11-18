@@ -49,6 +49,7 @@ iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
   const hasIcon = getters.isCellValidCheckbox(position);
   if (hasIcon) {
     const value = !!getters.getEvaluatedCell(position).value;
+    const isDisabled = getters.isReadonly() || !!getters.getCell(position)?.isFormula;
     return {
       svg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED,
       hoverSvg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED_HOVERED,
@@ -58,21 +59,18 @@ iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
       margin: GRID_ICON_MARGIN,
       position,
       type: "data_validation_checkbox",
-      onClick: (position, env) => {
-        const cell = env.model.getters.getCell(position);
-        const isDisabled = env.model.getters.isReadonly() || !!cell?.isFormula;
-        if (isDisabled) {
-          return;
-        }
-
-        const cellContent = value ? "FALSE" : "TRUE";
-        env.model.dispatch("UPDATE_CELL", { ...position, content: cellContent });
-      },
+      onClick: isDisabled
+        ? undefined
+        : (position, env) => {
+            const cellContent = value ? "FALSE" : "TRUE";
+            env.model.dispatch("UPDATE_CELL", { ...position, content: cellContent });
+          },
     };
   }
   return undefined;
 });
 
+<<<<<<< e1c5a49ab0a5e72843fa45e13665ec4971a49564
 iconsOnCellRegistry.add("data_validation_list_chip_icon", (getters, position) => {
   if (getters.isReadonly()) {
     return;
@@ -81,7 +79,52 @@ iconsOnCellRegistry.add("data_validation_list_chip_icon", (getters, position) =>
   const listIcon = getters.cellHasListDataValidationIcon(position);
   if (!listIcon && !chipStyle) {
     return;
+||||||| fa538d1ac3ea04346f97fdfc8696c6508c3cb905
+iconsOnCellRegistry.add("data_validation_chip_icon", (getters, position) => {
+  const chipStyle = getters.getDataValidationChipStyle(position);
+  if (chipStyle) {
+    const cellStyle = getters.getCellComputedStyle(position);
+    return {
+      svg: getChipSvg(chipStyle),
+      hoverSvg: getHoveredChipSvg(chipStyle),
+      priority: 10,
+      horizontalAlign: "right",
+      size: computeTextFontSizeInPixels(cellStyle),
+      margin: 4,
+      position,
+      onClick: (position, env) => {
+        const { col, row } = position;
+        env.model.selection.selectCell(col, row);
+        env.startCellEdition();
+      },
+      type: "data_validation_chip_icon",
+    };
+=======
+iconsOnCellRegistry.add("data_validation_chip_icon", (getters, position) => {
+  const chipStyle = !getters.isReadonly() && getters.getDataValidationChipStyle(position);
+  if (chipStyle) {
+    const cellStyle = getters.getCellComputedStyle(position);
+    const isDisabled = !!getters.getCell(position)?.isFormula;
+    return {
+      svg: getChipSvg(chipStyle),
+      hoverSvg: getHoveredChipSvg(chipStyle),
+      priority: 10,
+      horizontalAlign: "right",
+      size: computeTextFontSizeInPixels(cellStyle),
+      margin: 4,
+      position,
+      onClick: isDisabled
+        ? undefined
+        : (position, env) => {
+            const { col, row } = position;
+            env.model.selection.selectCell(col, row);
+            env.startCellEdition();
+          },
+      type: "data_validation_chip_icon",
+    };
+>>>>>>> 860b3ff24c5097ee7eb7b85b10a2e48ee7f60e9a
   }
+<<<<<<< e1c5a49ab0a5e72843fa45e13665ec4971a49564
   const cellStyle = getters.getCellComputedStyle(position);
   const iconStyle = chipStyle ? chipStyle : cellStyle;
   return {
@@ -99,6 +142,128 @@ iconsOnCellRegistry.add("data_validation_list_chip_icon", (getters, position) =>
     },
     type: "data_validation_list_chip_icon",
   };
+||||||| fa538d1ac3ea04346f97fdfc8696c6508c3cb905
+  return undefined;
+});
+
+iconsOnCellRegistry.add("data_validation_list_icon", (getters, position) => {
+  const hasIcon = !getters.isReadonly() && getters.cellHasListDataValidationIcon(position);
+  if (hasIcon) {
+    const cellStyle = getters.getCellComputedStyle(position);
+    return {
+      svg: getCaretDownSvg(cellStyle),
+      hoverSvg: getHoveredCaretDownSvg(cellStyle),
+      priority: 2,
+      horizontalAlign: "right",
+      size: GRID_ICON_EDGE_LENGTH,
+      margin: GRID_ICON_MARGIN,
+      position,
+      onClick: (position, env) => {
+        const { col, row } = position;
+        env.model.selection.selectCell(col, row);
+        env.startCellEdition();
+      },
+      type: "data_validation_list_icon",
+    };
+  }
+  return undefined;
+});
+
+iconsOnCellRegistry.add("filter_icon", (getters, position) => {
+  const hasIcon = getters.isFilterHeader(position);
+  if (hasIcon) {
+    const isFilterActive = getters.isFilterActive(position);
+    const cellStyle = getters.getCellComputedStyle(position);
+    const isHighContrast = relativeLuminance(cellStyle.fillColor || "#fff") < 0.45;
+    return {
+      type: "filter_icon",
+      svg: getDataFilterIcon(isFilterActive, isHighContrast, false),
+      hoverSvg: getDataFilterIcon(isFilterActive, isHighContrast, true),
+      priority: 3,
+      horizontalAlign: "right",
+      size: GRID_ICON_EDGE_LENGTH,
+      margin: GRID_ICON_MARGIN,
+      position,
+      onClick: (position, env) => {
+        const cellPopovers = env.getStore(CellPopoverStore);
+        const activePopover = cellPopovers.persistentCellPopover;
+        if (
+          activePopover.isOpen &&
+          activePopover.col === position.col &&
+          activePopover.row === position.row &&
+          activePopover.type === "FilterMenu"
+        ) {
+          cellPopovers.close();
+          return;
+        }
+        cellPopovers.open(position, "FilterMenu");
+      },
+    };
+  }
+  return undefined;
+=======
+  return undefined;
+});
+
+iconsOnCellRegistry.add("data_validation_list_icon", (getters, position) => {
+  const hasIcon = !getters.isReadonly() && getters.cellHasListDataValidationIcon(position);
+  if (hasIcon) {
+    const cellStyle = getters.getCellComputedStyle(position);
+    const isDisabled = !!getters.getCell(position)?.isFormula;
+    return {
+      svg: getCaretDownSvg(cellStyle),
+      hoverSvg: getHoveredCaretDownSvg(cellStyle),
+      priority: 2,
+      horizontalAlign: "right",
+      size: GRID_ICON_EDGE_LENGTH,
+      margin: GRID_ICON_MARGIN,
+      position,
+      onClick: isDisabled
+        ? undefined
+        : (position, env) => {
+            const { col, row } = position;
+            env.model.selection.selectCell(col, row);
+            env.startCellEdition();
+          },
+      type: "data_validation_list_icon",
+    };
+  }
+  return undefined;
+});
+
+iconsOnCellRegistry.add("filter_icon", (getters, position) => {
+  const hasIcon = getters.isFilterHeader(position);
+  if (hasIcon) {
+    const isFilterActive = getters.isFilterActive(position);
+    const cellStyle = getters.getCellComputedStyle(position);
+    const isHighContrast = relativeLuminance(cellStyle.fillColor || "#fff") < 0.45;
+    return {
+      type: "filter_icon",
+      svg: getDataFilterIcon(isFilterActive, isHighContrast, false),
+      hoverSvg: getDataFilterIcon(isFilterActive, isHighContrast, true),
+      priority: 3,
+      horizontalAlign: "right",
+      size: GRID_ICON_EDGE_LENGTH,
+      margin: GRID_ICON_MARGIN,
+      position,
+      onClick: (position, env) => {
+        const cellPopovers = env.getStore(CellPopoverStore);
+        const activePopover = cellPopovers.persistentCellPopover;
+        if (
+          activePopover.isOpen &&
+          activePopover.col === position.col &&
+          activePopover.row === position.row &&
+          activePopover.type === "FilterMenu"
+        ) {
+          cellPopovers.close();
+          return;
+        }
+        cellPopovers.open(position, "FilterMenu");
+      },
+    };
+  }
+  return undefined;
+>>>>>>> 860b3ff24c5097ee7eb7b85b10a2e48ee7f60e9a
 });
 
 iconsOnCellRegistry.add("conditional_formatting", (getters, position) => {
@@ -149,7 +314,7 @@ iconsOnCellRegistry.add("pivot_collapse", (getters, position) => {
       svg: hasIcon ? getPivotIconSvg(isCollapsed, false) : undefined,
       hoverSvg: hasIcon ? getPivotIconSvg(isCollapsed, true) : undefined,
       position,
-      onClick: togglePivotCollapse,
+      onClick: !getters.isReadonly() ? togglePivotCollapse : undefined,
     };
   }
   return undefined;

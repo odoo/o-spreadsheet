@@ -614,6 +614,22 @@ describe("Selection arrow icon in grid", () => {
     expect(icons[0].type).toBe("filter_icon");
   });
 
+  test("Data validation list icon is not displayed in readonly mode", () => {
+    model.updateMode("readonly");
+    expect(getCellIcons(model, "A1")).toHaveLength(0);
+  });
+
+  test("Data validation chip icon is disabled in readonly mode", async () => {
+    addDataValidation(model, "A1", "id", {
+      type: "isValueInList",
+      values: ["hello"],
+      displayStyle: "chip",
+    });
+    setCellContent(model, "A1", "hello");
+    model.updateMode("readonly");
+    expect(getCellIcons(model, "A1")).toHaveLength(0);
+  });
+
   test("chip color isn't taken into account in composer", async () => {
     addDataValidation(model, "A1", "id", {
       type: "isValueInList",
