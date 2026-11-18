@@ -1,7 +1,8 @@
+import { usePlugin } from "@odoo/owl";
 import { positionToZone } from "../../helpers/zones";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { ViewportsStore } from "../../stores/viewports_store";
 import {
   CellPopoverType,
   ClosedCellPopover,
@@ -19,7 +20,7 @@ export class CellPopoverStore extends SpreadsheetStore {
   private persistentPopover?: CellPosition & { type: CellPopoverType };
 
   protected hoveredCell = this.get(DelayedHoveredCellStore);
-  private viewStore = this.get(ViewportsStore);
+  private viewStore = usePlugin(ViewportsPlugin);
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -60,7 +61,7 @@ export class CellPopoverStore extends SpreadsheetStore {
     if (
       this.persistentPopover &&
       this.persistentPopover.sheetId === sheetId &&
-      this.viewStore.viewports.isVisibleInViewport(this.persistentPopover)
+      this.viewStore.viewports().isVisibleInViewport(this.persistentPopover)
     ) {
       const position = this.getters.getMainCellPosition(this.persistentPopover);
       const popover = cellPopoverRegistry
@@ -77,7 +78,7 @@ export class CellPopoverStore extends SpreadsheetStore {
     if (
       col === undefined ||
       row === undefined ||
-      !this.viewStore.viewports.isVisibleInViewport({ sheetId, col, row })
+      !this.viewStore.viewports().isVisibleInViewport({ sheetId, col, row })
     ) {
       return { isOpen: false };
     }
@@ -98,8 +99,8 @@ export class CellPopoverStore extends SpreadsheetStore {
     const sheetId = this.viewStore.displayedSheetId;
     const merge = this.getters.getMerge({ sheetId, col, row });
     if (merge) {
-      return this.viewStore.viewports.getVisibleRect(sheetId, merge);
+      return this.viewStore.viewports().getVisibleRect(sheetId, merge);
     }
-    return this.viewStore.viewports.getVisibleRect(sheetId, positionToZone({ col, row }));
+    return this.viewStore.viewports().getVisibleRect(sheetId, positionToZone({ col, row }));
   }
 }

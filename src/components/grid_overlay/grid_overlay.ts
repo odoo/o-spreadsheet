@@ -11,10 +11,10 @@ import { FOOTER_HEIGHT } from "../../constants";
 import { deepEquals } from "../../helpers/misc";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
+import { ViewportsPlugin, ViewportsPluginInstance } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { CellPosition, GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -37,7 +37,7 @@ function useCellHovered(
 ): Partial<Position> {
   const delayedHoveredCell = useStore(DelayedHoveredCellStore);
   const cellHoverOverlay = useStore(CellHoverOverlayStore);
-  const viewStore = useStore(ViewportsStore);
+  const viewStore = usePlugin(ViewportsPlugin);
   const zoomPlugin = usePlugin(ZoomPlugin);
   const hoveredPosition: Partial<Position> = {
     col: undefined,
@@ -53,8 +53,8 @@ function useCellHovered(
     if (x === undefined || y === undefined) {
       return { sheetId, col: -1, row: -1 };
     }
-    const col = viewStore.viewports.getColIndex(sheetId, x);
-    const row = viewStore.viewports.getRowIndex(sheetId, y);
+    const col = viewStore.viewports().getColIndex(sheetId, x);
+    const row = viewStore.viewports().getRowIndex(sheetId, y);
     return { sheetId, col, row };
   }
 
@@ -180,7 +180,7 @@ export class GridOverlay extends OSComponent {
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
   private hoveredIconStore!: Store<HoveredIconStore>;
-  viewStore!: Store<ViewportsStore>;
+  viewStore!: ViewportsPluginInstance;
   private zoomPlugin = usePlugin(ZoomPlugin);
 
   setup() {
@@ -198,7 +198,7 @@ export class GridOverlay extends OSComponent {
     this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);
     this.hoveredIconStore = useStore(HoveredIconStore);
-    this.viewStore = useStore(ViewportsStore);
+    this.viewStore = usePlugin(ViewportsPlugin);
   }
 
   get gridOverlayEl(): HTMLElement {
@@ -306,7 +306,7 @@ export class GridOverlay extends OSComponent {
 
   private getInteractiveIconAtEvent(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>) {
     const gridOverLayRect = getElBoundingRect(this.gridOverlayRef());
-    const gridOffset = this.viewStore.viewports.getGridOffset();
+    const gridOffset = this.viewStore.viewports().getGridOffset();
     const x = zoomedMouseEvent.clientX - gridOverLayRect.x + gridOffset.x;
     const y = zoomedMouseEvent.clientY - gridOverLayRect.y + gridOffset.y;
 
@@ -326,7 +326,7 @@ export class GridOverlay extends OSComponent {
     const icon = icons.find((icon) => {
       const merge = this.model().getters.getMerge(position);
       const zone = merge || positionToZone(position);
-      const cellRect = this.viewStore.viewports.getRect(sheetId, zone);
+      const cellRect = this.viewStore.viewports().getRect(sheetId, zone);
 
       return isPointInsideRect(x, y, this.model().getters.getCellIconRect(icon, cellRect));
     });
@@ -338,8 +338,8 @@ export class GridOverlay extends OSComponent {
       return false;
     }
     const sheetId = this.viewStore.displayedSheetId;
-    const { y } = this.viewStore.viewports.getMainViewportCoordinates(sheetId);
-    const { height } = this.viewStore.viewports.getSheetViewDimension();
+    const { y } = this.viewStore.viewports().getMainViewportCoordinates(sheetId);
+    const { height } = this.viewStore.viewports().getSheetViewDimension();
     return height - y > FOOTER_HEIGHT;
   }
 }

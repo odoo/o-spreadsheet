@@ -14,8 +14,8 @@ import {
 import { lettersToNumber, toXC } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
-import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { extendMockGetBoundingClientRect } from "../test_helpers";
 import {
@@ -962,7 +962,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   });
 
   test("Can edge-scroll horizontally", async () => {
-    const viewStore = env.getStore(ViewportsStore);
+    const viewStore = env.getPlugin(ViewportsPlugin);
     const { width } = viewStore.sheetViewDimension;
     const y = DEFAULT_CELL_HEIGHT;
 
@@ -998,7 +998,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   });
 
   test("Can edge-scroll vertically", async () => {
-    const viewStore = env.getStore(ViewportsStore);
+    const viewStore = env.getPlugin(ViewportsPlugin);
     const { height } = viewStore.sheetViewDimensionWithHeaders;
     const x = DEFAULT_CELL_WIDTH / 2;
     triggerMouseEvent(".o-row-resizer", "pointerdown", x, height / 2);

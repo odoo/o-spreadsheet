@@ -1,12 +1,13 @@
 import { onMounted, usePlugin } from "@odoo/owl";
 import { isDefined } from "../../../helpers/misc";
 import { render } from "../../../helpers/owl3_helpers";
-import { useStore } from "../../../store_engine/store_hooks";
-import { ViewportsStore } from "../../../stores/viewports_store";
+import {
+  ViewportsPlugin,
+  ViewportsPluginInstance,
+} from "../../../owl_plugins/viewports_owl_plugin";
 import { AnchorOffset, Figure, FigureUI, ResizeDirection } from "../../../types/figure";
 import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
-import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss, rectToCss } from "../../helpers/css";
 import { isCtrlKey, isMobileOS } from "../../helpers/dom_helpers";
 import { OSComponent } from "../../os_component";
@@ -86,11 +87,11 @@ export class FiguresContainer extends OSComponent {
   static template = "o-spreadsheet-FiguresContainer";
   static components = { FigureComponent };
 
-  private viewStore!: Store<ViewportsStore>;
+  private viewStore!: ViewportsPluginInstance;
   private draggedFigurePlugin = usePlugin(DraggedFigurePlugin);
 
   setup() {
-    this.viewStore = useStore(ViewportsStore);
+    this.viewStore = usePlugin(ViewportsPlugin);
     onMounted(() => {
       // horrible, but necessary
       // the following line ensures that we render the figures with the correct

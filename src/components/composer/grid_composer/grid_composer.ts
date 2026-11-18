@@ -1,12 +1,15 @@
-import { onWillUpdateProps, useProps } from "@odoo/owl";
+import { onWillUpdateProps, usePlugin, useProps } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers/coordinates";
 import { deepEquals, isFormula } from "../../../helpers/misc";
 import { getFullReference } from "../../../helpers/references";
 import { fontSizeInPixels } from "../../../helpers/text_helper";
 import { positionToZone } from "../../../helpers/zones";
+import {
+  ViewportsPlugin,
+  ViewportsPluginInstance,
+} from "../../../owl_plugins/viewports_owl_plugin";
 import { useStore } from "../../../store_engine/store_hooks";
-import { ViewportsStore } from "../../../stores/viewports_store";
 import { CellPosition, ComposerFocusType } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
 import { Rect } from "../../../types/rendering";
@@ -46,7 +49,7 @@ export class GridComposer extends OSComponent {
 
   private composerStore!: Store<CellComposerStore>;
   composerFocusStore!: Store<ComposerFocusStore>;
-  private viewStore!: Store<ViewportsStore>;
+  private viewStore!: ViewportsPluginInstance;
 
   private composerInterface!: ComposerInterface;
 
@@ -58,7 +61,7 @@ export class GridComposer extends OSComponent {
     const composerStore = useStore(CellComposerStore);
     this.composerStore = composerStore;
     this.composerFocusStore = useStore(ComposerFocusStore);
-    this.viewStore = useStore(ViewportsStore);
+    this.viewStore = usePlugin(ViewportsPlugin);
     this.composerInterface = {
       id: "gridComposer",
       get editionMode() {
@@ -219,7 +222,7 @@ export class GridComposer extends OSComponent {
     if (shouldRecomputeRect) {
       const position = this.model().getters.getActivePosition();
       const zone = this.model().getters.expandZone(position.sheetId, positionToZone(position));
-      this.rect = this.viewStore.viewports.getVisibleRect(position.sheetId, zone);
+      this.rect = this.viewStore.viewports().getVisibleRect(position.sheetId, zone);
     }
   }
 
@@ -233,7 +236,7 @@ export class GridComposer extends OSComponent {
     }
     const sheetId = this.model().getters.getActiveSheetId();
     const zone = positionToZone(this.model().getters.getSelection().anchor.cell);
-    const rect = this.viewStore.viewports.getVisibleRect(sheetId, zone);
+    const rect = this.viewStore.viewports().getVisibleRect(sheetId, zone);
     if (!deepEquals(rect, this.rect) || sheetId !== this.composerStore.currentEditedCell.sheetId) {
       this.isCellReferenceVisible = true;
     }

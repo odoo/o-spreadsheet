@@ -3,7 +3,7 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { numberToLetters } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { HeaderSizePlugin } from "../../src/plugins/core/header_size";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+
 import {
   addColumns,
   addRows,
@@ -21,7 +21,7 @@ import {
   unhideRows,
 } from "../test_helpers/commands_helpers";
 import { getPlugin, toCellPosition } from "../test_helpers/helpers";
-import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
+import { makeViewportsPlugin } from "../test_helpers/stores";
 
 //------------------------------------------------------------------------------
 // Hide/unhide
@@ -87,7 +87,7 @@ describe("Hide Columns", () => {
 
   test("hide/unhide Column on small sheet", () => {
     model = new Model({ sheets: [{ colNumber: 5, rowNumber: 1 }] });
-    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    const { store: viewStore } = makeViewportsPlugin(model);
     viewStore.resizeSheetView({ height: 1000, width: DEFAULT_CELL_WIDTH });
     const sheet = model.getters.getActiveSheet();
     const dimensions = viewStore.mainViewportRect;
@@ -100,7 +100,7 @@ describe("Hide Columns", () => {
   });
 
   test("hide/ unhide Column on big sheet", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     const sheet = model.getters.getActiveSheet();
     const dimensions = viewStore.mainViewportRect;
     hideColumns(model, ["B", "C", "D"], sheet.id);
@@ -183,7 +183,7 @@ describe("Hide Rows", () => {
 
   test("hide/unhide Row on small sheet", () => {
     model = new Model({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
-    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    const { store: viewStore } = makeViewportsPlugin(model);
     viewStore.resizeSheetView({ height: DEFAULT_CELL_HEIGHT, width: 1000 });
     const sheet = model.getters.getActiveSheet();
     const dimensions = viewStore.mainViewportRect;
@@ -196,7 +196,7 @@ describe("Hide Rows", () => {
   });
 
   test("hide/ unhide Row on big sheet", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     const sheet = model.getters.getActiveSheet();
     const dimensions = viewStore.mainViewportRect;
     hideRows(model, [1, 2, 3], sheet.id);

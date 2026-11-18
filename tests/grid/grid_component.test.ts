@@ -32,10 +32,13 @@ import { ImageProviderPlugin } from "../../src/owl_plugins/image_provider_owl_pl
 import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
+import {
+  ViewportsPlugin,
+  ViewportsPluginInstance,
+} from "../../src/owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../src/owl_plugins/zoom_plugin";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
-import { ViewportsStore } from "../../src/stores/viewports_store";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
@@ -139,7 +142,7 @@ let env: SpreadsheetActionEnv;
 let parent: Spreadsheet;
 let composerStore: Store<CellComposerStore>;
 let composerFocusStore: Store<ComposerFocusStore>;
-let viewStore: Store<ViewportsStore>;
+let viewStore: ViewportsPluginInstance;
 
 useJestFakeTimers();
 mockChart();
@@ -188,8 +191,9 @@ describe("Grid component", () => {
     await nextTick();
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -214,8 +218,9 @@ describe("Grid component", () => {
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -229,8 +234,9 @@ describe("Grid component", () => {
     await nextTick();
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -255,8 +261,9 @@ describe("Grid component", () => {
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -1128,16 +1135,18 @@ describe("Grid component", () => {
       const rectB = model.getters.getCellIconRect(
         iconB,
         env
-          .getStore(ViewportsStore)
-          .viewports.getRect(model.getters.getActiveSheetId(), toZone("B2"))
+          .getPlugin(ViewportsPlugin)
+          .viewports()
+          .getRect(model.getters.getActiveSheetId(), toZone("B2"))
       );
       expect(rectB).toMatchObject({ y, x: leftB });
       const iconC = getCellIcons(model, "C2")[0];
       const rectC = model.getters.getCellIconRect(
         iconC,
         env
-          .getStore(ViewportsStore)
-          .viewports.getRect(model.getters.getActiveSheetId(), toZone("C2"))
+          .getPlugin(ViewportsPlugin)
+          .viewports()
+          .getRect(model.getters.getActiveSheetId(), toZone("C2"))
       );
       expect(rectC).toMatchObject({ y, x: leftC });
     });
@@ -1203,7 +1212,7 @@ describe("Grid component", () => {
       expect(fixture.querySelector(".o-error-tooltip")).not.toBeNull();
       await scrollGrid({ deltaY: 100 });
       const sheetId = model.getters.getActiveSheetId();
-      expect(viewStore.viewports.isVisibleInViewport({ sheetId, col: 0, row: 9 })).toBe(true);
+      expect(viewStore.viewports().isVisibleInViewport({ sheetId, col: 0, row: 9 })).toBe(true);
       expect(fixture.querySelector(".o-error-tooltip")).toBeNull();
     });
 
@@ -1214,7 +1223,7 @@ describe("Grid component", () => {
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
       await scrollGrid({ deltaY: DEFAULT_CELL_HEIGHT });
       const sheetId = model.getters.getActiveSheetId();
-      expect(viewStore.viewports.isVisibleInViewport({ sheetId, col: 0, row: 0 })).toBe(false);
+      expect(viewStore.viewports().isVisibleInViewport({ sheetId, col: 0, row: 0 })).toBe(false);
       expect(fixture.querySelector(".o-link-editor")).toBeNull();
     });
 
@@ -1225,7 +1234,7 @@ describe("Grid component", () => {
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
       await scrollGrid({ deltaY: DEFAULT_CELL_HEIGHT - 5 });
       const sheetId = model.getters.getActiveSheetId();
-      expect(viewStore.viewports.isVisibleInViewport({ sheetId, col: 0, row: 0 })).toBe(true);
+      expect(viewStore.viewports().isVisibleInViewport({ sheetId, col: 0, row: 0 })).toBe(true);
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
     });
   });
@@ -1536,7 +1545,9 @@ describe("Grid component", () => {
     await keyDown({ key: "Tab" });
     expect(getSelectionAnchorCellXc(model)).toBe("C1");
     setViewportOffset(env, 0, DEFAULT_CELL_HEIGHT);
-    expect(viewStore.viewports.isVisibleInViewport(model.getters.getActivePosition())).toBe(false);
+    expect(viewStore.viewports().isVisibleInViewport(model.getters.getActivePosition())).toBe(
+      false
+    );
 
     triggerMouseEvent(".o-grid div.o-composer", "contextmenu");
     await nextTick();
@@ -1556,7 +1567,7 @@ describe("Grid component", () => {
     setViewportOffset(env, 5 * DEFAULT_CELL_WIDTH, 0);
     const sheetId = model.getters.getActiveSheetId();
     expect(
-      viewStore.viewports.isZoneVisibleInViewport(sheetId, model.getters.getSelectedZone())
+      viewStore.viewports().isZoneVisibleInViewport(sheetId, model.getters.getSelectedZone())
     ).toBe(false);
 
     triggerMouseEvent(".o-grid div.o-composer", "contextmenu");
@@ -2004,8 +2015,9 @@ describe("Events on Grid update viewport correctly", () => {
     await nextTick();
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -2015,8 +2027,9 @@ describe("Events on Grid update viewport correctly", () => {
     await keyDown({ key: "ArrowLeft" });
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -2034,8 +2047,9 @@ describe("Events on Grid update viewport correctly", () => {
 
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -2045,8 +2059,9 @@ describe("Events on Grid update viewport correctly", () => {
     await keyDown({ key: "ArrowUp" });
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,

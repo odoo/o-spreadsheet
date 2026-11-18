@@ -7,8 +7,8 @@ import { CellPosition, Color, Highlight, UID } from "../../../types/misc";
 import { usePlugin } from "@odoo/owl";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { NotificationPlugin } from "../../../owl_plugins/notification_owl_plugin";
+import { ViewportsPlugin } from "../../../owl_plugins/viewports_owl_plugin";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
-import { ViewportsStore } from "../../../stores/viewports_store";
 import { _t } from "../../../translation";
 import { SearchOptions } from "../../../types/find_and_replace";
 import { Get } from "../../../types/store_engine";
@@ -54,7 +54,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
 
   private notificationPlugin = usePlugin(NotificationPlugin);
   private highlightPlugin = usePlugin(HighlightPlugin);
-  private viewStore = this.get(ViewportsStore);
+  private viewStore = usePlugin(ViewportsPlugin);
 
   // fixme: why do we make selectedMatchIndex on top of a selected
   // property in the matches?
@@ -501,7 +501,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       const zone = positionToZone(match);
       const zoneWithMerge = this.getters.expandZone(sheetId, zone);
 
-      const { width, height } = this.viewStore.viewports.getVisibleRect(sheetId, zoneWithMerge);
+      const { width, height } = this.viewStore.viewports().getVisibleRect(sheetId, zoneWithMerge);
       if (width > 0 && height > 0) {
         highlights.push({
           range: this.model.getters.getRangeFromZone(sheetId, zoneWithMerge),

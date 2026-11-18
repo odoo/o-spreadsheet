@@ -2,8 +2,8 @@ import { PIVOT_MAX_NUMBER_OF_CELLS } from "../../../../constants";
 import { deepCopy, deepEquals } from "../../../../helpers/misc";
 import { isDateOrDatetimeField } from "../../../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../../../helpers/pivot/pivot_registry";
+import { ViewportsPlugin } from "../../../../owl_plugins/viewports_owl_plugin";
 import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
-import { ViewportsStore } from "../../../../stores/viewports_store";
 import { _t } from "../../../../translation";
 import { Command } from "../../../../types/commands";
 import { UID } from "../../../../types/misc";
@@ -30,7 +30,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
   private _updatesAreDeferred: boolean;
   private draft: PivotCoreDefinition | null = null;
   private notification = usePlugin(NotificationPlugin);
-  private viewStore = this.get(ViewportsStore);
+  private viewStore = usePlugin(ViewportsPlugin);
   private alreadyNotified = false;
   private alreadyNotifiedForPivotSize = false;
 

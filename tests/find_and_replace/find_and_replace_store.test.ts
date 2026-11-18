@@ -3,8 +3,11 @@ import { FindAndReplaceStore } from "../../src/components/side_panel/find_and_re
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
+import {
+  ViewportsPlugin,
+  ViewportsPluginInstance,
+} from "../../src/owl_plugins/viewports_owl_plugin";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
-import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SearchOptions } from "../../src/types/find_and_replace";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import {
@@ -34,13 +37,13 @@ import {
   getCellText,
 } from "../test_helpers/getters_helpers";
 import { addToRegistry, flattenHighlightRange } from "../test_helpers/helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeViewportsPlugin } from "../test_helpers/stores";
 
 let model: Model;
 let store: FindAndReplaceStore;
 let container: DependencyContainer;
 let getPlugin: OwlPluginGetter;
-let viewStore: ViewportsStore;
+let viewStore: ViewportsPluginInstance;
 
 function p(xc: string) {
   const z = toZone(xc);
@@ -71,7 +74,7 @@ let sheetId1: string;
 const sheetId2 = "s2";
 beforeEach(() => {
   // Create the viewport store before the f&r store to have the finalize in the correct order (see FIXME in SpreadsheetStore)
-  ({ store: viewStore, model, container, getPlugin } = makeStore(ViewportsStore));
+  ({ store: viewStore, model, container, getPlugin } = makeViewportsPlugin());
   store = container.get(FindAndReplaceStore);
   sheetId1 = model.getters.getActiveSheetId();
 });
@@ -630,7 +633,7 @@ describe("next/previous with single match", () => {
   test.each(["selectNext", "selectPrevious"] as const)(
     "%s after scrolling will re-scroll to the match",
     (cmd) => {
-      const viewStore = container.get(ViewportsStore);
+      const viewStore = getPlugin(ViewportsPlugin);
       const viewportAfterSearch = viewStore.activeMainViewport;
       viewStore.setViewportOffset({ offsetX: 1000, offsetY: 1000 });
       expect(viewStore.activeMainViewport).not.toMatchObject(viewportAfterSearch);
@@ -640,7 +643,7 @@ describe("next/previous with single match", () => {
   );
 
   test("Updating search after scrolling will re-scroll to the match", () => {
-    const viewStore = container.get(ViewportsStore);
+    const viewStore = getPlugin(ViewportsPlugin);
     const viewportAfterSearch = viewStore.activeMainViewport;
     viewStore.setViewportOffset({ offsetX: 1000, offsetY: 1000 });
     expect(viewStore.activeMainViewport).not.toMatchObject(viewportAfterSearch);

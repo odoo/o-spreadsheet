@@ -3,9 +3,8 @@ import { DEFAULT_BORDER_DESC, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "..
 import { lettersToNumber, toXC } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { ViewportsPluginInstance } from "../../src/owl_plugins/viewports_owl_plugin";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
-import { ViewportsStore } from "../../src/stores/viewports_store";
-import { Store } from "../../src/types/store_engine";
 import {
   activateSheet,
   addColumns,
@@ -45,7 +44,7 @@ import {
   makeTestFixture,
   testUndoRedo,
 } from "../test_helpers/helpers";
-import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
+import { makeStore, makeViewportsPlugin } from "../test_helpers/stores";
 
 let model: Model;
 
@@ -838,13 +837,13 @@ describe("Rows", () => {
     makeTestFixture();
   });
   describe("Correctly update size, name, order and number", () => {
-    let viewStore: Store<ViewportsStore>;
+    let viewStore: ViewportsPluginInstance;
 
     beforeEach(() => {
       model = new Model({
         sheets: [{ colNumber: 1, rowNumber: 4, rows: { 1: { size: 10 }, 2: { size: 20 } } }],
       });
-      ({ store: viewStore } = makeStoreWithModel(model, ViewportsStore));
+      ({ store: viewStore } = makeViewportsPlugin(model));
     });
     test("On deletion", () => {
       deleteRows(model, [0, 2]);

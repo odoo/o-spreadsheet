@@ -1,11 +1,11 @@
-import { onWillDestroy, signal, untrack, useConfig, usePlugin } from "@odoo/owl";
+import { onWillDestroy, signal, untrack, usePlugin } from "@odoo/owl";
 import { drawHighlight } from "../helpers/rendering";
 import { zoneToDimension } from "../helpers/zones";
-import type { ViewportsStore } from "../stores/viewports_store";
 import { Highlight } from "../types/misc";
 import { GridRenderingContext, LayerName, Rect } from "../types/rendering";
 import { OwlPluginWithModel } from "./owl_plugin_with_model";
 import { RendererPlugin } from "./renderer_plugin";
+import { ViewportsPlugin } from "./viewports_owl_plugin";
 
 export interface HighlightProvider {
   highlights: Highlight[];
@@ -14,7 +14,7 @@ export interface HighlightProvider {
 export class HighlightPlugin extends OwlPluginWithModel {
   private providers = signal.Array<HighlightProvider>([]);
   private renderer = usePlugin(RendererPlugin);
-  private viewStore: ViewportsStore = useConfig("viewStore");
+  private viewStore = usePlugin(ViewportsPlugin);
 
   setup() {
     super.setup();
@@ -49,7 +49,7 @@ export class HighlightPlugin extends OwlPluginWithModel {
             ? this.model().getters.expandZone(sheetId, highlightZone)
             : highlightZone;
         // compute once here as it's used in drawLayer
-        const rect = this.viewStore.viewports.getVisibleRect(sheetId, zone);
+        const rect = this.viewStore.viewports().getVisibleRect(sheetId, zone);
         if (!(rect.width > 0 && rect.height > 0)) {
           continue;
         }

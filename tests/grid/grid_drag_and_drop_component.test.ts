@@ -4,9 +4,8 @@ import { useDragAndDropBeyondTheViewport } from "../../src/components/helpers/dr
 import { OSComponent } from "../../src/components/os_component";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { numberToLetters } from "../../src/helpers/coordinates";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+import { ViewportsPluginInstance } from "../../src/owl_plugins/viewports_owl_plugin";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
-import { Store } from "../../src/types/store_engine";
 import {
   addColumns,
   addRows,
@@ -36,7 +35,7 @@ let model: Model;
 let sheetId: UID;
 let app: App;
 let env: SpreadsheetActionEnv;
-let viewStore: Store<ViewportsStore>;
+let viewStore: ViewportsPluginInstance;
 
 //Test Component required
 const TEMPLATE = xml/* xml */ `

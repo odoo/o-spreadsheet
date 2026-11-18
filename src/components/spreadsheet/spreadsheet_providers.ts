@@ -14,11 +14,11 @@ import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { SpreadsheetRectPlugin } from "../../owl_plugins/spreadsheet_rect_plugin";
 import { TableResizePlugin } from "../../owl_plugins/table_resize_plugin";
 import { TrimWhitespacePlugin } from "../../owl_plugins/trim_whitespace_owl_plugin";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ModelStore } from "../../stores/model_store";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { DraggedFigurePlugin } from "../figures/figure_dnd_container/figure_dnd_owl_plugin";
 import { provideSpreadsheetRect } from "../helpers/position_hook";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
@@ -52,6 +52,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
       TrimWhitespacePlugin,
       SplitToColumnsPlugin,
       FormulaFingerprintPlugin,
+      ViewportsPlugin,
     ],
     {
       popoverContainerRectSignal: spreadsheetRectPlugin.rect,
@@ -64,9 +65,8 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
   const stores = useStoreProvider();
   stores.inject(ModelStore, model);
 
-  const viewStore = useStore(ViewportsStore);
   // HighlightPlugin has to be declared after RendererPlugin to capture it.
-  providePlugins([DraggedFigurePlugin, HighlightPlugin], { viewStore });
+  providePlugins([DraggedFigurePlugin, HighlightPlugin]);
 
   for (const store of globalStores.getAll()) {
     useStore(store);

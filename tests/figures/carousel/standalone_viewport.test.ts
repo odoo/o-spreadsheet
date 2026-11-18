@@ -9,10 +9,10 @@ import { zoneToXc } from "../../../src/helpers/zones";
 import { DevicePixelRatioPlugin } from "../../../src/owl_plugins/device_pixel_ratio_owl_plugin";
 import { FormulaFingerprintPlugin } from "../../../src/owl_plugins/formula_fingerprints_store";
 import { LocalRendererPlugin } from "../../../src/owl_plugins/renderer_plugin";
+import { ViewportsPlugin } from "../../../src/owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../../src/owl_plugins/zoom_plugin";
 import { CellHoverOverlayStore } from "../../../src/stores/cell_hover_overlay_store";
 import { GridRenderer } from "../../../src/stores/grid_renderer_store";
-import { ViewportsStore } from "../../../src/stores/viewports_store";
 import { PropsOf } from "../../../src/types/props_of";
 import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import {
@@ -109,14 +109,25 @@ describe("Standalone viewport", () => {
   });
 
   test("a standalone viewport has its own viewport and does not move the main one", async () => {
-    await mountViewport("A1:A2", { sheetId: "sh2" });
+    const sheetId = model.getters.getActiveSheetId();
+    setGrid(model, { A1: "Hello", A2: "World" }, "sh2");
+    createCarouselWithDataView(model, toRangeData("sh2", "A1:A2"), "carouselId", sheetId);
+    const originalSetup = StandaloneViewport.prototype["setup"];
+    jest
+      .spyOn(StandaloneViewport.prototype, "setup")
+      .mockImplementation(function (this: StandaloneViewport) {
+        originalSetup.call(this);
+        subActionEnv = this.spEnv;
+        this.spEnv = useSpreadsheetEnv();
+      });
+    const { env } = await mountSpreadsheet({ model });
 
-    const [mainViewport, standaloneViewport] = storeSpy.getStores(
-      ViewportsStore
-    ) as ViewportsStore[];
+    const mainViewport = env.getPlugin(ViewportsPlugin);
+    const standaloneViewport = subActionEnv.getPlugin(ViewportsPlugin);
+
     expect(standaloneViewport).not.toBe(mainViewport);
     expect(standaloneViewport.displayedSheetId).toBe("sh2");
-    expect(mainViewport.displayedSheetId).toBe(model.getters.getSheetIds()[0]);
+    expect(mainViewport.displayedSheetId).toBe(sheetId);
   });
 
   test("Cells are rendered to fill the viewport vertically", async () => {
@@ -199,7 +210,7 @@ describe("Standalone viewport", () => {
   test("Standalone viewport have a functional scrollbar if too small", async () => {
     setGrid(model, { A1: "Hello", A2: "World", A3: "!" });
     await mountViewport("A1:A3", { size: { width: 1000, height: 30 } });
-    const viewStore = subEnv.getStore(ViewportsStore);
+    const viewStore = subActionEnv.getPlugin(ViewportsPlugin);
 
     expect(".o-scrollbar").toHaveCount(1);
     expect(viewStore.activeSheetScrollInfo.scrollY).toBe(0);
@@ -222,7 +233,7 @@ describe("Standalone viewport", () => {
     setGrid(model, { A1: "=RANDARRAY(10,1)" });
     freezeRows(model, 2);
     await mountViewport("A2:A10", { size: { width: 1000, height: cellHeight * 5 } });
-    const viewStore = subEnv.getStore(ViewportsStore);
+    const viewStore = subActionEnv.getPlugin(ViewportsPlugin);
 
     expect(".o-scrollbar").toHaveCount(1);
     expect(viewStore.activeSheetScrollInfo.scrollY).toBe(0);
@@ -239,7 +250,7 @@ describe("Standalone viewport", () => {
     setGrid(model, { A1: "=RANDARRAY(10,1)" });
     freezeRows(model, 4);
     await mountViewport("A2:A10", { size: { width: 1000, height: cellHeight * 8 } });
-    const viewStore = subEnv.getStore(ViewportsStore);
+    const viewStore = subActionEnv.getPlugin(ViewportsPlugin);
 
     expect(viewStore.mainViewportCoordinates.y).toBe(cellHeight * 3); // Three frozen rows in A2:A10
     expect(viewStore.mainViewportRect.height).toBe(cellHeight * 6); // 6 non-frozen rows in A2:A10
@@ -249,7 +260,7 @@ describe("Standalone viewport", () => {
   test("Standalone viewport does not scroll to follow the selection", async () => {
     setGrid(model, { A1: "Hello", A2: "World", A3: "!" });
     await mountViewport("A1:A3", { size: { width: 1000, height: 30 } });
-    const viewStore = subEnv.getStore(ViewportsStore);
+    const viewStore = subActionEnv.getPlugin(ViewportsPlugin);
     expect(viewStore.activeSheetScrollInfo.scrollY).toBe(0);
 
     selectCell(model, "A3");
@@ -336,7 +347,7 @@ describe("Standalone viewport", () => {
     const { env } = await mountSpreadsheet({ model });
 
     const mainZoomPlugin = env.getPlugin(ZoomPlugin);
-    const standaloneViewportStore = subEnv.getStore(ViewportsStore);
+    const standaloneViewportStore = subActionEnv.getPlugin(ViewportsPlugin);
 
     mainZoomPlugin.setZoom(2);
     await nextTick();

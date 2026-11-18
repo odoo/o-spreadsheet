@@ -1,7 +1,7 @@
 import { Chart } from "chart.js";
 import { Model } from "../../../src";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
-import { ViewportsStore } from "../../../src/stores/viewports_store";
+import { ViewportsPlugin } from "../../../src/owl_plugins/viewports_owl_plugin";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   createChart,
@@ -47,7 +47,7 @@ describe("Chart animations in dashboard", () => {
     model.updateMode("dashboard");
 
     const { env } = await mountSpreadsheet({ model });
-    const viewStore = env.getStore(ViewportsStore);
+    const viewStore = env.getPlugin(ViewportsPlugin);
     expect(".o-figure").toHaveCount(1);
     expect(mockedChart.config.options.animation.animateRotate).toBe(true);
 

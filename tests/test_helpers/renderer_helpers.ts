@@ -5,8 +5,11 @@ import {
 } from "canvas";
 import { GridRenderingContext, Model, RenderingGetters, UID, Viewport, Zone } from "../../src";
 import { getDefaultSheetViewSize } from "../../src/constants";
-import { DependencyContainer } from "../../src/store_engine/dependency_container";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+import {
+  ViewportsPlugin,
+  ViewportsPluginInstance,
+} from "../../src/owl_plugins/viewports_owl_plugin";
+import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
@@ -30,18 +33,18 @@ export class MockGridRenderingContext implements GridRenderingContext {
   thinLineWidth = 0.4;
   getters: RenderingGetters;
   private canvas: NodeCanvas | HTMLCanvasElement;
-  private viewStore: ViewportsStore;
+  private viewStore: ViewportsPluginInstance;
 
   constructor(
     private model: Model,
-    container: DependencyContainer,
+    getPlugin: OwlPluginGetter,
     width: number,
     height: number,
     observer: ContextObserver,
     private mode: "nodeCanvas" | "mockCanvas" = "mockCanvas"
   ) {
     this.getters = model.getters;
-    this.viewStore = container.get(ViewportsStore);
+    this.viewStore = getPlugin(ViewportsPlugin);
     this.viewStore.resizeSheetView({ width, height, gridOffsetX: 0, gridOffsetY: 0 });
     this.viewport = this.viewStore.activeMainViewport;
 
@@ -92,7 +95,7 @@ export class MockGridRenderingContext implements GridRenderingContext {
   }
 
   get viewports() {
-    return this.viewStore.viewports;
+    return this.viewStore.viewports();
   }
 
   get selectedZones(): Zone[] {
@@ -120,11 +123,11 @@ export class MockGridRenderingContext implements GridRenderingContext {
 /**
  * Create a rendering context watching dashed outlines around zones.
  */
-export function watchDashedOutline(model: Model, container: DependencyContainer) {
+export function watchDashedOutline(model: Model, getPlugin: OwlPluginGetter) {
   const sheetViewSize = getDefaultSheetViewSize();
   let lineDash = false;
   let outlinedRects: any[][] = [];
-  const ctx = new MockGridRenderingContext(model, container, sheetViewSize, sheetViewSize, {
+  const ctx = new MockGridRenderingContext(model, getPlugin, sheetViewSize, sheetViewSize, {
     onFunctionCall: (val, args) => {
       if (val === "setLineDash") {
         lineDash = true;
@@ -137,9 +140,9 @@ export function watchDashedOutline(model: Model, container: DependencyContainer)
   });
   const isDotOutlined = (zones: Zone[]): boolean => {
     return zones.every((zone) => {
-      const { x, y, width, height } = container
-        .get(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), zone);
+      const { x, y, width, height } = getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), zone);
       return outlinedRects.some(
         (rect) => rect[0] === x && rect[1] === y && rect[2] === width && rect[3] === height
       );

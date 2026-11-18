@@ -1,7 +1,7 @@
 import { CommandResult, Direction, Viewport } from "../../src";
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { Model } from "../../src/model";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+import { ViewportsPluginInstance } from "../../src/owl_plugins/viewports_owl_plugin";
 import {
   hideColumns,
   hideRows,
@@ -10,10 +10,10 @@ import {
   selectCell,
 } from "../test_helpers/commands_helpers";
 import { getActivePosition, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeViewportsPlugin } from "../test_helpers/stores";
 
 function setViewportSizeAndOffset(
-  store: ViewportsStore,
+  store: ViewportsPluginInstance,
   width: number,
   height: number,
   offsetX: number,
@@ -26,7 +26,7 @@ function setViewportSizeAndOffset(
 
 describe("navigation", () => {
   test("normal move to the right", () => {
-    const { model } = makeStore(ViewportsStore);
+    const { model } = makeViewportsPlugin();
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(getActivePosition(model)).toBe("A1");
     expect(model.getters.getSelection().anchor.cell).toEqual(toCartesian("A1"));
@@ -38,7 +38,7 @@ describe("navigation", () => {
   });
 
   test("move up from top row", () => {
-    const { model } = makeStore(ViewportsStore);
+    const { model } = makeViewportsPlugin();
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(getActivePosition(model)).toBe("A1");
 
@@ -48,7 +48,7 @@ describe("navigation", () => {
   });
 
   test("move right from right row", () => {
-    const { model } = makeStore(ViewportsStore);
+    const { model } = makeViewportsPlugin();
     const activeSheetId = model.getters.getActiveSheetId();
     const colNumber = model.getters.getNumberCols(activeSheetId);
     const xc = toXC(colNumber - 1, 0);
@@ -60,7 +60,7 @@ describe("navigation", () => {
   });
 
   test("move bottom from bottom row", () => {
-    const { model } = makeStore(ViewportsStore);
+    const { model } = makeViewportsPlugin();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     const xc = toXC(0, rowNumber - 1);
@@ -71,7 +71,7 @@ describe("navigation", () => {
   });
 
   test("move bottom from merge in last position", () => {
-    const { model } = makeStore(ViewportsStore);
+    const { model } = makeViewportsPlugin();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     merge(model, `${toXC(0, rowNumber - 2)}:${toXC(0, rowNumber - 1)}`, activeSheetId);
@@ -83,7 +83,7 @@ describe("navigation", () => {
   });
 
   test("Cannot move bottom from merge in last position if last row is hidden", () => {
-    const { model } = makeStore(ViewportsStore);
+    const { model } = makeViewportsPlugin();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     merge(model, `${toXC(0, rowNumber - 3)}:${toXC(0, rowNumber - 2)}`, activeSheetId);
@@ -96,7 +96,7 @@ describe("navigation", () => {
   });
 
   test("move right from merge in last position", () => {
-    const { model } = makeStore(ViewportsStore);
+    const { model } = makeViewportsPlugin();
     const activeSheetId = model.getters.getActiveSheetId();
     const colNumber = model.getters.getNumberCols(activeSheetId);
     merge(model, `${toXC(colNumber - 2, 0)}:${toXC(colNumber - 1, 0)}`, activeSheetId);
@@ -146,7 +146,7 @@ describe("navigation", () => {
   });
 
   test("move right from right col (of the viewport)", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     setViewportSizeAndOffset(viewStore, 600, 300, 0, 0);
     expect(viewStore.activeMainViewport.left).toBe(0);
     expect(viewStore.activeMainViewport.right).toBe(6);
@@ -165,7 +165,7 @@ describe("navigation", () => {
   });
 
   test("move left from left col (of the viewport)", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     setViewportSizeAndOffset(viewStore, 600, 300, 100, 0);
     expect(viewStore.activeMainViewport.left).toBe(1);
     expect(viewStore.activeMainViewport.right).toBe(7);
@@ -180,7 +180,7 @@ describe("navigation", () => {
   });
 
   test("move bottom from bottom row (of the viewport)", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     setViewportSizeAndOffset(viewStore, 600, 300, 0, 0);
     expect(viewStore.activeMainViewport.top).toBe(0);
     expect(viewStore.activeMainViewport.bottom).toBe(13);
@@ -199,7 +199,7 @@ describe("navigation", () => {
   });
 
   test("move top from top row (of the viewport)", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     setViewportSizeAndOffset(viewStore, 600, 300, 0, 60);
     expect(viewStore.activeMainViewport.top).toBe(2);
     expect(viewStore.activeMainViewport.bottom).toBe(15);
@@ -214,7 +214,7 @@ describe("navigation", () => {
   });
 
   test("move top from top row (of the viewport) with a merge", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     setViewportSizeAndOffset(viewStore, 600, 300, 0, 60);
     expect(viewStore.activeMainViewport.top).toBe(2);
     expect(viewStore.activeMainViewport.bottom).toBe(15);
@@ -308,7 +308,7 @@ describe("Navigation starting from hidden cells", () => {
   ])(
     "Move from position horizontally from hidden col",
     (hiddenCols, startPosition, direction, endPosition) => {
-      const { model } = makeStore(ViewportsStore);
+      const { model } = makeViewportsPlugin();
       selectCell(model, startPosition);
       hideColumns(model, hiddenCols);
       moveAnchorCell(model, direction as Direction);
@@ -330,7 +330,7 @@ describe("Navigation starting from hidden cells", () => {
   ])(
     "Move from position vertically from hidden col",
     (hiddenRows, startPosition, direction, endPosition) => {
-      const { model } = makeStore(ViewportsStore);
+      const { model } = makeViewportsPlugin();
       selectCell(model, startPosition);
       hideRows(model, hiddenRows);
       moveAnchorCell(model, direction as Direction);

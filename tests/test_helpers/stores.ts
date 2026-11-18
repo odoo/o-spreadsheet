@@ -5,6 +5,7 @@ import { DependencyContainer } from "../../src/store_engine/dependency_container
 import { globalStores } from "../../src/store_engine/store_registries";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { ModelStore } from "../../src/stores/model_store";
 import { makeSpreadsheetActionTestEnv, mockNotificationMethods } from "./helpers";
 
@@ -34,6 +35,20 @@ export function makeGlobalStoreWithModel(model: Model) {
     container,
     model: container.get(ModelStore),
     getPlugin: testEnv.getPlugin,
+  };
+}
+
+/**
+ * Get the viewports plugin, along with a container and a model sharing it.
+ * The returned key is named `store` so that it reads like `makeStore` at the call sites.
+ */
+export function makeViewportsPlugin(model: Model = new Model()) {
+  const { container, getPlugin } = makeGlobalStoreWithModel(model);
+  return {
+    store: getPlugin(ViewportsPlugin),
+    container,
+    model: container.get(ModelStore),
+    getPlugin,
   };
 }
 

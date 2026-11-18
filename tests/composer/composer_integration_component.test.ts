@@ -10,7 +10,7 @@ import {
 } from "../../src/constants";
 import { colors, toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import {
@@ -217,7 +217,7 @@ describe("Composer interactions", () => {
   });
 
   test("Selecting a range should not scroll the viewport to the current Grid selection", async () => {
-    const viewStore = env.getStore(ViewportsStore);
+    const viewStore = env.getPlugin(ViewportsPlugin);
     const { top, bottom, left, right } = viewStore.activeMainViewport;
     await typeInComposerTopBar("=");
     // scroll
@@ -690,7 +690,7 @@ describe("Grid composer", () => {
   });
 
   test("Wheel event on the composer should not scroll the viewport if the composer has a scrollbar", async () => {
-    const viewStore = env.getStore(ViewportsStore);
+    const viewStore = env.getPlugin(ViewportsPlugin);
     const viewport = viewStore.activeMainViewport;
     // Describes a div that has a scrollbar - the scrollHeight is greater than the clientHeight
     jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 50);
@@ -767,7 +767,7 @@ describe("Grid composer", () => {
       selectCell(model, "C3");
       await typeInComposerGrid("A");
 
-      const sheetViewDims = env.getStore(ViewportsStore).sheetViewDimension;
+      const sheetViewDims = env.getPlugin(ViewportsPlugin).sheetViewDimension;
       const expectedMaxHeight = sheetViewDims.height - 2 * DEFAULT_CELL_HEIGHT;
       const expectedMaxWidth = sheetViewDims.width - 2 * DEFAULT_CELL_WIDTH;
 

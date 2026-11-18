@@ -168,6 +168,7 @@ import { migrationStepRegistry } from "./migrations/migration_steps";
 
 import { inverseCommandRegistry } from "./command_registry";
 import { HighlightPlugin } from "./owl_plugins/highlight_plugin";
+import { ViewportsPlugin } from "./owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "./owl_plugins/zoom_plugin";
 import { UNDO_REDO_PIVOT_COMMANDS } from "./plugins/evaluation/pivot_ui";
 import {
@@ -404,7 +405,6 @@ import { performanceRegistry } from "./registries/performance_registry";
 import { specificRangeTransformRegistry } from "./registries/srt_registry";
 import { globalStores } from "./store_engine/store_registries";
 import { ClipboardStore } from "./stores/clipboard_store";
-import { ViewportsStore } from "./stores/viewports_store";
 
 export const helpers = {
   arg,
@@ -612,12 +612,12 @@ export const stores = {
   AutofillStore,
   ClientFocusStore,
   GridRenderer,
-  ViewportsStore,
   ClipboardStore,
   globalStores,
 };
 
 export const owlPlugins = {
+  ViewportsPlugin,
   PopoverContainerPlugin,
   NotificationPlugin,
   IsSmallPlugin,

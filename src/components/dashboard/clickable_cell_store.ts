@@ -1,11 +1,11 @@
-import { markRaw } from "@odoo/owl";
+import { markRaw, usePlugin } from "@odoo/owl";
 import { invalidateEvaluationCommands } from "../../command_registry";
 import { toXC } from "../../helpers/coordinates";
 import { positionToZone } from "../../helpers/zones";
 import { ComponentConstructor } from "../../owl3_compatibility_layer";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { CellClickableItem, clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { Command } from "../../types/commands";
 import { CellPosition, UID } from "../../types/misc";
 import { Rect } from "../../types/rendering";
@@ -21,7 +21,7 @@ export interface ClickableCell {
 }
 
 export class ClickableCellsStore extends SpreadsheetStore {
-  private viewStore = this.get(ViewportsStore);
+  private viewStore = usePlugin(ViewportsPlugin);
   private _clickableCells: Record<UID, Record<string, CellClickableItem | undefined>> = markRaw({});
   private _registryItems: CellClickableItem[] = markRaw(
     clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)
@@ -91,7 +91,7 @@ export class ClickableCellsStore extends SpreadsheetStore {
 
   private getClickableCellRect(position: CellPosition): Rect | undefined {
     const zone = this.getters.expandZone(position.sheetId, positionToZone(position));
-    const clickableRect = this.viewStore.viewports.getVisibleRect(position.sheetId, zone);
+    const clickableRect = this.viewStore.viewports().getVisibleRect(position.sheetId, zone);
 
     const icons = this.getters.getCellIcons(position);
     const iconsAtPosition = {
@@ -103,12 +103,12 @@ export class ClickableCellsStore extends SpreadsheetStore {
       return undefined;
     }
     if (iconsAtPosition.right?.onClick) {
-      const cellRect = this.viewStore.viewports.getRect(position.sheetId, zone);
+      const cellRect = this.viewStore.viewports().getRect(position.sheetId, zone);
       const iconRect = this.getters.getCellIconRect(iconsAtPosition.right, cellRect);
       clickableRect.width -= iconRect.width + iconsAtPosition.right.margin;
     }
     if (iconsAtPosition.left?.onClick) {
-      const cellRect = this.viewStore.viewports.getRect(position.sheetId, zone);
+      const cellRect = this.viewStore.viewports().getRect(position.sheetId, zone);
       const iconRect = this.getters.getCellIconRect(iconsAtPosition.left, cellRect);
       clickableRect.x += iconRect.width + iconsAtPosition.left.margin;
       clickableRect.width -= iconRect.width + iconsAtPosition.left.margin;

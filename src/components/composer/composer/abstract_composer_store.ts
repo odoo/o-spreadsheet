@@ -17,6 +17,7 @@ import { isSheetNameEqual } from "../../../helpers/sheet";
 import { getZoneArea, isEqual, positionToZone, zoneToDimension } from "../../../helpers/zones";
 import { HighlightPlugin } from "../../../owl_plugins/highlight_plugin";
 import { NotificationPlugin } from "../../../owl_plugins/notification_owl_plugin";
+import { ViewportsPlugin } from "../../../owl_plugins/viewports_owl_plugin";
 import {
   AutoCompleteProposal,
   AutoCompleteProvider,
@@ -24,7 +25,6 @@ import {
   autoCompleteProviders,
 } from "../../../registries/auto_completes/auto_complete_registry";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
-import { ViewportsStore } from "../../../stores/viewports_store";
 import { _t } from "../../../translation";
 import { Command } from "../../../types/commands";
 import { EvaluationError } from "../../../types/errors";
@@ -91,7 +91,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   private autoCompleteKeepLast = new KeepLast<AutoCompleteProvider | undefined>();
   protected notificationPlugin = usePlugin(NotificationPlugin);
   private highlightPlugin = usePlugin(HighlightPlugin);
-  private viewStore = this.get(ViewportsStore);
+  private viewStore = usePlugin(ViewportsPlugin);
 
   constructor(get: Get) {
     super(get);

@@ -1,12 +1,10 @@
-import { proxy, useProps } from "@odoo/owl";
+import { proxy, usePlugin, useProps } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { GROUP_LAYER_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
+import { ViewportsPlugin, ViewportsPluginInstance } from "../../owl_plugins/viewports_owl_plugin";
 import { createHeaderGroupContainerContextMenu } from "../../registries/menus/header_group_registry";
-import { useStore } from "../../store_engine/store_hooks";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { CSSProperties, Pixel } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
-import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { OSComponent } from "../os_component";
@@ -23,10 +21,10 @@ export class HeaderGroupContainer extends OSComponent {
   });
 
   menu: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
-  private viewStore!: Store<ViewportsStore>;
+  private viewStore!: ViewportsPluginInstance;
 
   setup() {
-    this.viewStore = useStore(ViewportsStore);
+    this.viewStore = usePlugin(ViewportsPlugin);
   }
 
   getLayerOffset(layerIndex: number): number {

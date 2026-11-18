@@ -13,7 +13,7 @@ import { toZone } from "../../src/helpers/zones";
 import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { IsSmallPlugin } from "../../src/owl_plugins/is_small_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
@@ -509,7 +509,7 @@ test("Commands rejected on locked sheet trigger a notification", async () => {
 test("Spreadsheet main viewport store follows the active sheet", async () => {
   ({ env, fixture, model } = await mountSpreadsheet({ model: new Model() }));
   createSheet(model, { sheetId: "sh2" });
-  const viewportsStore = env.getStore(ViewportsStore);
+  const viewportsStore = env.getPlugin(ViewportsPlugin);
 
   expect(model.getters.getActiveSheetId()).toBe("Sheet1");
   expect(viewportsStore.displayedSheetId).toBe("Sheet1");
@@ -542,7 +542,7 @@ test("Grid dimensions are rounded for the viewports", async () => {
   spreadsheetHeight = 100.7;
   const { env, getPlugin } = await mountSpreadsheet({ model });
   expect(getPlugin(IsSmallPlugin).isSmall()).toBeTruthy();
-  const viewStore = env.getStore(ViewportsStore);
+  const viewStore = env.getPlugin(ViewportsPlugin);
   expect(viewStore.sheetViewDimensionWithHeaders).toEqual({
     width: 500 - SCROLLBAR_WIDTH,
     height: 100 - SCROLLBAR_WIDTH,

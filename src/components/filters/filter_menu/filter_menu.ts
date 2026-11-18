@@ -1,16 +1,17 @@
-import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
+import { onWillUpdateProps, proxy, usePlugin, useProps } from "@odoo/owl";
 import { isDateTimeFormat } from "../../../helpers/format/format";
 import { deepCopy, deepEquals } from "../../../helpers/misc";
 import { interactiveSort } from "../../../helpers/sort_interactive";
 import { toTrimmedLowerCase } from "../../../helpers/text_helper";
 import { positions } from "../../../helpers/zones";
-import { useStore } from "../../../store_engine/store_hooks";
-import { ViewportsStore } from "../../../stores/viewports_store";
+import {
+  ViewportsPlugin,
+  ViewportsPluginInstance,
+} from "../../../owl_plugins/viewports_owl_plugin";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { CellValueType } from "../../../types/cells";
 import { Position, SortDirection } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
-import { Store } from "../../../types/store_engine";
 import {
   CriterionFilter,
   DataFilterValue,
@@ -48,10 +49,10 @@ export class FilterMenu extends OSComponent {
   private state!: State;
   private criterionCategory: CriterionCategory = "text";
   private updatedCriterionValue: DataFilterValue | undefined;
-  private viewStore!: Store<ViewportsStore>;
+  private viewStore!: ViewportsPluginInstance;
 
   setup() {
-    this.viewStore = useStore(ViewportsStore);
+    this.viewStore = usePlugin(ViewportsPlugin);
     onWillUpdateProps((nextProps: PropsOf<FilterMenu>) => {
       if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
         this.updatedCriterionValue = undefined;

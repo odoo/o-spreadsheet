@@ -8,9 +8,11 @@ import {
 } from "../../../src/constants";
 import { toXC } from "../../../src/helpers/coordinates";
 import { zoneToXc } from "../../../src/helpers/zones";
-import { ViewportsStore } from "../../../src/stores/viewports_store";
+import {
+  ViewportsPlugin,
+  ViewportsPluginInstance,
+} from "../../../src/owl_plugins/viewports_owl_plugin";
 import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
-import { Store } from "../../../src/types/store_engine";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   addColumns,
@@ -88,7 +90,7 @@ describe("Insert chart menu item", () => {
   let model: Model;
   let env: SpreadsheetActionEnv;
   let openSidePanelSpy: jest.SpyInstance;
-  let viewStore: Store<ViewportsStore>;
+  let viewStore: ViewportsPluginInstance;
 
   async function insertChart() {
     await doAction(["insert", "insert_chart"], env);
@@ -104,7 +106,7 @@ describe("Insert chart menu item", () => {
     const sidePanelStore = env.getStore(SidePanelStore);
     openSidePanelSpy = jest.spyOn(sidePanelStore, "open");
     model = env.model();
-    viewStore = env.getStore(ViewportsStore);
+    viewStore = env.getPlugin(ViewportsPlugin);
 
     mockChart();
     dispatchSpy = spyModelDispatch(model);

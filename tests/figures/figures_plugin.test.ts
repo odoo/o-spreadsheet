@@ -3,7 +3,7 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { numberToLetters } from "../../src/helpers/coordinates";
 import { range } from "../../src/helpers/misc";
 import { Model } from "../../src/model";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+
 import {
   activateSheet,
   addColumns,
@@ -29,7 +29,7 @@ import {
   updateFigure,
 } from "../test_helpers/commands_helpers";
 import { makeTestComposerStore } from "../test_helpers/helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeViewportsPlugin } from "../test_helpers/stores";
 
 describe("figure plugin", () => {
   test.each([
@@ -52,7 +52,7 @@ describe("figure plugin", () => {
       offset: { x: 5, y: 10 },
     },
   ])("can create a simple figure", (figure) => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
     const data = model.exportData();
     const sheet = data.sheets.find((s) => s.id === model.getters.getActiveSheetId())!;
@@ -70,7 +70,7 @@ describe("figure plugin", () => {
   });
 
   test("can undo figure creation", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
@@ -86,7 +86,7 @@ describe("figure plugin", () => {
   });
 
   test("can create a figure in a different sheet", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     const sheetId = "Sheet2";
     createSheet(model, { sheetId }); // The sheet is not activated
 
@@ -147,7 +147,7 @@ describe("figure plugin", () => {
       offset: { x: 0, y: 0 },
     },
   ])("getVisibleFigures only returns visible figures", (figure) => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
     expect(viewStore.visibleFigures.length).toBe(1);
 
@@ -178,7 +178,7 @@ describe("figure plugin", () => {
       offset: { x: 0, y: 0 },
     },
   ])("getVisibleFigures only returns visible figures on sheet with frozen panes", (figure) => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
     expect(viewStore.visibleFigures.length).toBe(1);
     freezeColumns(model, 3);
@@ -384,7 +384,7 @@ describe("figure plugin", () => {
       offset: { x: 4, y: 8 },
     },
   ])("can move a figure", (figure) => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
 
     const figureUI = viewStore.visibleFigures[0];
@@ -406,7 +406,7 @@ describe("figure plugin", () => {
   });
 
   test("can undo an update operation", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
@@ -454,7 +454,7 @@ describe("figure plugin", () => {
       offset: { x: 4, y: 8 },
     },
   ])("prevent moving a figure left or above of the sheet", (figure) => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
 
     const figureUI = viewStore.visibleFigures[0];
@@ -492,7 +492,7 @@ describe("figure plugin", () => {
   });
 
   test("can delete a figure and UNDO will reselect it", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, store: viewStore } = makeViewportsPlugin();
     const sheetId = model.getters.getActiveSheetId();
     createFigure(model, {
       sheetId,

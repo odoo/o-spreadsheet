@@ -38,6 +38,7 @@ import { CheckboxTogglePlugin } from "../../owl_plugins/checkbox_toggle_plugin";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
+import { ViewportsPlugin, ViewportsPluginInstance } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
@@ -52,7 +53,6 @@ import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { SelectionRendererStore } from "../../stores/selection_renderer_store";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { _t } from "../../translation";
 import { CellValueType } from "../../types/cells";
 import { ClipboardMIMEType } from "../../types/clipboard";
@@ -174,7 +174,7 @@ export class Grid extends OSComponent {
   private headerResizeEditorTarget = signal<HeaderResizeEditorTarget | null>(null);
   private gridRef = signal.ref();
   private canvasRef = signal.ref(HTMLCanvasElement);
-  viewStore!: Store<ViewportsStore>;
+  viewStore!: ViewportsPluginInstance;
   private zoomPlugin = usePlugin(ZoomPlugin);
   private highlightPlugin = usePlugin(HighlightPlugin);
   private cellPopovers!: Store<CellPopoverStore>;
@@ -195,7 +195,7 @@ export class Grid extends OSComponent {
   private devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
 
   setup() {
-    this.viewStore = useStore(ViewportsStore);
+    this.viewStore = usePlugin(ViewportsPlugin);
     this.menuState = proxy({
       isOpen: false,
       anchorRect: null,
@@ -225,7 +225,7 @@ export class Grid extends OSComponent {
       canvasRef: this.canvasRef,
       renderingCtx: () => ({
         dpr: this.devicePixelRatioPlugin.devicePixelRatio() || 1,
-        viewports: this.viewStore.viewports,
+        viewports: this.viewStore.viewports(),
         ...this.model().getters.getSelectionState(),
       }),
     });
@@ -622,10 +622,9 @@ export class Grid extends OSComponent {
 
   getAutofillPosition() {
     const zone = this.model().getters.getSelectedZone();
-    const rect = this.viewStore.viewports.getVisibleRect(
-      this.model().getters.getActiveSheetId(),
-      zone
-    );
+    const rect = this.viewStore
+      .viewports()
+      .getVisibleRect(this.model().getters.getActiveSheetId(), zone);
     return {
       x: rect.x + rect.width - AUTOFILL_EDGE_LENGTH / 2,
       y: rect.y + rect.height - AUTOFILL_EDGE_LENGTH / 2,
@@ -807,7 +806,7 @@ export class Grid extends OSComponent {
     } else if (type === "ROW") {
       anchorZone = { ...sheetZone, top: row, bottom: row };
     }
-    const { x, y } = this.viewStore.viewports.getVisibleRectWithZoom(sheetId, anchorZone);
+    const { x, y } = this.viewStore.viewports().getVisibleRectWithZoom(sheetId, anchorZone);
     const gridRect = this.getGridRect();
     this.toggleContextMenu(type, gridRect.x + x, gridRect.y + y);
   }
@@ -1068,7 +1067,7 @@ export class Grid extends OSComponent {
         });
         break;
       case "right": {
-        const { x, y, width } = this.viewStore.viewports.getVisibleRectWithZoom(sheetId, zone);
+        const { x, y, width } = this.viewStore.viewports().getVisibleRectWithZoom(sheetId, zone);
         const gridRect = this.getGridRect();
         this.toggleContextMenu("GROUP_HEADERS", x + width + gridRect.x, y + gridRect.y);
         break;
@@ -1077,7 +1076,7 @@ export class Grid extends OSComponent {
         if (!canUngroupHeaders(this.spEnv, "COL") && !canUngroupHeaders(this.spEnv, "ROW")) {
           return;
         }
-        const { x, y, width } = this.viewStore.viewports.getVisibleRectWithZoom(sheetId, zone);
+        const { x, y, width } = this.viewStore.viewports().getVisibleRectWithZoom(sheetId, zone);
         const gridRect = this.getGridRect();
         this.toggleContextMenu("UNGROUP_HEADERS", x + width + gridRect.x, y + gridRect.y);
         break;

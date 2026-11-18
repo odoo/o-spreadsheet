@@ -19,12 +19,12 @@ import { markdownLink } from "../../src/helpers/misc";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
 import { clipboardHandlersRegistries } from "../../src/registries/clipboard_handlers_registries";
-import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { ClipboardStore, MAX_FILE_SIZE } from "../../src/stores/clipboard_store";
-import { ViewportsStore } from "../../src/stores/viewports_store";
 import { AddConditionalFormatCommand } from "../../src/types/commands";
+import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { XMLString } from "../../src/types/xlsx";
 import { parseXML, xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { MockFileStore } from "../__mocks__/mock_file_store";
@@ -92,7 +92,7 @@ import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
 let store: ClipboardStore;
-let container: DependencyContainer;
+let getPlugin: OwlPluginGetter;
 
 describe("clipboard", () => {
   test("can copy and paste a cell", () => {
@@ -771,8 +771,8 @@ describe("clipboard", () => {
   });
 
   test("pasting from OS will not change the viewport", () => {
-    ({ model, store, container } = makeStore(ClipboardStore));
-    const viewStore = container.get(ViewportsStore);
+    ({ model, store, getPlugin } = makeStore(ClipboardStore));
+    const viewStore = getPlugin(ViewportsPlugin);
     const viewport = viewStore.activeMainViewport;
     pasteFromOSClipboard(model, "C60", { text: "a\t1\nb\t2" });
     expect(viewStore.activeMainViewport).toEqual(viewport);
@@ -823,8 +823,8 @@ describe("clipboard", () => {
   });
 
   test("Viewport won't move after pasting", () => {
-    ({ model, store, container } = makeStore(ClipboardStore));
-    const viewStore = container.get(ViewportsStore);
+    ({ model, store, getPlugin } = makeStore(ClipboardStore));
+    const viewStore = getPlugin(ViewportsPlugin);
     copy(model, "A1:B2");
 
     setSelection(model, ["C60:D70"]);
@@ -2645,8 +2645,8 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("Pasted images from OS are inserted at the paste position with a limited size", () => {
-    ({ model, store, container } = makeStore(ClipboardStore));
-    const viewStore = container.get(ViewportsStore);
+    ({ model, store, getPlugin } = makeStore(ClipboardStore));
+    const viewStore = getPlugin(ViewportsPlugin);
     const width = 2000;
     const height = 2000;
     pasteFromOSClipboard(model, "B2", {

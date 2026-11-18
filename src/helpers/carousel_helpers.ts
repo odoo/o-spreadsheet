@@ -1,6 +1,6 @@
 import { CAROUSEL_LAYOUT, DEFAULT_CAROUSEL_TITLE_STYLE } from "../constants";
+import { ViewportsPlugin } from "../owl_plugins/viewports_owl_plugin";
 import { chartSubtypeRegistry } from "../registries/chart_subtype_registry";
-import { ViewportsStore } from "../stores/viewports_store";
 import { _t } from "../translation";
 import { AnchorOffset, Carousel, CarouselItem } from "../types/figure";
 import { Getters } from "../types/getters";
@@ -22,10 +22,13 @@ export function getPoppedOutChartAnchor(
     throw new Error(`Could not find figure with id ${carouselId} in sheet ${sheetId}`);
   }
   const figureUI = env.model().getters.getFigureUI(sheetId, figure);
-  return env.getStore(ViewportsStore).viewports.getPositionAnchorOffset(sheetId, {
-    x: figureUI.x + 50,
-    y: figureUI.y + 50,
-  });
+  return env
+    .getPlugin(ViewportsPlugin)
+    .viewports()
+    .getPositionAnchorOffset(sheetId, {
+      x: figureUI.x + 50,
+      y: figureUI.y + 50,
+    });
 }
 
 export function getCarouselItemPreview(getters: Getters, item: CarouselItem): string {

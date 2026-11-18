@@ -1,7 +1,7 @@
 import { CellErrorType, CommandResult, Model } from "../../../../src";
 import { deepCopy } from "../../../../src/helpers/misc";
 import { ClipboardStore } from "../../../../src/stores/clipboard_store";
-import { ViewportsStore } from "../../../../src/stores/viewports_store";
+
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,
@@ -29,7 +29,7 @@ import {
   updateChart,
   updateNamedRange,
 } from "../../../test_helpers/commands_helpers";
-import { makeStoreWithModel } from "../../../test_helpers/stores";
+import { makeStoreWithModel, makeViewportsPlugin } from "../../../test_helpers/stores";
 
 let model: Model;
 
@@ -229,7 +229,7 @@ describe("datasource tests", function () {
     createGaugeChart(model, { metric: "=B7:B8" }, "chartId", undefined, { figureId: "figureId" });
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
-    const { store: viewStore } = makeStoreWithModel(newModel, ViewportsStore);
+    const { store: viewStore } = makeViewportsPlugin(newModel);
     expect(viewStore.visibleFigures).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("chartId") as GaugeChartRuntime).toBeTruthy();
     deleteFigure(newModel, "figureId");

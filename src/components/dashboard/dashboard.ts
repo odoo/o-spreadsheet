@@ -1,9 +1,9 @@
 import { providePlugins, signal, usePlugin, useProps } from "@odoo/owl";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { LocalRendererPlugin } from "../../owl_plugins/renderer_plugin";
+import { ViewportsPlugin, ViewportsPluginInstance } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
@@ -46,7 +46,7 @@ export class SpreadsheetDashboard extends OSComponent {
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
   hoveredCell!: Store<DelayedHoveredCellStore>;
-  private viewStore!: Store<ViewportsStore>;
+  private viewStore!: ViewportsPluginInstance;
   private zoomPlugin = usePlugin(ZoomPlugin);
   private devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
 
@@ -55,7 +55,7 @@ export class SpreadsheetDashboard extends OSComponent {
 
   setup() {
     this.hoveredCell = useStore(DelayedHoveredCellStore);
-    this.viewStore = useStore(ViewportsStore);
+    this.viewStore = usePlugin(ViewportsPlugin);
     useLocalStore(HoveredTableStore);
 
     const layers = OrderedLayers().filter((layer) => layer !== "Headers");
@@ -66,7 +66,7 @@ export class SpreadsheetDashboard extends OSComponent {
       canvasRef: this.canvasRef,
       renderingCtx: () => ({
         dpr: this.devicePixelRatioPlugin.devicePixelRatio() || 1,
-        viewports: this.viewStore.viewports,
+        viewports: this.viewStore.viewports(),
         ...this.model().getters.getSelectionState(),
         hideGridLines: true,
       }),

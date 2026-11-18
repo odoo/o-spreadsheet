@@ -1,13 +1,14 @@
-import { onMounted, proxy, signal, useProps } from "@odoo/owl";
+import { onMounted, proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { urlRegistry, urlRepresentation } from "../../../helpers/links";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { markdownLink } from "../../../helpers/misc";
 import { fuzzyLookup } from "../../../helpers/search";
-import { useStore } from "../../../store_engine/store_hooks";
-import { ViewportsStore } from "../../../stores/viewports_store";
+import {
+  ViewportsPlugin,
+  ViewportsPluginInstance,
+} from "../../../owl_plugins/viewports_owl_plugin";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { Link } from "../../../types/misc";
-import { Store } from "../../../types/store_engine";
 import { MenuPopover } from "../../menu_popover/menu_popover";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
@@ -43,10 +44,10 @@ export class LinkEditor extends OSComponent {
   urlInputContainer = signal.ref();
 
   private state!: LinkState;
-  private viewStore!: Store<ViewportsStore>;
+  private viewStore!: ViewportsPluginInstance;
 
   setup() {
-    this.viewStore = useStore(ViewportsStore);
+    this.viewStore = usePlugin(ViewportsPlugin);
     this.state = proxy(this.defaultState);
     this.computeLinks();
     onMounted(() => this.urlInput()?.focus());

@@ -24,11 +24,14 @@ import { App, Component, ComponentConstructor } from "../../src/owl3_compatibili
 import { ModelPlugin } from "../../src/owl_plugins/model_owl_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
+import {
+  ViewportsPlugin,
+  ViewportsPluginInstance,
+} from "../../src/owl_plugins/viewports_owl_plugin";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { proxifyStoreMutation } from "../../src/store_engine/store_hooks";
 import { globalStores } from "../../src/store_engine/store_registries";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
-import { ViewportsStore } from "../../src/stores/viewports_store";
 import { _t } from "../../src/translation";
 import { PropsOf } from "../../src/types/props_of";
 import {
@@ -36,7 +39,6 @@ import {
   SpreadsheetActionEnv,
   SpreadsheetChildEnv,
 } from "../../src/types/spreadsheet_env";
-import { Store } from "../../src/types/store_engine";
 import { registerCleanup } from "../setup/jest.setup";
 import { makeTestFixture, nextTick } from "./helpers";
 import { makeOwlPluginManager } from "./owl_plugins_helpers";
@@ -187,7 +189,7 @@ interface MountComponentReturn {
   model: Model;
   fixture: HTMLElement;
   env: SpreadsheetActionEnv;
-  viewStore: Store<ViewportsStore>;
+  viewStore: ViewportsPluginInstance;
   getPlugin: OwlPluginGetter;
 }
 
@@ -255,7 +257,7 @@ async function _mount<Props extends ComponentProps>(
     // @ts-ignore
     env.__spreadsheet_stores__.off("store-updated", null);
   });
-  const viewStore = env!.getStore(ViewportsStore);
+  const viewStore = env!.getPlugin(ViewportsPlugin);
 
   // @ts-ignore
   return { app, parent, model, fixture, env, viewStore, getPlugin, testRoot };

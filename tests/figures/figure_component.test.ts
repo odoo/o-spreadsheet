@@ -10,7 +10,7 @@ import {
   MENU_WIDTH,
   ZOOM_VALUES,
 } from "../../src/constants";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
@@ -1390,7 +1390,7 @@ describe("figures", () => {
     }); // bottomRight
     freezeRows(model, 2);
     freezeColumns(model, 2);
-    const { width, height } = env.getStore(ViewportsStore).sheetViewDimension;
+    const { width, height } = env.getPlugin(ViewportsPlugin).sheetViewDimension;
     await nextTick();
 
     const topLeftContainerStyle = (
@@ -2380,7 +2380,7 @@ describe("figures", () => {
       });
 
       test("No Y snap with bottom border below the viewport", async () => {
-        const { height: viewportHeight } = env.getStore(ViewportsStore).mainViewportRect;
+        const { height: viewportHeight } = env.getPlugin(ViewportsPlugin).mainViewportRect;
         createFigure(model, {
           id: "f1",
           col: 0,
@@ -2407,7 +2407,7 @@ describe("figures", () => {
       });
 
       test("No X snap with right border right of the viewport", async () => {
-        const { width: viewportWidth } = env.getStore(ViewportsStore).mainViewportRect;
+        const { width: viewportWidth } = env.getPlugin(ViewportsPlugin).mainViewportRect;
         createFigure(model, {
           id: "f1",
           col: 0,

@@ -3,7 +3,7 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, FOOTER_HEIGHT } from "../../sr
 import { range } from "../../src/helpers/misc";
 import { zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+import { ViewportsPluginInstance } from "../../src/owl_plugins/viewports_owl_plugin";
 import { Mode } from "../../src/types/model";
 import {
   activateSheet,
@@ -35,9 +35,10 @@ const OUTSIDE_CM = { x: 50, y: 50 };
 let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
+let viewStore: ViewportsPluginInstance;
 
 beforeEach(async () => {
-  ({ parent, model, fixture } = await mountSpreadsheet());
+  ({ parent, model, fixture, viewStore } = await mountSpreadsheet());
 });
 
 function simulateContextMenu(selector: string, coord: { x: number; y: number }) {
@@ -286,12 +287,12 @@ describe("Context MenuPopover hide col/row", () => {
 describe("Adding rows footer at the end of sheet", () => {
   test("won't show if the end of sheet doesn't show in the viewport", () => {
     const top = parseInt(getElStyle(".o-grid-add-rows", "top"));
-    const { height } = parent.env.getStore(ViewportsStore).sheetViewDimension;
+    const { height } = viewStore.sheetViewDimension;
     expect(top).toBeGreaterThan(height);
   });
 
   test("will show when the page is scrolled down to the end of sheet", async () => {
-    const { height } = parent.env.getStore(ViewportsStore).sheetViewDimension;
+    const { height } = viewStore.sheetViewDimension;
     await scrollGrid({ deltaY: 10000 });
     const top = parseInt(getElStyle(".o-grid-add-rows", "top"));
     expect(top).toBeLessThan(height);
@@ -308,7 +309,7 @@ describe("Adding rows footer at the end of sheet", () => {
 
   test("will at the bottom of the sheet view, if the sheet is too short to scroll", async () => {
     const sheetId = model.getters.getActiveSheetId();
-    const { height } = parent.env.getStore(ViewportsStore).sheetViewDimension;
+    const { height } = viewStore.sheetViewDimension;
     const numberOfRows = model.getters.getNumberRows(sheetId);
     expect(".o-grid-add-rows").toHaveStyle({ top: `${numberOfRows * DEFAULT_CELL_HEIGHT}px` });
 
@@ -382,7 +383,7 @@ describe("Adding rows footer at the end of sheet", () => {
     await click(fixture, ".o-grid-add-rows button");
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
-    expect(parent.env.getStore(ViewportsStore).visibleRows).toContain(numberOfRows - 1);
+    expect(viewStore.visibleRows).toContain(numberOfRows - 1);
   });
 
   test("the input value will be the default value 100 after changing sheet", async () => {
@@ -396,7 +397,6 @@ describe("Adding rows footer at the end of sheet", () => {
   });
 
   test("Footer will not show if the main viewport is too small to show the footer", async () => {
-    const viewStore = parent.env.getStore(ViewportsStore);
     const { bottom } = viewStore.activeMainViewport;
     expect(fixture.querySelector(".o-grid-add-rows")).toBeTruthy();
 

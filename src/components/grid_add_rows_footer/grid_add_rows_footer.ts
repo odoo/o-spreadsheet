@@ -1,8 +1,8 @@
-import { proxy, signal, useListener } from "@odoo/owl";
+import { proxy, signal, useListener, usePlugin } from "@odoo/owl";
 import { FOOTER_HEIGHT } from "../../constants";
+import { ViewportsPlugin, ViewportsPluginInstance } from "../../owl_plugins/viewports_owl_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { _t } from "../../translation";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
@@ -14,7 +14,7 @@ export class GridAddRowsFooter extends OSComponent {
   static components = { ValidationMessages };
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
-  private viewStore!: Store<ViewportsStore>;
+  private viewStore!: ViewportsPluginInstance;
 
   inputRef = signal.ref(HTMLInputElement);
   state = proxy({
@@ -24,7 +24,7 @@ export class GridAddRowsFooter extends OSComponent {
 
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
-    this.viewStore = useStore(ViewportsStore);
+    this.viewStore = usePlugin(ViewportsPlugin);
     useListener(window, "click", this.onExternalClick.bind(this), { capture: true });
   }
 

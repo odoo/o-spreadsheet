@@ -12,8 +12,8 @@ import { datetimeGranularities } from "../../../src/helpers/pivot/pivot_registry
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { toZone } from "../../../src/helpers/zones";
 import { NotificationPlugin } from "../../../src/owl_plugins/notification_owl_plugin";
+import { ViewportsPlugin } from "../../../src/owl_plugins/viewports_owl_plugin";
 import { topbarMenuRegistry } from "../../../src/registries/menus/topbar_menu_registry";
-import { ViewportsStore } from "../../../src/stores/viewports_store";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import {
   activateSheet,
@@ -784,7 +784,7 @@ describe("Spreadsheet pivot side panel", () => {
     setViewportOffset(env, 0, 1000);
 
     // add a static pivot in the viewport
-    const { bottom: row, right: col } = env.getStore(ViewportsStore).activeMainViewport;
+    const { bottom: row, right: col } = env.getPlugin(ViewportsPlugin).activeMainViewport;
     setCellContent(model, toXC(col, row), '=PIVOT.VALUE(1, "amount:sum")');
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);

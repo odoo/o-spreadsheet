@@ -1,4 +1,4 @@
-import { xml } from "@odoo/owl";
+import { usePlugin, xml } from "@odoo/owl";
 import { Currency, Model, Pixel, Style } from "../src";
 import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
 import { OSComponent } from "../src/components/os_component";
@@ -10,12 +10,11 @@ import { render } from "../src/helpers/owl3_helpers";
 import { toZone, zoneToXc } from "../src/helpers/zones";
 import { Component } from "../src/owl3_compatibility_layer";
 import { SpreadsheetRectPlugin } from "../src/owl_plugins/spreadsheet_rect_plugin";
+import { ViewportsPlugin, ViewportsPluginInstance } from "../src/owl_plugins/viewports_owl_plugin";
 import { topbarMenuRegistry } from "../src/registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
 import { DOMFocusableElementStore } from "../src/stores/DOM_focus_store";
-import { ViewportsStore } from "../src/stores/viewports_store";
 import { SpreadsheetActionEnv } from "../src/types/spreadsheet_env";
-import { Store } from "../src/types/store_engine";
 import { MockFileStore } from "./__mocks__/mock_file_store";
 import { mockJsDomForImageProvider } from "./__mocks__/mock_image_provider";
 import { MockTransportService } from "./__mocks__/transport_service";
@@ -113,7 +112,7 @@ afterEach(() => {
 let fixture: HTMLElement;
 let parent: Parent;
 let env: SpreadsheetActionEnv;
-let viewStore: Store<ViewportsStore>;
+let viewStore: ViewportsPluginInstance;
 
 class Parent extends OSComponent {
   static template = xml/* xml */ `
@@ -123,8 +122,10 @@ class Parent extends OSComponent {
   `;
   static components = { TopBar };
 
+  viewportsPlugin = usePlugin(ViewportsPlugin);
+
   get gridHeight(): Pixel {
-    const { height } = this.env.getStore(ViewportsStore).sheetViewDimension;
+    const { height } = this.viewportsPlugin.sheetViewDimension;
     return height;
   }
 }

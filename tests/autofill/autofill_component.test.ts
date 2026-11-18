@@ -5,7 +5,7 @@ import { types } from "../../src/components/props_validation";
 import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { Component } from "../../src/owl3_compatibility_layer";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { setCellContent, setSelection, setViewportOffset } from "../test_helpers/commands_helpers";
 import {
@@ -238,7 +238,7 @@ describe("Autofill component", () => {
   test("Autofill does not reset the viewport position if not near the viewport edge", async () => {
     setSelection(model, ["A1:A100"]);
     setViewportOffset(env, 400, 400);
-    const firstViewport = env.getStore(ViewportsStore).activeMainViewport;
+    const firstViewport = env.getPlugin(ViewportsPlugin).activeMainViewport;
     const autofill = fixture.querySelector(".o-autofill-handler");
     triggerMouseEvent(autofill, "pointerdown", 4, 4);
     await nextTick();
@@ -250,7 +250,7 @@ describe("Autofill component", () => {
     await nextTick();
     triggerMouseEvent(autofill, "pointerup", newX, HEADER_HEIGHT + 4);
     await nextTick();
-    expect(firstViewport).toMatchObject(env.getStore(ViewportsStore).activeMainViewport);
+    expect(firstViewport).toMatchObject(env.getPlugin(ViewportsPlugin).activeMainViewport);
   });
 
   test("Autofill is not loaded when the grid selection does not have the focus", async () => {
@@ -275,7 +275,7 @@ describe("Autofill edge scrolling", () => {
   });
 
   test("Can edge scroll horizontally", () => {
-    const { width, height } = env.getStore(ViewportsStore).sheetViewDimension;
+    const { width, height } = env.getPlugin(ViewportsPlugin).sheetViewDimension;
     const y = height / 2;
     const autofill = fixture.querySelector(".o-autofill-handler");
     triggerMouseEvent(autofill, "pointerdown", width / 2, y);
@@ -284,7 +284,7 @@ describe("Autofill edge scrolling", () => {
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(autofill, "pointerup", 1.5 * width, y);
-    expect(env.getStore(ViewportsStore).activeMainViewport).toMatchObject({
+    expect(env.getPlugin(ViewportsPlugin).activeMainViewport).toMatchObject({
       left: 6,
       right: 16,
       top: 0,
@@ -298,7 +298,7 @@ describe("Autofill edge scrolling", () => {
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(autofill, "pointerup", -0.5 * width, y);
 
-    expect(env.getStore(ViewportsStore).activeMainViewport).toMatchObject({
+    expect(env.getPlugin(ViewportsPlugin).activeMainViewport).toMatchObject({
       left: 3,
       right: 13,
       top: 0,
@@ -307,7 +307,7 @@ describe("Autofill edge scrolling", () => {
   });
 
   test("Can edge-scroll vertically", async () => {
-    const { width, height } = env.getStore(ViewportsStore).sheetViewDimensionWithHeaders;
+    const { width, height } = env.getPlugin(ViewportsPlugin).sheetViewDimensionWithHeaders;
     const x = width / 2;
     const autofill = fixture.querySelector(".o-autofill-handler");
     triggerMouseEvent(autofill, "pointerdown", x, height / 2);
@@ -317,7 +317,7 @@ describe("Autofill edge scrolling", () => {
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(autofill, "pointerup", x, 1.5 * height);
 
-    expect(env.getStore(ViewportsStore).activeMainViewport).toMatchObject({
+    expect(env.getPlugin(ViewportsPlugin).activeMainViewport).toMatchObject({
       left: 0,
       right: 10,
       top: 6,
@@ -331,7 +331,7 @@ describe("Autofill edge scrolling", () => {
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(autofill, "pointerup", x, -0.5 * height);
 
-    expect(env.getStore(ViewportsStore).activeMainViewport).toMatchObject({
+    expect(env.getPlugin(ViewportsPlugin).activeMainViewport).toMatchObject({
       left: 0,
       right: 10,
       top: 3,
@@ -342,7 +342,7 @@ describe("Autofill edge scrolling", () => {
   test("Can show and remove tooltip correctly when edge scroll horizontally", async () => {
     setCellContent(model, "A1", "test");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    const { width } = env.getStore(ViewportsStore).sheetViewDimensionWithHeaders;
+    const { width } = env.getPlugin(ViewportsPlugin).sheetViewDimensionWithHeaders;
     const autofill = fixture.querySelector(".o-autofill-handler");
 
     triggerMouseEvent(autofill, "pointerdown", width / 2, 0);
@@ -369,7 +369,7 @@ describe("Autofill edge scrolling", () => {
   test("Can show and remove tooltip when edge scroll vertically", async () => {
     setCellContent(model, "A1", "test");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    const { height } = env.getStore(ViewportsStore).sheetViewDimensionWithHeaders;
+    const { height } = env.getPlugin(ViewportsPlugin).sheetViewDimensionWithHeaders;
     const autofill = fixture.querySelector(".o-autofill-handler");
 
     triggerMouseEvent(autofill, "pointerdown", 0, height / 2);
@@ -404,7 +404,7 @@ function isVisibleInViewport(element: HTMLElement | null, model: Model) {
   if (element === null) {
     return false;
   }
-  const activeSheetViewDimension = env.getStore(ViewportsStore).sheetViewDimensionWithHeaders;
+  const activeSheetViewDimension = env.getPlugin(ViewportsPlugin).sheetViewDimensionWithHeaders;
   const top = getStylePropertyInPx(element, "top") || -Infinity;
   const left = getStylePropertyInPx(element, "left") || -Infinity;
   return (

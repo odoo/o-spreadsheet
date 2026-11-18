@@ -6,8 +6,8 @@ import { lettersToNumber, toCartesian } from "../../src/helpers/coordinates";
 import { MIN_DELAY, scrollDelay } from "../../src/helpers/edge_scrolling";
 import { ViewportCollection } from "../../src/helpers/viewport_collection";
 import { positionToZone, toZone } from "../../src/helpers/zones";
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../src/owl_plugins/zoom_plugin";
-import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { nextTick } from "./helpers";
 
@@ -144,7 +144,7 @@ export async function hoverCell(
 ) {
   const model = env.model();
   const zone = toZone(xc);
-  viewports = viewports || env.getStore(ViewportsStore).viewports;
+  viewports = viewports || env.getPlugin(ViewportsPlugin).viewports();
   const zoom = viewports.getZoomLevel();
   let { x, y, width, height } = viewports.getVisibleRectWithZoom(
     model.getters.getActiveSheetId(),
@@ -174,14 +174,14 @@ export async function clickCell(
     offsetY: 0,
   }
 ) {
-  const viewStore = env.getStore(ViewportsStore);
+  const viewStore = env.getPlugin(ViewportsPlugin);
   const zone = toZone(xc);
   const sheetId = env.model().getters.getActiveSheetId();
   const zoom = env.getPlugin(ZoomPlugin).zoomLevel();
-  if (!viewStore.viewports.isVisibleInViewport({ sheetId, col: zone.left, row: zone.top })) {
+  if (!viewStore.viewports().isVisibleInViewport({ sheetId, col: zone.left, row: zone.top })) {
     throw new Error(`You can't click on ${xc} because it is not visible`);
   }
-  let { x, y, width, height } = viewStore.viewports.getVisibleRectWithZoom(sheetId, zone);
+  let { x, y, width, height } = viewStore.viewports().getVisibleRectWithZoom(sheetId, zone);
   x -= viewStore.gridOffset.x * zoom;
   y -= viewStore.gridOffset.y * zoom;
   if (option.clickInMiddle) {
@@ -206,8 +206,9 @@ export async function clickHeader(
   const sheetZone = model.getters.getSheetZone(model.getters.getActiveSheetId());
   if (dim === "COL") {
     x = env
-      .getStore(ViewportsStore)
-      .viewports.getVisibleRectWithZoom(model.getters.getActiveSheetId(), {
+      .getPlugin(ViewportsPlugin)
+      .viewports()
+      .getVisibleRectWithZoom(model.getters.getActiveSheetId(), {
         left: header,
         right: header,
         top: sheetZone.top,
@@ -215,8 +216,9 @@ export async function clickHeader(
       }).x;
   } else {
     y = env
-      .getStore(ViewportsStore)
-      .viewports.getVisibleRectWithZoom(model.getters.getActiveSheetId(), {
+      .getPlugin(ViewportsPlugin)
+      .viewports()
+      .getVisibleRectWithZoom(model.getters.getActiveSheetId(), {
         left: sheetZone.left,
         right: sheetZone.right,
         top: header,
@@ -228,7 +230,7 @@ export async function clickHeader(
 
 export function getGridIconEventPosition(env: SpreadsheetActionEnv, xc: string) {
   const model = env.model();
-  const viewStore = env.getStore(ViewportsStore);
+  const viewStore = env.getPlugin(ViewportsPlugin);
   const sheetId = viewStore.displayedSheetId;
   const position = { ...toCartesian(xc), sheetId };
   const icon = model.getters.getCellIcons(position)[0];
@@ -238,7 +240,7 @@ export function getGridIconEventPosition(env: SpreadsheetActionEnv, xc: string) 
   const gridOffset = viewStore.gridOffset;
   const merge = model.getters.getMerge(position);
   const zone = merge || positionToZone(position);
-  const cellRect = viewStore.viewports.getRect(sheetId, zone);
+  const cellRect = viewStore.viewports().getRect(sheetId, zone);
   const rect = model.getters.getCellIconRect(icon, cellRect);
   const x = rect.x + rect.width / 2 - gridOffset.x;
   const y = rect.y + rect.height / 2 - gridOffset.y;
@@ -265,8 +267,9 @@ export async function gridMouseEvent(
   const model = env.model();
   const zone = toZone(xc);
   let { x, y } = env
-    .getStore(ViewportsStore)
-    .viewports.getVisibleRect(model.getters.getActiveSheetId(), zone);
+    .getPlugin(ViewportsPlugin)
+    .viewports()
+    .getVisibleRect(model.getters.getActiveSheetId(), zone);
   if (!model.getters.isDashboard()) {
     x -= HEADER_WIDTH;
     y -= HEADER_HEIGHT;

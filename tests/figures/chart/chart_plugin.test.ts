@@ -54,7 +54,7 @@ import { toNumber } from "../../../src/functions/helpers";
 import { convertDateFormatForLuxon } from "../../../src/helpers/chart_date";
 import { ChartPlugin } from "../../../src/plugins/core/chart";
 import { FigurePlugin } from "../../../src/plugins/core/figures";
-import { ViewportsStore } from "../../../src/stores/viewports_store";
+
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { LineChartRuntime } from "../../../src/types/chart/line_chart";
 import { PieChartDefinition, PieChartRuntime } from "../../../src/types/chart/pie_chart";
@@ -70,7 +70,7 @@ import {
   toChartDataSource,
 } from "../../test_helpers/chart_helpers";
 import { FR_LOCALE } from "../../test_helpers/constants";
-import { makeStoreWithModel } from "../../test_helpers/stores";
+import { makeViewportsPlugin } from "../../test_helpers/stores";
 
 let model: Model;
 
@@ -632,7 +632,7 @@ describe("datasource tests", function () {
     const figureId = model.getters.getFigureIdFromChartId("1")!;
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
-    const { store: viewStore } = makeStoreWithModel(newModel, ViewportsStore);
+    const { store: viewStore } = makeViewportsPlugin(newModel);
     expect(viewStore.visibleFigures).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
     deleteFigure(newModel, figureId);
@@ -1187,7 +1187,7 @@ describe("datasource tests", function () {
         },
       ],
     });
-    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    const { store: viewStore } = makeViewportsPlugin(model);
     createChart(
       model,
       {

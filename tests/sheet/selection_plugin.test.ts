@@ -3,10 +3,9 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { numberToLetters, toCartesian, toXC } from "../../src/helpers/coordinates";
 import { positionToZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { ViewportsPluginInstance } from "../../src/owl_plugins/viewports_owl_plugin";
 import { corePluginRegistry } from "../../src/plugins/plugin_registries";
-import { ViewportsStore } from "../../src/stores/viewports_store";
 import { ResizeColumnsRowsCommand } from "../../src/types/commands";
-import { Store } from "../../src/types/store_engine";
 import {
   activateSheet,
   addCellToSelection,
@@ -50,7 +49,7 @@ import {
   getTable,
 } from "../test_helpers/getters_helpers";
 import { addTestPlugin, createModelFromGrid } from "../test_helpers/helpers";
-import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
+import { makeViewportsPlugin } from "../test_helpers/stores";
 
 let model: Model;
 const hiddenContent = "hidden content to be skipped";
@@ -287,7 +286,7 @@ describe("simple selection", () => {
 
   test("move selection left through hidden cols, with scrolling", () => {
     const model = new Model({ sheets: [{ colNumber: 100, rowNumber: 1 }] });
-    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    const { store: viewStore } = makeViewportsPlugin(model);
     hideColumns(model, ["B"]);
     selectCell(model, "C1");
     viewStore.setViewportOffset({ offsetX: DEFAULT_CELL_WIDTH, offsetY: 0 });
@@ -299,7 +298,7 @@ describe("simple selection", () => {
 
   test("move selection right through hidden cols, with scrolling", () => {
     const model = new Model({ sheets: [{ colNumber: 100, rowNumber: 1 }] });
-    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    const { store: viewStore } = makeViewportsPlugin(model);
     const visibleCols = viewStore.visibleCols;
     const lastVisibleCol = visibleCols[visibleCols.length - 1];
     hideColumns(model, [numberToLetters(lastVisibleCol + 1), numberToLetters(lastVisibleCol + 2)]);
@@ -315,7 +314,7 @@ describe("simple selection", () => {
 
   test("move selection up through hidden rows, with scrolling", () => {
     const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 100 }] });
-    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    const { store: viewStore } = makeViewportsPlugin(model);
     hideRows(model, [1]);
     selectCell(model, "A3");
     viewStore.setViewportOffset({ offsetX: 0, offsetY: DEFAULT_CELL_HEIGHT });
@@ -327,7 +326,7 @@ describe("simple selection", () => {
 
   test("move selection down through hidden cols, with scrolling", () => {
     const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 100 }] });
-    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    const { store: viewStore } = makeViewportsPlugin(model);
     const visibleRows = viewStore.visibleRows;
     const lastVisibleRow = visibleRows[visibleRows.length - 1];
     hideRows(model, [lastVisibleRow + 1, lastVisibleRow + 2]);
@@ -1393,9 +1392,9 @@ describe("Selection loop (ctrl + a)", () => {
 
   describe("Viewport doesn't move", () => {
     let model: Model;
-    let viewStore: Store<ViewportsStore>;
+    let viewStore: ViewportsPluginInstance;
     beforeEach(() => {
-      ({ store: viewStore, model } = makeStore(ViewportsStore));
+      ({ store: viewStore, model } = makeViewportsPlugin());
     });
 
     test("Selection loop doesn't scroll the viewport", () => {

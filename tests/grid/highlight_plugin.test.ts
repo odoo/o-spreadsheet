@@ -5,7 +5,7 @@ import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
 
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers/zones";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { merge } from "../test_helpers";
 import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
@@ -17,7 +17,7 @@ function setupHighlightPlugin() {
   const highlightPlugin = getPlugin(HighlightPlugin);
 
   const ctxInstructions: string[] = [];
-  const ctx = new MockGridRenderingContext(model, container, 1000, 1000, {
+  const ctx = new MockGridRenderingContext(model, getPlugin, 1000, 1000, {
     onSet: (key, value) => {
       ctxInstructions.push(`context.${key}=${JSON.stringify(value)};`);
     },
@@ -177,27 +177,27 @@ describe("Highlight plugin", () => {
   });
 
   test("Highlight on a merge stays visible when its top-left cell is scrolled out", () => {
-    const { model, sheetId, highlightPlugin, container } = setupHighlightPlugin();
+    const { model, sheetId, highlightPlugin, getPlugin } = setupHighlightPlugin();
     merge(model, "A1:C3");
     highlightPlugin.register({
       highlights: [
         { range: model.getters.getRangeFromZone(sheetId, toZone("A1")), color: "#FF0000" },
       ],
     });
-    const viewStore = container.get(ViewportsStore);
+    const viewStore = getPlugin(ViewportsPlugin);
     viewStore.setViewportOffset({ offsetX: DEFAULT_CELL_WIDTH, offsetY: DEFAULT_CELL_HEIGHT });
 
     expect(highlightPlugin.highlights.map((h) => h.range.zone)).toEqual([toZone("A1:C3")]);
   });
 
   test("Highlight on a merge stays visible when its top-left cell is scrolled out", () => {
-    const { model, sheetId, highlightPlugin, container } = setupHighlightPlugin();
+    const { model, sheetId, highlightPlugin, getPlugin } = setupHighlightPlugin();
     highlightPlugin.register({
       highlights: [
         { range: model.getters.getRangeFromZone(sheetId, toZone("A1")), color: "#FF0000" },
       ],
     });
-    const viewStore = container.get(ViewportsStore);
+    const viewStore = getPlugin(ViewportsPlugin);
     viewStore.setViewportOffset({ offsetX: DEFAULT_CELL_WIDTH, offsetY: DEFAULT_CELL_HEIGHT });
 
     expect(highlightPlugin.highlights.map((h) => h.range.zone)).toEqual([]);

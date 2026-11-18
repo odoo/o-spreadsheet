@@ -10,8 +10,11 @@ import { isMiddleClickOrCtrlClick } from "../../helpers/dom_helpers";
 import { OSComponent } from "../../os_component";
 import { CellPopoverStore } from "../../popover/cell_popover_store";
 
-import { useProps } from "@odoo/owl";
-import { ViewportsStore } from "../../../stores/viewports_store";
+import { usePlugin, useProps } from "@odoo/owl";
+import {
+  ViewportsPlugin,
+  ViewportsPluginInstance,
+} from "../../../owl_plugins/viewports_owl_plugin";
 import { types } from "../../props_validation";
 
 export class LinkDisplay extends OSComponent {
@@ -23,11 +26,11 @@ export class LinkDisplay extends OSComponent {
   });
 
   protected cellPopovers!: Store<CellPopoverStore>;
-  private viewStore!: Store<ViewportsStore>;
+  private viewStore!: ViewportsPluginInstance;
 
   setup() {
     this.cellPopovers = useStore(CellPopoverStore);
-    this.viewStore = useStore(ViewportsStore);
+    this.viewStore = usePlugin(ViewportsPlugin);
   }
 
   get cell(): EvaluatedCell {

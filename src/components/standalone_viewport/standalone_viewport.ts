@@ -1,10 +1,10 @@
 import { providePlugins, proxy, signal, untrack, useEffect, usePlugin, useProps } from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
 import { LocalRendererPlugin } from "../../owl_plugins/renderer_plugin";
+import { ViewportsPlugin, ViewportsPluginInstance } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMDimension, Rect } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
@@ -57,21 +57,24 @@ export class StandaloneViewport extends OSComponent {
 
   onMouseWheel!: (ev: WheelEvent) => void;
 
-  viewStore!: Store<ViewportsStore>;
+  viewStore!: ViewportsPluginInstance;
   zoomPlugin = usePlugin(ZoomPlugin);
   cellPopoverStore!: Store<CellPopoverStore>;
 
   setup() {
+    // This nested canvas owns its own viewport. It has to be provided before anything
+    // resolving it is instantiated, otherwise those consumers capture the plugin of the
+    // main grid and this viewport ends up driving it.
+    providePlugins([ViewportsPlugin]);
     useChildStoreProvider([
-      ViewportsStore,
       HoveredIconStore,
       ClickableCellsStore,
       CellHoverOverlayStore,
       DelayedHoveredCellStore,
       CellPopoverStore,
     ]);
+    this.viewStore = usePlugin(ViewportsPlugin);
     this.store = useLocalStore(StandaloneViewportStore, this.props.range, this.props.columnWeights);
-    this.viewStore = useStore(ViewportsStore);
     this.cellPopoverStore = useStore(CellPopoverStore);
     providePlugins([LocalRendererPlugin], { layers: ["Background", "Chart"] });
     const rendererPlugin = usePlugin(LocalRendererPlugin);
@@ -149,7 +152,7 @@ export class StandaloneViewport extends OSComponent {
 
   get gridOverlayDimensions() {
     const { sheetId, zone } = this.props.range;
-    const rect = this.viewStore.viewports.getVisibleRect(sheetId, zone);
+    const rect = this.viewStore.viewports().getVisibleRect(sheetId, zone);
     return cssPropertiesToCss({ height: `${rect.height}px`, width: `${rect.width}px` });
   }
 
@@ -161,7 +164,7 @@ export class StandaloneViewport extends OSComponent {
       if (this.model().getters.isColHidden(sheetId, col)) {
         continue;
       }
-      const colDimensions = this.viewStore.viewports.getColDimensionsInViewport(sheetId, col);
+      const colDimensions = this.viewStore.viewports().getColDimensionsInViewport(sheetId, col);
       const style = cssPropertiesToCss({ left: `${colDimensions.end}px` });
       resizers.push({ style, col });
     }

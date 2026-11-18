@@ -83,7 +83,9 @@ export function useGridDrawing({
     });
     canvas.setAttribute("style", style);
     if (width === 0 || height === 0) {
-      // OWL3 FIXME: we need to manually read the signals on early return since the viewports are not reactive.
+      // OWL3 FIXME: the viewports are read (and therefore subscribed to) above, through
+      // `renderingCtx()`, but the remaining stores are not reactive: read their signal
+      // manually on this early return.
       storeRendererPlugin.readSignals();
       return;
     }

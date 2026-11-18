@@ -11,9 +11,8 @@ import {
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
 import { Component } from "../../src/owl3_compatibility_layer";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+import { ViewportsPluginInstance } from "../../src/owl_plugins/viewports_owl_plugin";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
-import { Store } from "../../src/types/store_engine";
 import { merge, setZoom } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
@@ -125,7 +124,7 @@ let borderEl: Element;
 let spyDispatch: jest.SpyInstance;
 let spyHandleEvent: jest.Mock;
 let env: SpreadsheetActionEnv;
-let viewStore: Store<ViewportsStore>;
+let viewStore: ViewportsPluginInstance;
 
 class Parent extends Component {
   static components = { Highlight };

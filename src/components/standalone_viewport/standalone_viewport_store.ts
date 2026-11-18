@@ -3,9 +3,9 @@ import { DEFAULT_CELL_WIDTH } from "../../constants";
 import { deepEquals, range, sumArray } from "../../helpers/misc";
 import { isInside, isZoneValid } from "../../helpers/zones";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { Command } from "../../types/commands";
 import { CellPosition, HeaderDimensions, HeaderIndex, UID } from "../../types/misc";
 import { Range } from "../../types/range";
@@ -22,7 +22,7 @@ export class StandaloneViewportStore extends SpreadsheetStore {
   private range: Range;
   private customColWeights: number[] | undefined = undefined;
 
-  private viewStore = this.get(ViewportsStore);
+  private viewStore = usePlugin(ViewportsPlugin);
   private devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
 
   constructor(get: Get, range: Range, customColWeights?: number[]) {
@@ -131,7 +131,7 @@ export class StandaloneViewportStore extends SpreadsheetStore {
 
     const renderingCtx: Omit<GridRenderingContext, "ctx" | "thinLineWidth"> = {
       sheetId,
-      viewports: this.viewStore.viewports,
+      viewports: this.viewStore.viewports(),
       hideGridLines: this.getters.isDashboard(),
       hideFrozenPaneBorder: true,
       dpr: this.devicePixelRatioPlugin.devicePixelRatio() || 1,
