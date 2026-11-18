@@ -1,4 +1,5 @@
 import { expandCompactDVCells, makeIndexer } from "../helpers/clipboard/clipboard_helpers";
+import { mapDvFormulas } from "../helpers/formula_extractor";
 import { deepEquals } from "../helpers/misc";
 import { recomputeZones } from "../helpers/recompute_zones";
 import { UuidGenerator } from "../helpers/uuid";
@@ -24,7 +25,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     { toAdd: Zone[]; toRemove: Zone[]; rule: DataValidationRule }[]
   > = {};
 
-  copy(data: ClipboardCellData): CompactDVHandlerData | undefined {
+  copy(data: ClipboardCellData): ClipboardDV[][] | undefined {
     const { rowsIndexes, columnsIndexes } = data;
     const sheetId = data.sheetId;
     const dvRules: ClipboardDV[][] = [];
@@ -37,7 +38,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
       }
       dvRules.push(dvRuleInRow);
     }
-    return this.compact(dvRules);
+    return dvRules;
   }
 
   paste(
@@ -198,7 +199,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     }
   }
 
-  protected compact(data: ClipboardDV[][]): CompactDVHandlerData {
+  compact(data: ClipboardDV[][]): CompactDVHandlerData {
     const rows = data.length;
     const cols = data[0]?.length ?? 0;
     const { index: ruleIndex, table: ruleTable } = makeIndexer<DataValidationRule>((r) => r.id);
@@ -219,5 +220,15 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
       return data as ClipboardDV[][];
     }
     return expandCompactDVCells(data as CompactDVHandlerData);
+  }
+
+  mapFormulas(clipboardDvs: (ClipboardDV | null)[][], mapFn: (formula: string) => string): void {
+    for (const row of clipboardDvs) {
+      for (const clipboardDV of row) {
+        if (clipboardDV?.rule) {
+          mapDvFormulas(clipboardDV?.rule, mapFn);
+        }
+      }
+    }
   }
 }

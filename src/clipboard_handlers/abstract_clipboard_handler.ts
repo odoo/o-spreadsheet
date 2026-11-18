@@ -20,6 +20,11 @@ export type ClipboardHandlerConstructor<H extends ClipboardHandler<any>> = new (
   dispatch: CommandDispatcher["dispatch"]
 ) => H;
 
+export type NamedClipboardHandler = {
+  handlerName: string;
+  handler: ClipboardHandler<any>;
+};
+
 export abstract class ClipboardHandler<T> {
   constructor(protected getters: Getters, protected dispatch: CommandDispatcher["dispatch"]) {}
 
@@ -27,7 +32,7 @@ export abstract class ClipboardHandler<T> {
     data: ClipboardData,
     isCutOperation: boolean,
     mode: ClipboardCopyOptions = "copyPaste"
-  ): unknown {
+  ): T | undefined {
     return;
   }
 
@@ -65,11 +70,22 @@ export abstract class ClipboardHandler<T> {
   }
 
   /**
-   * Expand data that was previously compacted during copy() back to the
-   * full in-memory representation expected by paste / isPasteAllowed.
-   * The default implementation is an identity (no expansion needed).
+   * Compact the copied content into a more storage-efficient form. Inverse operation of `expand`.
+   *
+   * @param data The content to compact.
+   * @param sheetId The sheet the data was copied from.
    */
+  compact(data: T, sheetId: UID): unknown {
+    return data;
+  }
+
+  /** Expand the compacted content back into its original form. Inverse operation of `compact`. */
   expand(data: unknown): T {
     return data as T;
+  }
+
+  /** Map a callback to all formulas in the clipboard content, and change them in place */
+  mapFormulas(content: T, mapFn: (formula: string) => string): void {
+    return;
   }
 }

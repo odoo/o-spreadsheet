@@ -18,7 +18,7 @@ export abstract class AbstractCellClipboardHandler<
     data: ClipboardCellData,
     isCutOperation: boolean,
     mode: ClipboardCopyOptions = "copyPaste"
-  ): U | undefined {
+  ): C | undefined {
     return;
   }
 
@@ -67,8 +67,8 @@ export abstract class AbstractCellClipboardHandler<
     };
   }
 
-  protected compact(data: T[][]): U {
-    return data as U;
+  compact(data: C, sheetId: UID): U {
+    return data as unknown as U;
   }
 
   expand(data: U): C {

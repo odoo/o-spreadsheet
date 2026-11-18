@@ -22,7 +22,7 @@ type ClipboardContent = {
   sheetId: UID;
 };
 
-export class DefaultClipboardHandler extends ClipboardHandler<ClipboardContent[][]> {
+export class DefaultClipboardHandler extends ClipboardHandler<ClipboardContent> {
   copy(
     data: ClipboardCellData,
     _isCutOperation: boolean,
@@ -119,17 +119,12 @@ export class DefaultClipboardHandler extends ClipboardHandler<ClipboardContent[]
     return newContent;
   }
 
-  expand(data: ClipboardContent): ClipboardContent[][] {
-    return [[data]];
-  }
-
   paste(
     target: ClipboardPasteTarget,
-    content: (ClipboardContent | null)[][],
+    clipboardContent: ClipboardContent | null,
     options: ClipboardOptions,
     _positions: ClipboardPositions
   ) {
-    const clipboardContent = content[0]?.[0];
     if (!clipboardContent) {
       return;
     }
