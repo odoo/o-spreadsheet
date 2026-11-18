@@ -1,5 +1,5 @@
 import type { ChartMeta, ChartType, Plugin } from "chart.js";
-import { computeTextWidth } from "../../../../helpers";
+import { clip, computeTextWidth } from "../../../../helpers";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
 import { Color } from "../../../../types";
 import type { ChartType as AllChartType } from "../../../../types/chart";
@@ -80,6 +80,7 @@ function drawLineOrBarOrRadarChartValues(
   ctx: CanvasRenderingContext2D
 ) {
   const textsPositions: Record<number, number[]> = {};
+  const { left, right, top, bottom } = chart.chartArea;
   for (const dataset of chart._metasets) {
     if (isTrendLineAxis(dataset.xAxisID) || dataset.hidden) {
       continue;
@@ -97,8 +98,17 @@ function drawLineOrBarOrRadarChartValues(
 
       let yPosition = 0;
       if (dataset.type === "line" || dataset.type === "radar") {
+        if (
+          dataset.type === "line" &&
+          (point.x < left || point.x > right || point.y < top || point.y > bottom)
+        ) {
+          continue;
+        }
         yPosition = value < 0 ? point.y + 10 : point.y - 10;
       } else {
+        if (isSegmentOutsideRange(point.y, point.base, top, bottom)) {
+          continue;
+        }
         const yZeroLine = yAxisScale.getPixelForValue(0);
         const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
         const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default text height
@@ -106,8 +116,9 @@ function drawLineOrBarOrRadarChartValues(
         if (distanceFromAxisOrigin < textHeight) {
           yPosition = value < 0 ? yZeroLine + textHeight / 2 : yZeroLine - textHeight / 2;
         } else {
-          yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
+          yPosition = getVisibleSegmentCenter(point.y, point.base, top, bottom);
         }
+        yPosition = clip(yPosition, top + textHeight / 2, bottom - textHeight / 2);
       }
 
       // Avoid overlapping texts with same X
@@ -187,6 +198,7 @@ function drawHorizontalBarChartValues(
   args: { offsetFromAxisOrigin?: boolean }
 ) {
   const textsPositions: Record<number, number[]> = {};
+  const { left, right } = chart.chartArea;
 
   for (const dataset of chart._metasets) {
     if (isTrendLineAxis(dataset.xAxisID)) {
@@ -202,6 +214,9 @@ function drawHorizontalBarChartValues(
       }
       const displayValue = options.callback(value, dataset, i);
       const point = dataset.data[i];
+      if (isSegmentOutsideRange(point.x, point.base, left, right)) {
+        continue;
+      }
 
       const yPosition = point.y;
       const textWidth = computeTextWidth(
@@ -218,8 +233,9 @@ function drawHorizontalBarChartValues(
         xPosition =
           value < 0 ? xZeroLine - textWidth / 2 - PADDING : xZeroLine + textWidth / 2 + PADDING;
       } else {
-        xPosition = value < 0 ? point.x + point.width / 2 : point.x - point.width / 2;
+        xPosition = getVisibleSegmentCenter(point.x, point.base, left, right);
       }
+      xPosition = clip(xPosition, left + textWidth / 2, right - textWidth / 2);
 
       // Avoid overlapping texts with same Y
       if (!textsPositions[yPosition]) {
@@ -280,4 +296,18 @@ function drawPieChartValues(
       drawTextWithBackground(displayValue, x, y, ctx);
     }
   }
+}
+
+/** A segment only touching the edge of the range is outside, unless it has a zero length */
+function isSegmentOutsideRange(from: number, to: number, rangeStart: number, rangeEnd: number) {
+  const segmentStart = Math.min(from, to);
+  const segmentEnd = Math.max(from, to);
+  if (segmentStart === segmentEnd) {
+    return segmentStart < rangeStart || segmentStart > rangeEnd;
+  }
+  return segmentEnd <= rangeStart || segmentStart >= rangeEnd;
+}
+
+function getVisibleSegmentCenter(from: number, to: number, rangeStart: number, rangeEnd: number) {
+  return (clip(from, rangeStart, rangeEnd) + clip(to, rangeStart, rangeEnd)) / 2;
 }
