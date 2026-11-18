@@ -351,11 +351,11 @@ export class ViewportsStore extends SpreadsheetStore {
     zoneToDisplay?: Zone;
   }) {
     let hasChanged = false;
-    if (args.getHeaderDimensions) {
+    if (args.getHeaderDimensions && args.getHeaderDimensions !== this.getHeaderDimensionsCallback) {
       hasChanged = true;
       this.getHeaderDimensionsCallback = args.getHeaderDimensions;
     }
-    if (args.getFooterSize) {
+    if (args.getFooterSize && args.getFooterSize !== this.getFooterSizeCallback) {
       hasChanged = true;
       this.getFooterSizeCallback = args.getFooterSize;
     }

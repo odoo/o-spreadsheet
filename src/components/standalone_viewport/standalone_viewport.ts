@@ -1,4 +1,4 @@
-import { providePlugins, proxy, signal, useEffect, usePlugin, useProps } from "@odoo/owl";
+import { providePlugins, proxy, signal, untrack, useEffect, usePlugin, useProps } from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
 import { LocalRendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
@@ -80,7 +80,17 @@ export class StandaloneViewport extends OSComponent {
       if (this.dndState.col === undefined) {
         this.store.setCustomColWeights(this.props.columnWeights);
       }
-      this.store.setContainerSize(this.contentWidth, this.props.size.height);
+      const { width, height } = this.props.size;
+      const scrollBarWidth = this.zoomPlugin.scrollBarWidth();
+      // `hasVerticalScrollBar` reads the viewport that `setContainerSize` then resizes.
+      // Reading it untracked keeps this effect from depending on its own writes once the
+      // viewports become reactive: a computation that invalidates itself is silently
+      // dropped by owl, which would leave the container one scrollbar width too wide.
+      // The size and the zoom are read tracked, as they are today.
+      const contentWidth = untrack(() => this.hasVerticalScrollBar)
+        ? width - scrollBarWidth
+        : width;
+      this.store.setContainerSize(contentWidth, height);
     });
 
     useGridDrawing({
