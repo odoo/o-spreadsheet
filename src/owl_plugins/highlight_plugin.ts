@@ -62,6 +62,15 @@ export class HighlightPlugin extends OwlPluginWithModel {
     return visibleHighlights;
   }
 
+  /**
+   * A provider's `highlights` is a plain getter over non reactive data, so the plugin
+   * cannot know when its content changes: the provider has to say so. This invalidates
+   * everything reading the highlights, ie. the grid render and the highlight layer.
+   */
+  notifyHighlightsChanged() {
+    signal.trigger(this.providers);
+  }
+
   register(highlightProvider: HighlightProvider) {
     untrack(() => this.providers().push(highlightProvider));
   }

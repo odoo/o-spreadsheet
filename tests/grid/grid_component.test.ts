@@ -27,7 +27,7 @@ import { handleCopyPasteResult } from "../../src/helpers/ui/paste_interactive";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
-import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
+import { HighlightPlugin, HighlightProvider } from "../../src/owl_plugins/highlight_plugin";
 import { ImageProviderPlugin } from "../../src/owl_plugins/image_provider_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
@@ -2969,6 +2969,22 @@ describe("Grid canvas", () => {
   test("the grid is drawn again when the viewport is scrolled", async () => {
     const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
     setViewportOffset(env, 0, DEFAULT_CELL_HEIGHT);
+    await nextTick();
+    expect(drawSpy).toHaveBeenCalled();
+  });
+
+  test("the grid is drawn again when a highlight provider changes", async () => {
+    const highlightPlugin = env.getPlugin(HighlightPlugin);
+    const sheetId = model.getters.getActiveSheetId();
+    const provider: HighlightProvider = { highlights: [] };
+    highlightPlugin.register(provider);
+    await nextTick();
+
+    const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
+    provider.highlights = [
+      { range: model.getters.getRangeFromZone(sheetId, toZone("A1")), color: "#FF0000" },
+    ];
+    highlightPlugin.notifyHighlightsChanged();
     await nextTick();
     expect(drawSpy).toHaveBeenCalled();
   });

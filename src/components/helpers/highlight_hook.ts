@@ -2,7 +2,6 @@ import { onMounted, onWillUnmount, Signal, usePlugin } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { HighlightPlugin, HighlightProvider } from "../../owl_plugins/highlight_plugin";
-import { useStoreProvider } from "../../store_engine/store_hooks";
 import { useHoveredElement } from "./listener_hook";
 
 export function useHighlightsOnHover(
@@ -18,7 +17,6 @@ export function useHighlightsOnHover(
 }
 
 export function useHighlights(highlightProvider: HighlightProvider) {
-  const stores = useStoreProvider();
   const highlightPlugin = usePlugin(HighlightPlugin);
   onMounted(() => {
     highlightPlugin.register(highlightProvider);
@@ -31,7 +29,7 @@ export function useHighlights(highlightProvider: HighlightProvider) {
     (highlights) => {
       if (!deepEquals(highlights, currentHighlights)) {
         currentHighlights = highlights;
-        stores.trigger("store-updated");
+        highlightPlugin.notifyHighlightsChanged();
       }
     },
     () => [highlightProvider.highlights]
