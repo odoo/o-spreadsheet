@@ -13,9 +13,7 @@
 
       tab-size: 4;
 
-      p {
-        margin-bottom: 0px;
-
+      div {
         span {
           white-space: pre-wrap;
           /* On some browsers (chromium ?) it is somehow possible to hover two of the composer's spans at the same time, leading to
