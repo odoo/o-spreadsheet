@@ -4,7 +4,15 @@ import { CellPosition, FunctionResultObject, Link, Style } from "./misc";
 
 interface CellAttributes {
   readonly id: number;
+  /**
+   * @deprecated Does not take default style into account.
+   * To get the complete style applied to a core cell, use getter `getCellStyle`
+   */
   readonly style?: Style;
+  /**
+   * @deprecated Does not take default format into account.
+   * To get the complete format applied to a core cell, use getter `getCellFormat`
+   */
   readonly format?: Format;
 }
 

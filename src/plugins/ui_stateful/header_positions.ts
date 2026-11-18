@@ -27,6 +27,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
         this.headerPositions = {};
         this.isDirty = true;
         break;
+      case "SET_FORMATTING":
       case "UPDATE_FILTER":
       case "UPDATE_TABLE":
       case "REMOVE_TABLE":

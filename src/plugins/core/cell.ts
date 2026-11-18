@@ -573,9 +573,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     } else {
       style = before?.style;
     }
+    const defaultFormat = this.getters.getCellDefaultFormat(position);
     let format: Format | undefined;
     if (after.format !== undefined) {
-      const defaultFormat = this.getters.getCellDefaultFormat(position);
       format = after.format === null ? undefined : after.format;
       if ((format ?? "") === (defaultFormat ?? "")) {
         format = undefined;
@@ -610,7 +610,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
 
     const cellId = before?.id || this.getNextCellId();
-    const cell = createCell(this.getters, cellId, afterContent, format, style, sheetId);
+    // same as getCellFormat, so the format detection doesn't override the default format
+    const effectiveFormat = format ?? defaultFormat;
+    let cell = createCell(this.getters, cellId, afterContent, effectiveFormat, style, sheetId);
+    // only store the cell's own format
+    if (format === undefined && cell.format === defaultFormat) {
+      cell = { ...cell, format: undefined };
+    }
     this.history.update("cells", sheetId, cell.id, cell);
     this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId });
   }
@@ -637,12 +643,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   getCellStyle(position: CellPosition): Style {
     return {
       ...this.getters.getCellDefaultStyle(position),
-      ...this.getters.getCell(position)?.style,
+      ...this.getCell(position)?.style,
     };
   }
 
   getCellFormat(position: CellPosition): Format | undefined {
-    const cell = this.getters.getCell(position);
+    const cell = this.getCell(position);
     if (cell?.format !== undefined) {
       return cell?.format;
     }

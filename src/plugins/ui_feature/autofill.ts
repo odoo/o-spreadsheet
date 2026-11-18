@@ -460,12 +460,14 @@ export class AutofillPlugin extends UIPlugin {
     for (const xc of source) {
       const { col, row } = toCartesian(xc);
       const position = { sheetId, col, row };
-      const cell = this.getters.getCell(position);
       let style: Style | undefined = this.getters.getCellStyle(position);
       if (Object.keys(style).length === 0) {
         style = undefined;
       }
       const format = this.getters.getCellFormat(position);
+      const coreCell = this.getters.getCell(position);
+      // rules need the row/column format (e.g. to detect dates)
+      const cell = coreCell && { ...coreCell, format };
       cellsData.push({
         col,
         row,

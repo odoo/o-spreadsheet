@@ -61,12 +61,13 @@ export class SplitToColumnsPlugin extends UIPlugin {
     this.removeMergesInSplitZone(selection, splitted);
     this.addColumnsToNotOverflowSheet(selection, splitted);
 
+    const col = selection.left;
     for (let i = 0; i < splitted.length; i++) {
       const row = selection.top + i;
       const splittedContent = splitted[i];
 
-      const col = selection.left;
-      const mainCell = this.getters.getCell({ sheetId, col, row });
+      const position = { sheetId, col, row };
+      const mainCell = this.getters.getCell(position);
 
       if (
         splittedContent.length === 1 &&
@@ -76,6 +77,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
         continue;
       }
 
+      const style = this.getters.getCellStyle(position);
       for (const [index, content] of splittedContent.entries()) {
         this.dispatch("UPDATE_CELL", {
           sheetId,
@@ -83,7 +85,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
           row,
           content: canonicalizeNumberContent(content, this.getters.getLocale()),
           format: "",
-          style: mainCell?.style || null,
+          style,
         });
       }
     }

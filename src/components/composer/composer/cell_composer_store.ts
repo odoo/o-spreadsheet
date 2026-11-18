@@ -196,11 +196,13 @@ export class CellComposerStore extends AbstractComposerStore {
     if (content) {
       const sheetId = this.getters.getActiveSheetId();
       const position = { sheetId, col: this.col, row: this.row };
+      // FIXME: what if the selection is altered by someone else? I will
+      // write on another cell than the one I thought
       const cell = this.getters.getEvaluatedCell(position);
       if (cell.link && !isFormula(content)) {
         content = markdownLink(content, cell.link.url);
       }
-      const currentFormat = this.getters.getCell(position)?.format;
+      const currentFormat = this.getters.getCellFormat(position);
       const isCurrentFormatDate = currentFormat && isDateTimeFormat(currentFormat);
       const contentDateFormat = detectDateFormat(content, this.getters.getLocale());
       let afterFormat: Format | undefined;
