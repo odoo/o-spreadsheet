@@ -1,0 +1,424 @@
+================================================================================
+CONVERT THE VIEWPORT STORE INTO AN OWL PLUGIN
+================================================================================
+Repo:   /home/odoo/odoo/spreadsheet
+Branch: master-viewport-to-owl-plugin-adrm (clean)
+
+
+--------------------------------------------------------------------------------
+1. CONTEXT
+--------------------------------------------------------------------------------
+o-spreadsheet is mid Owl 2 -> Owl 3 migration (src/owl3_compatibility_layer.ts).
+The store engine (src/store_engine/) is being retired one store at a time in
+favour of Owl 3 plugins (src/owl_plugins/), with ~10 precedent commits
+("[REF] owl3: ... store to owl plugin"). Three FIXMEs point straight at this task:
+
+  - src/owl_plugins/stores_render_owl_plugin.ts:16-18
+      "Should be removed once all the stores are transformed to owl plugins."
+  - src/components/helpers/draw_grid_hook.ts:86
+      "OWL3 FIXME: we need to manually read the signals on early return since the
+       viewports are not reactive."
+  - src/owl_plugins/renderer_plugin.ts:90-95
+      LocalRendererPlugin "Should disappear ... with the stores".
+
+ViewportsStore is the largest and structurally hardest remaining store: ~44 src
+files / 118 occurrences and 38 test files, it is re-instantiated per nested
+canvas, and it is the one store the canvas draw loop cannot currently subscribe
+to. Converting it makes viewport state reactive, removes the
+useConfig("viewStore") injection hack, and closes the draw_grid_hook FIXME.
+
+
+--------------------------------------------------------------------------------
+2. DECISIONS TAKEN
+--------------------------------------------------------------------------------
+  Reactivity        One coarse signal, read explicitly: viewports(), like
+                    ModelPlugin.model
+  Derived getters   Stay plain `get` accessors reading this.viewports()
+                    internally -- those call sites unchanged
+  Scope             Both stores + nested canvases + drop useConfig("viewStore")
+  Public API        Clean break: stores.ViewportsStore -> owlPlugins.ViewportsPlugin,
+                    plus a release note
+  Sequencing        Behaviour-preserving prep commits first
+
+Cost of the explicit-read choice: 115 `X.viewports.` -> `X.viewports().` sites
+across 24 src + 7 test files, plus src/components/grid/grid.xml:23. All
+mechanical / sed-able.
+
+(A `get viewports()` accessor that reads the signal internally would give
+identical subscription semantics at ZERO call-site churn -- rejected in favour of
+explicitness consistent with model().)
+
+
+--------------------------------------------------------------------------------
+3. WHY NOT "MAKE EVERYTHING INSIDE REACTIVE"
+--------------------------------------------------------------------------------
+ViewportCollection (src/helpers/viewport_collection.ts, 942 lines) and
+InternalViewport (src/helpers/internal_viewport.ts) stay OPAQUE and NON-REACTIVE.
+
+Deep-proxy() would:
+  - put a proxy in front of InternalViewport.searchHeaderIndex, a binary search
+    calling model getters per iteration;
+  - break InternalViewport's duck-typing as a Zone
+    (intersection(zone, this), internal_viewport.ts:181,190;
+     zone: viewport, viewport_collection.ts:458);
+  - make changeViewportArgs's `for (const key in args) this[key] = args[key]`
+    (viewport_collection.ts:120-123) fire N notifications;
+  - add tracking overhead on a path read inside requestAnimationFrame, where
+    nothing is tracked anyway.
+
+Flattening into computed()s is also wrong, and not merely expensive: a computed
+is invalidated only by signals read during its computation, but the lazy
+ensureMainViewportExist rebuild is a NON-REACTIVE mutation -- so a computed would
+cache values derived from a viewport since rebuilt in place. Fixing that means
+making the collection reactive, i.e. falling back to proxy().
+
+
+--------------------------------------------------------------------------------
+4. TARGET DESIGN
+--------------------------------------------------------------------------------
+// src/owl_plugins/viewports_owl_plugin.ts
+export type ViewportsPluginInstance = PluginInstance<typeof ViewportsPlugin>;
+
+export class ViewportsPlugin extends OwlPluginWithModel {
+  private zoomPlugin = usePlugin(ZoomPlugin);
+  private _displayedSheetId: UID = ...;
+  private sheetsWithDirtyViewports = new Set<UID>();
+
+  /** Raw collection -- ALWAYS used for internal access, never this.viewports(). */
+  private collection = new ViewportCollection({ ... });
+
+  /** The single coarse signal. Public reads go through it and thereby subscribe. */
+  viewports = signal(this.collection);
+
+  private invalidate() {
+    signal.trigger(this.viewports);
+  }
+
+  get displayedSheetId(): UID {
+    this.viewports();                  // subscribe
+    return this._displayedSheetId;
+  }
+
+  get visibleCols(): HeaderIndex[] {
+    return this.viewports().getSheetViewVisibleCols(this.displayedSheetId);
+  }
+  // ... the other 11 derived getters, unchanged in shape
+
+  setViewportOffset(offset: { offsetX: Pixel; offsetY: Pixel }): void {
+    const sheetId = this._displayedSheetId;
+    if (
+      !this.collection.checkScrollingDirection(sheetId, offset) ||
+      !this.collection.checkIfViewportsWillChange(sheetId, offset)
+    ) {
+      return;                          // was `return "noStateChange"`
+    }
+    this.collection.setSheetViewOffset(sheetId, offset.offsetX, offset.offsetY);
+    this.invalidate();
+  }
+
+  protected finalize() {
+    let changed = this.sheetsWithDirtyViewports.size > 0;
+    for (const sheetId of this.sheetsWithDirtyViewports) {
+      this.collection.resetViewports(sheetId);
+    }
+    this.sheetsWithDirtyViewports = new Set();
+    changed = this.setViewports() || changed;  // make setViewports() report resets
+    if (changed) {
+      this.invalidate();
+    }
+  }
+}
+
+Export ViewportsPluginInstance -- it turns the ~40 Store<ViewportsStore>
+annotations into a sed.
+
+FIVE RULES. Each one an implementer will plausibly reverse during "cleanup", and
+each reversal is a SILENT regression.
+
+  R1. signal(collection) never proxies.
+      Plain signal() stores the value as-is (owl.es.js:694-696), so viewports()
+      returns the very same instance. Invalidation is manual via signal.trigger
+      (owl.es.js:665-670), which notifies unconditionally -- no `equals` needed.
+
+  R2. Internal code uses this.collection, NEVER this.viewports().
+      A mutator invoked from inside a tracked computation would otherwise
+      subscribe that computation to the signal it is about to trigger.
+
+  R3. Trigger only in the plugin -- never inside ViewportCollection.
+      ensureMainViewportExist (viewport_collection.ts:468-472) lazily calls
+      resetViewports from most getters and from drawLayer. A markDirty() inside
+      the collection turns every read into a write of the signal it just read.
+      Owl gives NO warning: inside an effect the self-invalidation is silently
+      swallowed (updateComputation's `finally { flags &= ~3 }`,
+      owl.es.js:176-183); inside a render it re-queues the node and can hit
+      "Maximum render iterations (1000) exceeded".
+      This also protects spreadsheet_print_owl_plugin.ts:169-177, which builds
+      its own ViewportCollection.
+
+  R4. Trigger in finalize() (guarded), NEVER in handle().
+      command-dispatched fires once per NESTED command (src/model.ts:514-519), so
+      a trigger in handle means N invalidations per user action. finalize fires
+      once per top-level dispatch. Today finalize's mutations are covered only by
+      model "update" -> the deep render at spreadsheet.ts:203 -- i.e. by exactly
+      the mechanism this migration dismantles. The guarded trigger makes the
+      plugin self-sufficient and is strictly narrower than today's unconditional
+      deep render, so it cannot regress.
+
+  R5. untrack is NOT a safety net.
+      It only clears currentComputation (owl.es.js:219-229); onWriteAtom never
+      consults it (owl.es.js:71-104). The untrack wrapping handle/finalize in
+      OwlPluginWithModel suppresses SUBSCRIPTION but not NOTIFICATION -- which is
+      why R4 works.
+
+
+--------------------------------------------------------------------------------
+5. ISSUES BEYOND "MAKE IT REACTIVE"
+--------------------------------------------------------------------------------
+ 1. The 115 direct `.viewports.` reads are the real invalidation surface -- not
+    the 12 getters. Scroll and resize dispatch no model command, so
+    store-updated from the 8 mutators is today the ONLY thing invalidating the
+    scrollbars, highlights, header overlays and the canvas. Making viewports an
+    explicitly-read signal is what covers them.
+    Includes grid.xml:23; grid_overlay.xml:13 reads displayedSheetId and is fine.
+
+ 2. Provide-ordering in nested canvases.
+    providePlugins swaps node.pluginManager (owl.es.js:4955-4956); usePlugin
+    resolves against the scope current at CONSTRUCTION time. In
+    standalone_viewport.ts:64-77, providePlugins([LocalRendererPlugin]) sits
+    AFTER useLocalStore(StandaloneViewportStore, ...) -- deliberately, so that
+    store binds the ROOT renderer. ViewportsPlugin needs the opposite: FIRST
+    statement of setup(), or StandaloneViewportStore's constructor calls
+    setDisplayedSheetId/setViewportArgs on the MAIN GRID's collection and
+    destroys it -- silently, nothing throws.
+    ViewportsPlugin must NOT get a `static id` override (unlike
+    LocalRendererPlugin, renderer_plugin.ts:97): shadowing is what we want.
+    Child PluginManagers get config = options.config ?? {} with no parent merge
+    (owl.es.js:1456), so a shadowed plugin must not rely on useConfig --
+    ViewportsPlugin doesn't.
+
+ 3. Self-triggering effect in standalone_viewport.ts:78-85.
+    The effect reads this.contentWidth -> hasVerticalScrollBar (:112-117) ->
+    mainViewportCoordinates + mainViewportRect (both signal-reading getters),
+    then writes via setContainerSize -> resizeSheetView -> trigger. Owl SILENTLY
+    DROPS a computation's self-invalidation, so this is a one-pass STALL, not a
+    loop: content stays clipped by one scrollbar width until something unrelated
+    re-runs the effect. Today the deep render masks it.
+    Fix: wrap the write in untrack(...) to preserve today's exact dependency set.
+
+ 4. Handler ordering.
+    Correct in the app today only because spreadsheet_providers.ts:67 creates
+    ViewportsStore before globalStores instantiates MainViewportStore -- and that
+    line survives only because its value feeds the { viewStore } config being
+    deleted. (SpreadsheetStore warns about this at :18-21. Note it is already
+    INVERTED in makeGlobalStoreWithModel, tests/test_helpers/stores.ts:29-31 --
+    the conversion fixes that discrepancy.)
+    Under plugins, startPlugin runs field initializers then setup()
+    (owl.es.js:1486-1488), and usePlugin from a PluginManager scope starts the
+    dependency synchronously -- so an EAGER
+        private viewStore = usePlugin(ViewportsPlugin)
+    field in MainViewportPlugin guarantees ViewportsPlugin.setup() registers on
+    the FIFO model bus first.
+    DO NOT change static sequence to force this: differing sequences introduce a
+    microtask boundary between batches (owl.es.js:1509-1543). The usePlugin edge
+    is the contract -- comment it, it is load-bearing and invisible. Do not
+    convert that field to a lazy getter.
+
+ 5. The "noStateChange" sentinel disappears.
+    Used by setViewportOffset, resizeSheetView, and StandaloneViewportStore's
+    setContainerSize/setRange/setCustomColWeights. Note proxifyStoreMutation's
+    apply trap never returns the result (store_hooks.ts:111-117), so these
+    currently return undefined to callers; as plain plugin methods they would
+    start leaking the sentinel string. Keep the guard internal, type the public
+    methods `: void`.
+
+ 6. Over-invalidation from the four stores holding the raw store.
+    this.get(ViewportsStore) returns the unproxied instance, so mutators from
+    main_viewport_store, standalone_viewport_store, abstract_composer_store
+    (scrollToCell in startEdition) and client_focus_store fire NOTHING today and
+    will start firing. Mostly extra renders -- but it breaks any "renders N
+    times" assertion.
+
+ 7. FakeRendererPlugin hides canvas regressions.
+    tests/test_helpers/mount.ts:44-52 stubs draw() to a no-op, so a "grid paints
+    once then goes dead" bug passes the whole suite. Only
+    mountSpreadsheet(props, { useRealRender: true }) can catch it.
+
+ 8. Public API break.
+    ViewportsStore is exported at src/index.ts:615 (import :407, bag :593).
+    getPivotHighlights(env, ...), centerFigurePosition(env, ...) and
+    getPoppedOutChartAnchor(env, ...) KEEP their signatures -- all three already
+    take SpreadsheetActionEnv, which carries getPlugin
+    (src/types/spreadsheet_env.ts:11-14); only their bodies change. Addon diff is
+    one line per site.
+
+ 9. Transient throws.
+    InternalViewport's constructor throws on negative size
+    (internal_viewport.ts:37-39), reorganizeViewportZones on malformed zones
+    (viewport_collection.ts:728) -- reachable during effect-driven
+    resize-to-zero. Safe while R3 holds (resetViewports never reachable from a
+    render).
+
+10. Audit highlight_hook.ts:34, which manually fires
+    stores.trigger("store-updated") from a useLayoutEffect; several highlight
+    providers transitively read viewport state.
+
+
+--------------------------------------------------------------------------------
+6. IMPLEMENTATION
+--------------------------------------------------------------------------------
+All commits use the Odoo "[REF] owl3: ..." prefix and must leave `npm test` fully
+green.
+
+C0 -- prep: [REF] viewport: cover grid redraw with a real-renderer test
+  Add a mountSpreadsheet(props, { useRealRender: true }) test that scrolls and
+  asserts a redraw, and one asserting a StandaloneViewport over a non-active
+  sheet leaves the root viewport's displayedSheetId untouched
+  (expect(subEnv.getPlugin(ViewportsPlugin)).not.toBe(env.getPlugin(...)) once
+  the plugin exists).
+  MUST PASS BEFORE AND AFTER -- these are the only guards for issues 1, 2 and 7,
+  which the default FakeRendererPlugin cannot see.
+
+C1 -- prep: [REF] viewports: funnel viewport invalidation through a single method
+  Behavioural no-op. Rename the field to `private collection`, add
+  `get viewports() { return this.collection; }` so the ~115 external sites keep
+  working untouched; switch internal uses to this.collection. Add
+  `private invalidate() {}` (no-op) called at the end of every state-changing
+  mutator branch, keeping the "noStateChange" returns. Make setViewports() report
+  whether it reset anything and call invalidate() from finalize() under the R4
+  guard.
+  Result: a reviewable ~40-line diff that localises "where does invalidation
+  happen", which C4 then just re-points.
+
+C2 -- prep: [REF] standalone viewport: untrack the container-size effect
+  standalone_viewport.ts:78-85 per issue 3. No-op today (viewports aren't
+  reactive yet), so it lands green and isolates the trickiest risk from the big
+  rename. Also memoize StandaloneViewportStore's bound getHeaderDimensions (it
+  re-binds on every call, defeating identity checks) and add an identity guard in
+  setViewportArgs.
+
+C3 -- prep: [REF] tests: access the viewports through dedicated helpers
+  Behavioural no-op. Add makeViewportsPlugin(model?) to
+  tests/test_helpers/stores.ts returning { store, container, getPlugin, model }
+  -- KEEPING THE KEY NAMED `store` so the ~58 makeStore(ViewportsStore)
+  destructurings survive a pure sed and no test body changes.
+  Change MockGridRenderingContext's 2nd parameter from DependencyContainer to
+  getPlugin: OwlPluginGetter (renderer_helpers.ts:44 is its only container.* use)
+  and sed the 71 call sites.
+
+C4 -- the conversion: [REF] owl3: transform the viewports store into an owl plugin
+  - git mv src/stores/viewports_store.ts src/owl_plugins/viewports_owl_plugin.ts;
+    ViewportsStore extends SpreadsheetStore -> ViewportsPlugin extends
+    OwlPluginWithModel. Drop mutators / storeGetters / the sentinel.
+    this.getters -> this.model().getters. Export ViewportsPluginInstance.
+  - viewports = signal(this.collection); invalidate() ->
+    signal.trigger(this.viewports).
+  - spreadsheet_providers.ts: add ViewportsPlugin to providePlugins([...])
+    (:41-61); delete useStore(ViewportsStore) and the { viewStore } config
+    (:67-69).
+  - highlight_plugin.ts:17, figure_dnd_owl_plugin.ts:74:
+    useConfig("viewStore") -> usePlugin(ViewportsPlugin). Both stay bound to the
+    ROOT instance, as today.
+  - The 9 dependent stores: this.get(ViewportsStore) ->
+    usePlugin(ViewportsPlugin) field initializer -- the GridRenderer.fingerprints
+    precedent (grid_renderer_store.ts:69).
+  - Helper sites -> env.getPlugin(ViewportsPlugin):
+      helpers/figures/figure/figure.ts:12
+      helpers/carousel_helpers.ts:25
+      helpers/pivot/pivot_highlight.ts:21
+    components/helpers/drag_and_drop_grid_hook.ts:31 can use usePlugin directly
+    -- it already does so for ModelPlugin (:29) and ZoomPlugin (:32).
+  - MECHANICAL: 115 `X.viewports.` -> `X.viewports().`, plus grid.xml:23;
+    useStore(ViewportsStore) -> usePlugin(ViewportsPlugin) (29 sites);
+    Store<ViewportsStore> -> ViewportsPluginInstance.
+    Leave renderingContext.viewports ALONE -- it stays a plain ViewportCollection
+    on GridRenderingContext (src/types/rendering.ts:134), so
+    grid_renderer_store.ts / selection_renderer_store.ts are untouched.
+  - NESTED CANVASES (must land here):
+      standalone_viewport.ts -- providePlugins([ViewportsPlugin]) as the FIRST
+        statement of setup(), drop ViewportsStore from useChildStoreProvider;
+      carousel_data_view_print.ts:26 -- useChildStoreProvider([ViewportsStore])
+        disappears entirely (it provided nothing else), replaced by
+        providePlugins([ViewportsPlugin]) first.
+  - src/index.ts: remove ViewportsStore (:615, :407), add ViewportsPlugin to
+    owlPlugins (~:620).
+  - draw_grid_hook.ts:86: update the comment -- the viewports are now reactive
+    and already read at :70 via renderingCtx(); what the early return still skips
+    is storeSignal for the REMAINING stores. Keep readSignals(); full removal
+    belongs to the last store conversion.
+  - Tests: commands_helpers.ts -- FOUR one-line swaps to env.getPlugin(...) cover
+    all 231 call sites (setZoom next door is the template); dom_helper.ts ~8
+    sites; mount.ts:258 -> getPlugin!(ViewportsPlugin), which resolves against the
+    spied component's scope and so yields the root instance under
+    mountSpreadsheet and the shadowed one under
+    mountComponent(StandaloneViewport) -- matching today's env.getStore semantics.
+
+C4b -- ESCAPE HATCH. Decide BEFORE starting C4, not halfway.
+  If C4 yields a long tail of "component didn't re-render" failures, land it WITH
+  a temporary bridge in useSpreadsheetProviders that restores the old global deep
+  render:
+      effect(() => { plugin.viewports(); stores.trigger("store-updated"); })
+  (disposed on destroy), then remove it in a follow-up that fixes the genuine
+  subscribers. Turns an unbounded debugging session into a bounded one.
+
+C5 -- [REF] owl3: transform the main viewport store into an owl plugin
+  - MainViewportStore -> MainViewportPlugin extends OwlPluginWithModel; keep
+    model().selection.observe, moving unobserve into onWillDestroy.
+  - private viewStore = usePlugin(ViewportsPlugin) as an EAGER FIELD -- this is
+    the ordering contract (issue 4). Comment it.
+  - Delete globalStores.add("main_viewport", ...) (store_registries.ts:8, its
+    only entry) and the import at :2. Keep the now-empty registry -- it is public
+    API and the three `for (const store of globalStores.getAll())` loops keep
+    working on it.
+  - Provide MainViewportPlugin in useSpreadsheetProviders; NOT in nested-canvas
+    scopes.
+  - Watch tests/sheet/navigation_plugin.test.ts and
+    tests/sheet/selection_plugin.test.ts (scroll-into-view on selection) -- they
+    exercise the ordering.
+
+C6 -- [REF] owl3: audit the remaining viewport invalidation bridges
+  Audit highlight_hook.ts:34 (issue 10); remove C4b's bridge if used; release
+  note for the API break.
+
+
+--------------------------------------------------------------------------------
+7. VERIFICATION
+--------------------------------------------------------------------------------
+Run after EACH commit -- `npm test` is a full tests/tsconfig.json type-check plus
+jest, so it catches the mechanical-rewrite errors:
+
+    npm test
+
+Targeted while iterating:
+
+    npm test -- tests/sheet/sheetview_plugin.test.ts        # 34 of the rewritten sites
+    npm test -- tests/sheet/navigation_plugin.test.ts tests/sheet/selection_plugin.test.ts
+    npm test -- tests/grid/grid_component.test.ts tests/grid/dashboard_grid_component.test.ts
+    npm test -- tests/figures/carousel/standalone_viewport.test.ts   # nested-canvas scoping
+    npm test -- tests/renderer/                              # MockGridRenderingContext
+    npm test -- tests/grid/highlight_plugin.test.ts          # useConfig("viewStore") removal
+
+SNAPSHOTS -- expected and explainable. Three canvas entries should change, and
+the change is a REVERT OF A KNOWN REGRESSION introduced by 2c0d0f53e5 (whose
+commit message admits the grid snapshots went "a bit wrong because they use the
+FakeGridRenderer, that does not subscribe to any signal on draw"):
+
+  tests/grid/__snapshots__/grid_component.test.ts.snap:106-110
+      1000x1000  ->  1033x1011
+  tests/spreadsheet/__snapshots__/spreadsheet_component.test.ts.snap:946-950
+      1000x1000  ->  985x985
+  tests/spreadsheet/__snapshots__/spreadsheet_component.test.ts.snap:2012-2016
+      1000x1000  ->  width:485px, 985
+
+Run -u on exactly those two files, confirm against
+    git show 2c0d0f53e5 -- tests/grid/__snapshots__/grid_component.test.ts.snap
+and justify each remaining diff in the commit message.
+IF A SNAPSHOT DIFF CANNOT BE EXPLAINED IN ONE SENTENCE, IT IS A BUG, NOT CHURN.
+
+Manual smoke test -- issues 1 / 2 / 3 are ONLY visible here:
+
+    npm run dev     # serves demo/ at 127.0.0.1
+
+Check: scrolling and both scrollbars; window resize; freeze/unfreeze panes; zoom
+in/out; sheet switching and undo of a sheet deletion; dashboard mode; a carousel
+data view and a popped-out chart (confirm the main grid is unaffected);
+PageUp/PageDown (grid.ts:550-551).
