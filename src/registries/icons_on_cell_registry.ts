@@ -49,6 +49,7 @@ iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
   const hasIcon = getters.isCellValidCheckbox(position);
   if (hasIcon) {
     const value = !!getters.getEvaluatedCell(position).value;
+    const isDisabled = getters.isReadonly() || !!getters.getCell(position)?.isFormula;
     return {
       svg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED,
       hoverSvg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED_HOVERED,
@@ -58,25 +59,22 @@ iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
       margin: GRID_ICON_MARGIN,
       position,
       type: "data_validation_checkbox",
-      onClick: (position, env) => {
-        const cell = env.model.getters.getCell(position);
-        const isDisabled = env.model.getters.isReadonly() || !!cell?.isFormula;
-        if (isDisabled) {
-          return;
-        }
-
-        const cellContent = value ? "FALSE" : "TRUE";
-        env.model.dispatch("UPDATE_CELL", { ...position, content: cellContent });
-      },
+      onClick: isDisabled
+        ? undefined
+        : (position, env) => {
+            const cellContent = value ? "FALSE" : "TRUE";
+            env.model.dispatch("UPDATE_CELL", { ...position, content: cellContent });
+          },
     };
   }
   return undefined;
 });
 
 iconsOnCellRegistry.add("data_validation_chip_icon", (getters, position) => {
-  const chipStyle = getters.getDataValidationChipStyle(position);
+  const chipStyle = !getters.isReadonly() && getters.getDataValidationChipStyle(position);
   if (chipStyle) {
     const cellStyle = getters.getCellComputedStyle(position);
+    const isDisabled = !!getters.getCell(position)?.isFormula;
     return {
       svg: getChipSvg(chipStyle),
       hoverSvg: getHoveredChipSvg(chipStyle),
@@ -85,11 +83,13 @@ iconsOnCellRegistry.add("data_validation_chip_icon", (getters, position) => {
       size: computeTextFontSizeInPixels(cellStyle),
       margin: 4,
       position,
-      onClick: (position, env) => {
-        const { col, row } = position;
-        env.model.selection.selectCell(col, row);
-        env.startCellEdition();
-      },
+      onClick: isDisabled
+        ? undefined
+        : (position, env) => {
+            const { col, row } = position;
+            env.model.selection.selectCell(col, row);
+            env.startCellEdition();
+          },
       type: "data_validation_chip_icon",
     };
   }
@@ -100,6 +100,7 @@ iconsOnCellRegistry.add("data_validation_list_icon", (getters, position) => {
   const hasIcon = !getters.isReadonly() && getters.cellHasListDataValidationIcon(position);
   if (hasIcon) {
     const cellStyle = getters.getCellComputedStyle(position);
+    const isDisabled = !!getters.getCell(position)?.isFormula;
     return {
       svg: getCaretDownSvg(cellStyle),
       hoverSvg: getHoveredCaretDownSvg(cellStyle),
@@ -108,11 +109,13 @@ iconsOnCellRegistry.add("data_validation_list_icon", (getters, position) => {
       size: GRID_ICON_EDGE_LENGTH,
       margin: GRID_ICON_MARGIN,
       position,
-      onClick: (position, env) => {
-        const { col, row } = position;
-        env.model.selection.selectCell(col, row);
-        env.startCellEdition();
-      },
+      onClick: isDisabled
+        ? undefined
+        : (position, env) => {
+            const { col, row } = position;
+            env.model.selection.selectCell(col, row);
+            env.startCellEdition();
+          },
       type: "data_validation_list_icon",
     };
   }
@@ -201,7 +204,7 @@ iconsOnCellRegistry.add("pivot_collapse", (getters, position) => {
       svg: hasIcon ? getPivotIconSvg(isCollapsed, false) : undefined,
       hoverSvg: hasIcon ? getPivotIconSvg(isCollapsed, true) : undefined,
       position,
-      onClick: togglePivotCollapse,
+      onClick: !getters.isReadonly() ? togglePivotCollapse : undefined,
     };
   }
   return undefined;
