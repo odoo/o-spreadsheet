@@ -69,7 +69,8 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
         }
         break;
       case "REMOVE_COLUMNS_ROWS":
-        for (const el of groupConsecutive(cmd.elements).toReversed()) {
+        const elements = [...cmd.elements].sort((a, b) => b - a);
+        for (const el of groupConsecutive(elements)) {
           for (const i of el) {
             this.clearColRows(cmd.sheetId, cmd.dimension, i);
           }

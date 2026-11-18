@@ -431,6 +431,22 @@ describe("Default Plugin: Style", () => {
       expect(getCellStyle(model, "B2")).toEqual(MULTI_STYLE);
       expect(model.getters.getCells(sheetId).length).toBe(0);
     });
+
+    test("delete multiple unordered columns", () => {
+      setStyle(
+        model,
+        [model.getters.getColsZone(sheetId, 2, 2), model.getters.getColsZone(sheetId, 6, 6)],
+        MULTI_STYLE
+      );
+      deleteColumns(model, ["E", "B", "F"]);
+      expect(getCellStyle(model, "A1")).toEqual({});
+      expect(getCellStyle(model, "B1")).toEqual(MULTI_STYLE);
+      expect(getCellStyle(model, "C1")).toEqual({});
+      expect(getCellStyle(model, "D1")).toEqual(MULTI_STYLE);
+      expect(getCellStyle(model, "E1")).toEqual({});
+      expect(getCellStyle(model, "F1")).toEqual({});
+      expect(getCellStyle(model, "G1")).toEqual({});
+    });
   });
 
   describe("Sheet Manipulation: Move Column", () => {
@@ -532,6 +548,22 @@ describe("Default Plugin: Style", () => {
       deleteRows(model, [0]);
       expect(getCellStyle(model, "A1")).toEqual(MULTI_STYLE);
       expect(getCellStyle(model, "A2")).toEqual(MULTI_STYLE);
+    });
+
+    test("delete multiple unordered rows", () => {
+      setStyle(
+        model,
+        [model.getters.getRowsZone(sheetId, 2, 2), model.getters.getRowsZone(sheetId, 6, 6)],
+        MULTI_STYLE
+      );
+      deleteRows(model, [4, 1, 5]);
+      expect(getCellStyle(model, "A1")).toEqual({});
+      expect(getCellStyle(model, "A2")).toEqual(MULTI_STYLE);
+      expect(getCellStyle(model, "A3")).toEqual({});
+      expect(getCellStyle(model, "A4")).toEqual(MULTI_STYLE);
+      expect(getCellStyle(model, "A5")).toEqual({});
+      expect(getCellStyle(model, "A6")).toEqual({});
+      expect(getCellStyle(model, "A7")).toEqual({});
     });
   });
 

@@ -326,6 +326,22 @@ describe("Default Plugin: Format", () => {
       expect(getCellFormat(model, "B2")).toEqual(DATE_FORMAT);
       expect(model.getters.getCells(sheetId).length).toBe(0);
     });
+
+    test("delete multiple unordered columns", () => {
+      setFormat(
+        model,
+        [model.getters.getColsZone(sheetId, 2, 2), model.getters.getColsZone(sheetId, 6, 6)],
+        DATE_FORMAT
+      );
+      deleteColumns(model, ["E", "B", "F"]);
+      expect(getCellFormat(model, "A1")).toBeUndefined();
+      expect(getCellFormat(model, "B1")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "C1")).toBeUndefined();
+      expect(getCellFormat(model, "D1")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "E1")).toBeUndefined();
+      expect(getCellFormat(model, "F1")).toBeUndefined();
+      expect(getCellFormat(model, "G1")).toBeUndefined();
+    });
   });
 
   describe("Sheet Manipulation: Move Column", () => {
@@ -418,6 +434,22 @@ describe("Default Plugin: Format", () => {
       deleteRows(model, [1]);
       expect(getCellFormat(model, "A2")).toEqual(DATE_FORMAT);
       expect(model.getters.getCells(sheetId).length).toBe(0);
+    });
+
+    test("delete multiple unordered rows", () => {
+      setFormat(
+        model,
+        [model.getters.getRowsZone(sheetId, 2, 2), model.getters.getRowsZone(sheetId, 6, 6)],
+        DATE_FORMAT
+      );
+      deleteRows(model, [4, 1, 5]);
+      expect(getCellFormat(model, "A1")).toBeUndefined();
+      expect(getCellFormat(model, "A2")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "A3")).toBeUndefined();
+      expect(getCellFormat(model, "A4")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "A5")).toBeUndefined();
+      expect(getCellFormat(model, "A6")).toBeUndefined();
+      expect(getCellFormat(model, "A7")).toBeUndefined();
     });
   });
 
