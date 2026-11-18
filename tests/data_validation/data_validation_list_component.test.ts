@@ -10,7 +10,7 @@ import {
 } from "../../src/constants";
 import { computeTextFontSizeInPixels } from "../../src/helpers/text_helper";
 import { toZone } from "../../src/helpers/zones";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   addDataValidation,
@@ -44,7 +44,7 @@ import {
   nextTick,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeViewportsPlugin } from "../test_helpers/owl_plugins_helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -535,10 +535,10 @@ describe("Selection arrow icon in grid", () => {
   test("Icon is displayed in the grid at the correct position", () => {
     const icon = getCellIcons(model, "A1")[0];
     expect(icon.type).toEqual("data_validation_list_chip_icon");
-    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    const { viewPlugin } = makeViewportsPlugin(model);
     const rect = model.getters.getCellIconRect(
       icon,
-      viewStore.viewports.getRect(model.getters.getActiveSheetId(), toZone("A1"))
+      viewPlugin.viewports().getRect(model.getters.getActiveSheetId(), toZone("A1"))
     );
     const cellStyle = model.getters.getCellComputedStyle({
       col: 0,

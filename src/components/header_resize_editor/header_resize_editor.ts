@@ -5,10 +5,10 @@ import {
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
 } from "../../constants";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { _t } from "../../translation";
 import { DispatchResult } from "../../types/commands";
 import { Dimension, HeaderIndex } from "../../types/misc";
@@ -38,12 +38,11 @@ export class HeaderResizeEditor extends OSComponent {
   isInputEmpty = signal(false);
   private inputRef = signal.ref(HTMLInputElement);
   private editorRef = signal.ref();
-  private viewStore!: Store<ViewportsStore>;
+  private viewPlugin = usePlugin(ViewportsPlugin);
   private zoomPlugin = usePlugin(ZoomPlugin);
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
   setup() {
-    this.viewStore = useStore(ViewportsStore);
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     useListener(window, "click", this.onExternalClick.bind(this), { capture: true });
     useListener(window, "contextmenu", this.onExternalClick.bind(this), { capture: true });
@@ -76,13 +75,17 @@ export class HeaderResizeEditor extends OSComponent {
   private get anchorRect(): Rect {
     const { dimension, index } = this.target;
     const sheetId = this.model().getters.getActiveSheetId();
-    const gridOffset = this.viewStore.gridOffset;
+    const gridOffset = this.viewPlugin.gridOffset;
     let headerRect: Rect;
     if (dimension === "COL") {
-      const { start, size } = this.viewStore.viewports.getColDimensionsInViewport(sheetId, index);
+      const { start, size } = this.viewPlugin
+        .viewports()
+        .getColDimensionsInViewport(sheetId, index);
       headerRect = { x: gridOffset.x + start, y: 0, width: size, height: gridOffset.y };
     } else {
-      const { start, size } = this.viewStore.viewports.getRowDimensionsInViewport(sheetId, index);
+      const { start, size } = this.viewPlugin
+        .viewports()
+        .getRowDimensionsInViewport(sheetId, index);
       headerRect = { x: 0, y: gridOffset.y + start, width: gridOffset.x, height: size };
     }
     const zoomedHeaderRect = this.zoomPlugin.getZoomedRect(headerRect);

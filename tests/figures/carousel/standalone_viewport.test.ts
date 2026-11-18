@@ -9,10 +9,10 @@ import { zoneToXc } from "../../../src/helpers/zones";
 import { DevicePixelRatioPlugin } from "../../../src/owl_plugins/device_pixel_ratio_owl_plugin";
 import { FormulaFingerprintPlugin } from "../../../src/owl_plugins/formula_fingerprints_store";
 import { LocalRendererPlugin } from "../../../src/owl_plugins/renderer_plugin";
+import { ViewportsPlugin } from "../../../src/owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../../src/owl_plugins/zoom_plugin";
 import { CellHoverOverlayStore } from "../../../src/stores/cell_hover_overlay_store";
 import { GridRenderer } from "../../../src/stores/grid_renderer_store";
-import { ViewportsStore } from "../../../src/stores/viewports_store";
 import { PropsOf } from "../../../src/types/props_of";
 import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import {
@@ -188,22 +188,22 @@ describe("Standalone viewport", () => {
   test("Standalone viewport have a functional scrollbar if too small", async () => {
     setGrid(model, { A1: "Hello", A2: "World", A3: "!" });
     await mountViewport("A1:A3", { size: { width: 1000, height: 30 } });
-    const viewStore = subEnv.getStore(ViewportsStore);
+    const viewPlugin = subActionEnv.getPlugin(ViewportsPlugin);
 
     expect(".o-scrollbar").toHaveCount(1);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(0);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBe(0);
 
     // Wheel event on viewport
     triggerWheelEvent(".o-standalone-viewport", { deltaY: 10 });
     await nextTick();
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(10);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBe(10);
 
     // Scroll event on scrollbar
     const scrollBar = document.querySelector<HTMLElement>(".o-scrollbar")!;
     scrollBar.scrollTop = 20;
     scrollBar.dispatchEvent(new Event("scroll"));
     await nextTick();
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(20);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBe(20);
   });
 
   test("Standalone viewport scrollbar works with frozen rows", async () => {
@@ -211,15 +211,15 @@ describe("Standalone viewport", () => {
     setGrid(model, { A1: "=RANDARRAY(10,1)" });
     freezeRows(model, 2);
     await mountViewport("A2:A10", { size: { width: 1000, height: cellHeight * 5 } });
-    const viewStore = subEnv.getStore(ViewportsStore);
+    const viewPlugin = subActionEnv.getPlugin(ViewportsPlugin);
 
     expect(".o-scrollbar").toHaveCount(1);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(0);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBe(0);
     expect(getLastRenderedBoxes().map((box) => box.id)).toEqual(["A2", "A3", "A4", "A5", "A6"]);
 
     triggerWheelEvent(".o-standalone-viewport", { deltaY: cellHeight * 2 });
     await nextTick();
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(cellHeight * 2);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBe(cellHeight * 2);
     expect(getLastRenderedBoxes().map((box) => box.id)).toEqual(["A2", "A5", "A6", "A7", "A8"]);
   });
 
@@ -228,22 +228,22 @@ describe("Standalone viewport", () => {
     setGrid(model, { A1: "=RANDARRAY(10,1)" });
     freezeRows(model, 4);
     await mountViewport("A2:A10", { size: { width: 1000, height: cellHeight * 8 } });
-    const viewStore = subEnv.getStore(ViewportsStore);
+    const viewPlugin = subActionEnv.getPlugin(ViewportsPlugin);
 
-    expect(viewStore.mainViewportCoordinates.y).toBe(cellHeight * 3); // Three frozen rows in A2:A10
-    expect(viewStore.mainViewportRect.height).toBe(cellHeight * 6); // 6 non-frozen rows in A2:A10
+    expect(viewPlugin.mainViewportCoordinates.y).toBe(cellHeight * 3); // Three frozen rows in A2:A10
+    expect(viewPlugin.mainViewportRect.height).toBe(cellHeight * 6); // 6 non-frozen rows in A2:A10
     expect(".o-scrollbar").toHaveCount(1);
   });
 
   test("Standalone viewport does not scroll to follow the selection", async () => {
     setGrid(model, { A1: "Hello", A2: "World", A3: "!" });
     await mountViewport("A1:A3", { size: { width: 1000, height: 30 } });
-    const viewStore = subEnv.getStore(ViewportsStore);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(0);
+    const viewPlugin = subActionEnv.getPlugin(ViewportsPlugin);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBe(0);
 
     selectCell(model, "A3");
     await nextTick();
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(0);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBe(0);
   });
 
   test("Double clicking on a cell selects the cell", async () => {
@@ -325,7 +325,7 @@ describe("Standalone viewport", () => {
     const { env } = await mountSpreadsheet({ model });
 
     const mainZoomPlugin = env.getPlugin(ZoomPlugin);
-    const standaloneViewportStore = subEnv.getStore(ViewportsStore);
+    const standaloneViewportStore = subActionEnv.getPlugin(ViewportsPlugin);
 
     mainZoomPlugin.setZoom(2);
     await nextTick();

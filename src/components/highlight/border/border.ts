@@ -1,11 +1,8 @@
-import { useProps } from "@odoo/owl";
-import { useStore } from "../../../store_engine/store_hooks";
-import { ViewportsStore } from "../../../stores/viewports_store";
+import { usePlugin, useProps } from "@odoo/owl";
+import { ViewportsPlugin } from "../../../owl_plugins/viewports_owl_plugin";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
-
-import { Store } from "../../../types/store_engine";
 
 export class Border extends OSComponent {
   static template = "o-spreadsheet-Border";
@@ -21,11 +18,7 @@ export class Border extends OSComponent {
     isMoving: types.boolean(),
     onMoveHighlight: types.function<(ev: PointerEvent) => void>(),
   });
-  private viewStore!: Store<ViewportsStore>;
-
-  setup(): void {
-    this.viewStore = useStore(ViewportsStore);
-  }
+  private viewPlugin = usePlugin(ViewportsPlugin);
 
   get style() {
     const isTop = ["n", "w", "e"].includes(this.props.orientation);
@@ -36,10 +29,9 @@ export class Border extends OSComponent {
     const z = this.props.zone;
     const margin = 2;
 
-    const rect = this.viewStore.viewports.getVisibleRect(
-      this.model().getters.getActiveSheetId(),
-      z
-    );
+    const rect = this.viewPlugin
+      .viewports()
+      .getVisibleRect(this.model().getters.getActiveSheetId(), z);
 
     const left = rect.x;
     const right = rect.x + rect.width - 2 * margin;

@@ -1,6 +1,7 @@
 import { useProps, xml } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../src/actions/action";
 import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
+import { useSpreadsheetEnv } from "../../src/components/os_component";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -180,6 +181,8 @@ interface Props {
 }
 
 class ContextMenuParent extends Component {
+  spEnv = useSpreadsheetEnv();
+
   static template = xml/* xml */ `
     <div>
       <MenuPopover
@@ -213,7 +216,7 @@ class ContextMenuParent extends Component {
       height: 0,
     };
     this.menus = this.props.config.menuItems || createActions([makeTestMenuItem("Action")]);
-    resizeSheetView(this.env, { height: this.props.height, width: this.props.width });
+    resizeSheetView(this.spEnv, { height: this.props.height, width: this.props.width });
   }
 }
 

@@ -117,7 +117,7 @@ describe("Autofill", () => {
   });
 
   test("Autofill zone is rendered through the renderer store", () => {
-    const { ctx, isDotOutlined } = watchDashedOutline(model, container);
+    const { ctx, isDotOutlined } = watchDashedOutline(model, getPlugin);
 
     autofillSelect(model, "A1", "A2");
     getPlugin(RendererPlugin).draw(ctx);

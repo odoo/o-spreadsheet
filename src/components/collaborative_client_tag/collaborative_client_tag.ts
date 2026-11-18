@@ -1,20 +1,14 @@
 import { cssPropertiesToCss } from "../helpers/css";
 import { OSComponent } from "../os_component";
 
-import { useProps } from "@odoo/owl";
-import { useStore } from "../../store_engine/store_hooks";
-import { ViewportsStore } from "../../stores/viewports_store";
-import { Store } from "../../types/store_engine";
+import { usePlugin, useProps } from "@odoo/owl";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { types } from "../props_validation";
 
 export class ClientTag extends OSComponent {
   static template = "o-spreadsheet-ClientTag";
 
-  private viewStore!: Store<ViewportsStore>;
-
-  setup() {
-    this.viewStore = useStore(ViewportsStore);
-  }
+  private viewPlugin = usePlugin(ViewportsPlugin);
 
   protected props = useProps({
     active: types.boolean(),
@@ -25,10 +19,10 @@ export class ClientTag extends OSComponent {
   });
   get tagStyle(): string {
     const { col, row, color } = this.props;
-    const { height } = this.viewStore.sheetViewDimensionWithHeaders;
-    const sheetId = this.viewStore.displayedSheetId;
-    const visible = this.viewStore.viewports.isVisibleInViewport({ sheetId, col, row });
-    const { x, y } = this.viewStore.viewports.getVisibleRect(sheetId, {
+    const { height } = this.viewPlugin.sheetViewDimensionWithHeaders;
+    const sheetId = this.viewPlugin.displayedSheetId();
+    const visible = this.viewPlugin.viewports().isVisibleInViewport({ sheetId, col, row });
+    const { x, y } = this.viewPlugin.viewports().getVisibleRect(sheetId, {
       left: col,
       top: row,
       right: col,

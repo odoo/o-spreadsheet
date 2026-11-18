@@ -3,7 +3,6 @@ import {
   onWillDestroy,
   Plugin,
   proxy,
-  useConfig,
   useEffect,
   usePlugin,
 } from "@odoo/owl";
@@ -11,13 +10,12 @@ import { DRAG_THRESHOLD } from "../../../constants";
 import { clip, isDefined } from "../../../helpers/misc";
 import { getZoomedRect, rectIntersection, rectUnion } from "../../../helpers/rectangle";
 import { ModelPlugin } from "../../../owl_plugins/model_owl_plugin";
+import { ViewportsPlugin } from "../../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../../owl_plugins/zoom_plugin";
 import { figureRegistry } from "../../../registries/figures_registry";
-import { ViewportsStore } from "../../../stores/viewports_store";
 import { Figure, FigureUI, ResizeDirection } from "../../../types/figure";
 import { UID } from "../../../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../../../types/rendering";
-import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss, rectToCss } from "../../helpers/css";
 import { gridOverlayPosition, zoomCorrectedElementRect } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
@@ -71,7 +69,7 @@ export class DraggedFigurePlugin extends Plugin {
     verticalSnap: undefined,
     cancelDnd: undefined,
   });
-  private viewStore: Store<ViewportsStore> = useConfig("viewStore");
+  private viewPlugin = usePlugin(ViewportsPlugin);
   private zoomPlugin = usePlugin(ZoomPlugin);
   private model = usePlugin(ModelPlugin).model;
 
@@ -93,7 +91,7 @@ export class DraggedFigurePlugin extends Plugin {
   }
 
   private getFiguresOnScreen(): FigureUI[] {
-    return this.viewStore.visibleFigures.map((figure) => this.convertToOverlayCoordinate(figure));
+    return this.viewPlugin.visibleFigures.map((figure) => this.convertToOverlayCoordinate(figure));
   }
 
   get selectedRectStyle(): string {
@@ -102,7 +100,7 @@ export class DraggedFigurePlugin extends Plugin {
 
   get sheetBoundaries(): Rect {
     const sheetId = this.model().getters.getActiveSheetId();
-    const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
+    const { scrollX, scrollY } = this.viewPlugin.activeSheetScrollInfo;
     return {
       x: 0 - scrollX,
       y: 0 - scrollY,
@@ -125,7 +123,7 @@ export class DraggedFigurePlugin extends Plugin {
   }
 
   private convertToOverlayCoordinate(figureUI: FigureUI): FigureUI {
-    const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
+    const { scrollX, scrollY } = this.viewPlugin.activeSheetScrollInfo;
     const screenFigure = { ...figureUI };
     const pane = this.getFigurePane(figureUI.id);
 
@@ -151,7 +149,7 @@ export class DraggedFigurePlugin extends Plugin {
       throw new Error(`Figure with ID ${figureId} not found`);
     }
     const figureUI = this.model().getters.getFigureUI(sheetId, figure);
-    const { x: viewportX, y: viewportY } = this.viewStore.mainViewportCoordinates;
+    const { x: viewportX, y: viewportY } = this.viewPlugin.mainViewportCoordinates;
     if (figureUI.x < viewportX && figureUI.y < viewportY) {
       return "topLeft";
     } else if (figureUI.x < viewportX) {
@@ -165,8 +163,8 @@ export class DraggedFigurePlugin extends Plugin {
 
   /** Rect of a pane, in screen coordinates */
   private getPaneRect(pane: FigurePane): Rect {
-    const { width: viewWidth, height: viewHeight } = this.viewStore.sheetViewDimension;
-    const { x: viewportX, y: viewportY } = this.viewStore.mainViewportCoordinates;
+    const { width: viewWidth, height: viewHeight } = this.viewPlugin.sheetViewDimension;
+    const { x: viewportX, y: viewportY } = this.viewPlugin.mainViewportCoordinates;
 
     const x = pane === "topRight" || pane === "bottomRight" ? viewportX : 0;
     const y = pane === "bottomLeft" || pane === "bottomRight" ? viewportY : 0;
@@ -177,7 +175,7 @@ export class DraggedFigurePlugin extends Plugin {
    * Convert a figure's screen coordinates to spreadsheet coordinates.
    */
   private toSpreadsheetFigures(figures: FigureUI[]): Figure[] {
-    const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
+    const { scrollX, scrollY } = this.viewPlugin.activeSheetScrollInfo;
     const scrolledFigures: FigureUI[] = figures.map((figureUI) => ({
       ...figureUI,
       x: figureUI.x + scrollX,
@@ -198,7 +196,7 @@ export class DraggedFigurePlugin extends Plugin {
     const sheetId = this.model().getters.getActiveSheetId();
     return boundedFigures.map((figureUI) => ({
       ...figureUI,
-      ...this.viewStore.viewports.getPositionAnchorOffset(sheetId, figureUI),
+      ...this.viewPlugin.viewports().getPositionAnchorOffset(sheetId, figureUI),
     }));
   }
 
@@ -315,7 +313,7 @@ export class DraggedFigurePlugin extends Plugin {
 
     const zoom = this.zoomPlugin.zoomLevel();
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
-    const initialScrollPosition = this.viewStore.activeSheetScrollInfo;
+    const initialScrollPosition = this.viewPlugin.activeSheetScrollInfo;
     const initialFigures = figuresToDrag.map(this.convertToOverlayCoordinate.bind(this));
     const previousCursor = document.body.style.cursor;
 
@@ -367,7 +365,7 @@ export class DraggedFigurePlugin extends Plugin {
         keepRatio,
         minAggregateSize,
         initialScrollPosition,
-        this.viewStore.activeSheetScrollInfo,
+        this.viewPlugin.activeSheetScrollInfo,
         this.sheetBoundaries
       );
 
@@ -479,8 +477,8 @@ export class DraggedFigurePlugin extends Plugin {
   }
 
   private isPositionVisibleInViewports(figureId: UID, screenPosition: DOMCoordinates) {
-    const { x: viewportX, y: viewportY } = this.viewStore.mainViewportCoordinates;
-    const { width: viewportWidth, height: viewportHeight } = this.viewStore.sheetViewDimension;
+    const { x: viewportX, y: viewportY } = this.viewPlugin.mainViewportCoordinates;
+    const { width: viewportWidth, height: viewportHeight } = this.viewPlugin.sheetViewDimension;
     const figurePane = this.getFigurePane(figureId);
 
     const checkXIsVisible = (x: number) =>

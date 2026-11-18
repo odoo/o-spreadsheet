@@ -58,10 +58,10 @@ import { lettersToNumber, toCartesian } from "../../src/helpers/coordinates";
 import { SpreadsheetChart } from "../../src/helpers/figures/chart";
 import { UuidGenerator } from "../../src/helpers/uuid";
 import { isInside, toZone } from "../../src/helpers/zones";
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../src/owl_plugins/zoom_plugin";
 import { chartDataSourceRegistry } from "../../src/registries/chart_data_source_registry";
 import { chartTypeRegistry } from "../../src/registries/chart_registry";
-import { ViewportsStore } from "../../src/stores/viewports_store";
 import { BubbleChartDefinition } from "../../src/types/chart/bubble_chart";
 import { CalendarChartDefinition } from "../../src/types/chart/calendar_chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
@@ -1337,7 +1337,7 @@ export function showSheet(model: Model, sheetId: UID) {
 }
 
 export function setViewportOffset(env: SpreadsheetActionEnv, offsetX: number, offsetY: number) {
-  const store = env.getStore(ViewportsStore);
+  const store = env.getPlugin(ViewportsPlugin);
   return store.setViewportOffset({ offsetX, offsetY });
 }
 
@@ -1759,7 +1759,7 @@ export function insertPivot(
 }
 
 export function resizeSheetView(env: SpreadsheetActionEnv, dimensions: SheetViewDimensions) {
-  const store = env.getStore(ViewportsStore);
+  const store = env.getPlugin(ViewportsPlugin);
   return store.resizeSheetView(dimensions);
 }
 
@@ -2051,12 +2051,12 @@ export function moveFigures(model: Model, payloads: UpdateFiguresPayload[]) {
 }
 
 export function shiftViewportDown(env: SpreadsheetActionEnv) {
-  const store = env.getStore(ViewportsStore);
+  const store = env.getPlugin(ViewportsPlugin);
   return store.shiftViewportDown();
 }
 
 export function shiftViewportUp(env: SpreadsheetActionEnv) {
-  const store = env.getStore(ViewportsStore);
+  const store = env.getPlugin(ViewportsPlugin);
   return store.shiftViewportUp();
 }
 

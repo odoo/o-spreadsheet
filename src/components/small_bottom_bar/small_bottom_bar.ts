@@ -1,6 +1,6 @@
-import { onMounted, onPatched, proxy, signal, useProps } from "@odoo/owl";
+import { onMounted, onPatched, proxy, signal, usePlugin, useProps } from "@odoo/owl";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { useStore } from "../../store_engine/store_hooks";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { ComposerFocusType } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { Rect } from "../../types/rendering";
@@ -26,7 +26,7 @@ export class SmallBottomBar extends OSComponent {
 
   private composerFocusStore!: Store<ComposerFocusStore>;
   private composerStore!: Store<CellComposerStore>;
-  private viewStore!: Store<ViewportsStore>;
+  private viewPlugin = usePlugin(ViewportsPlugin);
   private composerInterface!: ComposerInterface;
   private composerRef = signal.ref();
 
@@ -37,7 +37,6 @@ export class SmallBottomBar extends OSComponent {
   setup(): void {
     this.composerFocusStore = useStore(ComposerFocusStore);
     const composerStore = useStore(CellComposerStore);
-    this.viewStore = useStore(ViewportsStore);
     this.composerStore = composerStore;
     this.composerInterface = {
       id: "bottombarComposer",
@@ -85,7 +84,7 @@ export class SmallBottomBar extends OSComponent {
   }
 
   get composerProps(): PropsOf<Composer> {
-    const { width, height } = this.viewStore.sheetViewDimensionWithHeaders;
+    const { width, height } = this.viewPlugin.sheetViewDimensionWithHeaders;
     return {
       rect: { ...this.rect },
       delimitation: {

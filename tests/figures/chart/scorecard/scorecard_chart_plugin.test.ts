@@ -4,7 +4,7 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../../src/constants";
-import { ViewportsStore } from "../../../../src/stores/viewports_store";
+
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
@@ -26,7 +26,7 @@ import {
 } from "../../../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../../../test_helpers/constants";
 import { getEvaluatedCell } from "../../../test_helpers/getters_helpers";
-import { makeStoreWithModel } from "../../../test_helpers/stores";
+import { makeViewportsPlugin } from "../../../test_helpers/owl_plugins_helpers";
 
 let model: Model;
 
@@ -133,11 +133,11 @@ describe("datasource tests", function () {
     );
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
-    const { store: viewStore } = makeStoreWithModel(newModel, ViewportsStore);
-    expect(viewStore.visibleFigures).toHaveLength(1);
+    const { viewPlugin } = makeViewportsPlugin(newModel);
+    expect(viewPlugin.visibleFigures).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
     deleteFigure(newModel, model.getters.getFigureIdFromChartId("1"));
-    expect(viewStore.visibleFigures).toHaveLength(0);
+    expect(viewPlugin.visibleFigures).toHaveLength(0);
     expect(() => newModel.getters.getChartRuntime("1")).toThrow();
   });
 

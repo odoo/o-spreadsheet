@@ -1,7 +1,8 @@
+import { usePlugin } from "@odoo/owl";
 import { positionToZone } from "../../helpers/zones";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { ViewportsStore } from "../../stores/viewports_store";
 import {
   CellPopoverType,
   ClosedCellPopover,
@@ -19,7 +20,7 @@ export class CellPopoverStore extends SpreadsheetStore {
   private persistentPopover?: CellPosition & { type: CellPopoverType };
 
   protected hoveredCell = this.get(DelayedHoveredCellStore);
-  private viewStore = this.get(ViewportsStore);
+  private viewPlugin = usePlugin(ViewportsPlugin);
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -29,7 +30,7 @@ export class CellPopoverStore extends SpreadsheetStore {
   }
 
   open({ col, row }: Position, type: CellPopoverType): void {
-    const sheetId = this.viewStore.displayedSheetId;
+    const sheetId = this.viewPlugin.displayedSheetId();
     if (!cellPopoverRegistry.contains(type)) {
       return;
     }
@@ -55,12 +56,12 @@ export class CellPopoverStore extends SpreadsheetStore {
   }
 
   get cellPopover(): ClosedCellPopover | PositionedCellPopoverComponent {
-    const sheetId = this.viewStore.displayedSheetId;
+    const sheetId = this.viewPlugin.displayedSheetId();
 
     if (
       this.persistentPopover &&
       this.persistentPopover.sheetId === sheetId &&
-      this.viewStore.viewports.isVisibleInViewport(this.persistentPopover)
+      this.viewPlugin.viewports().isVisibleInViewport(this.persistentPopover)
     ) {
       const position = this.getters.getMainCellPosition(this.persistentPopover);
       const popover = cellPopoverRegistry
@@ -77,7 +78,7 @@ export class CellPopoverStore extends SpreadsheetStore {
     if (
       col === undefined ||
       row === undefined ||
-      !this.viewStore.viewports.isVisibleInViewport({ sheetId, col, row })
+      !this.viewPlugin.viewports().isVisibleInViewport({ sheetId, col, row })
     ) {
       return { isOpen: false };
     }
@@ -95,11 +96,11 @@ export class CellPopoverStore extends SpreadsheetStore {
   }
 
   private computePopoverAnchorRect({ col, row }: Position): Rect {
-    const sheetId = this.viewStore.displayedSheetId;
+    const sheetId = this.viewPlugin.displayedSheetId();
     const merge = this.getters.getMerge({ sheetId, col, row });
     if (merge) {
-      return this.viewStore.viewports.getVisibleRect(sheetId, merge);
+      return this.viewPlugin.viewports().getVisibleRect(sheetId, merge);
     }
-    return this.viewStore.viewports.getVisibleRect(sheetId, positionToZone({ col, row }));
+    return this.viewPlugin.viewports().getVisibleRect(sheetId, positionToZone({ col, row }));
   }
 }

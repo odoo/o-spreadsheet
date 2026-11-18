@@ -465,7 +465,7 @@ export class ViewportCollection {
     });
   }
 
-  ensureMainViewportExist(sheetId: UID) {
+  private ensureMainViewportExist(sheetId: UID) {
     if (!this.viewports[sheetId]) {
       this.resetViewports(sheetId);
     }
@@ -491,7 +491,7 @@ export class ViewportCollection {
     return { paneWidth, paneHeight };
   }
 
-  getPositionedViewports(sheetId: UID): PositionedViewport[] {
+  private getPositionedViewports(sheetId: UID): PositionedViewport[] {
     this.ensureMainViewportExist(sheetId);
 
     const viewports = this.viewports[sheetId]!;
@@ -792,7 +792,7 @@ export class ViewportCollection {
    * visible cell of the main viewport.
    * It returns -1 if no row is found.
    */
-  getRowIndexTopOfMainViewport(sheetId: UID, y: Pixel): HeaderIndex {
+  private getRowIndexTopOfMainViewport(sheetId: UID, y: Pixel): HeaderIndex {
     if (y >= 0) {
       return -1;
     }

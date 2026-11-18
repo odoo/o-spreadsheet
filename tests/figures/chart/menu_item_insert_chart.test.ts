@@ -8,9 +8,11 @@ import {
 } from "../../../src/constants";
 import { toXC } from "../../../src/helpers/coordinates";
 import { zoneToXc } from "../../../src/helpers/zones";
-import { ViewportsStore } from "../../../src/stores/viewports_store";
+import {
+  ViewportsPlugin,
+  ViewportsPluginInstance,
+} from "../../../src/owl_plugins/viewports_owl_plugin";
 import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
-import { Store } from "../../../src/types/store_engine";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   addColumns,
@@ -88,14 +90,14 @@ describe("Insert chart menu item", () => {
   let model: Model;
   let env: SpreadsheetActionEnv;
   let openSidePanelSpy: jest.SpyInstance;
-  let viewStore: Store<ViewportsStore>;
+  let viewPlugin: ViewportsPluginInstance;
 
   async function insertChart() {
     await doAction(["insert", "insert_chart"], env);
   }
 
   async function mountTestSpreadsheet() {
-    ({ model, env, viewStore } = await mountSpreadsheet({ model: new Model(data) }));
+    ({ model, env, viewPlugin } = await mountSpreadsheet({ model: new Model(data) }));
     dispatchSpy = spyModelDispatch(model);
   }
 
@@ -104,7 +106,7 @@ describe("Insert chart menu item", () => {
     const sidePanelStore = env.getStore(SidePanelStore);
     openSidePanelSpy = jest.spyOn(sidePanelStore, "open");
     model = env.model();
-    viewStore = env.getStore(ViewportsStore);
+    viewPlugin = env.getPlugin(ViewportsPlugin);
 
     mockChart();
     dispatchSpy = spyModelDispatch(model);
@@ -133,8 +135,8 @@ describe("Insert chart menu item", () => {
   test("Chart is inserted at correct position", async () => {
     setSelection(model, ["B2"]);
     await insertChart();
-    const { width, height } = viewStore.sheetViewDimension;
-    const figureUI = viewStore.visibleFigures[0];
+    const { width, height } = viewPlugin.sheetViewDimension;
+    const figureUI = viewPlugin.visibleFigures[0];
 
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);
@@ -171,7 +173,7 @@ describe("Insert chart menu item", () => {
     freezeRows(model, 5, sheetId);
     setSelection(model, ["B2"]);
     await insertChart();
-    const { width, height } = viewStore.sheetViewDimension;
+    const { width, height } = viewPlugin.sheetViewDimension;
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);
     payload.offset = {
@@ -181,7 +183,7 @@ describe("Insert chart menu item", () => {
     payload.col = 2;
     payload.row = 14;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-    const figureUI = viewStore.visibleFigures[0];
+    const figureUI = viewPlugin.visibleFigures[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
       x: (width - figureUI.width) / 2,
       y: (height - figureUI.height) / 2,
@@ -193,7 +195,7 @@ describe("Insert chart menu item", () => {
     freezeColumns(model, 4, sheetId);
     setSelection(model, ["B2"]);
     await insertChart();
-    const { width, height } = viewStore.sheetViewDimension;
+    const { width, height } = viewPlugin.sheetViewDimension;
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);
     payload.offset = {
@@ -203,7 +205,7 @@ describe("Insert chart menu item", () => {
     payload.col = 2;
     payload.row = 14; // Position at the center of the viewport
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-    const figureUI = viewStore.visibleFigures[0];
+    const figureUI = viewPlugin.visibleFigures[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
       x: (width - figureUI.width) / 2,
       y: (height - figureUI.height) / 2,
@@ -216,7 +218,7 @@ describe("Insert chart menu item", () => {
     freezeRows(model, 5, sheetId);
     setSelection(model, ["B2"]);
     await insertChart();
-    const { width, height } = viewStore.sheetViewDimension;
+    const { width, height } = viewPlugin.sheetViewDimension;
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);
     payload.offset = {
@@ -226,7 +228,7 @@ describe("Insert chart menu item", () => {
     payload.col = 2;
     payload.row = 14; // Position at the center of the viewport
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-    const figureUI = viewStore.visibleFigures[0];
+    const figureUI = viewPlugin.visibleFigures[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
       x: (width - figureUI.width) / 2,
       y: (height - figureUI.height) / 2,
@@ -246,7 +248,7 @@ describe("Insert chart menu item", () => {
     payload.col = 0;
     payload.row = 0;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-    const figureUI = viewStore.visibleFigures[0];
+    const figureUI = viewPlugin.visibleFigures[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
       x: 0,
       y: 0,
@@ -260,11 +262,11 @@ describe("Insert chart menu item", () => {
       height: DEFAULT_FIGURE_HEIGHT * 1.5,
       width: DEFAULT_FIGURE_WIDTH * 1.5,
     });
-    const { bottom, right } = viewStore.activeMainViewport;
+    const { bottom, right } = viewPlugin.activeMainViewport;
     freezeColumns(model, Math.floor(right / 2));
     freezeRows(model, Math.floor(bottom / 2));
     await insertChart();
-    const { width, height } = viewStore.sheetViewDimension;
+    const { width, height } = viewPlugin.sheetViewDimension;
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);
     payload.offset = {
@@ -274,7 +276,7 @@ describe("Insert chart menu item", () => {
     payload.col = 1;
     payload.row = 3; // Position inside frozen pane
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-    const figureUI = viewStore.visibleFigures[0];
+    const figureUI = viewPlugin.visibleFigures[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
       x: (width - figureUI.width) / 2,
       y: (height - figureUI.height) / 2,
@@ -283,7 +285,7 @@ describe("Insert chart menu item", () => {
 
   test("Chart is inserted at correct position on a scrolled viewport", async () => {
     setSelection(model, ["B2:B3"]);
-    const { width, height } = viewStore.sheetViewDimension;
+    const { width, height } = viewPlugin.sheetViewDimension;
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
     setViewportOffset(env, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
@@ -297,7 +299,7 @@ describe("Insert chart menu item", () => {
     payload.col = 4;
     payload.row = 18; // Position at the center of the viewport
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-    const figureUI = viewStore.visibleFigures[0];
+    const figureUI = viewPlugin.visibleFigures[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
       x: 2 * DEFAULT_CELL_WIDTH + (width - figureUI.width) / 2,
       y: 4 * DEFAULT_CELL_HEIGHT + (height - figureUI.height) / 2,
@@ -308,7 +310,7 @@ describe("Insert chart menu item", () => {
     const sheetId = model.getters.getActiveSheetId();
     freezeRows(model, 5, sheetId);
     setSelection(model, ["B2:B3"]);
-    const { width, height } = viewStore.sheetViewDimension;
+    const { width, height } = viewPlugin.sheetViewDimension;
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
     setViewportOffset(env, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
@@ -322,7 +324,7 @@ describe("Insert chart menu item", () => {
     payload.col = 4;
     payload.row = 18; // Position at the center of the viewport
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-    const figureUI = viewStore.visibleFigures[0];
+    const figureUI = viewPlugin.visibleFigures[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
       x: 2 * DEFAULT_CELL_WIDTH + (width - figureUI.width) / 2,
       y: 4 * DEFAULT_CELL_HEIGHT + (height - figureUI.height) / 2,
@@ -333,7 +335,7 @@ describe("Insert chart menu item", () => {
     const sheetId = model.getters.getActiveSheetId();
     freezeColumns(model, 4, sheetId);
     setSelection(model, ["B2:B3"]);
-    const { width, height } = viewStore.sheetViewDimension;
+    const { width, height } = viewPlugin.sheetViewDimension;
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
     setViewportOffset(env, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
@@ -347,7 +349,7 @@ describe("Insert chart menu item", () => {
     payload.col = 2;
     payload.row = 18; // Position at the center of the viewport
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-    const figureUI = viewStore.visibleFigures[0];
+    const figureUI = viewPlugin.visibleFigures[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
       x: (width - figureUI.width) / 2, // figure is inside left frozen pane
       y: 4 * DEFAULT_CELL_HEIGHT + (height - figureUI.height) / 2,
@@ -359,7 +361,7 @@ describe("Insert chart menu item", () => {
     freezeColumns(model, 4, sheetId);
     freezeRows(model, 5, sheetId);
     setSelection(model, ["B2:B3"]);
-    const { width, height } = viewStore.sheetViewDimension;
+    const { width, height } = viewPlugin.sheetViewDimension;
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
     setViewportOffset(env, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
@@ -373,7 +375,7 @@ describe("Insert chart menu item", () => {
     payload.col = 2;
     payload.row = 18; // Position at the center of the viewport
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-    const figureUI = viewStore.visibleFigures[0];
+    const figureUI = viewPlugin.visibleFigures[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
       x: (width - figureUI.width) / 2, // figure is inside left frozen pane
       y: 4 * DEFAULT_CELL_HEIGHT + (height - figureUI.height) / 2,

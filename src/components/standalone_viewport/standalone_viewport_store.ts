@@ -3,9 +3,9 @@ import { DEFAULT_CELL_WIDTH } from "../../constants";
 import { deepEquals, range, sumArray } from "../../helpers/misc";
 import { isInside, isZoneValid } from "../../helpers/zones";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { Command } from "../../types/commands";
 import { CellPosition, HeaderDimensions, HeaderIndex, UID } from "../../types/misc";
 import { Range } from "../../types/range";
@@ -22,7 +22,7 @@ export class StandaloneViewportStore extends SpreadsheetStore {
   private range: Range;
   private customColWeights: number[] | undefined = undefined;
 
-  private viewStore = this.get(ViewportsStore);
+  private viewPlugin = usePlugin(ViewportsPlugin);
   private devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
 
   constructor(get: Get, range: Range, customColWeights?: number[]) {
@@ -30,8 +30,8 @@ export class StandaloneViewportStore extends SpreadsheetStore {
     this.range = range;
     this.customColWeights = customColWeights;
 
-    this.viewStore.setDisplayedSheetId(this.range.sheetId);
-    this.viewStore.setViewportArgs({
+    this.viewPlugin.setDisplayedSheetId(this.range.sheetId);
+    this.viewPlugin.setViewportArgs({
       getHeaderDimensions: this.getHeaderDimensions.bind(this),
       zoneToDisplay: this.range.zone,
       getFooterSize: () => 0,
@@ -50,7 +50,7 @@ export class StandaloneViewportStore extends SpreadsheetStore {
       this.containerWidth = width;
       this.containerHeight = height;
       this.cachedColDimensions = undefined;
-      this.viewStore.resizeSheetView({ width, height });
+      this.viewPlugin.resizeSheetView({ width, height });
       return;
     }
     return "noStateChange";
@@ -62,8 +62,8 @@ export class StandaloneViewportStore extends SpreadsheetStore {
     }
     this.range = range;
     this.cachedColDimensions = undefined;
-    this.viewStore.setDisplayedSheetId(this.range.sheetId);
-    this.viewStore.setViewportArgs({ zoneToDisplay: this.range.zone });
+    this.viewPlugin.setDisplayedSheetId(this.range.sheetId);
+    this.viewPlugin.setViewportArgs({ zoneToDisplay: this.range.zone });
     return;
   }
 
@@ -123,7 +123,7 @@ export class StandaloneViewportStore extends SpreadsheetStore {
   private changeColumnWeights(newWeights: number[] | undefined) {
     this.customColWeights = newWeights;
     this.cachedColDimensions = undefined;
-    this.viewStore.rebuildViewports();
+    this.viewPlugin.rebuildViewports();
   }
 
   get renderingContext(): Omit<GridRenderingContext, "ctx" | "thinLineWidth"> {
@@ -131,7 +131,7 @@ export class StandaloneViewportStore extends SpreadsheetStore {
 
     const renderingCtx: Omit<GridRenderingContext, "ctx" | "thinLineWidth"> = {
       sheetId,
-      viewports: this.viewStore.viewports,
+      viewports: this.viewPlugin.viewports(),
       hideGridLines: this.getters.isDashboard(),
       hideFrozenPaneBorder: true,
       dpr: this.devicePixelRatioPlugin.devicePixelRatio() || 1,

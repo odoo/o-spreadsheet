@@ -5,6 +5,7 @@ import { useSpreadsheetProviders } from "../../src/components/spreadsheet/spread
 import { providePluginsIfNotPresent } from "../../src/helpers/owl3_helpers";
 import { Model } from "../../src/model";
 import { App, Component } from "../../src/owl3_compatibility_layer";
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { useStoreProvider } from "../../src/store_engine/store_hooks";
 import { _t } from "../../src/translation";
@@ -95,4 +96,14 @@ export function makeOwlPluginManager(
   container = scopeDependencyContainer(scope, container);
 
   return { getPlugin, scope, container, model: configPlugins.model };
+}
+
+export function makeViewportsPlugin(model: Model = new Model()) {
+  const { container, getPlugin } = makeOwlPluginManager([], { model });
+  return {
+    viewPlugin: getPlugin(ViewportsPlugin),
+    container,
+    model,
+    getPlugin,
+  };
 }

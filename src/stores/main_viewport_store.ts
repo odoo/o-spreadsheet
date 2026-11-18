@@ -1,16 +1,17 @@
+import { usePlugin } from "@odoo/owl";
 import { findCellInNewZone, isEqual } from "../helpers/zones";
+import { ViewportsPlugin } from "../owl_plugins/viewports_owl_plugin";
 import { Command } from "../types/commands";
 import { SelectionEvent } from "../types/event_stream/selection_events";
 import { UID } from "../types/misc";
 import { Get } from "../types/store_engine";
 import { SpreadsheetStore } from "./spreadsheet_store";
-import { ViewportsStore } from "./viewports_store";
 
 /**
  * The goal of this store is to make its attached viewport store follow the active sheet
  */
 export class MainViewportStore extends SpreadsheetStore {
-  private viewStore = this.get(ViewportsStore);
+  private viewPlugin = usePlugin(ViewportsPlugin);
 
   private sheetIdAtFinalize: UID | undefined = undefined;
 
@@ -35,8 +36,9 @@ export class MainViewportStore extends SpreadsheetStore {
         isUpdateAnchorEvent && sameZone ? event.anchor.cell : findCellInNewZone(oldZone, newZone);
       if (isUpdateAnchorEvent && !sameZone) {
         // altering a zone should not move the viewport in a dimension that wasn't changed
-        const { top, bottom, left, right } =
-          this.viewStore.viewports.getMainInternalViewport(eventSheetId);
+        const { top, bottom, left, right } = this.viewPlugin
+          .viewports()
+          .getMainInternalViewport(eventSheetId);
         if (oldZone.left === newZone.left && oldZone.right === newZone.right) {
           col = left > col || col > right ? left : col;
         }
@@ -46,7 +48,7 @@ export class MainViewportStore extends SpreadsheetStore {
       }
       col = Math.min(col, this.getters.getNumberCols(eventSheetId) - 1);
       row = Math.min(row, this.getters.getNumberRows(eventSheetId) - 1);
-      this.viewStore.scrollToCell(eventSheetId, col, row);
+      this.viewPlugin.scrollToCell(eventSheetId, col, row);
     }
   }
 
@@ -55,19 +57,19 @@ export class MainViewportStore extends SpreadsheetStore {
       case "UNDO":
       case "REDO":
       case "DELETE_SHEET":
-        if (!this.getters.tryGetSheet(this.viewStore.displayedSheetId)) {
+        if (!this.getters.tryGetSheet(this.viewPlugin.displayedSheetId())) {
           this.sheetIdAtFinalize = this.model.getters.getActiveSheetId();
         }
         break;
       case "ACTIVATE_SHEET":
-        this.viewStore.setDisplayedSheetId(cmd.sheetIdTo);
+        this.viewPlugin.setDisplayedSheetId(cmd.sheetIdTo);
         break;
     }
   }
 
   protected finalize(): void {
     if (this.sheetIdAtFinalize) {
-      this.viewStore.setDisplayedSheetId(this.sheetIdAtFinalize);
+      this.viewPlugin.setDisplayedSheetId(this.sheetIdAtFinalize);
       this.sheetIdAtFinalize = undefined;
     }
   }

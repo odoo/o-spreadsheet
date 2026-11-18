@@ -11,9 +11,9 @@ import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
 import { GridIcon, iconsOnCellRegistry } from "../../src/registries/icons_on_cell_registry";
-import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   createTableWithFilter,
@@ -84,17 +84,17 @@ describe("Grid component in dashboard mode", () => {
     const leftB = DEFAULT_CELL_WIDTH * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN;
     const leftC = DEFAULT_CELL_WIDTH * 3 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN;
 
-    const viewStore = env.getStore(ViewportsStore);
+    const viewPlugin = env.getPlugin(ViewportsPlugin);
     const iconB = getCellIcons(model, "B2")[0];
     const rectB = model.getters.getCellIconRect(
       iconB,
-      viewStore.viewports.getRect(model.getters.getActiveSheetId(), toZone("B2"))
+      viewPlugin.viewports().getRect(model.getters.getActiveSheetId(), toZone("B2"))
     );
     expect(rectB).toMatchObject({ y, x: leftB });
     const iconC = getCellIcons(model, "C2")[0];
     const rectC = model.getters.getCellIconRect(
       iconC,
-      viewStore.viewports.getRect(model.getters.getActiveSheetId(), toZone("C2"))
+      viewPlugin.viewports().getRect(model.getters.getActiveSheetId(), toZone("C2"))
     );
     expect(rectC).toMatchObject({ y, x: leftC });
   });

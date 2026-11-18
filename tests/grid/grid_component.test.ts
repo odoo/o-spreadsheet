@@ -32,10 +32,13 @@ import { ImageProviderPlugin } from "../../src/owl_plugins/image_provider_owl_pl
 import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
+import {
+  ViewportsPlugin,
+  ViewportsPluginInstance,
+} from "../../src/owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../src/owl_plugins/zoom_plugin";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
-import { ViewportsStore } from "../../src/stores/viewports_store";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
@@ -139,14 +142,14 @@ let env: SpreadsheetActionEnv;
 let parent: Spreadsheet;
 let composerStore: Store<CellComposerStore>;
 let composerFocusStore: Store<ComposerFocusStore>;
-let viewStore: Store<ViewportsStore>;
+let viewPlugin: ViewportsPluginInstance;
 
 useJestFakeTimers();
 mockChart();
 
 describe("Grid component", () => {
   beforeEach(async () => {
-    ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
+    ({ parent, model, fixture, env, viewPlugin } = await mountSpreadsheet());
 
     composerStore = env.getStore(CellComposerStore);
     composerFocusStore = env.getStore(ComposerFocusStore);
@@ -188,8 +191,9 @@ describe("Grid component", () => {
     await nextTick();
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -214,8 +218,9 @@ describe("Grid component", () => {
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -229,8 +234,9 @@ describe("Grid component", () => {
     await nextTick();
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -255,8 +261,9 @@ describe("Grid component", () => {
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -330,7 +337,7 @@ describe("Grid component", () => {
 
   test("Event is stopped if not at the top when scrolling downwards", async () => {
     const grid = fixture.querySelector(".o-grid-overlay")!;
-    const { maxOffsetY } = viewStore.maximumSheetOffset;
+    const { maxOffsetY } = viewPlugin.maximumSheetOffset;
     expect(getHorizontalScroll()).toBe(0);
     expect(getVerticalScroll()).toBe(0);
 
@@ -414,23 +421,23 @@ describe("Grid component", () => {
     const grid = fixture.querySelector(".o-grid-overlay")!;
     triggerTouchEvent(grid, "touchstart", { clientX: 0, clientY: 150 });
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150 });
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(0);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBe(0);
     jest.advanceTimersByTime(timeDelta);
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 120 });
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(30);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBe(30);
     triggerTouchEvent(grid, "touchend", { clientX: 0, clientY: 120 });
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(30);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBe(30);
     jest.advanceTimersByTime(timeDelta);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBeGreaterThan(30);
-    let previousScrollY = viewStore.activeSheetScrollInfo.scrollY;
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBeGreaterThan(30);
+    let previousScrollY = viewPlugin.activeSheetScrollInfo.scrollY;
     jest.advanceTimersByTime(timeDelta);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBeGreaterThan(previousScrollY);
-    previousScrollY = viewStore.activeSheetScrollInfo.scrollY;
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBeGreaterThan(previousScrollY);
+    previousScrollY = viewPlugin.activeSheetScrollInfo.scrollY;
     jest.advanceTimersByTime(timeDelta);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBeGreaterThan(previousScrollY);
-    previousScrollY = viewStore.activeSheetScrollInfo.scrollY;
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBeGreaterThan(previousScrollY);
+    previousScrollY = viewPlugin.activeSheetScrollInfo.scrollY;
     jest.advanceTimersByTime(timeDelta);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBeGreaterThan(previousScrollY);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBeGreaterThan(previousScrollY);
   });
 
   test("scroll inertia is reset after some time", async () => {
@@ -438,15 +445,15 @@ describe("Grid component", () => {
     const grid = fixture.querySelector(".o-grid-overlay")!;
     triggerTouchEvent(grid, "touchstart", { clientX: 0, clientY: 150 });
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150 });
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(0);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBe(0);
     jest.advanceTimersByTime(timeDelta);
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 120 });
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(30);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBe(30);
     jest.advanceTimersByTime(resetTimeoutDuration + 1);
     triggerTouchEvent(grid, "touchend", { clientX: 0, clientY: 120 });
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(30);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBe(30);
     jest.runOnlyPendingTimers();
-    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(30);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toBe(30);
   });
 
   test("Double clicking on an icon does not open the composer", async () => {
@@ -1128,16 +1135,18 @@ describe("Grid component", () => {
       const rectB = model.getters.getCellIconRect(
         iconB,
         env
-          .getStore(ViewportsStore)
-          .viewports.getRect(model.getters.getActiveSheetId(), toZone("B2"))
+          .getPlugin(ViewportsPlugin)
+          .viewports()
+          .getRect(model.getters.getActiveSheetId(), toZone("B2"))
       );
       expect(rectB).toMatchObject({ y, x: leftB });
       const iconC = getCellIcons(model, "C2")[0];
       const rectC = model.getters.getCellIconRect(
         iconC,
         env
-          .getStore(ViewportsStore)
-          .viewports.getRect(model.getters.getActiveSheetId(), toZone("C2"))
+          .getPlugin(ViewportsPlugin)
+          .viewports()
+          .getRect(model.getters.getActiveSheetId(), toZone("C2"))
       );
       expect(rectC).toMatchObject({ y, x: leftC });
     });
@@ -1203,7 +1212,7 @@ describe("Grid component", () => {
       expect(fixture.querySelector(".o-error-tooltip")).not.toBeNull();
       await scrollGrid({ deltaY: 100 });
       const sheetId = model.getters.getActiveSheetId();
-      expect(viewStore.viewports.isVisibleInViewport({ sheetId, col: 0, row: 9 })).toBe(true);
+      expect(viewPlugin.viewports().isVisibleInViewport({ sheetId, col: 0, row: 9 })).toBe(true);
       expect(fixture.querySelector(".o-error-tooltip")).toBeNull();
     });
 
@@ -1214,7 +1223,7 @@ describe("Grid component", () => {
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
       await scrollGrid({ deltaY: DEFAULT_CELL_HEIGHT });
       const sheetId = model.getters.getActiveSheetId();
-      expect(viewStore.viewports.isVisibleInViewport({ sheetId, col: 0, row: 0 })).toBe(false);
+      expect(viewPlugin.viewports().isVisibleInViewport({ sheetId, col: 0, row: 0 })).toBe(false);
       expect(fixture.querySelector(".o-link-editor")).toBeNull();
     });
 
@@ -1225,7 +1234,7 @@ describe("Grid component", () => {
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
       await scrollGrid({ deltaY: DEFAULT_CELL_HEIGHT - 5 });
       const sheetId = model.getters.getActiveSheetId();
-      expect(viewStore.viewports.isVisibleInViewport({ sheetId, col: 0, row: 0 })).toBe(true);
+      expect(viewPlugin.viewports().isVisibleInViewport({ sheetId, col: 0, row: 0 })).toBe(true);
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
     });
   });
@@ -1536,7 +1545,9 @@ describe("Grid component", () => {
     await keyDown({ key: "Tab" });
     expect(getSelectionAnchorCellXc(model)).toBe("C1");
     setViewportOffset(env, 0, DEFAULT_CELL_HEIGHT);
-    expect(viewStore.viewports.isVisibleInViewport(model.getters.getActivePosition())).toBe(false);
+    expect(viewPlugin.viewports().isVisibleInViewport(model.getters.getActivePosition())).toBe(
+      false
+    );
 
     triggerMouseEvent(".o-grid div.o-composer", "contextmenu");
     await nextTick();
@@ -1556,7 +1567,7 @@ describe("Grid component", () => {
     setViewportOffset(env, 5 * DEFAULT_CELL_WIDTH, 0);
     const sheetId = model.getters.getActiveSheetId();
     expect(
-      viewStore.viewports.isZoneVisibleInViewport(sheetId, model.getters.getSelectedZone())
+      viewPlugin.viewports().isZoneVisibleInViewport(sheetId, model.getters.getSelectedZone())
     ).toBe(false);
 
     triggerMouseEvent(".o-grid div.o-composer", "contextmenu");
@@ -1624,7 +1635,7 @@ describe("Multi User selection", () => {
     transportService = new MockTransportService();
 
     model = new Model({}, { transportService });
-    ({ parent, fixture, env, viewStore } = await mountSpreadsheet({ model }));
+    ({ parent, fixture, env, viewPlugin } = await mountSpreadsheet({ model }));
   });
 
   test("Render collaborative user when hovering the position", async () => {
@@ -1756,19 +1767,19 @@ describe("Multi User selection", () => {
 
 describe("Events on Grid update viewport correctly", () => {
   beforeEach(async () => {
-    ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
+    ({ parent, model, fixture, env, viewPlugin } = await mountSpreadsheet());
   });
 
   test("Vertical scroll", async () => {
     triggerWheelEvent(".o-grid", { deltaY: 1200 });
     await nextTick();
-    expect(viewStore.activeMainViewport).toMatchObject({
+    expect(viewPlugin.activeMainViewport).toMatchObject({
       top: 52,
       bottom: 94,
       left: 0,
       right: 10,
     });
-    expect(viewStore.activeSheetScrollInfo).toMatchObject({
+    expect(viewPlugin.activeSheetScrollInfo).toMatchObject({
       scrollX: 0,
       scrollY: 1200,
     });
@@ -1776,13 +1787,13 @@ describe("Events on Grid update viewport correctly", () => {
   test("Horizontal scroll", async () => {
     triggerWheelEvent(".o-grid", { deltaY: 200, shiftKey: true });
     await nextTick();
-    expect(viewStore.activeMainViewport).toMatchObject({
+    expect(viewPlugin.activeMainViewport).toMatchObject({
       top: 0,
       bottom: 42,
       left: 2,
       right: 12,
     });
-    expect(viewStore.activeSheetScrollInfo).toMatchObject({
+    expect(viewPlugin.activeSheetScrollInfo).toMatchObject({
       scrollX: 200,
       scrollY: 0,
     });
@@ -1790,21 +1801,21 @@ describe("Events on Grid update viewport correctly", () => {
   test("Move selection with keyboard", async () => {
     await clickCell(env, "I1");
     expect(getSelectionAnchorCellXc(model)).toBe("I1");
-    const viewport = viewStore.activeMainViewport;
+    const viewport = viewPlugin.activeMainViewport;
     await keyDown({ key: "ArrowRight" });
     expect(getSelectionAnchorCellXc(model)).toBe("J1");
-    expect(viewStore.activeMainViewport).toMatchObject(viewport);
+    expect(viewPlugin.activeMainViewport).toMatchObject(viewport);
     await keyDown({ key: "ArrowRight" });
     expect(getSelectionAnchorCellXc(model)).toBe("K1");
 
-    expect(viewStore.activeMainViewport).toMatchObject({
+    expect(viewPlugin.activeMainViewport).toMatchObject({
       ...viewport,
       // the viewport snapped to display K1 entirely
       left: 0,
       right: 10,
     });
-    const sheetDim = viewStore.sheetViewDimension;
-    expect(viewStore.activeSheetScrollInfo).toMatchObject({
+    const sheetDim = viewPlugin.sheetViewDimension;
+    expect(viewPlugin.activeSheetScrollInfo).toMatchObject({
       scrollX: 11 * DEFAULT_CELL_WIDTH - sheetDim.width,
     });
   });
@@ -1813,12 +1824,12 @@ describe("Events on Grid update viewport correctly", () => {
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_WIDTH, shiftKey: true });
 
     await clickCell(env, "C1");
-    expect(viewStore.activeMainViewport.left).toEqual(7);
-    expect(viewStore.activeSheetScrollInfo.scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
+    expect(viewPlugin.activeMainViewport.left).toEqual(7);
+    expect(viewPlugin.activeSheetScrollInfo.scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
     await keyDown({ key: "ArrowRight", shiftKey: false });
     expect(model.getters.getSelectedZone()).toEqual(toZone("D1"));
-    expect(viewStore.activeMainViewport.left).toEqual(3);
-    expect(viewStore.activeSheetScrollInfo.scrollX).toEqual(0);
+    expect(viewPlugin.activeMainViewport.left).toEqual(3);
+    expect(viewPlugin.activeSheetScrollInfo.scrollX).toEqual(0);
   });
 
   test("Move selection horizontally (right to left) through pane division does not reset the scroll", async () => {
@@ -1827,65 +1838,65 @@ describe("Events on Grid update viewport correctly", () => {
     await clickCell(env, "H1");
     expect(model.getters.getSelectedZone()).toEqual(toZone("H1"));
 
-    expect(viewStore.activeMainViewport.left).toEqual(7);
-    expect(viewStore.activeSheetScrollInfo.scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
+    expect(viewPlugin.activeMainViewport.left).toEqual(7);
+    expect(viewPlugin.activeSheetScrollInfo.scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
     await keyDown({ key: "ArrowLeft", shiftKey: false });
     expect(model.getters.getSelectedZone()).toEqual(toZone("G1"));
-    expect(viewStore.activeMainViewport.left).toEqual(6);
-    expect(viewStore.activeSheetScrollInfo.scrollX).toEqual(3 * DEFAULT_CELL_WIDTH);
+    expect(viewPlugin.activeMainViewport.left).toEqual(6);
+    expect(viewPlugin.activeSheetScrollInfo.scrollX).toEqual(3 * DEFAULT_CELL_WIDTH);
     triggerWheelEvent(document.activeElement!, { deltaY: -4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(env, "D1");
     await keyDown({ key: "ArrowLeft", shiftKey: false });
     expect(model.getters.getSelectedZone()).toEqual(toZone("C1"));
-    expect(viewStore.activeMainViewport.left).toEqual(3);
-    expect(viewStore.activeSheetScrollInfo.scrollX).toEqual(0);
+    expect(viewPlugin.activeMainViewport.left).toEqual(3);
+    expect(viewPlugin.activeSheetScrollInfo.scrollX).toEqual(0);
   });
 
   test("Move selection vertically (top to bottom) through pane division resets the scroll", async () => {
     freezeRows(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await clickCell(env, "A3");
-    expect(viewStore.activeMainViewport.top).toEqual(7);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
+    expect(viewPlugin.activeMainViewport.top).toEqual(7);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
     await keyDown({ key: "ArrowDown", shiftKey: false });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A4"));
-    expect(viewStore.activeMainViewport.top).toEqual(3);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toEqual(0);
+    expect(viewPlugin.activeMainViewport.top).toEqual(3);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toEqual(0);
   });
 
   test("Move selection vertically (bottom to top) through pane division does not reset the scroll", async () => {
     freezeRows(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await clickCell(env, "A8");
-    expect(viewStore.activeMainViewport.top).toEqual(7);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
+    expect(viewPlugin.activeMainViewport.top).toEqual(7);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
     await keyDown({ key: "ArrowUp", shiftKey: false });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A7"));
-    expect(viewStore.activeMainViewport.top).toEqual(6);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toEqual(3 * DEFAULT_CELL_HEIGHT);
+    expect(viewPlugin.activeMainViewport.top).toEqual(6);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toEqual(3 * DEFAULT_CELL_HEIGHT);
     triggerWheelEvent(document.activeElement!, { deltaY: -4 * DEFAULT_CELL_HEIGHT });
     await clickCell(env, "A4");
     await keyDown({ key: "ArrowUp", shiftKey: false });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A3"));
-    expect(viewStore.activeMainViewport.top).toEqual(3);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toEqual(0);
+    expect(viewPlugin.activeMainViewport.top).toEqual(3);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toEqual(0);
   });
 
   test("Alter selection with keyboard", async () => {
     await clickCell(env, "I1");
     expect(getSelectionAnchorCellXc(model)).toBe("I1");
-    const viewport = viewStore.activeMainViewport;
+    const viewport = viewPlugin.activeMainViewport;
     await keyDown({ key: "ArrowRight", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("I1:J1"));
-    expect(viewStore.activeMainViewport).toMatchObject(viewport);
+    expect(viewPlugin.activeMainViewport).toMatchObject(viewport);
     await keyDown({ key: "ArrowRight", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("I1:K1"));
-    expect(viewStore.activeMainViewport).toMatchObject({
+    expect(viewPlugin.activeMainViewport).toMatchObject({
       ...viewport,
       left: 0,
       right: 10,
     });
-    expect(viewStore.activeSheetScrollInfo).toMatchObject({
+    expect(viewPlugin.activeSheetScrollInfo).toMatchObject({
       scrollX: 71,
     });
   });
@@ -1894,77 +1905,77 @@ describe("Events on Grid update viewport correctly", () => {
     freezeColumns(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(env, "C1");
-    expect(viewStore.activeMainViewport.left).toEqual(7);
-    expect(viewStore.activeSheetScrollInfo.scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
+    expect(viewPlugin.activeMainViewport.left).toEqual(7);
+    expect(viewPlugin.activeSheetScrollInfo.scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
     await keyDown({ key: "ArrowRight", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D1"));
-    expect(viewStore.activeMainViewport.left).toEqual(3);
-    expect(viewStore.activeSheetScrollInfo.scrollX).toEqual(0);
+    expect(viewPlugin.activeMainViewport.left).toEqual(3);
+    expect(viewPlugin.activeSheetScrollInfo.scrollX).toEqual(0);
   });
 
   test("Alter selection horizontally (right to left) through pane division does not reset the scroll", async () => {
     freezeColumns(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(env, "H1");
-    expect(viewStore.activeMainViewport.left).toEqual(7);
-    expect(viewStore.activeSheetScrollInfo.scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
+    expect(viewPlugin.activeMainViewport.left).toEqual(7);
+    expect(viewPlugin.activeSheetScrollInfo.scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
     await keyDown({ key: "ArrowLeft", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("G1:H1"));
-    expect(viewStore.activeMainViewport.left).toEqual(6);
-    expect(viewStore.activeSheetScrollInfo.scrollX).toEqual(3 * DEFAULT_CELL_WIDTH);
+    expect(viewPlugin.activeMainViewport.left).toEqual(6);
+    expect(viewPlugin.activeSheetScrollInfo.scrollX).toEqual(3 * DEFAULT_CELL_WIDTH);
     triggerWheelEvent(document.activeElement!, { deltaY: -4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(env, "D1");
     await keyDown({ key: "ArrowLeft", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D1"));
-    expect(viewStore.activeMainViewport.left).toEqual(3);
-    expect(viewStore.activeSheetScrollInfo.scrollX).toEqual(0);
+    expect(viewPlugin.activeMainViewport.left).toEqual(3);
+    expect(viewPlugin.activeSheetScrollInfo.scrollX).toEqual(0);
   });
 
   test("Alter selection vertically (top to bottom) through pane division resets the scroll", async () => {
     freezeRows(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await clickCell(env, "A3");
-    expect(viewStore.activeMainViewport.top).toEqual(7);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
+    expect(viewPlugin.activeMainViewport.top).toEqual(7);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
     await keyDown({ key: "ArrowDown", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A3:A4"));
-    expect(viewStore.activeMainViewport.top).toEqual(3);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toEqual(0);
+    expect(viewPlugin.activeMainViewport.top).toEqual(3);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toEqual(0);
   });
 
   test("Alter selection vertically (bottom to to) through pane division does not reset the scroll", async () => {
     freezeRows(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await clickCell(env, "A8");
-    expect(viewStore.activeMainViewport.top).toEqual(7);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
+    expect(viewPlugin.activeMainViewport.top).toEqual(7);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
     await keyDown({ key: "ArrowUp", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A7:A8"));
-    expect(viewStore.activeMainViewport.top).toEqual(6);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toEqual(3 * DEFAULT_CELL_HEIGHT);
+    expect(viewPlugin.activeMainViewport.top).toEqual(6);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toEqual(3 * DEFAULT_CELL_HEIGHT);
     triggerWheelEvent(document.activeElement!, { deltaY: -4 * DEFAULT_CELL_HEIGHT });
     await clickCell(env, "A4");
     await keyDown({ key: "ArrowUp", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A3:A4"));
-    expect(viewStore.activeMainViewport.top).toEqual(3);
-    expect(viewStore.activeSheetScrollInfo.scrollY).toEqual(0);
+    expect(viewPlugin.activeMainViewport.top).toEqual(3);
+    expect(viewPlugin.activeSheetScrollInfo.scrollY).toEqual(0);
   });
 
   test("Scroll viewport then alter selection with keyboard from penultimate cell to last cell does not shift viewport", async () => {
     await simulateClick(".o-grid-overlay"); // gain focus on grid element
-    const { width } = viewStore.mainViewportRect;
-    const { width: viewportWidth } = viewStore.sheetViewDimensionWithHeaders;
+    const { width } = viewPlugin.mainViewportRect;
+    const { width: viewportWidth } = viewPlugin.sheetViewDimensionWithHeaders;
     triggerWheelEvent(document.activeElement!, { deltaY: width - viewportWidth, shiftKey: true });
-    const viewport = viewStore.activeMainViewport;
+    const viewport = viewPlugin.activeMainViewport;
     selectCell(model, "Y1");
     await nextTick();
-    expect(viewStore.activeMainViewport).toMatchObject(viewport);
+    expect(viewPlugin.activeMainViewport).toMatchObject(viewport);
     await keyDown({ key: "ArrowRight", shiftKey: true });
-    expect(viewStore.activeMainViewport).toMatchObject(viewport);
+    expect(viewPlugin.activeMainViewport).toMatchObject(viewport);
   });
 
   test("A resize of the grid DOM element impacts the viewport", async () => {
-    expect(viewStore.sheetViewDimension).toMatchObject({
+    expect(viewPlugin.sheetViewDimension).toMatchObject({
       width: 1000 - SCROLLBAR_WIDTH,
       height: 1000 - SCROLLBAR_WIDTH,
     });
@@ -1978,7 +1989,7 @@ describe("Events on Grid update viewport correctly", () => {
     window.resizers.resize();
     await nextTick();
 
-    expect(viewStore.sheetViewDimension).toMatchObject({
+    expect(viewPlugin.sheetViewDimension).toMatchObject({
       width: 800 - HEADER_WIDTH - SCROLLBAR_WIDTH,
       height: 650 - HEADER_HEIGHT - SCROLLBAR_WIDTH,
     });
@@ -1986,16 +1997,16 @@ describe("Events on Grid update viewport correctly", () => {
 
   test("Scroll viewport then alter selection with mouse from penultimate cell to last cell does not shift viewport", async () => {
     await simulateClick(".o-grid-overlay"); // gain focus on grid element
-    const { width } = viewStore.mainViewportRect;
-    const { width: viewportWidth } = viewStore.sheetViewDimensionWithHeaders;
+    const { width } = viewPlugin.mainViewportRect;
+    const { width: viewportWidth } = viewPlugin.sheetViewDimensionWithHeaders;
     triggerWheelEvent(document.activeElement!, {
       deltaY: width - viewportWidth + HEADER_WIDTH,
       shiftKey: true,
     });
-    const viewport = viewStore.activeMainViewport;
-    expect(viewStore.activeMainViewport).toMatchObject(viewport);
+    const viewport = viewPlugin.activeMainViewport;
+    expect(viewPlugin.activeMainViewport).toMatchObject(viewport);
     await clickCell(env, "Y1", { shiftKey: true });
-    expect(viewStore.activeMainViewport).toMatchObject(viewport);
+    expect(viewPlugin.activeMainViewport).toMatchObject(viewport);
   });
 
   test("Partially scrolled (horizontally) cell becomes fully visible when selected with the keyboard", async () => {
@@ -2004,8 +2015,9 @@ describe("Events on Grid update viewport correctly", () => {
     await nextTick();
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -2015,8 +2027,9 @@ describe("Events on Grid update viewport correctly", () => {
     await keyDown({ key: "ArrowLeft" });
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -2034,8 +2047,9 @@ describe("Events on Grid update viewport correctly", () => {
 
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -2045,8 +2059,9 @@ describe("Events on Grid update viewport correctly", () => {
     await keyDown({ key: "ArrowUp" });
     expect(
       env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .getPlugin(ViewportsPlugin)
+        .viewports()
+        .getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -2059,11 +2074,11 @@ describe("Events on Grid update viewport correctly", () => {
 describe("Edge-Scrolling on mouseMove in selection", () => {
   beforeEach(async () => {
     useJestFakeTimers();
-    ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
+    ({ parent, model, fixture, env, viewPlugin } = await mountSpreadsheet());
   });
 
   test("Can edge-scroll horizontally", async () => {
-    const { width, height } = viewStore.sheetViewDimension;
+    const { width, height } = viewPlugin.sheetViewDimension;
     const y = height / 2;
     triggerMouseEvent(".o-grid-overlay", "pointerdown", width / 2, y);
     triggerMouseEvent(".o-grid-overlay", "pointermove", 1.5 * width, y);
@@ -2072,7 +2087,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-grid-overlay", "pointerup", 1.5 * width, y);
 
-    expect(viewStore.activeMainViewport).toMatchObject({
+    expect(viewPlugin.activeMainViewport).toMatchObject({
       left: 6,
       right: 16,
       top: 0,
@@ -2086,7 +2101,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-grid-overlay", "pointerup", -0.5 * width, y);
 
-    expect(viewStore.activeMainViewport).toMatchObject({
+    expect(viewPlugin.activeMainViewport).toMatchObject({
       left: 3,
       right: 13,
       top: 0,
@@ -2095,7 +2110,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   });
 
   test("Can edge-scroll vertically", async () => {
-    const { width, height } = viewStore.sheetViewDimensionWithHeaders;
+    const { width, height } = viewPlugin.sheetViewDimensionWithHeaders;
     const x = width / 2;
     triggerMouseEvent(".o-grid-overlay", "pointerdown", x, height / 2);
     triggerMouseEvent(".o-grid-overlay", "pointermove", x, 1.5 * height);
@@ -2104,7 +2119,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-grid-overlay", "pointerup", x, 1.5 * height);
 
-    expect(viewStore.activeMainViewport).toMatchObject({
+    expect(viewPlugin.activeMainViewport).toMatchObject({
       left: 0,
       right: 10,
       top: 6,
@@ -2118,7 +2133,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-grid-overlay", "pointerup", x, -0.5 * height);
 
-    expect(viewStore.activeMainViewport).toMatchObject({
+    expect(viewPlugin.activeMainViewport).toMatchObject({
       left: 0,
       right: 10,
       top: 3,
@@ -2139,7 +2154,7 @@ describe("Copy paste keyboard shortcut", () => {
       model,
       fixture,
       env,
-      viewStore,
+      viewPlugin,
       getPlugin: getOwlPlugin,
     } = await mountSpreadsheet({
       model: new Model({}, { external: { fileStore } }),
@@ -2706,7 +2721,7 @@ describe("Header grouping shortcuts", () => {
 
 describe("Can select de-select zones", () => {
   beforeEach(async () => {
-    ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
+    ({ parent, model, fixture, env, viewPlugin } = await mountSpreadsheet());
   });
   test("Can select a zone", async () => {
     await gridMouseEvent(env, "pointerdown", "A1");
@@ -2759,7 +2774,7 @@ describe("Can select de-select zones", () => {
 });
 
 test("Can pinch to zoom in", async () => {
-  ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
+  ({ parent, model, fixture, env, viewPlugin } = await mountSpreadsheet());
 
   const grid = fixture.querySelector(".o-grid-overlay")!;
   const moveDistance = 30;
@@ -2818,7 +2833,7 @@ test("Can pinch to zoom in", async () => {
 });
 
 test("pinch to zoom stops on pointerup", async () => {
-  ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
+  ({ parent, model, fixture, env, viewPlugin } = await mountSpreadsheet());
 
   const grid = fixture.querySelector(".o-grid-overlay")!;
   const moveDistance = 30;
@@ -2866,7 +2881,7 @@ test("pinch to zoom stops on pointerup", async () => {
 });
 
 test("Cannot pinch to zoom with right-click", async () => {
-  ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
+  ({ parent, model, fixture, env, viewPlugin } = await mountSpreadsheet());
   const grid = fixture.querySelector(".o-grid-overlay")!;
 
   // first we have to move the pointer enough to trigger the pinch zoom which
@@ -2894,7 +2909,7 @@ test("Cannot pinch to zoom with right-click", async () => {
 
 describe("Grid canvas", () => {
   beforeEach(async () => {
-    ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet(
+    ({ parent, model, fixture, env, viewPlugin } = await mountSpreadsheet(
       { model: new Model() },
       { useRealRender: true }
     ));
@@ -2935,11 +2950,11 @@ describe("Grid canvas", () => {
 
   test("the grid is drawn again after having been drawn with an empty size", async () => {
     const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
-    viewStore.resizeSheetView({ width: 0, height: 0, gridOffsetX: 0, gridOffsetY: 0 });
+    viewPlugin.resizeSheetView({ width: 0, height: 0, gridOffsetX: 0, gridOffsetY: 0 });
     await nextTick();
     expect(drawSpy).not.toHaveBeenCalled(); // there's nothing to draw on an empty canvas
 
-    viewStore.resizeSheetView({ width: 100, height: 200, gridOffsetX: 0, gridOffsetY: 0 });
+    viewPlugin.resizeSheetView({ width: 100, height: 200, gridOffsetX: 0, gridOffsetY: 0 });
     await nextTick();
     expect(drawSpy).toHaveBeenCalled();
   });
@@ -2947,6 +2962,20 @@ describe("Grid canvas", () => {
   test("the grid is drawn again when the zoom changes", async () => {
     const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
     setZoom(env, 2);
+    await nextTick();
+    expect(drawSpy).toHaveBeenCalled();
+  });
+
+  test("the grid is drawn again when the viewport is scrolled", async () => {
+    const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
+    setViewportOffset(env, 0, DEFAULT_CELL_HEIGHT);
+    await nextTick();
+    expect(drawSpy).toHaveBeenCalled();
+  });
+
+  test("the grid is drawn again when the sheet view is resized", async () => {
+    const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
+    viewPlugin.resizeSheetView({ width: 500, height: 400, gridOffsetX: 0, gridOffsetY: 0 });
     await nextTick();
     expect(drawSpy).toHaveBeenCalled();
   });

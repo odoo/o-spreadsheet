@@ -1,10 +1,8 @@
-import { onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { DEFAULT_BORDER_DESC } from "../../constants";
-import { useStore } from "../../store_engine/store_hooks";
-import { ViewportsStore } from "../../stores/viewports_store";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { BorderPosition, BorderStyle, Color, Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
-import { Store } from "../../types/store_engine";
 import { getElBoundingRect } from "../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
 import { OSComponent } from "../os_component";
@@ -27,7 +25,7 @@ export class BorderEditorWidget extends OSComponent {
     class: types.string().optional(),
   });
   topBarToolStore!: ToolBarDropdownStore;
-  private viewStore!: Store<ViewportsStore>;
+  private viewPlugin = usePlugin(ViewportsPlugin);
 
   borderEditorButtonRef = signal.ref();
   state: State = proxy({
@@ -38,7 +36,6 @@ export class BorderEditorWidget extends OSComponent {
 
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
-    this.viewStore = useStore(ViewportsStore);
     onWillUpdateProps(() => {
       if (!this.isActive) {
         this.state.currentPosition = undefined;
@@ -47,7 +44,7 @@ export class BorderEditorWidget extends OSComponent {
   }
 
   get dropdownMaxHeight(): Pixel {
-    return this.viewStore.sheetViewDimension.height;
+    return this.viewPlugin.sheetViewDimension.height;
   }
 
   get borderEditorAnchorRect(): Rect {

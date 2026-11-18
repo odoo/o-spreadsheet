@@ -1,13 +1,14 @@
+import { usePlugin } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH, CANVAS_SHIFT, SELECTION_BORDER_COLOR } from "../../constants";
 import { toCartesian, toXC } from "../../helpers/coordinates";
 import { clip, toReplacingBorder } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside, positionToZone, toZone } from "../../helpers/zones";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { autofillModifiersRegistry } from "../../registries/autofill_modifiers";
 import { autofillRulesRegistry } from "../../registries/autofill_rules";
 import { SelectionRendererStore } from "../../stores/selection_renderer_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { ViewportsStore } from "../../stores/viewports_store";
 import {
   AutofillData,
   AutofillModifier,
@@ -89,7 +90,7 @@ export class AutofillStore extends SpreadsheetStore {
   private direction: DIRECTION | undefined;
   tooltip: Tooltip | undefined;
 
-  private viewStore = this.get(ViewportsStore);
+  private viewPlugin = usePlugin(ViewportsPlugin);
   private selectionRendererStore = this.get(SelectionRendererStore);
 
   // ---------------------------------------------------------------------------
@@ -546,9 +547,9 @@ export class AutofillStore extends SpreadsheetStore {
       return false;
     }
     const zone = this.getters.getSelectedZone();
-    // FIXME: this.viewStore could be wrong during the drawing process (we should use the renderingCtx's viewports)
+    // FIXME: this.viewPlugin could be wrong during the drawing process (we should use the renderingCtx's viewports)
     // we should probably change the print process so we can trust this.viewports even during rendering
-    const rect = this.viewStore.viewports.getVisibleRect(sheetId, {
+    const rect = this.viewPlugin.viewports().getVisibleRect(sheetId, {
       left: zone.right,
       right: zone.right,
       top: zone.bottom,

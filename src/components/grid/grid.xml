@@ -20,7 +20,7 @@
       />
       <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
       <GridComposer
-        gridDims="this.viewStore.viewports.getSheetViewDimensionWithHeaders()"
+        gridDims="this.viewPlugin.viewports().getSheetViewDimensionWithHeaders()"
         onInputContextMenu.bind="this.onInputContextMenu"
       />
       <div

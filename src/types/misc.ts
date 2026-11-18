@@ -431,6 +431,18 @@ export type DeepPartial<T> = T extends Function
 type _DeepPartialArray<T> = Array<DeepPartial<T>>;
 type _DeepPartialObject<T> = { [P in keyof T]?: DeepPartial<T[P]> };
 
+type SafePrefix = `get${string}` | `is${string}` | `has${string}`;
+/**
+ * Create a read-only view of an object, keeping only methods with safe prefixes (`get`, `is`, `has`) and all data properties.
+ */
+export type ReadonlyView<T> = {
+  readonly [K in keyof T as T[K] extends (...args: any[]) => any
+    ? K extends SafePrefix
+      ? K
+      : never // Keep safe methods, drop others
+    : K]: T[K]; // Keep all data properties
+};
+
 export interface HeaderGroup {
   start: HeaderIndex;
   end: HeaderIndex;

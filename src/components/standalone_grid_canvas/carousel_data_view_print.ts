@@ -1,8 +1,17 @@
-import { onMounted, onWillUnmount, PluginInstance, useEffect, useProps, xml } from "@odoo/owl";
+import {
+  onMounted,
+  onWillUnmount,
+  PluginInstance,
+  providePlugins,
+  useEffect,
+  usePlugin,
+  useProps,
+  xml,
+} from "@odoo/owl";
 import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
-import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
+import { ViewportsPlugin, ViewportsPluginInstance } from "../../owl_plugins/viewports_owl_plugin";
+import { useLocalStore } from "../../store_engine/store_hooks";
 import { GridRenderer } from "../../stores/grid_renderer_store";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { GridRenderingContext, Rect } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
 import { OSComponent } from "../os_component";
@@ -19,18 +28,18 @@ export class CarouselDataViewPrint extends OSComponent {
     rendererPlugin: types.object<PluginInstance<typeof RendererPlugin>>(),
   });
 
-  viewportsStore!: Store<ViewportsStore>;
+  viewPlugin!: ViewportsPluginInstance;
   gridRender!: Store<GridRenderer>;
 
   setup(): void {
-    useChildStoreProvider([ViewportsStore]);
+    providePlugins([ViewportsPlugin]);
     const store = useLocalStore(
       StandaloneViewportStore,
       this.props.range,
       this.props.columnWeights
     );
     this.gridRender = useLocalStore(GridRenderer, { shouldRender: false });
-    this.viewportsStore = useStore(ViewportsStore);
+    this.viewPlugin = usePlugin(ViewportsPlugin);
     useEffect(() => {
       store.setContainerSize(this.props.rect.width, this.props.rect.height);
     });
@@ -54,8 +63,8 @@ export class CarouselDataViewPrint extends OSComponent {
 
     const subRenderingCtx: GridRenderingContext = {
       ...renderingContext,
-      sheetId: this.viewportsStore.displayedSheetId,
-      viewports: this.viewportsStore.viewports,
+      sheetId: this.viewPlugin.displayedSheetId(),
+      viewports: this.viewPlugin.viewports(),
     };
     this.gridRender.drawLayer(subRenderingCtx, "Background", undefined);
     ctx.restore();

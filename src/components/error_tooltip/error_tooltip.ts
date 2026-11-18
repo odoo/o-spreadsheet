@@ -6,10 +6,8 @@ import { CellValueType } from "../../types/cells";
 import { CellErrorType } from "../../types/errors";
 import { OSComponent } from "../os_component";
 
-import { useProps } from "@odoo/owl";
-import { useStore } from "../../store_engine/store_hooks";
-import { ViewportsStore } from "../../stores/viewports_store";
-import { Store } from "../../types/store_engine";
+import { usePlugin, useProps } from "@odoo/owl";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { types } from "../props_validation";
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
 
@@ -22,11 +20,7 @@ export class ErrorToolTip extends OSComponent {
     onClosed: types.function().optional(),
   });
 
-  private viewStore!: Store<ViewportsStore>;
-
-  setup() {
-    this.viewStore = useStore(ViewportsStore);
-  }
+  private viewPlugin = usePlugin(ViewportsPlugin);
 
   get dataValidationErrorMessage() {
     return this.model().getters.getInvalidDataValidationMessage(this.props.cellPosition);
@@ -52,7 +46,7 @@ export class ErrorToolTip extends OSComponent {
     const sheetId = position.sheetId;
     return this.model().getters.getRangeString(
       this.model().getters.getRangeFromZone(sheetId, positionToZone(position)),
-      this.viewStore.displayedSheetId
+      this.viewPlugin.displayedSheetId()
     );
   }
 

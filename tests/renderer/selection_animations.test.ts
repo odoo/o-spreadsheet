@@ -9,6 +9,7 @@ import {
 } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
 import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { EASING_FN } from "../../src/registries/cell_animation_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import {
@@ -16,7 +17,6 @@ import {
   SelectionRendererStore,
   SelectionRenderingState,
 } from "../../src/stores/selection_renderer_store";
-import { ViewportsStore } from "../../src/stores/viewports_store";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { registerCleanup } from "../setup/jest.setup";
 import {
@@ -37,6 +37,7 @@ let lastDrawnSelectionState!: SelectionRenderingState;
 let lastDrawnAutofillRectCenter!: DOMCoordinates;
 let model: Model;
 let container: DependencyContainer;
+let getPlugin: OwlPluginGetter;
 let drawGrid: () => void;
 let selectionRendererStore: SelectionRendererStore;
 let rendererPlugin: PluginInstance<typeof RendererPlugin>;
@@ -67,7 +68,6 @@ function toCellRect(xc: string): Rect {
 
 beforeEach(() => {
   model = new Model();
-  let getPlugin: OwlPluginGetter;
   ({
     container,
     store: selectionRendererStore,
@@ -76,7 +76,7 @@ beforeEach(() => {
   rendererPlugin = getPlugin(RendererPlugin);
   container.get(AutofillStore);
 
-  const ctx = new MockGridRenderingContext(model, container, 1000, 1000, {
+  const ctx = new MockGridRenderingContext(model, getPlugin, 1000, 1000, {
     onFunctionCall: (fn, args, renderingContext) => {
       if (fn === "clearRect") {
         const rect = { x: args[0], y: args[1], width: args[2], height: args[3] };
@@ -253,12 +253,12 @@ describe("Selection animation", () => {
   });
 
   test("No animation when scrolling", () => {
-    const viewStore = container.get(ViewportsStore);
+    const viewPlugin = getPlugin(ViewportsPlugin);
     selectCell(model, "C3");
     drawGrid();
     expect(isCurrentlyAnimating()).toBe(false);
 
-    viewStore.setViewportOffset({ offsetX: DEFAULT_CELL_WIDTH, offsetY: 0 });
+    viewPlugin.setViewportOffset({ offsetX: DEFAULT_CELL_WIDTH, offsetY: 0 });
     drawGrid();
     expect(isCurrentlyAnimating()).toBe(false);
   });

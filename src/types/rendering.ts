@@ -1,5 +1,5 @@
 import { memoize } from "../helpers/misc";
-import { ViewportCollection } from "../helpers/viewport_collection";
+import { ReadonlyViewportCollection } from "../owl_plugins/viewports_owl_plugin";
 import { SelectionState } from "../plugins/ui_stateful/selection";
 import { GridIcon } from "../registries/icons_on_cell_registry";
 import { ImageSVG } from "./image";
@@ -131,7 +131,7 @@ export type GridRenderingContext = {
   ctx: CanvasRenderingContext2D;
   dpr: number;
   thinLineWidth: number;
-  viewports: ViewportCollection;
+  viewports: ReadonlyViewportCollection;
   hideGridLines?: boolean;
   hideFrozenPaneBorder?: boolean;
 } & SelectionState;

@@ -14,8 +14,8 @@ import {
 import { lettersToNumber, toXC } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
-import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { extendMockGetBoundingClientRect } from "../test_helpers";
 import {
@@ -962,8 +962,8 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   });
 
   test("Can edge-scroll horizontally", async () => {
-    const viewStore = env.getStore(ViewportsStore);
-    const { width } = viewStore.sheetViewDimension;
+    const viewPlugin = env.getPlugin(ViewportsPlugin);
+    const { width } = viewPlugin.sheetViewDimension;
     const y = DEFAULT_CELL_HEIGHT;
 
     triggerMouseEvent(".o-col-resizer", "pointerdown", width / 2, y);
@@ -974,7 +974,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-col-resizer", "pointerup", 1.5 * width, y);
 
-    expect(viewStore.activeMainViewport).toMatchObject({
+    expect(viewPlugin.activeMainViewport).toMatchObject({
       left: 6,
       right: 16,
       top: 0,
@@ -989,7 +989,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-col-resizer", "pointerup", -0.5 * width, y);
 
-    expect(viewStore.activeMainViewport).toMatchObject({
+    expect(viewPlugin.activeMainViewport).toMatchObject({
       left: 3,
       right: 13,
       top: 0,
@@ -998,8 +998,8 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   });
 
   test("Can edge-scroll vertically", async () => {
-    const viewStore = env.getStore(ViewportsStore);
-    const { height } = viewStore.sheetViewDimensionWithHeaders;
+    const viewPlugin = env.getPlugin(ViewportsPlugin);
+    const { height } = viewPlugin.sheetViewDimensionWithHeaders;
     const x = DEFAULT_CELL_WIDTH / 2;
     triggerMouseEvent(".o-row-resizer", "pointerdown", x, height / 2);
     triggerMouseEvent(".o-row-resizer", "pointermove", x, 1.5 * height);
@@ -1008,7 +1008,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-row-resizer", "pointerup", x, 1.5 * height);
 
-    expect(viewStore.activeMainViewport).toMatchObject({
+    expect(viewPlugin.activeMainViewport).toMatchObject({
       left: 0,
       right: 10,
       top: 6,
@@ -1022,7 +1022,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-row-resizer", "pointerup", x, -0.5 * height);
 
-    expect(viewStore.activeMainViewport).toMatchObject({
+    expect(viewPlugin.activeMainViewport).toMatchObject({
       left: 0,
       right: 10,
       top: 3,

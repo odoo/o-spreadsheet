@@ -1,8 +1,8 @@
 import { onWillUnmount, useOnChange, usePlugin } from "@odoo/owl";
 import { MAX_DELAY } from "../../helpers/edge_scrolling";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { HeaderIndex, Pixel } from "../../types/misc";
 import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 import { gridOverlayPosition } from "./dom_helpers";
@@ -28,7 +28,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetActionEnv) {
   let scrollDirection: DnDDirection = "all";
   const modelPlugin = usePlugin(ModelPlugin);
   const model = modelPlugin.model();
-  const viewStore = env.getStore(ViewportsStore);
+  const viewPlugin = env.getPlugin(ViewportsPlugin);
   const zoomPlugin = usePlugin(ZoomPlugin);
 
   const blockKeyboard = (ev: KeyboardEvent) => ev.preventDefault();
@@ -57,24 +57,21 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetActionEnv) {
     const zoomLevel = zoomPlugin.zoomLevel();
     const position = gridOverlayPosition(zoomLevel);
     const zoomedMouseEvent = zoomPlugin.getZoomedEvent(currentEv, position);
-    const { x: offsetCorrectionX, y: offsetCorrectionY } = viewStore.mainViewportCoordinates;
-    const { top, left, bottom, right } = viewStore.activeMainViewport;
-    let { scrollX, scrollY } = viewStore.activeSheetScrollInfo;
+    const { x: offsetCorrectionX, y: offsetCorrectionY } = viewPlugin.mainViewportCoordinates;
+    const { top, left, bottom, right } = viewPlugin.activeMainViewport;
+    let { scrollX, scrollY } = viewPlugin.activeSheetScrollInfo;
     const { xSplit, ySplit } = model.getters.getPaneDivisions(sheetId);
     let canEdgeScroll = false;
     let timeoutDelay = MAX_DELAY;
 
     const x = zoomedMouseEvent.clientX - position.x;
-    let colIndex = viewStore.viewports.getColIndex(sheetId, x);
+    let colIndex = viewPlugin.viewports().getColIndex(sheetId, x);
 
     if (scrollDirection !== "vertical") {
       const previousX = previousEvClientPosition.clientX - position.x;
-      const edgeScrollInfoX = viewStore.viewports.getEdgeScrollCol(
-        sheetId,
-        x,
-        previousX,
-        startingX
-      );
+      const edgeScrollInfoX = viewPlugin
+        .viewports()
+        .getEdgeScrollCol(sheetId, x, previousX, startingX);
       if (edgeScrollInfoX.canEdgeScroll) {
         canEdgeScroll = true;
         timeoutDelay = Math.min(timeoutDelay, edgeScrollInfoX.delay);
@@ -100,16 +97,13 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetActionEnv) {
     }
 
     const y = zoomedMouseEvent.clientY - position.y;
-    let rowIndex = viewStore.viewports.getRowIndex(sheetId, y);
+    let rowIndex = viewPlugin.viewports().getRowIndex(sheetId, y);
 
     if (scrollDirection !== "horizontal") {
       const previousY = previousEvClientPosition.clientY - position.y;
-      const edgeScrollInfoY = viewStore.viewports.getEdgeScrollRow(
-        sheetId,
-        y,
-        previousY,
-        startingY
-      );
+      const edgeScrollInfoY = viewPlugin
+        .viewports()
+        .getEdgeScrollRow(sheetId, y, previousY, startingY);
       if (edgeScrollInfoY.canEdgeScroll) {
         canEdgeScroll = true;
         timeoutDelay = Math.min(timeoutDelay, edgeScrollInfoY.delay);
@@ -141,7 +135,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetActionEnv) {
 
     pointerMoveCallback?.(colIndex, rowIndex, currentEv);
     if (canEdgeScroll) {
-      viewStore.setViewportOffset({ offsetX: scrollX, offsetY: scrollY });
+      viewPlugin.setViewportOffset({ offsetX: scrollX, offsetY: scrollY });
       timeOutId = setTimeout(() => {
         timeOutId = null;
         pointerMoveHandler(currentEv);
