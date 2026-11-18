@@ -54,7 +54,7 @@ export function adaptStringRange(
   }
 
   const change = rangeAdapter.applyChange(range);
-  if (change.changeType === "NONE" || change.changeType === "REMOVE") {
+  if (change.changeType === "NONE" || change.range.invalidSheetName) {
     return { changeType: change.changeType, range: sheetXC };
   }
   const rangeStr = getRangeString(change.range, defaultSheetId, getSheetNameGetter(rangeAdapter));

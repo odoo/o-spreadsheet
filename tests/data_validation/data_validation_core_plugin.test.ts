@@ -367,6 +367,22 @@ describe("Data validation", () => {
     );
   });
 
+  test("Formula referencing deleted columns becomes #REF", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    addDataValidation(model, "A1", "id", { type: "isEqual", values: ["=C1"] });
+    deleteColumns(model, ["B", "C"]);
+    expect(model.getters.getDataValidationRules(sheetId)[0].criterion.values).toEqual(["=#REF"]);
+  });
+
+  test("Formula referencing deleted rows becomes #REF", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    addDataValidation(model, "A1", "id", { type: "isEqual", values: ["=A3"] });
+    deleteRows(model, [1, 2]);
+    expect(model.getters.getDataValidationRules(sheetId)[0].criterion.values).toEqual(["=#REF"]);
+  });
+
   describe("Reference to other sheet", () => {
     beforeEach(() => {
       createSheet(model, { sheetId: "s2", name: "OtherSheet" });
