@@ -42,8 +42,10 @@ export function convertColor(xlsxColor: XLSXColor | undefined): Color | undefine
   }
   rgb = rgb.toUpperCase();
 
-  // Remove unnecessary alpha
-  if (rgb.length === 9 && rgb.endsWith("FF")) {
+  // While the alpha is specified on the color (§18.18.86) in the XLSX standard,
+  // it is ignored in Excel and other spreadsheet engines (As far as we know)
+  // We should therefore ignore it as well
+  if (rgb.length === 9) {
     rgb = rgb.slice(0, 7);
   }
   return rgb;
