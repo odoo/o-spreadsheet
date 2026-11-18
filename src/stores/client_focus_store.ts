@@ -1,7 +1,8 @@
+import { usePlugin } from "@odoo/owl";
+import { ViewportsPlugin } from "../owl_plugins/viewports_owl_plugin";
 import { ClientId } from "../types/collaborative/session";
 import { Get } from "../types/store_engine";
 import { SpreadsheetStore } from "./spreadsheet_store";
-import { ViewportsStore } from "./viewports_store";
 
 export class ClientFocusStore extends SpreadsheetStore {
   mutators = [
@@ -14,7 +15,7 @@ export class ClientFocusStore extends SpreadsheetStore {
 
   private _showClientTag = false;
   private clientFocusTimeout = {};
-  private viewStore = this.get(ViewportsStore);
+  private viewPlugin = usePlugin(ViewportsPlugin);
 
   constructor(get: Get) {
     super(get);
@@ -43,7 +44,7 @@ export class ClientFocusStore extends SpreadsheetStore {
         sheetIdTo: client.position.sheetId,
         sheetIdFrom: this.getters.getActiveSheetId(),
       });
-      this.viewStore.scrollToCell(
+      this.viewPlugin.scrollToCell(
         client.position.sheetId,
         client.position.col,
         client.position.row

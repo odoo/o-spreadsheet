@@ -3,8 +3,11 @@ import { FindAndReplaceStore } from "../../src/components/side_panel/find_and_re
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
+import {
+  ViewportsPlugin,
+  ViewportsPluginInstance,
+} from "../../src/owl_plugins/viewports_owl_plugin";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
-import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SearchOptions } from "../../src/types/find_and_replace";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import {
@@ -34,13 +37,13 @@ import {
   getCellText,
 } from "../test_helpers/getters_helpers";
 import { addToRegistry, flattenHighlightRange } from "../test_helpers/helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeViewportsPlugin } from "../test_helpers/owl_plugins_helpers";
 
 let model: Model;
 let store: FindAndReplaceStore;
 let container: DependencyContainer;
 let getPlugin: OwlPluginGetter;
-let viewStore: ViewportsStore;
+let viewPlugin: ViewportsPluginInstance;
 
 function p(xc: string) {
   const z = toZone(xc);
@@ -71,7 +74,7 @@ let sheetId1: string;
 const sheetId2 = "s2";
 beforeEach(() => {
   // Create the viewport store before the f&r store to have the finalize in the correct order (see FIXME in SpreadsheetStore)
-  ({ store: viewStore, model, container, getPlugin } = makeStore(ViewportsStore));
+  ({ viewPlugin, model, container, getPlugin } = makeViewportsPlugin());
   store = container.get(FindAndReplaceStore);
   sheetId1 = model.getters.getActiveSheetId();
 });
@@ -391,12 +394,12 @@ describe("basic search", () => {
     expect(store.activeSheetMatchesCount).toBe(2);
     expect(store.allSheetsMatchesCount).toBe(3);
     expect(store.specificRangeMatchesCount).toBe(0);
-    expect(viewStore.activeMainViewport).toMatchObject(toZone("A1:K44"));
+    expect(viewPlugin.activeMainViewport).toMatchObject(toZone("A1:K44"));
     activateSheet(model, "s2");
     expect(store.activeSheetMatchesCount).toBe(1);
     expect(store.allSheetsMatchesCount).toBe(3);
     expect(store.specificRangeMatchesCount).toBe(0);
-    expect(viewStore.activeMainViewport).toMatchObject(toZone("P57:Z100"));
+    expect(viewPlugin.activeMainViewport).toMatchObject(toZone("P57:Z100"));
   });
 
   test("Search results and range are highlighted", () => {
@@ -630,22 +633,22 @@ describe("next/previous with single match", () => {
   test.each(["selectNext", "selectPrevious"] as const)(
     "%s after scrolling will re-scroll to the match",
     (cmd) => {
-      const viewStore = container.get(ViewportsStore);
-      const viewportAfterSearch = viewStore.activeMainViewport;
-      viewStore.setViewportOffset({ offsetX: 1000, offsetY: 1000 });
-      expect(viewStore.activeMainViewport).not.toMatchObject(viewportAfterSearch);
+      const viewPlugin = getPlugin(ViewportsPlugin);
+      const viewportAfterSearch = viewPlugin.activeMainViewport;
+      viewPlugin.setViewportOffset({ offsetX: 1000, offsetY: 1000 });
+      expect(viewPlugin.activeMainViewport).not.toMatchObject(viewportAfterSearch);
       cmd === "selectNext" ? store.selectNextMatch() : store.selectPreviousMatch();
-      expect(viewStore.activeMainViewport).toMatchObject(viewportAfterSearch);
+      expect(viewPlugin.activeMainViewport).toMatchObject(viewportAfterSearch);
     }
   );
 
   test("Updating search after scrolling will re-scroll to the match", () => {
-    const viewStore = container.get(ViewportsStore);
-    const viewportAfterSearch = viewStore.activeMainViewport;
-    viewStore.setViewportOffset({ offsetX: 1000, offsetY: 1000 });
-    expect(viewStore.activeMainViewport).not.toMatchObject(viewportAfterSearch);
+    const viewPlugin = getPlugin(ViewportsPlugin);
+    const viewportAfterSearch = viewPlugin.activeMainViewport;
+    viewPlugin.setViewportOffset({ offsetX: 1000, offsetY: 1000 });
+    expect(viewPlugin.activeMainViewport).not.toMatchObject(viewportAfterSearch);
     updateSearch(model, "1");
-    expect(viewStore.activeMainViewport).toMatchObject(viewportAfterSearch);
+    expect(viewPlugin.activeMainViewport).toMatchObject(viewportAfterSearch);
   });
 });
 

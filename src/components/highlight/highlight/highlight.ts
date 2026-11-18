@@ -1,12 +1,10 @@
 import { proxy, usePlugin, useProps } from "@odoo/owl";
 import { clip } from "../../../helpers/misc";
 import { isEqual } from "../../../helpers/zones";
+import { ViewportsPlugin } from "../../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../../owl_plugins/zoom_plugin";
-import { useStore } from "../../../store_engine/store_hooks";
-import { ViewportsStore } from "../../../stores/viewports_store";
 import { ResizeDirection } from "../../../types/figure";
 import { HeaderIndex, Zone } from "../../../types/misc";
-import { Store } from "../../../types/store_engine";
 import { gridOverlayPosition, isMobileOS } from "../../helpers/dom_helpers";
 import {
   DnDDirection,
@@ -36,12 +34,8 @@ export class Highlight extends OSComponent {
     shiftingMode: "none",
   });
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
-  private viewStore!: Store<ViewportsStore>;
+  private viewPlugin = usePlugin(ViewportsPlugin);
   private zoomPlugin = usePlugin(ZoomPlugin);
-
-  setup(): void {
-    this.viewStore = useStore(ViewportsStore);
-  }
 
   get cornerOrientations(): Array<"nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w"> {
     if (!this.isMobile) {
@@ -132,14 +126,12 @@ export class Highlight extends OSComponent {
 
     const activeSheetId = this.model().getters.getActiveSheetId();
 
-    const initCol = this.viewStore.viewports.getColIndex(
-      activeSheetId,
-      zoomedMouseEvent.clientX - position.x
-    );
-    const initRow = this.viewStore.viewports.getRowIndex(
-      activeSheetId,
-      zoomedMouseEvent.clientY - position.y
-    );
+    const initCol = this.viewPlugin
+      .viewports()
+      .getColIndex(activeSheetId, zoomedMouseEvent.clientX - position.x);
+    const initRow = this.viewPlugin
+      .viewports()
+      .getRowIndex(activeSheetId, zoomedMouseEvent.clientY - position.y);
 
     const deltaColMin = -z.left;
     const deltaColMax = this.model().getters.getNumberCols(activeSheetId) - z.right - 1;

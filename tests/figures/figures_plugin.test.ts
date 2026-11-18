@@ -3,7 +3,7 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { numberToLetters } from "../../src/helpers/coordinates";
 import { range } from "../../src/helpers/misc";
 import { Model } from "../../src/model";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+
 import {
   activateSheet,
   addColumns,
@@ -29,7 +29,7 @@ import {
   updateFigure,
 } from "../test_helpers/commands_helpers";
 import { makeTestComposerStore } from "../test_helpers/helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeViewportsPlugin } from "../test_helpers/owl_plugins_helpers";
 
 describe("figure plugin", () => {
   test.each([
@@ -52,13 +52,13 @@ describe("figure plugin", () => {
       offset: { x: 5, y: 10 },
     },
   ])("can create a simple figure", (figure) => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, viewPlugin } = makeViewportsPlugin();
     createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
     const data = model.exportData();
     const sheet = data.sheets.find((s) => s.id === model.getters.getActiveSheetId())!;
 
     expect(sheet.figures).toEqual([figure]);
-    expect(viewStore.visibleFigures).toEqual([
+    expect(viewPlugin.visibleFigures).toEqual([
       { ...figure, x: expect.any(Number), y: expect.any(Number) },
     ]);
   });
@@ -70,7 +70,7 @@ describe("figure plugin", () => {
   });
 
   test("can undo figure creation", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, viewPlugin } = makeViewportsPlugin();
     createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
@@ -80,13 +80,13 @@ describe("figure plugin", () => {
       row: 0,
       offset: { x: 100, y: 100 },
     });
-    expect(viewStore.visibleFigures.length).toBe(1);
+    expect(viewPlugin.visibleFigures.length).toBe(1);
     undo(model);
-    expect(viewStore.visibleFigures.length).toBe(0);
+    expect(viewPlugin.visibleFigures.length).toBe(0);
   });
 
   test("can create a figure in a different sheet", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, viewPlugin } = makeViewportsPlugin();
     const sheetId = "Sheet2";
     createSheet(model, { sheetId }); // The sheet is not activated
 
@@ -115,7 +115,7 @@ describe("figure plugin", () => {
       },
     ]);
 
-    expect(viewStore.visibleFigures).toEqual([]); // empty because active sheet is sheet1
+    expect(viewPlugin.visibleFigures).toEqual([]); // empty because active sheet is sheet1
   });
 
   test.each([
@@ -147,15 +147,15 @@ describe("figure plugin", () => {
       offset: { x: 0, y: 0 },
     },
   ])("getVisibleFigures only returns visible figures", (figure) => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, viewPlugin } = makeViewportsPlugin();
     createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
-    expect(viewStore.visibleFigures.length).toBe(1);
+    expect(viewPlugin.visibleFigures.length).toBe(1);
 
-    viewStore.setViewportOffset({ offsetX: 200, offsetY: 200 });
-    expect(viewStore.visibleFigures.length).toBe(0);
+    viewPlugin.setViewportOffset({ offsetX: 200, offsetY: 200 });
+    expect(viewPlugin.visibleFigures.length).toBe(0);
 
-    viewStore.setViewportOffset({ offsetX: 10, offsetY: 10 });
-    expect(viewStore.visibleFigures.length).toBe(1);
+    viewPlugin.setViewportOffset({ offsetX: 10, offsetY: 10 });
+    expect(viewPlugin.visibleFigures.length).toBe(1);
   });
 
   test.each([
@@ -178,9 +178,9 @@ describe("figure plugin", () => {
       offset: { x: 0, y: 0 },
     },
   ])("getVisibleFigures only returns visible figures on sheet with frozen panes", (figure) => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, viewPlugin } = makeViewportsPlugin();
     createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
-    expect(viewStore.visibleFigures.length).toBe(1);
+    expect(viewPlugin.visibleFigures.length).toBe(1);
     freezeColumns(model, 3);
     freezeRows(model, 3);
 
@@ -194,13 +194,13 @@ describe("figure plugin", () => {
       height: 10,
     });
 
-    expect(viewStore.visibleFigures.length).toBe(2);
+    expect(viewPlugin.visibleFigures.length).toBe(2);
 
-    viewStore.setViewportOffset({ offsetX: 200, offsetY: 200 });
-    expect(viewStore.visibleFigures.length).toBe(1);
+    viewPlugin.setViewportOffset({ offsetX: 200, offsetY: 200 });
+    expect(viewPlugin.visibleFigures.length).toBe(1);
 
-    viewStore.setViewportOffset({ offsetX: 10, offsetY: 10 });
-    expect(viewStore.visibleFigures.length).toBe(2);
+    viewPlugin.setViewportOffset({ offsetX: 10, offsetY: 10 });
+    expect(viewPlugin.visibleFigures.length).toBe(2);
   });
 
   test("selecting a figure, then clicking on a cell unselect figure", () => {
@@ -384,10 +384,10 @@ describe("figure plugin", () => {
       offset: { x: 4, y: 8 },
     },
   ])("can move a figure", (figure) => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, viewPlugin } = makeViewportsPlugin();
     createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
 
-    const figureUI = viewStore.visibleFigures[0];
+    const figureUI = viewPlugin.visibleFigures[0];
     const { x, y } = figureUI;
     figure = figureUI;
     expect(x).toBe(100);
@@ -400,13 +400,13 @@ describe("figure plugin", () => {
       col: figure.col,
       row: figure.row,
     });
-    const { x: newx, y: newy } = viewStore.visibleFigures[0];
+    const { x: newx, y: newy } = viewPlugin.visibleFigures[0];
     expect(newx).toBe(110);
     expect(newy).toBe(200);
   });
 
   test("can undo an update operation", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, viewPlugin } = makeViewportsPlugin();
     createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
@@ -424,12 +424,12 @@ describe("figure plugin", () => {
       row: 0,
       offset: { x: 100, y: 200 },
     });
-    const { x: x1, y: y1 } = viewStore.visibleFigures[0];
+    const { x: x1, y: y1 } = viewPlugin.visibleFigures[0];
     expect(x1).toBe(100);
     expect(y1).toBe(200);
 
     undo(model);
-    const { x: x2, y: y2 } = viewStore.visibleFigures[0];
+    const { x: x2, y: y2 } = viewPlugin.visibleFigures[0];
     expect(x2).toBe(10);
     expect(y2).toBe(10);
   });
@@ -454,10 +454,10 @@ describe("figure plugin", () => {
       offset: { x: 4, y: 8 },
     },
   ])("prevent moving a figure left or above of the sheet", (figure) => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, viewPlugin } = makeViewportsPlugin();
     createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
 
-    const figureUI = viewStore.visibleFigures[0];
+    const figureUI = viewPlugin.visibleFigures[0];
     const { x, y } = figureUI;
     figure = figureUI;
     expect(x).toBe(100);
@@ -492,7 +492,7 @@ describe("figure plugin", () => {
   });
 
   test("can delete a figure and UNDO will reselect it", () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, viewPlugin } = makeViewportsPlugin();
     const sheetId = model.getters.getActiveSheetId();
     createFigure(model, {
       sheetId,
@@ -505,13 +505,13 @@ describe("figure plugin", () => {
     });
     selectFigure(model, "someuuid");
     expect(model.getters.getSelectedFigureIds()).toEqual(["someuuid"]);
-    expect(viewStore.visibleFigures).toHaveLength(1);
+    expect(viewPlugin.visibleFigures).toHaveLength(1);
     deleteFigure(model, "someuuid", sheetId);
     expect(model.getters.getSelectedFigureIds()).toEqual([]);
-    expect(viewStore.visibleFigures).toHaveLength(0);
+    expect(viewPlugin.visibleFigures).toHaveLength(0);
     undo(model);
     expect(model.getters.getSelectedFigureIds()).toEqual(["someuuid"]);
-    expect(viewStore.visibleFigures).toHaveLength(1);
+    expect(viewPlugin.visibleFigures).toHaveLength(1);
   });
 
   test("change sheet deselect figure", () => {

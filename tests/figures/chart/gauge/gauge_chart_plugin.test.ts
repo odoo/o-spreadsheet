@@ -1,7 +1,7 @@
 import { CellErrorType, CommandResult, Model } from "../../../../src";
 import { deepCopy } from "../../../../src/helpers/misc";
 import { ClipboardStore } from "../../../../src/stores/clipboard_store";
-import { ViewportsStore } from "../../../../src/stores/viewports_store";
+
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,
@@ -29,8 +29,8 @@ import {
   updateChart,
   updateNamedRange,
 } from "../../../test_helpers/commands_helpers";
+import { makeViewportsPlugin } from "../../../test_helpers/owl_plugins_helpers";
 import { makeStoreWithModel } from "../../../test_helpers/stores";
-
 let model: Model;
 
 const lowerColor = "#6aa84f";
@@ -229,11 +229,11 @@ describe("datasource tests", function () {
     createGaugeChart(model, { metric: "=B7:B8" }, "chartId", undefined, { figureId: "figureId" });
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
-    const { store: viewStore } = makeStoreWithModel(newModel, ViewportsStore);
-    expect(viewStore.visibleFigures).toHaveLength(1);
+    const { viewPlugin } = makeViewportsPlugin(newModel);
+    expect(viewPlugin.visibleFigures).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("chartId") as GaugeChartRuntime).toBeTruthy();
     deleteFigure(newModel, "figureId");
-    expect(viewStore.visibleFigures).toHaveLength(0);
+    expect(viewPlugin.visibleFigures).toHaveLength(0);
     expect(() => newModel.getters.getChartRuntime("chartId")).toThrow();
   });
 

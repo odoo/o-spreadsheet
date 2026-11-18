@@ -1,16 +1,14 @@
-import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
+import { onWillUpdateProps, proxy, usePlugin, useProps } from "@odoo/owl";
 import { isDateTimeFormat } from "../../../helpers/format/format";
 import { deepCopy, deepEquals } from "../../../helpers/misc";
 import { interactiveSort } from "../../../helpers/sort_interactive";
 import { toTrimmedLowerCase } from "../../../helpers/text_helper";
 import { positions } from "../../../helpers/zones";
-import { useStore } from "../../../store_engine/store_hooks";
-import { ViewportsStore } from "../../../stores/viewports_store";
+import { ViewportsPlugin } from "../../../owl_plugins/viewports_owl_plugin";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { CellValueType } from "../../../types/cells";
 import { Position, SortDirection } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
-import { Store } from "../../../types/store_engine";
 import {
   CriterionFilter,
   DataFilterValue,
@@ -48,10 +46,9 @@ export class FilterMenu extends OSComponent {
   private state!: State;
   private criterionCategory: CriterionCategory = "text";
   private updatedCriterionValue: DataFilterValue | undefined;
-  private viewStore!: Store<ViewportsStore>;
+  private viewPlugin = usePlugin(ViewportsPlugin);
 
   setup() {
-    this.viewStore = useStore(ViewportsStore);
     onWillUpdateProps((nextProps: PropsOf<FilterMenu>) => {
       if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
         this.updatedCriterionValue = undefined;
@@ -77,20 +74,20 @@ export class FilterMenu extends OSComponent {
   }
 
   get table() {
-    const sheetId = this.viewStore.displayedSheetId;
+    const sheetId = this.viewPlugin.displayedSheetId();
     const position = this.props.filterPosition;
     return this.model().getters.getTable({ sheetId, ...position });
   }
 
   get filterValueType() {
-    const sheetId = this.viewStore.displayedSheetId;
+    const sheetId = this.viewPlugin.displayedSheetId();
     const position = this.props.filterPosition;
     const filterValue = this.model().getters.getFilterValue({ sheetId, ...position });
     return filterValue?.filterType;
   }
 
   private getCriterionCategory(position: Position): CriterionCategory {
-    const sheetId = this.viewStore.displayedSheetId;
+    const sheetId = this.viewPlugin.displayedSheetId();
     const filter = this.model().getters.getFilter({ sheetId, ...position });
     if (!filter || !filter.filteredRange) {
       return "text";
@@ -137,7 +134,7 @@ export class FilterMenu extends OSComponent {
     const position = this.props.filterPosition;
     this.model().dispatch("UPDATE_FILTER", {
       ...position,
-      sheetId: this.viewStore.displayedSheetId,
+      sheetId: this.viewPlugin.displayedSheetId(),
       value: this.updatedCriterionValue,
     });
     this.props.onClosed?.();
@@ -163,7 +160,7 @@ export class FilterMenu extends OSComponent {
     if (!filterPosition || !tableZone || tableZone.top === tableZone.bottom) {
       return;
     }
-    const sheetId = this.viewStore.displayedSheetId;
+    const sheetId = this.viewPlugin.displayedSheetId();
     const contentZone = { ...tableZone, top: tableZone.top + table.config.numberOfHeaders };
     const sortAnchor = { col: filterPosition.col, row: contentZone.top };
     const sortOptions = { emptyCellAsZero: true, sortHeaders: true };
@@ -172,7 +169,7 @@ export class FilterMenu extends OSComponent {
   }
 
   private getFilterHiddenValues(position: Position): Value[] {
-    const sheetId = this.viewStore.displayedSheetId;
+    const sheetId = this.viewPlugin.displayedSheetId();
     const filter = this.model().getters.getFilter({ sheetId, ...position });
     if (!filter?.filteredRange) {
       return [];
@@ -220,7 +217,7 @@ export class FilterMenu extends OSComponent {
   }
 
   getFilterCriterionValue(position: Position): CriterionFilter {
-    const sheetId = this.viewStore.displayedSheetId;
+    const sheetId = this.viewPlugin.displayedSheetId();
     const filterValue = this.model().getters.getFilterCriterionValue({ sheetId, ...position });
     return filterValue?.filterType === "criterion"
       ? deepCopy(filterValue)

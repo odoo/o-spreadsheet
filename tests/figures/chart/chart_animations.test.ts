@@ -1,7 +1,7 @@
 import { Chart } from "chart.js";
 import { Model } from "../../../src";
 import { ChartAnimationPlugin } from "../../../src/components/figures/chart/chartJs/chartjs_animation_owl_plugin";
-import { ViewportsStore } from "../../../src/stores/viewports_store";
+import { ViewportsPlugin } from "../../../src/owl_plugins/viewports_owl_plugin";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   createChart,
@@ -47,16 +47,16 @@ describe("Chart animations in dashboard", () => {
     model.updateMode("dashboard");
 
     const { env } = await mountSpreadsheet({ model });
-    const viewStore = env.getStore(ViewportsStore);
+    const viewPlugin = env.getPlugin(ViewportsPlugin);
     expect(".o-figure").toHaveCount(1);
     expect(mockedChart.config.options.animation.animateRotate).toBe(true);
 
     // Scroll the figure out of the viewport and back in
-    viewStore.setViewportOffset({ offsetX: 0, offsetY: 500 });
+    viewPlugin.setViewportOffset({ offsetX: 0, offsetY: 500 });
     await nextTick();
     expect(".o-figure").toHaveCount(0);
 
-    viewStore.setViewportOffset({ offsetX: 0, offsetY: 0 });
+    viewPlugin.setViewportOffset({ offsetX: 0, offsetY: 0 });
     await nextTick();
     expect(".o-figure").toHaveCount(1);
     expect(mockedChart.config.options.animation).toBe(false);

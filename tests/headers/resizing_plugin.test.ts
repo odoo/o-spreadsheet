@@ -10,7 +10,7 @@ import { toXC } from "../../src/helpers/coordinates";
 import { getDefaultCellHeight as getDefaultCellHeightHelper } from "../../src/helpers/text_helper";
 import { Model } from "../../src/model";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+
 import {
   activateSheet,
   addColumns,
@@ -37,8 +37,8 @@ import {
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
-import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
-
+import { makeViewportsPlugin } from "../test_helpers/owl_plugins_helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 const ctx = document.createElement("canvas").getContext("2d")!;
 function getDefaultCellHeight(
   model: Model,
@@ -52,23 +52,23 @@ function getDefaultCellHeight(
 
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, viewPlugin } = makeViewportsPlugin();
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
     const initialSize = model.getters.getColSize(sheetId, 1);
-    const initialWidth = viewStore.mainViewportRect.width;
+    const initialWidth = viewPlugin.mainViewportRect.width;
 
     resizeColumns(model, ["B"], model.getters.getColSize(sheetId, 1) + 100);
     expect(model.getters.getColSize(sheetId, 1)).toBe(196);
-    expect(viewStore.mainViewportRect.width).toBe(initialWidth + 100);
+    expect(viewPlugin.mainViewportRect.width).toBe(initialWidth + 100);
 
     undo(model);
     expect(model.getters.getColSize(sheetId, 1)).toBe(initialSize);
-    expect(viewStore.mainViewportRect.width).toBe(initialWidth);
+    expect(viewPlugin.mainViewportRect.width).toBe(initialWidth);
 
     redo(model);
     expect(model.getters.getColSize(sheetId, 1)).toBe(initialSize + 100);
-    expect(viewStore.mainViewportRect.width).toBe(initialWidth + 100);
+    expect(viewPlugin.mainViewportRect.width).toBe(initialWidth + 100);
   });
 
   test("Cannot resize column in invalid sheet", async () => {
@@ -97,19 +97,19 @@ describe("Model resizer", () => {
   });
 
   test("Can resize one row, then undo", async () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, viewPlugin } = makeViewportsPlugin();
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
     const initialSize = model.getters.getRowSize(sheetId, 1);
-    const initialHeight = viewStore.mainViewportRect.height;
+    const initialHeight = viewPlugin.mainViewportRect.height;
 
     resizeRows(model, [1], initialSize + 100);
     expect(model.getters.getRowSize(sheetId, 1)).toBe(initialSize + 100);
-    expect(viewStore.mainViewportRect.height).toBe(initialHeight + 100);
+    expect(viewPlugin.mainViewportRect.height).toBe(initialHeight + 100);
 
     undo(model);
     expect(model.getters.getRowSize(sheetId, 1)).toBe(initialSize);
-    expect(viewStore.mainViewportRect.height).toBe(initialHeight);
+    expect(viewPlugin.mainViewportRect.height).toBe(initialHeight);
   });
 
   test("Column autoresize cannot exceed the maximum header size", () => {
@@ -156,7 +156,7 @@ describe("Model resizer", () => {
   });
 
   test("changing sheets update the sizes", async () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, viewPlugin } = makeViewportsPlugin();
     createSheet(model, { activate: true, sheetId: "42" });
     const sheet1 = model.getters.getSheetIds()[0];
     const sheet2 = model.getters.getSheetIds()[1];
@@ -164,10 +164,10 @@ describe("Model resizer", () => {
     expect(model.getters.getActiveSheetId()).toBe(sheet2);
     resizeColumns(model, ["B"], model.getters.getColSize(sheet2, 1) + 100, sheet2);
 
-    const initialWidth = viewStore.mainViewportRect.width;
+    const initialWidth = viewPlugin.mainViewportRect.width;
 
     activateSheet(model, sheet1);
-    expect(viewStore.mainViewportRect.width).toBe(initialWidth - 100);
+    expect(viewPlugin.mainViewportRect.width).toBe(initialWidth - 100);
   });
 
   test("Can resize multiple columns", async () => {
@@ -196,30 +196,30 @@ describe("Model resizer", () => {
   });
 
   test("resizing cols/rows update the total width/height", async () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, viewPlugin } = makeViewportsPlugin();
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
-    const { width: initialWidth, height: initialHeight } = viewStore.mainViewportRect;
+    const { width: initialWidth, height: initialHeight } = viewPlugin.mainViewportRect;
     resizeColumns(model, ["B"], model.getters.getColSize(sheetId, 1) + 100);
-    expect(viewStore.mainViewportRect.width).toBe(initialWidth + 100);
+    expect(viewPlugin.mainViewportRect.width).toBe(initialWidth + 100);
 
     resizeRows(model, [1], model.getters.getRowSize(sheetId, 1) + 42);
-    expect(viewStore.mainViewportRect.height).toBe(initialHeight + 42);
+    expect(viewPlugin.mainViewportRect.height).toBe(initialHeight + 42);
   });
 
   test("resizing cols/rows update the pane structure and offsets", async () => {
-    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const { model, viewPlugin } = makeViewportsPlugin();
     freezeRows(model, 6);
     freezeColumns(model, 6);
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
-    const { x: initialCorrectionX, y: initialCorrectionY } = viewStore.mainViewportCoordinates;
+    const { x: initialCorrectionX, y: initialCorrectionY } = viewPlugin.mainViewportCoordinates;
 
     // resizing before split should change offsetCorections
     resizeColumns(model, ["B"], model.getters.getColSize(sheetId, 1) + 100);
     resizeRows(model, [1], model.getters.getRowSize(sheetId, 1) + 42);
 
-    const { x: newCorrectionX, y: newCorrectionY } = viewStore.mainViewportCoordinates;
+    const { x: newCorrectionX, y: newCorrectionY } = viewPlugin.mainViewportCoordinates;
     expect(newCorrectionX).toBe(initialCorrectionX + 100);
     expect(newCorrectionY).toBe(initialCorrectionY + 42);
 
@@ -227,7 +227,7 @@ describe("Model resizer", () => {
     resizeColumns(model, ["G"], model.getters.getColSize(sheetId, 1) + 100);
     resizeRows(model, [7], model.getters.getRowSize(sheetId, 1) + 42);
 
-    const { x: lastCorrectionX, y: lastCorrectionY } = viewStore.mainViewportCoordinates;
+    const { x: lastCorrectionX, y: lastCorrectionY } = viewPlugin.mainViewportCoordinates;
     expect(lastCorrectionX).toBe(newCorrectionX);
     expect(lastCorrectionY).toBe(newCorrectionY);
   });

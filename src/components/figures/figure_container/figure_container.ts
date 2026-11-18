@@ -1,12 +1,10 @@
 import { onMounted, usePlugin } from "@odoo/owl";
 import { isDefined } from "../../../helpers/misc";
 import { render } from "../../../helpers/owl3_helpers";
-import { useStore } from "../../../store_engine/store_hooks";
-import { ViewportsStore } from "../../../stores/viewports_store";
+import { ViewportsPlugin } from "../../../owl_plugins/viewports_owl_plugin";
 import { AnchorOffset, Figure, FigureUI, ResizeDirection } from "../../../types/figure";
 import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
-import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss, rectToCss } from "../../helpers/css";
 import { isCtrlKey, isMobileOS } from "../../helpers/dom_helpers";
 import { OSComponent } from "../../os_component";
@@ -86,11 +84,10 @@ export class FiguresContainer extends OSComponent {
   static template = "o-spreadsheet-FiguresContainer";
   static components = { FigureComponent };
 
-  private viewStore!: Store<ViewportsStore>;
+  private viewPlugin = usePlugin(ViewportsPlugin);
   private draggedFigurePlugin = usePlugin(DraggedFigurePlugin);
 
   setup() {
-    this.viewStore = useStore(ViewportsStore);
     onMounted(() => {
       // horrible, but necessary
       // the following line ensures that we render the figures with the correct
@@ -104,7 +101,7 @@ export class FiguresContainer extends OSComponent {
   }
 
   private getVisibleFigures(): FigureUI[] {
-    return this.viewStore.visibleFigures;
+    return this.viewPlugin.visibleFigures;
   }
 
   get containers(): Container[] {
@@ -139,8 +136,8 @@ export class FiguresContainer extends OSComponent {
   }
 
   private getContainerRect(container: ContainerType): Rect {
-    const { width: viewWidth, height: viewHeight } = this.viewStore.sheetViewDimension;
-    const { x: viewportX, y: viewportY } = this.viewStore.mainViewportCoordinates;
+    const { width: viewWidth, height: viewHeight } = this.viewPlugin.sheetViewDimension;
+    const { x: viewportX, y: viewportY } = this.viewPlugin.mainViewportCoordinates;
 
     const x = ["bottomRight", "topRight"].includes(container) ? viewportX : 0;
     const width = viewWidth - x;
@@ -151,8 +148,8 @@ export class FiguresContainer extends OSComponent {
   }
 
   private getInverseViewportPositionStyle(container: ContainerType): string {
-    const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
-    const { x: viewportX, y: viewportY } = this.viewStore.mainViewportCoordinates;
+    const { scrollX, scrollY } = this.viewPlugin.activeSheetScrollInfo;
+    const { x: viewportX, y: viewportY } = this.viewPlugin.mainViewportCoordinates;
 
     let left = 0;
     let top = 0;
@@ -171,7 +168,7 @@ export class FiguresContainer extends OSComponent {
   }
 
   private getFigureContainer(figureUI: FigureUI): ContainerType {
-    const { x: viewportX, y: viewportY } = this.viewStore.mainViewportCoordinates;
+    const { x: viewportX, y: viewportY } = this.viewPlugin.mainViewportCoordinates;
     if (this.draggedFigurePlugin.dnd.selectedFigures?.some((f) => f.id === figureUI.id)) {
       return "none";
     } else if (figureUI.x < viewportX && figureUI.y < viewportY) {

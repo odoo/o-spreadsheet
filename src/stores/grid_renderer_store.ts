@@ -22,7 +22,6 @@ import {
   computeTextLinesHeight,
   drawDecoratedText,
 } from "../helpers/text_helper";
-import { ViewportCollection } from "../helpers/viewport_collection";
 import {
   getZonesCols,
   getZonesRows,
@@ -35,6 +34,7 @@ import {
 import { Model } from "../model";
 import { FormulaFingerprintPlugin } from "../owl_plugins/formula_fingerprints_store";
 import { RendererPlugin } from "../owl_plugins/renderer_plugin";
+import { ReadonlyViewportCollection } from "../owl_plugins/viewports_owl_plugin";
 import { cellAnimationRegistry } from "../registries/cell_animation_registry";
 import { DisposableStore } from "../store_engine/store";
 import { CellValueType } from "../types/cells";
@@ -758,7 +758,7 @@ export class GridRenderer extends DisposableStore {
   }
 
   private createZoneBox(
-    viewports: ViewportCollection,
+    viewports: ReadonlyViewportCollection,
     sheetId: UID,
     zone: Zone,
     viewport: Viewport
@@ -962,7 +962,7 @@ export class GridRenderer extends DisposableStore {
     return box;
   }
 
-  private getGridBoxes(viewports: ViewportCollection, sheetId: UID, zone: Zone): Box[] {
+  private getGridBoxes(viewports: ReadonlyViewportCollection, sheetId: UID, zone: Zone): Box[] {
     const boxes: Box[] = [];
 
     const visibleCols = viewports

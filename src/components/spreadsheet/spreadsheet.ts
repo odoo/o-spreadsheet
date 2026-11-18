@@ -23,10 +23,10 @@ import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { PrintModePlugin } from "../../owl_plugins/print_mode_owl_plugin";
 import { SpreadsheetRectPlugin } from "../../owl_plugins/spreadsheet_rect_plugin";
+import { ViewportsPlugin, ViewportsPluginInstance } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { ClipboardStore } from "../../stores/clipboard_store";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { CSSProperties, HeaderGroup, Pixel } from "../../types/misc";
@@ -85,7 +85,7 @@ export class Spreadsheet extends Component {
   private printModePlugin!: PluginInstance<typeof PrintModePlugin>;
   private modelPlugin!: PluginInstance<typeof ModelPlugin>;
   private isSmallPlugin!: PluginInstance<typeof IsSmallPlugin>;
-  private viewStore!: Store<ViewportsStore>;
+  private viewPlugin!: ViewportsPluginInstance;
   private zoomPlugin!: PluginInstance<typeof ZoomPlugin>;
 
   get model(): Signal<Model> {
@@ -121,7 +121,7 @@ export class Spreadsheet extends Component {
       model: this.props.model,
       spreadsheetRef: this.spreadsheetRef,
     });
-    this.viewStore = useStore(ViewportsStore);
+    this.viewPlugin = usePlugin(ViewportsPlugin);
     this.isSmallPlugin = usePlugin(IsSmallPlugin);
     this.modelPlugin = usePlugin(ModelPlugin);
     this.printModePlugin = usePlugin(PrintModePlugin);
@@ -218,9 +218,9 @@ export class Spreadsheet extends Component {
   }
 
   private checkViewportSize() {
-    const { xRatio, yRatio } = this.viewStore.viewports.getFrozenSheetViewRatio(
-      this.viewStore.displayedSheetId
-    );
+    const { xRatio, yRatio } = this.viewPlugin
+      .viewports()
+      .getFrozenSheetViewRatio(this.viewPlugin.displayedSheetId());
 
     if (!isFinite(xRatio) || !isFinite(yRatio)) {
       // before mounting, the ratios can be NaN or Infinity if the viewport size is 0
@@ -252,7 +252,7 @@ export class Spreadsheet extends Component {
   }
 
   get gridHeight(): Pixel {
-    return this.viewStore.sheetViewDimension.height;
+    return this.viewPlugin.sheetViewDimension.height;
   }
 
   get gridContainerStyle(): string {

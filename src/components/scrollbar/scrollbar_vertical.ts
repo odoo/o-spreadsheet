@@ -1,15 +1,13 @@
 import { usePlugin, useProps, xml } from "@odoo/owl";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
-import { useStore } from "../../store_engine/store_hooks";
-import { ViewportsStore } from "../../stores/viewports_store";
-import { Store } from "../../types/store_engine";
 import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
 import { ScrollBar } from "./scrollbar";
 
 export class VerticalScrollBar extends OSComponent {
   static components = { ScrollBar };
-  private viewStore!: Store<ViewportsStore>;
+  private viewPlugin = usePlugin(ViewportsPlugin);
   private zoomPlugin = usePlugin(ZoomPlugin);
   static template = xml/*xml*/ `
     <ScrollBar
@@ -21,32 +19,32 @@ export class VerticalScrollBar extends OSComponent {
       onScroll.bind="(offset) => this.onScroll(offset)"
     />`;
 
-  setup(): void {
-    this.viewStore = useStore(ViewportsStore);
-  }
-
   protected props = useProps({
     topOffset: types.number().optional(0),
     hasFooter: types.boolean().optional(true),
   });
 
   get offset() {
-    return this.viewStore.viewports.getSheetScrollInfo(this.viewStore.displayedSheetId).scrollY;
+    return this.viewPlugin.viewports().getSheetScrollInfo(this.viewPlugin.displayedSheetId())
+      .scrollY;
   }
 
   get height() {
-    return this.viewStore.viewports.getMainViewportRect(this.viewStore.displayedSheetId).height;
+    return this.viewPlugin.viewports().getMainViewportRect(this.viewPlugin.displayedSheetId())
+      .height;
   }
 
   get isDisplayed() {
-    const { yRatio } = this.viewStore.viewports.getFrozenSheetViewRatio(
-      this.viewStore.displayedSheetId
-    );
+    const { yRatio } = this.viewPlugin
+      .viewports()
+      .getFrozenSheetViewRatio(this.viewPlugin.displayedSheetId());
     return yRatio < 1;
   }
 
   get position() {
-    const { y } = this.viewStore.viewports.getMainViewportRect(this.viewStore.displayedSheetId);
+    const { y } = this.viewPlugin
+      .viewports()
+      .getMainViewportRect(this.viewPlugin.displayedSheetId());
     const scrollbarWidth = this.zoomPlugin.scrollBarWidth();
     return {
       top: `${this.props.topOffset + y}px`,
@@ -57,10 +55,10 @@ export class VerticalScrollBar extends OSComponent {
   }
 
   onScroll(offset) {
-    const { scrollX } = this.viewStore.viewports.getSheetScrollInfo(
-      this.viewStore.displayedSheetId
-    );
-    this.viewStore.setViewportOffset({
+    const { scrollX } = this.viewPlugin
+      .viewports()
+      .getSheetScrollInfo(this.viewPlugin.displayedSheetId());
+    this.viewPlugin.setViewportOffset({
       offsetX: scrollX, // offsetX is the same
       offsetY: offset,
     });

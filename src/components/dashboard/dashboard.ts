@@ -1,9 +1,9 @@
 import { providePlugins, signal, usePlugin, useProps } from "@odoo/owl";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { LocalRendererPlugin } from "../../owl_plugins/renderer_plugin";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
-import { ViewportsStore } from "../../stores/viewports_store";
 import { Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
@@ -46,7 +46,7 @@ export class SpreadsheetDashboard extends OSComponent {
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
   hoveredCell!: Store<DelayedHoveredCellStore>;
-  private viewStore!: Store<ViewportsStore>;
+  private viewPlugin = usePlugin(ViewportsPlugin);
   private zoomPlugin = usePlugin(ZoomPlugin);
   private devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
 
@@ -55,7 +55,6 @@ export class SpreadsheetDashboard extends OSComponent {
 
   setup() {
     this.hoveredCell = useStore(DelayedHoveredCellStore);
-    this.viewStore = useStore(ViewportsStore);
     useLocalStore(HoveredTableStore);
 
     const layers = OrderedLayers().filter((layer) => layer !== "Headers");
@@ -66,7 +65,7 @@ export class SpreadsheetDashboard extends OSComponent {
       canvasRef: this.canvasRef,
       renderingCtx: () => ({
         dpr: this.devicePixelRatioPlugin.devicePixelRatio() || 1,
-        viewports: this.viewStore.viewports,
+        viewports: this.viewPlugin.viewports(),
         ...this.model().getters.getSelectionState(),
         hideGridLines: true,
       }),
@@ -81,12 +80,12 @@ export class SpreadsheetDashboard extends OSComponent {
     useTouchHandlers(this.gridRef, {
       updateScroll: this.moveCanvas.bind(this),
       canMoveUp: () => {
-        const { scrollY } = this.viewStore.activeSheetScrollInfo;
+        const { scrollY } = this.viewPlugin.activeSheetScrollInfo;
         return scrollY > 0;
       },
       canMoveDown: () => {
-        const { maxOffsetY } = this.viewStore.maximumSheetOffset;
-        const { scrollY } = this.viewStore.activeSheetScrollInfo;
+        const { maxOffsetY } = this.viewPlugin.maximumSheetOffset;
+        const { scrollY } = this.viewPlugin.activeSheetScrollInfo;
         return scrollY < maxOffsetY;
       },
       getZoom: () => this.zoomPlugin.zoomLevel(),
@@ -113,7 +112,7 @@ export class SpreadsheetDashboard extends OSComponent {
   onGridResized() {
     const { height, width } = this.props.getGridSize();
     const maxWidth = this.getMaxSheetWidth();
-    this.viewStore.resizeSheetView({
+    this.viewPlugin.resizeSheetView({
       height,
       width: Math.min(maxWidth, width),
       gridOffsetX: 0,
@@ -122,19 +121,19 @@ export class SpreadsheetDashboard extends OSComponent {
   }
 
   private moveCanvas(deltaX: Pixel, deltaY: Pixel) {
-    const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
-    this.viewStore.setViewportOffset({ offsetX: scrollX + deltaX, offsetY: scrollY + deltaY });
+    const { scrollX, scrollY } = this.viewPlugin.activeSheetScrollInfo;
+    this.viewPlugin.setViewportOffset({ offsetX: scrollX + deltaX, offsetY: scrollY + deltaY });
   }
 
   getGridRect(): Rect {
     return {
       ...getElBoundingRect(this.gridRef()),
-      ...this.viewStore.sheetViewDimensionWithHeaders,
+      ...this.viewPlugin.sheetViewDimensionWithHeaders,
     };
   }
 
   private getMaxSheetWidth(): Pixel {
-    const sheetId = this.viewStore.displayedSheetId;
+    const sheetId = this.viewPlugin.displayedSheetId();
     const { right } = this.model().getters.getSheetZone(sheetId);
     return this.model().getters.getColDimensions(sheetId, right).end;
   }

@@ -10,8 +10,8 @@ import { isMiddleClickOrCtrlClick } from "../../helpers/dom_helpers";
 import { OSComponent } from "../../os_component";
 import { CellPopoverStore } from "../../popover/cell_popover_store";
 
-import { useProps } from "@odoo/owl";
-import { ViewportsStore } from "../../../stores/viewports_store";
+import { usePlugin, useProps } from "@odoo/owl";
+import { ViewportsPlugin } from "../../../owl_plugins/viewports_owl_plugin";
 import { types } from "../../props_validation";
 
 export class LinkDisplay extends OSComponent {
@@ -23,16 +23,15 @@ export class LinkDisplay extends OSComponent {
   });
 
   protected cellPopovers!: Store<CellPopoverStore>;
-  private viewStore!: Store<ViewportsStore>;
+  private viewPlugin = usePlugin(ViewportsPlugin);
 
   setup() {
     this.cellPopovers = useStore(CellPopoverStore);
-    this.viewStore = useStore(ViewportsStore);
   }
 
   get cell(): EvaluatedCell {
     const { col, row } = this.props.cellPosition;
-    const sheetId = this.viewStore.displayedSheetId;
+    const sheetId = this.viewPlugin.displayedSheetId();
     return this.model().getters.getEvaluatedCell({ sheetId, col, row });
   }
 
@@ -61,7 +60,7 @@ export class LinkDisplay extends OSComponent {
   }
 
   unlink() {
-    const sheetId = this.viewStore.displayedSheetId;
+    const sheetId = this.viewPlugin.displayedSheetId();
     const { col, row } = this.props.cellPosition;
     const style = this.model().getters.getCellComputedStyle({ sheetId, col, row });
     const textColor = style?.textColor === LINK_COLOR ? undefined : style?.textColor;

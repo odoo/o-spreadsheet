@@ -3,9 +3,8 @@ import { DEFAULT_BORDER_DESC, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "..
 import { lettersToNumber, toXC } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { ViewportsPluginInstance } from "../../src/owl_plugins/viewports_owl_plugin";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
-import { ViewportsStore } from "../../src/stores/viewports_store";
-import { Store } from "../../src/types/store_engine";
 import {
   activateSheet,
   addColumns,
@@ -45,8 +44,8 @@ import {
   makeTestFixture,
   testUndoRedo,
 } from "../test_helpers/helpers";
-import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
-
+import { makeViewportsPlugin } from "../test_helpers/owl_plugins_helpers";
+import { makeStore } from "../test_helpers/stores";
 let model: Model;
 
 function clearColumns(indexes: string[]) {
@@ -838,13 +837,13 @@ describe("Rows", () => {
     makeTestFixture();
   });
   describe("Correctly update size, name, order and number", () => {
-    let viewStore: Store<ViewportsStore>;
+    let viewPlugin: ViewportsPluginInstance;
 
     beforeEach(() => {
       model = new Model({
         sheets: [{ colNumber: 1, rowNumber: 4, rows: { 1: { size: 10 }, 2: { size: 20 } } }],
       });
-      ({ store: viewStore } = makeStoreWithModel(model, ViewportsStore));
+      ({ viewPlugin } = makeViewportsPlugin(model));
     });
     test("On deletion", () => {
       deleteRows(model, [0, 2]);
@@ -958,10 +957,10 @@ describe("Rows", () => {
       expect(model.getters.getRowSize(sheetId, 4)).toBe(20);
       expect(model.getters.getRowSize(sheetId, 5)).toBe(size);
       expect(model.getters.getNumberRows(sheetId)).toBe(6);
-      const dimensions = viewStore.mainViewportRect;
+      const dimensions = viewPlugin.mainViewportRect;
       expect(dimensions).toMatchObject({ width: 1000, height: 1000 });
-      viewStore.resizeSheetView({ height: DEFAULT_CELL_HEIGHT, width: DEFAULT_CELL_WIDTH });
-      const newDimensions = viewStore.mainViewportRect;
+      viewPlugin.resizeSheetView({ height: DEFAULT_CELL_HEIGHT, width: DEFAULT_CELL_WIDTH });
+      const newDimensions = viewPlugin.mainViewportRect;
       expect(newDimensions).toMatchObject({
         width: DEFAULT_CELL_WIDTH, // sum of col sizes
         height: 96, // sum of row sizes
@@ -977,10 +976,10 @@ describe("Rows", () => {
       expect(model.getters.getRowSize(sheetId, 3)).toBe(20);
       expect(model.getters.getRowSize(sheetId, 4)).toBe(20);
       expect(model.getters.getRowSize(sheetId, 5)).toBe(size);
-      const dimensions = viewStore.mainViewportRect;
+      const dimensions = viewPlugin.mainViewportRect;
       expect(dimensions).toMatchObject({ width: 1000, height: 1000 });
-      viewStore.resizeSheetView({ height: DEFAULT_CELL_HEIGHT, width: DEFAULT_CELL_WIDTH });
-      const newDimensions = viewStore.mainViewportRect;
+      viewPlugin.resizeSheetView({ height: DEFAULT_CELL_HEIGHT, width: DEFAULT_CELL_WIDTH });
+      const newDimensions = viewPlugin.mainViewportRect;
       expect(newDimensions).toMatchObject({
         width: DEFAULT_CELL_WIDTH, // sum of col sizes
         height: 116, // sum of row sizes + 1 correction px
@@ -996,8 +995,8 @@ describe("Rows", () => {
 
     test("activate Sheet: same size", () => {
       addRows(model, "after", 2, 1);
-      viewStore.resizeSheetView({ height: DEFAULT_CELL_HEIGHT, width: DEFAULT_CELL_WIDTH });
-      let dimensions = viewStore.mainViewportRect;
+      viewPlugin.resizeSheetView({ height: DEFAULT_CELL_HEIGHT, width: DEFAULT_CELL_WIDTH });
+      let dimensions = viewPlugin.mainViewportRect;
       expect(dimensions).toMatchObject({
         width: DEFAULT_CELL_WIDTH, // sum of col sizes
         height: 96, // sum of row sizes
@@ -1005,7 +1004,7 @@ describe("Rows", () => {
       const to = model.getters.getActiveSheetId();
       createSheet(model, { activate: true, sheetId: "42" });
       activateSheet(model, to);
-      dimensions = viewStore.mainViewportRect;
+      dimensions = viewPlugin.mainViewportRect;
       expect(dimensions).toMatchObject({
         width: DEFAULT_CELL_WIDTH, // sum of col sizes
         height: 96, // sum of row sizes (footer is hidden)

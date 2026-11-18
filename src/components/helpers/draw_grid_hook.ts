@@ -34,7 +34,6 @@ export function useGridDrawing({
     stores: useStoreProvider(),
     rendererPlugin: renderer,
   });
-  const storeRendererPlugin = usePlugin(StoreRendererPlugin);
   useLocalStore(GridRenderer, { renderer });
   const drawCanvasSignal = signal(0);
 
@@ -83,8 +82,6 @@ export function useGridDrawing({
     });
     canvas.setAttribute("style", style);
     if (width === 0 || height === 0) {
-      // OWL3 FIXME: we need to manually read the signals on early return since the viewports are not reactive.
-      storeRendererPlugin.readSignals();
       return;
     }
     ctx.resetTransform();

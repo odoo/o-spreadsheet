@@ -11,9 +11,8 @@ import {
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
 import { Component } from "../../src/owl3_compatibility_layer";
-import { ViewportsStore } from "../../src/stores/viewports_store";
+import { ViewportsPluginInstance } from "../../src/owl_plugins/viewports_owl_plugin";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
-import { Store } from "../../src/types/store_engine";
 import { merge, setZoom } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
@@ -125,7 +124,7 @@ let borderEl: Element;
 let spyDispatch: jest.SpyInstance;
 let spyHandleEvent: jest.Mock;
 let env: SpreadsheetActionEnv;
-let viewStore: Store<ViewportsStore>;
+let viewPlugin: ViewportsPluginInstance;
 
 class Parent extends Component {
   static components = { Highlight };
@@ -159,11 +158,11 @@ class Parent extends Component {
 async function mountHighlight(zone: string, color: Color) {
   let parent: Component;
   const sheetId = model.getters.getActiveSheetId();
-  ({ fixture, parent, env, viewStore } = await mountComponent(Parent, {
+  ({ fixture, parent, env, viewPlugin } = await mountComponent(Parent, {
     props: { range: model.getters.getRangeFromZone(sheetId, toZone(zone)), color, model },
     model,
   }));
-  return { parent: parent as Parent, model, env, viewStore };
+  return { parent: parent as Parent, model, env, viewPlugin };
 }
 
 function expectedResult(xc: string) {
@@ -406,8 +405,8 @@ describe("Corner component", () => {
   });
 
   test("can edge-scroll horizontally", async () => {
-    const { viewStore } = await mountHighlight("B1", "#666");
-    const width = viewStore.sheetViewDimensionWithHeaders.width;
+    const { viewPlugin } = await mountHighlight("B1", "#666");
+    const width = viewPlugin.sheetViewDimensionWithHeaders.width;
     model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
       sheetId: model.getters.getActiveSheetId(),
@@ -415,7 +414,7 @@ describe("Corner component", () => {
       size: width / 2,
     });
 
-    const spy = jest.spyOn(viewStore, "setViewportOffset");
+    const spy = jest.spyOn(viewPlugin, "setViewportOffset");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select B1 nw corner
@@ -430,8 +429,8 @@ describe("Corner component", () => {
   });
 
   test("can edge-scroll vertically", async () => {
-    const { viewStore } = await mountHighlight("A2", "#666");
-    const { height } = viewStore.sheetViewDimensionWithHeaders;
+    const { viewPlugin } = await mountHighlight("A2", "#666");
+    const { height } = viewPlugin.sheetViewDimensionWithHeaders;
     model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
       sheetId: model.getters.getActiveSheetId(),
@@ -439,7 +438,7 @@ describe("Corner component", () => {
       size: height / 2,
     });
 
-    const spy = jest.spyOn(viewStore, "setViewportOffset");
+    const spy = jest.spyOn(viewPlugin, "setViewportOffset");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select A2 nw corner
@@ -711,8 +710,8 @@ describe("Border component", () => {
       elements: [0, 1],
       size: width / 2,
     });
-    const { viewStore } = await mountHighlight("B1", "#666");
-    const spy = jest.spyOn(viewStore, "setViewportOffset");
+    const { viewPlugin } = await mountHighlight("B1", "#666");
+    const spy = jest.spyOn(viewPlugin, "setViewportOffset");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select B1 top border
@@ -734,8 +733,8 @@ describe("Border component", () => {
       elements: [0, 1],
       size: height / 2,
     });
-    const { viewStore } = await mountHighlight("A2", "#666");
-    const spy = jest.spyOn(viewStore, "setViewportOffset");
+    const { viewPlugin } = await mountHighlight("A2", "#666");
+    const spy = jest.spyOn(viewPlugin, "setViewportOffset");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A2 top border
@@ -758,10 +757,10 @@ describe.each(ZOOM_VALUES)(
     let height: Pixel;
     beforeEach(async () => {
       useJestFakeTimers();
-      ({ model, fixture, env, viewStore } = await mountSpreadsheet());
+      ({ model, fixture, env, viewPlugin } = await mountSpreadsheet());
       zoom = zoomValue / 100;
       setZoom(env, zoom);
-      ({ width, height } = viewStore.sheetViewDimensionWithHeaders);
+      ({ width, height } = viewPlugin.sheetViewDimensionWithHeaders);
       // In test sheetviewDim is not changed based on the Zoom
       width = width * zoom;
       height = height * zoom;
@@ -779,7 +778,7 @@ describe.each(ZOOM_VALUES)(
 
       jest.advanceTimersByTime(advanceTimer);
       triggerMouseEvent(".o-border-n", "pointerup", 1.5 * width, y);
-      expect(viewStore.activeMainViewport).toMatchObject({
+      expect(viewPlugin.activeMainViewport).toMatchObject({
         left: 6,
         right: 16,
         top: 0,
@@ -796,7 +795,7 @@ describe.each(ZOOM_VALUES)(
       jest.advanceTimersByTime(advanceTimer2);
       triggerMouseEvent(".o-border-n", "pointerup", -0.5 * width, y);
 
-      expect(viewStore.activeMainViewport).toMatchObject({
+      expect(viewPlugin.activeMainViewport).toMatchObject({
         left: 3,
         right: 13,
         top: 0,
@@ -813,7 +812,7 @@ describe.each(ZOOM_VALUES)(
       jest.advanceTimersByTime(advanceTimer);
       triggerMouseEvent(".o-border-n", "pointerup", x, 1.5 * height);
 
-      expect(viewStore.activeMainViewport).toMatchObject({
+      expect(viewPlugin.activeMainViewport).toMatchObject({
         left: 0,
         right: 10,
         top: 6,
@@ -830,7 +829,7 @@ describe.each(ZOOM_VALUES)(
       jest.advanceTimersByTime(advanceTimer2);
       triggerMouseEvent(".o-border-n", "pointerup", x, -0.5 * height);
 
-      expect(viewStore.activeMainViewport).toMatchObject({
+      expect(viewPlugin.activeMainViewport).toMatchObject({
         left: 0,
         right: 10,
         top: 3,
@@ -847,7 +846,7 @@ describe.each(ZOOM_VALUES)(
 
       jest.advanceTimersByTime(advanceTimer);
       triggerMouseEvent(".o-corner-nw", "pointerup", 1.5 * width, y);
-      expect(viewStore.activeMainViewport).toMatchObject({
+      expect(viewPlugin.activeMainViewport).toMatchObject({
         left: 6,
         right: 16,
         top: 0,
@@ -864,7 +863,7 @@ describe.each(ZOOM_VALUES)(
       jest.advanceTimersByTime(advanceTimer2);
       triggerMouseEvent(".o-corner-nw", "pointerup", -0.5 * width, y);
 
-      expect(viewStore.activeMainViewport).toMatchObject({
+      expect(viewPlugin.activeMainViewport).toMatchObject({
         left: 3,
         right: 13,
         top: 0,
@@ -881,7 +880,7 @@ describe.each(ZOOM_VALUES)(
       jest.advanceTimersByTime(advanceTimer);
       triggerMouseEvent(".o-corner-nw", "pointerup", x, 1.5 * height);
 
-      expect(viewStore.activeMainViewport).toMatchObject({
+      expect(viewPlugin.activeMainViewport).toMatchObject({
         left: 0,
         right: 10,
         top: 6,
@@ -898,7 +897,7 @@ describe.each(ZOOM_VALUES)(
       jest.advanceTimersByTime(advanceTimer2);
       triggerMouseEvent(".o-corner-nw", "pointerup", x, -0.5 * height);
 
-      expect(viewStore.activeMainViewport).toMatchObject({
+      expect(viewPlugin.activeMainViewport).toMatchObject({
         left: 0,
         right: 10,
         top: 3,

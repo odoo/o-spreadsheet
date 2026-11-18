@@ -1,13 +1,11 @@
-import { useProps } from "@odoo/owl";
+import { usePlugin, useProps } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
-import { useStore } from "../../../store_engine/store_hooks";
-import { ViewportsStore } from "../../../stores/viewports_store";
+import { ViewportsPlugin } from "../../../owl_plugins/viewports_owl_plugin";
 import { ResizeDirection } from "../../../types/figure";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
-import { Store } from "../../../types/store_engine";
 import { isMobileOS } from "../../helpers/dom_helpers";
 const MOBILE_HANDLER_WIDTH = 40;
 
@@ -35,10 +33,9 @@ export class Corner extends OSComponent {
   });
   private dirX!: ResizeDirection;
   private dirY!: ResizeDirection;
-  private viewStore!: Store<ViewportsStore>;
+  private viewPlugin = usePlugin(ViewportsPlugin);
 
   setup(): void {
-    this.viewStore = useStore(ViewportsStore);
     const { dirX, dirY } = orientationToDir(this.props.orientation);
     this.dirX = dirX;
     this.dirY = dirY;
@@ -47,12 +44,14 @@ export class Corner extends OSComponent {
   get handlerStyle() {
     const z = this.props.zone;
 
-    const rect = this.viewStore.viewports.getVisibleRect(this.model().getters.getActiveSheetId(), {
-      left: this.dirX === 1 ? z.right : z.left,
-      right: this.dirX === -1 ? z.left : z.right,
-      top: this.dirY === 1 ? z.bottom : z.top,
-      bottom: this.dirY === -1 ? z.top : z.bottom,
-    });
+    const rect = this.viewPlugin
+      .viewports()
+      .getVisibleRect(this.model().getters.getActiveSheetId(), {
+        left: this.dirX === 1 ? z.right : z.left,
+        right: this.dirX === -1 ? z.left : z.right,
+        top: this.dirY === 1 ? z.bottom : z.top,
+        bottom: this.dirY === -1 ? z.top : z.bottom,
+      });
 
     // Don't show if not visible in the viewport
     if (rect.width * rect.height === 0) {

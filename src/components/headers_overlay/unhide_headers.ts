@@ -1,14 +1,11 @@
-import { useProps } from "@odoo/owl";
+import { usePlugin, useProps } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { positionToZone } from "../../helpers/zones";
-import { useStore } from "../../store_engine/store_hooks";
-import { ViewportsStore } from "../../stores/viewports_store";
+import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { HeaderIndex } from "../../types/misc";
 import { cssPropertiesToCss } from "../helpers/css";
 import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
-
-import { Store } from "../../types/store_engine";
 
 export class UnhideRowHeaders extends OSComponent {
   static template = "o-spreadsheet-UnhideRowHeaders";
@@ -22,30 +19,24 @@ export class UnhideRowHeaders extends OSComponent {
     offset: types.number().optional(0),
   });
 
-  private viewStore!: Store<ViewportsStore>;
-
-  setup() {
-    this.viewStore = useStore(ViewportsStore);
-  }
+  private viewPlugin = usePlugin(ViewportsPlugin);
 
   get sheetId() {
     return this.model().getters.getActiveSheetId();
   }
 
   getUnhidePreviousButtonStyle(hiddenIndex: HeaderIndex): string {
-    const rect = this.viewStore.viewports.getRect(
-      this.sheetId,
-      positionToZone({ col: 0, row: hiddenIndex })
-    );
+    const rect = this.viewPlugin
+      .viewports()
+      .getRect(this.sheetId, positionToZone({ col: 0, row: hiddenIndex }));
     const y = rect.y + rect.height - HEADER_HEIGHT;
     return cssPropertiesToCss({ top: y - this.props.offset + "px", "margin-right": "1px" });
   }
 
   getUnhideNextButtonStyle(hiddenIndex: HeaderIndex): string {
-    const rect = this.viewStore.viewports.getRect(
-      this.sheetId,
-      positionToZone({ col: 0, row: hiddenIndex })
-    );
+    const rect = this.viewPlugin
+      .viewports()
+      .getRect(this.sheetId, positionToZone({ col: 0, row: hiddenIndex }));
     const y = rect.y - HEADER_HEIGHT;
     return cssPropertiesToCss({ top: y - this.props.offset + "px", "margin-right": "1px" });
   }
@@ -75,30 +66,24 @@ export class UnhideColumnHeaders extends OSComponent {
     offset: types.number().optional(0),
   });
 
-  private viewStore!: Store<ViewportsStore>;
-
-  setup() {
-    this.viewStore = useStore(ViewportsStore);
-  }
+  private viewPlugin = usePlugin(ViewportsPlugin);
 
   get sheetId() {
     return this.model().getters.getActiveSheetId();
   }
 
   getUnhidePreviousButtonStyle(hiddenIndex: HeaderIndex): string {
-    const rect = this.viewStore.viewports.getRect(
-      this.sheetId,
-      positionToZone({ col: hiddenIndex, row: 0 })
-    );
+    const rect = this.viewPlugin
+      .viewports()
+      .getRect(this.sheetId, positionToZone({ col: hiddenIndex, row: 0 }));
     const x = rect.x + rect.width - HEADER_WIDTH;
     return cssPropertiesToCss({ left: x - this.props.offset + "px" });
   }
 
   getUnhideNextButtonStyle(hiddenIndex: HeaderIndex): string {
-    const rect = this.viewStore.viewports.getRect(
-      this.sheetId,
-      positionToZone({ col: hiddenIndex, row: 0 })
-    );
+    const rect = this.viewPlugin
+      .viewports()
+      .getRect(this.sheetId, positionToZone({ col: hiddenIndex, row: 0 }));
     const x = rect.x - HEADER_WIDTH;
     return cssPropertiesToCss({ left: x - this.props.offset + "px" });
   }

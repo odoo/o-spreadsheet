@@ -1,11 +1,10 @@
 import { Plugin, signal } from "@odoo/owl";
-import { ViewportsStore } from "../stores/viewports_store";
-import { Store } from "../types/store_engine";
+import { ViewportsPluginInstance } from "./viewports_owl_plugin";
 
 export class ExposeViewportsPlugin extends Plugin {
-  viewports = signal<Store<ViewportsStore> | undefined>(undefined);
+  viewports = signal<ViewportsPluginInstance | undefined>(undefined);
 
-  exposeViewports(viewports: Store<ViewportsStore>) {
+  exposeViewports(viewports: ViewportsPluginInstance) {
     this.viewports.set(viewports);
   }
 }
