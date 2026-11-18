@@ -114,6 +114,7 @@ sidePanelRegistry.add("MoreFormats", {
 sidePanelRegistry.add("DataAnalysisPanel", {
   title: _t("Data analysis"),
   Body: DataAnalysisPanel,
+  keepMountedWhenCollapsed: true,
 });
 
 sidePanelRegistry.add("TableSidePanel", {

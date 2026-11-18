@@ -144,6 +144,21 @@ describe("data statistics", () => {
       const rowTexts = Array.from(rows).map((row) => row.textContent);
       expect(rowTexts).toEqual(["banana", "apple", "cherry"]);
     });
+
+    test("occurrences sorting is kept when collapsing and expanding the side panel", async () => {
+      const model = createModelFromGrid({ A1: "banana", A2: "apple", A3: "cherry", A4: "cherry" });
+      await mountSpreadsheet({ model });
+      setSelection(model, ["A1:A4"]);
+      await simulateClick(".o-data-analysis-button");
+      await simulateClick("[data-test-id='o-sort-occurrences-category']");
+      await simulateClick(".o-collapse-panel");
+      await simulateClick(".o-collapse-panel");
+      const rows = document.querySelectorAll(
+        "[data-test-id='Occurrences'] [data-test-id='stat-name']"
+      );
+      const rowTexts = Array.from(rows).map((row) => row.textContent);
+      expect(rowTexts).toEqual(["apple", "banana", "cherry"]);
+    });
   });
 
   describe("drag and drop statistics", () => {

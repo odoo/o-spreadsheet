@@ -2,7 +2,7 @@
 
 exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
 <div
-  class="o-sidePanel h-100 bg-white border-top border-start"
+  class="h-100 bg-white border-top border-start o-sidePanel"
 >
   <div
     class="o-sidePanelHeader d-flex align-items-center justify-content-between border-bottom"
@@ -28,6 +28,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
        ✕ 
     </div>
   </div>
+  
   <div
     class="o-sidePanelBody-container d-flex flex-grow-1 "
   >
@@ -1004,7 +1005,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
 
 exports[`Spreadsheet pivot side panel It should display only the selection input when the dataSet is not valid 1`] = `
 <div
-  class="o-sidePanel h-100 bg-white border-top border-start"
+  class="h-100 bg-white border-top border-start o-sidePanel"
 >
   <div
     class="o-sidePanelHeader d-flex align-items-center justify-content-between border-bottom"
@@ -1030,6 +1031,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
        ✕ 
     </div>
   </div>
+  
   <div
     class="o-sidePanelBody-container d-flex flex-grow-1 "
   >
