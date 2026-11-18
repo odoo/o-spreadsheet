@@ -108,6 +108,17 @@ describe("Standalone viewport", () => {
     ]);
   });
 
+  test("a standalone viewport has its own viewport and does not move the main one", async () => {
+    await mountViewport("A1:A2", { sheetId: "sh2" });
+
+    const [mainViewport, standaloneViewport] = storeSpy.getStores(
+      ViewportsStore
+    ) as ViewportsStore[];
+    expect(standaloneViewport).not.toBe(mainViewport);
+    expect(standaloneViewport.displayedSheetId).toBe("sh2");
+    expect(mainViewport.displayedSheetId).toBe(model.getters.getSheetIds()[0]);
+  });
+
   test("Cells are rendered to fill the viewport vertically", async () => {
     setGrid(model, { A1: "Hello", B1: "World" });
     await mountViewport("A1:B1");

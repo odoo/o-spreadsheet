@@ -2951,6 +2951,20 @@ describe("Grid canvas", () => {
     expect(drawSpy).toHaveBeenCalled();
   });
 
+  test("the grid is drawn again when the viewport is scrolled", async () => {
+    const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
+    setViewportOffset(env, 0, DEFAULT_CELL_HEIGHT);
+    await nextTick();
+    expect(drawSpy).toHaveBeenCalled();
+  });
+
+  test("the grid is drawn again when the sheet view is resized", async () => {
+    const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
+    viewStore.resizeSheetView({ width: 500, height: 400, gridOffsetX: 0, gridOffsetY: 0 });
+    await nextTick();
+    expect(drawSpy).toHaveBeenCalled();
+  });
+
   test("the grid is only drawn once the DOM is up to date with the change", async () => {
     const drawSpy = jest.spyOn(env.getPlugin(RendererPlugin), "draw");
     setCellContent(model, "A1", "hello");
