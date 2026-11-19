@@ -300,6 +300,27 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(value);
   });
 
+  test("empty cell in a column with a default format has that format", () => {
+    const model = new Model();
+    setFormat(model, "B1:B100", "0%");
+    expect(getEvaluatedCell(model, "B1").format).toBe("0%");
+  });
+
+  test("formula referencing an empty cell inherits its default column format", () => {
+    const model = new Model();
+    setFormat(model, "B1:B100", "0%");
+    setCellContent(model, "C1", "=B1+1");
+    expect(getCellContent(model, "C1")).toBe("100%");
+  });
+
+  test("setting a default column format re-evaluates formulas referencing its empty cells", () => {
+    const model = new Model();
+    setCellContent(model, "C1", "=B1+1");
+    expect(getCellContent(model, "C1")).toBe("1");
+    setFormat(model, "B1:B100", "0%");
+    expect(getCellContent(model, "C1")).toBe("100%");
+  });
+
   test("string representation of an error is stored as an error", () => {
     const model = new Model();
     setCellContent(model, "A1", "#ERROR");
