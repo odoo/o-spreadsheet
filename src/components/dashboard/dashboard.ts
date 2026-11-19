@@ -9,7 +9,7 @@ import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/r
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
-import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
+import { DelayedHoveredCellPlugin } from "../grid/delayed_hovered_cell_owl_plugin";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { cssPropertiesToCss } from "../helpers/css";
@@ -45,7 +45,7 @@ export class SpreadsheetDashboard extends OSComponent {
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
-  hoveredCell!: Store<DelayedHoveredCellStore>;
+  private hoveredCell = usePlugin(DelayedHoveredCellPlugin);
   private viewStore!: Store<ViewportsStore>;
   private zoomPlugin = usePlugin(ZoomPlugin);
   private devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
@@ -54,7 +54,6 @@ export class SpreadsheetDashboard extends OSComponent {
   private canvasRef = signal.ref(HTMLCanvasElement);
 
   setup() {
-    this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.viewStore = useStore(ViewportsStore);
     useLocalStore(HoveredTableStore);
 

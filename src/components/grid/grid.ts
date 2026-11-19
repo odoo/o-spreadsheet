@@ -111,7 +111,7 @@ import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
 import { Selection } from "../selection/selection";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TableResizer } from "../tables/table_resizer/table_resizer";
-import { DelayedHoveredCellStore } from "./delayed_hovered_cell_store";
+import { DelayedHoveredCellPlugin } from "./delayed_hovered_cell_owl_plugin";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -189,7 +189,7 @@ export class Grid extends OSComponent {
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
 
   onMouseWheel!: (ev: WheelEvent) => void;
-  hoveredCell!: Store<DelayedHoveredCellStore>;
+  private hoveredCell = usePlugin(DelayedHoveredCellPlugin);
   sidePanel!: Store<SidePanelStore>;
   private automaticSumPlugin!: PluginInstance<typeof AutomaticSumPlugin>;
   private devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
@@ -201,7 +201,6 @@ export class Grid extends OSComponent {
       anchorRect: null,
       menuItems: [],
     });
-    this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.sidePanel = useStore(SidePanelStore);
@@ -663,7 +662,7 @@ export class Grid extends OSComponent {
   }
 
   isCellHovered(col: HeaderIndex, row: HeaderIndex): boolean {
-    return this.hoveredCell.col === col && this.hoveredCell.row === row;
+    return this.hoveredCell.col() === col && this.hoveredCell.row() === row;
   }
 
   get focusedClients() {
