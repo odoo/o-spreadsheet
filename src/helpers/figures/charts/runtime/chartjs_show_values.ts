@@ -2,6 +2,7 @@ import { ChartMeta } from "chart.js";
 import { Range } from "../../../..";
 import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
 import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
+import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import {
   ChartDefinition,
   ChartRuntimeGenerationArgs,
@@ -34,6 +35,17 @@ export function getChartShowValues(
       return formatChartDatasetValue(axisFormats, locale, definition.humanize)(value, axisId);
     },
   };
+}
+
+export function getBarChartShowValues(
+  definition: BarChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartShowValuesPluginOptions {
+  const showValues = getChartShowValues(definition, args);
+  if (!showValues.display?.percentages || args.dataSetsValues.length === 1) {
+    return showValues;
+  }
+  return { ...showValues, display: { ...showValues.display, percentages: false } };
 }
 
 export function getColorGridChartShowValues(

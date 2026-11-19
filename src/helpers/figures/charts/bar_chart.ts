@@ -13,7 +13,7 @@ import { getBarChartDatasets } from "./runtime/chartjs_dataset";
 import { getChartLayout } from "./runtime/chartjs_layout";
 import { getBarChartLegend } from "./runtime/chartjs_legend";
 import { getBarChartScales } from "./runtime/chartjs_scales";
-import { getChartShowValues } from "./runtime/chartjs_show_values";
+import { getBarChartShowValues } from "./runtime/chartjs_show_values";
 import { getChartTitle } from "./runtime/chartjs_title";
 import { getBarChartTooltip } from "./runtime/chartjs_tooltip";
 
@@ -112,7 +112,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
           title: getChartTitle(definition, getters),
           legend: getBarChartLegend(definition, chartData),
           tooltip: getBarChartTooltip(definition, chartData),
-          chartShowValuesPlugin: getChartShowValues(definition, chartData),
+          chartShowValuesPlugin: getBarChartShowValues(definition, chartData),
           background: { color: chartData.background },
         },
         ...eventHandlers,

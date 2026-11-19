@@ -9,4 +9,11 @@ export class BarChartDesignPanel extends GenericZoomableChartDesignPanel<
   get isZoomable() {
     return !this.props.definition.horizontal;
   }
+
+  get showPercentageCheckbox() {
+    return (
+      this.props.definition.dataSource.type === "range" &&
+      this.props.definition.dataSource.dataSets.length < 2
+    );
+  }
 }

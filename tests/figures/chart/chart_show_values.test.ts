@@ -31,6 +31,24 @@ describe("Bar chart show value", () => {
     expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
   });
 
+  test("Values and percentages are displayed on two lines on a bar chart", () => {
+    const model = createModelFromGrid({ A1: "1", A2: "2", A3: "3" });
+    const definition: Partial<BarChartDefinition<string>> & { type: "bar" } = {
+      type: "bar",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }],
+        dataSetsHaveTitle: false,
+      }),
+      showData: { values: true, percentages: true },
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+
   test("Outline color is the same as the background color", () => {
     const model = createModelFromGrid({ A1: "1", A2: "2", A3: "3" });
     const definition: Partial<BarChartDefinition<string>> & { type: "bar" } = {

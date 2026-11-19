@@ -314,6 +314,27 @@ describe("bar chart", () => {
     expect(config.data.datasets.map((ds) => ds.categoryPercentage)).toEqual([0.8, 0.8]);
   });
 
+  test("Percentages are only displayed when there is a single data set", () => {
+    const model = createModelFromGrid({ A2: "2", B2: "3" });
+    createChart(
+      model,
+      {
+        type: "bar",
+        ...toChartDataSource({ dataSets: [{ dataRange: "A1:A3" }] }),
+        showData: { percentages: true },
+      },
+      "chartId"
+    );
+    let options = getChartConfiguration(model, "chartId").options;
+    expect(options.plugins.chartShowValuesPlugin.display.percentages).toBe(true);
+
+    updateChart(model, "chartId", {
+      ...toChartDataSource({ dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }] }),
+    });
+    options = getChartConfiguration(model, "chartId").options;
+    expect(options.plugins.chartShowValuesPlugin.display.percentages).toBe(false);
+  });
+
   test("bar chart runtime reflects axis bounds and grids", () => {
     const model = createModelFromGrid({
       A1: "Month",

@@ -2554,18 +2554,23 @@ describe("charts", () => {
     }
   );
 
-  test("Labels and percentages checkboxes are displayed for pie charts but not for bar charts", async () => {
-    createTestChart("bar");
+  test.each(["bar", "pie"] as const)(
+    "Percentage checkbox is displayed for %s charts",
+    async (type) => {
+      createTestChart(type);
+      await mountChartSidePanel();
+      await openChartDesignSidePanel(model, env, fixture, chartId);
+
+      expect("input[name='showPercentages']").toHaveCount(1);
+    }
+  );
+
+  test.each(["pie"] as const)("Label checkbox is displayed for %s charts", async (type) => {
+    createTestChart(type);
     await mountChartSidePanel();
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
-    expect("input[name='showLabels']").toHaveCount(0);
-    expect("input[name='showPercentages']").toHaveCount(0);
-
-    updateChart(model, chartId, { type: "pie" });
-    await nextTick();
     expect("input[name='showLabels']").toHaveCount(1);
-    expect("input[name='showPercentages']").toHaveCount(1);
   });
 
   test("showTotalLine checkbox updates stacked bar charts", async () => {

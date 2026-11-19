@@ -128,6 +128,7 @@ function drawValues(args: {
   shouldSkipValue: (args: CallbackArgs) => boolean;
   getTextColors: (args: CallbackArgs) => TextStyle;
   style?: ChartStyle;
+  splitValueAndPercentage?: boolean;
 }) {
   const { chart, options, getNumberValue, getLabel, getPercentage, direction, style } = args;
   const ctx = chart.ctx as CanvasRenderingContext2D;
@@ -177,14 +178,20 @@ function drawValues(args: {
       if (label) {
         valuesToDisplay.push(label);
       }
-      const displayedValue = formatValueWithPercentage(
+      const formattedValue =
         numberValue !== undefined && !isNaN(numberValue)
           ? options.callback(numberValue, dataset, i)
-          : undefined,
-        percentage
-      );
-      if (displayedValue) {
-        valuesToDisplay.push(displayedValue);
+          : undefined;
+      const displayedValues = args.splitValueAndPercentage
+        ? [
+            formattedValue,
+            formatValueWithPercentage(undefined, percentage, formattedValue !== undefined),
+          ]
+        : [formatValueWithPercentage(formattedValue, percentage)];
+      for (const displayedValue of displayedValues) {
+        if (displayedValue) {
+          valuesToDisplay.push(displayedValue);
+        }
       }
       const textSize = getTextDimensions(valuesToDisplay, ctx, font);
 
@@ -253,26 +260,17 @@ function drawValues(args: {
           valuesToDisplay[i] = clipTextWithEllipsis(ctx, valuesToDisplay[i], maxWidth);
         }
       }
+      const lineHeight = textSize.height / valuesToDisplay.length;
+      const getLineY = (lineIndex: number) =>
+        (lineIndex - (valuesToDisplay.length - 1) / 2) * lineHeight;
       if (!!strokeColor) {
         ctx.strokeStyle = strokeColor;
         ctx.lineWidth = 3; // Stroke the text with a big lineWidth width to have some kind of background
-        if (valuesToDisplay.length === 1) {
-          ctx.strokeText(valuesToDisplay[0], 0, 0);
-        } else if (valuesToDisplay.length === 2) {
-          const height = textSize.height;
-          ctx.strokeText(valuesToDisplay[0], 0, -height / 4);
-          ctx.strokeText(valuesToDisplay[1], 0, height / 4);
-        }
+        valuesToDisplay.forEach((text, lineIndex) => ctx.strokeText(text, 0, getLineY(lineIndex)));
       }
       ctx.fillStyle = textColor;
       ctx.lineWidth = 1;
-      if (valuesToDisplay.length === 1) {
-        ctx.fillText(valuesToDisplay[0], 0, 0);
-      } else if (valuesToDisplay.length === 2) {
-        const height = textSize.height;
-        ctx.fillText(valuesToDisplay[0], 0, -height / 4);
-        ctx.fillText(valuesToDisplay[1], 0, height / 4);
-      }
+      valuesToDisplay.forEach((text, lineIndex) => ctx.fillText(text, 0, getLineY(lineIndex)));
       ctx.restore();
     }
   }
@@ -286,9 +284,17 @@ function drawVerticalBarValues(chart: any, options: ChartShowValuesPluginOptions
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
+    getPercentage: (dataset, i) => {
+      const total = dataset._dataset.data.reduce(
+        (sum: number, value: number) => sum + Number(value),
+        0
+      );
+      return total === 0 ? 0 : (Number(dataset._dataset.data[i]) / total) * 100;
+    },
     getValuePosition: getVerticalBarValuePosition,
     shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
     getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
+    splitValueAndPercentage: true,
   });
 }
 
@@ -390,6 +396,13 @@ function drawHorizontalBarValues(chart: any, options: ChartShowValuesPluginOptio
     options,
     direction: "horizontal",
     getNumberValue: (dataset, i) => dataset._parsed[i].x,
+    getPercentage: (dataset, i) => {
+      const total = dataset._dataset.data.reduce(
+        (sum: number, value: number) => sum + Number(value),
+        0
+      );
+      return total === 0 ? 0 : (Number(dataset._dataset.data[i]) / total) * 100;
+    },
     getValuePosition: ({ chartElement, numberValue, textSize, dataset }) => {
       const xAxisScale = chart.scales[dataset.xAxisID];
       const xZeroLine = xAxisScale.getPixelForValue(0);
