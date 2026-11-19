@@ -401,7 +401,8 @@ export class Evaluator {
     const cell = this.getters.getCell(position);
     if (cell === undefined) {
       // EMPTY_CELL is the only evaluatedCell without position (for perf reasons). We need to add it here.
-      return { ...EMPTY_CELL, position };
+      // A cell without content can still have a format (e.g. default column/row/sheet format)
+      return { ...EMPTY_CELL, position, format: this.getters.getCellFormat(position) };
     }
 
     const cellId = cell.id;

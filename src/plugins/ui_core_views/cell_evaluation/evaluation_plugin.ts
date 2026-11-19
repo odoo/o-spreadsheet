@@ -384,8 +384,8 @@ export class EvaluationPlugin extends CoreViewPlugin {
         // If the cell contains a non-exported formula and that is evaluated to
         // nothing* ,we don't export it.
         // * non-falsy value are relevant and so are 0 and FALSE, which only leaves
-        // the empty string.
-        if (!isExported && value !== "") {
+        // the empty string and the null value (for EMPTY_CELL)
+        if (!isExported && value !== "" && value !== null) {
           newContent = (value ?? "").toString();
           const newFormat = evaluatedCell.format;
           if (newFormat) {
