@@ -3,7 +3,12 @@ import { Model, UID } from "../../../src";
 import { HoveredIconStore } from "../../../src/components/grid_overlay/hovered_icon_store";
 import { useSpreadsheetEnv } from "../../../src/components/os_component";
 import { StandaloneViewport } from "../../../src/components/standalone_viewport/standalone_viewport";
-import { DEFAULT_CELL_HEIGHT, TABLE_HOVER_BACKGROUND_COLOR } from "../../../src/constants";
+import {
+  DEFAULT_CELL_HEIGHT,
+  TABLE_HOVER_BACKGROUND_COLOR,
+  WHEEL_GESTURE_MOVE_THRESHOLD,
+  WHEEL_GESTURE_TIMEOUT,
+} from "../../../src/constants";
 import { buildSheetLink, range } from "../../../src/helpers/misc";
 import { zoneToXc } from "../../../src/helpers/zones";
 import { DevicePixelRatioPlugin } from "../../../src/owl_plugins/device_pixel_ratio_owl_plugin";
@@ -22,6 +27,7 @@ import {
   clickGridIcon,
   createCarouselWithDataView,
   createSheet,
+  deleteFigure,
   deleteRows,
   freezeColumns,
   freezeRows,
@@ -43,7 +49,9 @@ import {
   setGrid,
   toCellPosition,
   toRangeData,
+  useJestFakeTimers,
 } from "../../test_helpers/helpers";
+import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 import { spyStoreCreation, StoreSpy } from "../../test_helpers/stores";
 
 let model: Model;
@@ -359,6 +367,45 @@ describe("Standalone viewport", () => {
     jest.useRealTimers();
   });
 
+  test("Hovered row is updated under the still pointer when the wheel gesture ends", async () => {
+    useJestFakeTimers();
+    setGrid(model, { A1: "=SEQUENCE(5)" }, "sh2");
+    await mountViewport("A1:A5", { sheetId: "sh2", size: { width: 1000, height: 50 } });
+    extendMockGetBoundingClientRect({ "o-grid-overlay": () => ({ width: 1000, height: 50 }) });
+    const isHovered = (xc: string) =>
+      subEnv.getStore(CellHoverOverlayStore).overlayColors.has(toCellPosition("sh2", xc));
+
+    await hoverCell(subActionEnv, "A1", 0);
+    triggerWheelEvent(".o-grid-overlay", { deltaY: DEFAULT_CELL_HEIGHT * 2, clientY: 10 });
+    jest.advanceTimersByTime(WHEEL_GESTURE_TIMEOUT - 1);
+    await nextTick();
+    expect(isHovered("A1")).toBe(true);
+
+    jest.advanceTimersByTime(1);
+    await nextTick();
+    expect(isHovered("A1")).toBe(false);
+    expect(isHovered("A3")).toBe(true);
+    jest.useRealTimers();
+  });
+
+  test("Hovered row is cleared when the wheel gesture moved the viewport away from the pointer", async () => {
+    useJestFakeTimers();
+    setGrid(model, { A1: "Hello" }, "sh2");
+    await mountViewport("A1", { sheetId: "sh2" });
+    let overlayY = 0;
+    extendMockGetBoundingClientRect({ "o-grid-overlay": () => ({ y: overlayY, height: 1000 }) });
+
+    await hoverCell(subActionEnv, "A1", 0);
+    triggerWheelEvent(".o-grid-overlay", { deltaY: DEFAULT_CELL_HEIGHT, clientX: 50, clientY: 10 });
+    await nextTick();
+    overlayY = -2000; // simulates the grid scrolling the figure away
+    jest.advanceTimersByTime(WHEEL_GESTURE_TIMEOUT);
+    await nextTick();
+    const overlayColors = subEnv.getStore(CellHoverOverlayStore).overlayColors;
+    expect(overlayColors.has(toCellPosition("sh2", "A1"))).toBe(false);
+    jest.useRealTimers();
+  });
+
   test("Standalone viewport is drawn again when the formula fingerprints are toggled", async () => {
     setGrid(model, { A1: "=1" });
     await mountViewport("A1:A2");
@@ -523,5 +570,115 @@ describe("Standalone viewport", () => {
         { id: "D1", height: DEFAULT_CELL_HEIGHT, width: 200, x: 800, y: 0 },
       ]);
     });
+  });
+});
+
+describe("Wheel gesture ownership between a data view and the grid", () => {
+  const cellHeight = DEFAULT_CELL_HEIGHT;
+  afterEach(() => jest.useRealTimers());
+
+  // Mounts a spreadsheet with a data view showing 2 of its 20 rows
+  async function mountDataViewInGrid() {
+    useJestFakeTimers();
+    const sheetId = model.getters.getActiveSheetId();
+    setGrid(model, { A1: "=SEQUENCE(20)" });
+    createCarouselWithDataView(model, toRangeData(sheetId, "A1:A20"), "carouselId", sheetId, {
+      size: { width: 1048, height: 61 + cellHeight * 2 }, // the content is exactly 2 rows high
+    });
+    const { env } = await mountSpreadsheet({ model });
+    const grid = env.getStore(ViewportsStore);
+    const dataView = storeSpy.getStores(ViewportsStore).at(-1);
+    return (axis: "scrollX" | "scrollY" = "scrollY") => ({
+      grid: grid.activeSheetScrollInfo[axis],
+      dataView: dataView.activeSheetScrollInfo[axis],
+    });
+  }
+
+  test("The data view scrolls instead of the grid", async () => {
+    const scroll = await mountDataViewInGrid();
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: cellHeight });
+    expect(scroll()).toEqual({ grid: 0, dataView: cellHeight });
+  });
+
+  test("The grid scrolls when the gesture starts on a data view at its scroll end", async () => {
+    const scroll = await mountDataViewInGrid();
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: cellHeight * 100 });
+    jest.advanceTimersByTime(WHEEL_GESTURE_TIMEOUT);
+    const { dataView } = scroll();
+
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: cellHeight });
+    expect(scroll()).toEqual({ grid: cellHeight, dataView });
+  });
+
+  test("Scrolling up, the data view scrolls until its top, then the grid", async () => {
+    const scroll = await mountDataViewInGrid();
+    triggerWheelEvent(".o-grid", { deltaY: cellHeight * 2 });
+    jest.advanceTimersByTime(WHEEL_GESTURE_TIMEOUT);
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: cellHeight });
+    jest.advanceTimersByTime(WHEEL_GESTURE_TIMEOUT);
+
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: -cellHeight });
+    expect(scroll()).toEqual({ grid: cellHeight * 2, dataView: 0 });
+    jest.advanceTimersByTime(WHEEL_GESTURE_TIMEOUT);
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: -cellHeight });
+    expect(scroll()).toEqual({ grid: cellHeight, dataView: 0 });
+  });
+
+  test("The grid scrolls horizontally on a data view that cannot", async () => {
+    const scroll = await mountDataViewInGrid();
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: 50, shiftKey: true });
+    expect(scroll("scrollX")).toEqual({ grid: 50, dataView: 0 });
+  });
+
+  test("The grid scrolls on a data view filled by its frozen rows", async () => {
+    freezeRows(model, 4);
+    const scroll = await mountDataViewInGrid();
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: cellHeight });
+    expect(scroll()).toEqual({ grid: cellHeight, dataView: 0 });
+  });
+
+  test("The data view keeps the gesture once at its scroll end", async () => {
+    const scroll = await mountDataViewInGrid();
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: cellHeight * 100 });
+    jest.advanceTimersByTime(WHEEL_GESTURE_TIMEOUT - 1);
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: cellHeight });
+    expect(scroll().grid).toBe(0);
+
+    jest.advanceTimersByTime(WHEEL_GESTURE_TIMEOUT);
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: cellHeight });
+    expect(scroll().grid).toBe(cellHeight);
+  });
+
+  test("The gesture ends when the pointer moves away from where it started", async () => {
+    const scroll = await mountDataViewInGrid();
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: cellHeight * 100 });
+    triggerWheelEvent(".o-standalone-viewport", {
+      deltaY: cellHeight,
+      clientX: WHEEL_GESTURE_MOVE_THRESHOLD,
+    });
+    expect(scroll().grid).toBe(0);
+
+    triggerWheelEvent(".o-standalone-viewport", {
+      deltaY: cellHeight,
+      clientX: WHEEL_GESTURE_MOVE_THRESHOLD + 1,
+    });
+    expect(scroll().grid).toBe(cellHeight);
+  });
+
+  test("The grid keeps the gesture when a data view comes under the pointer", async () => {
+    const scroll = await mountDataViewInGrid();
+    triggerWheelEvent(".o-grid", { deltaY: cellHeight });
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: cellHeight });
+    expect(scroll()).toEqual({ grid: cellHeight * 2, dataView: 0 });
+  });
+
+  test("A data view unmounted during its gesture gives it back to the grid", async () => {
+    const scroll = await mountDataViewInGrid();
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: cellHeight });
+    deleteFigure(model, "carouselId");
+    await nextTick();
+
+    triggerWheelEvent(".o-grid", { deltaY: cellHeight });
+    expect(scroll().grid).toBe(cellHeight);
   });
 });

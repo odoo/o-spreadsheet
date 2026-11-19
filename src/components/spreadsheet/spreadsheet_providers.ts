@@ -14,6 +14,7 @@ import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { SpreadsheetRectPlugin } from "../../owl_plugins/spreadsheet_rect_plugin";
 import { TableResizePlugin } from "../../owl_plugins/table_resize_plugin";
 import { TrimWhitespacePlugin } from "../../owl_plugins/trim_whitespace_owl_plugin";
+import { WheelGesturePlugin } from "../../owl_plugins/wheel_gesture_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
@@ -52,6 +53,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
       TrimWhitespacePlugin,
       SplitToColumnsPlugin,
       FormulaFingerprintPlugin,
+      WheelGesturePlugin,
     ],
     {
       popoverContainerRectSignal: spreadsheetRectPlugin.rect,
