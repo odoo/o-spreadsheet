@@ -60,6 +60,8 @@ const PRINT_IFRAME_CSS = /* css */ `
 
 interface PrintIframeArgs {
   iframeRef: Signal<HTMLIFrameElement | null>;
+  isDashboard: boolean;
+  printFilters: Function;
   pageCount: Signal<number>;
   /** Dimensions/padding of a page */
   pageStyle: Signal<string>;
@@ -110,7 +112,9 @@ export function usePrintIframe(args: PrintIframeArgs): PrintIframe {
 
     styleElement = doc.createElement("style");
     doc.head.appendChild(styleElement);
-    doc.body.replaceChildren();
+    args.isDashboard
+      ? doc.body.replaceChildren(createTitleFilterPageElement(args.printFilters))
+      : doc.body.replaceChildren();
 
     doc.addEventListener("keydown", (ev: KeyboardEvent) => {
       if (keyboardEventToShortcutString(ev) === "Ctrl+P") {
@@ -142,12 +146,12 @@ export function usePrintIframe(args: PrintIframeArgs): PrintIframe {
       }
     } else {
       if (isEmptyPage) {
-        doc.body.replaceChildren();
+        doc.body.replaceChildren(createTitleFilterPageElement(args.printFilters));
       }
       while (doc.body.children.length > pageCount) {
         doc.body.lastElementChild?.remove();
       }
-      while (doc.body.children.length < pageCount) {
+      while (doc.body.children.length <= pageCount) {
         doc.body.appendChild(createPageElement());
       }
     }
@@ -184,6 +188,13 @@ function createEmptyPageElement() {
   const message = document.createElement("h4");
   message.textContent = _t("No content to print");
   page.appendChild(message);
+  return page;
+}
+
+function createTitleFilterPageElement(printFilters: Function) {
+  const page = document.createElement("div");
+  page.classList.add("o-print-page", "o-title-filter-print-page");
+  printFilters(page);
   return page;
 }
 

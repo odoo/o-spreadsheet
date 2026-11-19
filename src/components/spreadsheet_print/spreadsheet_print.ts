@@ -1,4 +1,5 @@
 import { computed, PluginInstance, providePlugins, signal, usePlugin } from "@odoo/owl";
+import { providePluginsIfNotPresent } from "../../helpers/owl3_helpers";
 import { PrintModePlugin } from "../../owl_plugins/print_mode_owl_plugin";
 import { cssPropertiesToCss } from "../helpers/css";
 import { OSComponent } from "../os_component";
@@ -8,6 +9,7 @@ import { Checkbox } from "../side_panel/components/checkbox/checkbox";
 import { Section } from "../side_panel/components/section/section";
 import { StandaloneGridCanvas } from "../standalone_grid_canvas/standalone_grid_canvas";
 import { PrintIframe, usePrintIframe } from "./print_iframe";
+import { SpreadhseetPrintFilterPlugin } from "./spreadsheet_print_filter_plugin";
 import {
   Orientation,
   PrintPageLayout,
@@ -21,6 +23,7 @@ export class SpreadsheetPrint extends OSComponent {
   static components = { StandaloneGridCanvas, Section, Select, BadgeSelection, Checkbox };
 
   printPlugin!: PluginInstance<typeof SpreadsheetPrintPlugin>;
+  filterPlugin!: PluginInstance<typeof SpreadhseetPrintFilterPlugin>;
   printIframe!: PrintIframe;
   printModePlugin!: PluginInstance<typeof PrintModePlugin>;
 
@@ -28,10 +31,14 @@ export class SpreadsheetPrint extends OSComponent {
 
   setup() {
     providePlugins([SpreadsheetPrintPlugin]);
+    providePluginsIfNotPresent([SpreadhseetPrintFilterPlugin]);
     this.printPlugin = usePlugin(SpreadsheetPrintPlugin);
+    this.filterPlugin = usePlugin(SpreadhseetPrintFilterPlugin);
     this.printModePlugin = usePlugin(PrintModePlugin);
     this.printIframe = usePrintIframe({
       iframeRef: this.iframeRef,
+      isDashboard: this.model().getters.isDashboard(),
+      printFilters: this.filterPlugin.printFilters,
       pageCount: computed(() => this.printPlugin.printPages().length),
       pageStyle: computed((): string => {
         const { width, height } = this.printPlugin.pageDimensionsInPixels();
