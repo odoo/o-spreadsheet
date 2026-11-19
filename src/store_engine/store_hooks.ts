@@ -1,18 +1,9 @@
-import { onWillDestroy, useScope } from "@odoo/owl";
+import { onWillDestroy, Scope, useScope } from "@odoo/owl";
 import { useEnv, useSubEnv } from "../owl3_compatibility_layer";
 import { LocalStoreConstructor, Store, StoreConstructor, StoreParams } from "../types/store_engine";
 import { DependencyContainer } from "./dependency_container";
 
-/**
- * This hook should be used at the root of your app to provide the store container.
- */
-export function useStoreProvider(): DependencyContainer {
-  const env = useEnv();
-  if (env.__spreadsheet_stores__ instanceof DependencyContainer) {
-    return env.__spreadsheet_stores__;
-  }
-  const scope = useScope();
-  const container = new DependencyContainer();
+function provideScopedGetStore(container: DependencyContainer, scope: Scope) {
   useSubEnv({
     __spreadsheet_stores__: container,
     getStore: <T extends StoreConstructor>(Store: T) => {
@@ -20,6 +11,20 @@ export function useStoreProvider(): DependencyContainer {
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
     },
   });
+}
+
+/**
+ * This hook should be used at the root of your app to provide the store container.
+ */
+export function useStoreProvider(): DependencyContainer {
+  const env = useEnv();
+  const scope = useScope();
+  if (env.__spreadsheet_stores__ instanceof DependencyContainer) {
+    provideScopedGetStore(env.__spreadsheet_stores__, scope);
+    return env.__spreadsheet_stores__;
+  }
+  const container = new DependencyContainer();
+  provideScopedGetStore(container, scope);
   onWillDestroy(() => container.dispose());
   return container;
 }
@@ -35,13 +40,7 @@ export function useChildStoreProvider(extendedStores: StoreConstructor[]) {
     throw new Error("No parent store provider found.");
   }
   const container = new DependencyContainer(parentContainer, extendedStores);
-  useSubEnv({
-    __spreadsheet_stores__: container,
-    getStore: <T extends StoreConstructor>(Store: T) => {
-      const store = container.get(Store);
-      return proxifyStoreMutation(store, () => container.trigger("store-updated"));
-    },
-  });
+  provideScopedGetStore(container, useScope());
   onWillDestroy(() => container.dispose());
   return container;
 }
