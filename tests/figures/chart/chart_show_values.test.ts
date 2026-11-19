@@ -3,6 +3,7 @@ import { BubbleChartDefinition } from "../../../src/types/chart/bubble_chart";
 import { CalendarChartDefinition } from "../../../src/types/chart/calendar_chart";
 import { ComboChartDefinition } from "../../../src/types/chart/combo_chart";
 import { FunnelChartDefinition } from "../../../src/types/chart/funnel_chart";
+import { HeatmapChartDefinition } from "../../../src/types/chart/heatmap_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../../src/types/chart/pie_chart";
 import { RadarChartDefinition } from "../../../src/types/chart/radar_chart";
@@ -520,6 +521,66 @@ describe("calendar chart show value", () => {
 
     const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     expect(drawChartOnNodeCanvas(runtime, { width: 300, height: 80 })).toMatchImageSnapshot();
+  });
+  test.each([
+    ["values", { values: true, percentages: false }],
+    ["percentages", { values: false, percentages: true }],
+    ["values and percentages", { values: true, percentages: true }],
+  ])("Can show %s on a calendar chart", (_, showData) => {
+    // prettier-ignore
+    const model = createModelFromGrid({
+      A1: "01/01/2024", B1: "1",
+      A2: "01/02/2024", B2: "2",
+      A3: "02/05/2024", B3: "3",
+      A4: "02/06/2024", B4: "4",
+    });
+    const definition: Partial<CalendarChartDefinition<string>> & { type: "calendar" } = {
+      type: "calendar",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B4" }],
+        dataSetsHaveTitle: false,
+        labelRange: "A1:A4",
+      }),
+      showData,
+      title: { text: "" },
+      legendPosition: "none",
+      verticalGroupBy: "day_of_week",
+      horizontalGroupBy: "month_number",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+});
+
+describe("heatmap chart show value", () => {
+  test.each([
+    ["values", { values: true, percentages: false }],
+    ["percentages", { values: false, percentages: true }],
+    ["values and percentages", { values: true, percentages: true }],
+  ])("Can show %s on a heatmap chart", (_, showData) => {
+    // prettier-ignore
+    const model = createModelFromGrid({
+      A1: "a", B1: "x", C1: "1",
+      A2: "a", B2: "y", C2: "2",
+      A3: "b", B3: "x", C3: "3",
+      A4: "b", B4: "y", C4: "4",
+    });
+    const definition: Partial<HeatmapChartDefinition<string>> & { type: "heatmap" } = {
+      type: "heatmap",
+      xRange: "A1:A4",
+      yRange: "B1:B4",
+      sizeRange: "C1:C4",
+      dataSetsHaveTitle: false,
+      showData,
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
   });
 });
 

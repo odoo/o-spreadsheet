@@ -358,6 +358,21 @@ function drawColorGridValues(chart: any, options: ChartShowValuesPluginOptions) 
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => dataset._parsed[i].y,
+    getPercentages: (chart, dataset) => {
+      const total =
+        chart._metasets.reduce(
+          (sum: number, meta: any) =>
+            sum +
+            meta._dataset.values.reduce((sum: number, value: number) => sum + (value ?? 0), 0),
+          0
+        ) / 100;
+      if (total === 0) {
+        return undefined;
+      }
+      return dataset._dataset.values.map((value: number) =>
+        value === undefined ? undefined : value / total
+      );
+    },
     getValuePosition: ({ chartElement }) => ({
       x: chartElement.x,
       y: chartElement.y + chartElement.height / 2,
@@ -368,6 +383,7 @@ function drawColorGridValues(chart: any, options: ChartShowValuesPluginOptions) 
       strokeColor: undefined,
       textColor: chartFontColor(chartElement.options.backgroundColor),
     }),
+    splitValueAndPercentage: true,
   });
 }
 

@@ -76,3 +76,9 @@ export interface ColorGridChartDefinition {
   readonly showData?: ChartShowValues;
   readonly axesDesign?: AxesDesign;
 }
+
+export const ColorGridChartDefaults: { showData: ChartShowValues } = {
+  showData: {
+    values: true,
+  },
+};

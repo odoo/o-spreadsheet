@@ -8,7 +8,10 @@ import {
   ChartRuntimeGenerationArgs,
   ChartShowValues,
 } from "../../../../types/chart/chart";
-import { ColorGridChartDefinition } from "../../../../types/chart/common_chart";
+import {
+  ColorGridChartDefaults,
+  ColorGridChartDefinition,
+} from "../../../../types/chart/common_chart";
 import { PyramidChartDefinition } from "../../../../types/chart/pyramid_chart";
 import {
   SunburstChartDefaults,
@@ -56,7 +59,7 @@ export function getColorGridChartShowValues(
   return {
     type: definition.type,
     horizontal: false,
-    display: definition.showData ?? {},
+    display: { ...ColorGridChartDefaults.showData, ...definition.showData },
     background: () => definition.background,
     callback: (_value: number | string, dataset: ChartMeta, index) => {
       const cell = dataSetsValues[dataset.index]?.data[index];

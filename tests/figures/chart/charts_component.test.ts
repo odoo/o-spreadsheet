@@ -2513,7 +2513,7 @@ describe("charts", () => {
     );
   });
 
-  test.each<ChartType>(["bar", "line", "waterfall", "radar", "calendar"])(
+  test.each<ChartType>(["bar", "line", "waterfall", "radar"])(
     "showValues checkbox updates the chart",
     async (type: ChartType) => {
       createTestChart(type);

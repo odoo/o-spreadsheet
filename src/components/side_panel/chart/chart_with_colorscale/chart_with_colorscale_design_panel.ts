@@ -1,5 +1,5 @@
 import { _t } from "../../../../translation";
-import { LegendPosition } from "../../../../types/chart/common_chart";
+import { ColorGridChartDefaults, LegendPosition } from "../../../../types/chart/common_chart";
 import { Color, ValueAndLabel } from "../../../../types/misc";
 import { Select } from "../../../select/select";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -30,6 +30,8 @@ export abstract class ChartWithColorScaleDesignPanel extends OSComponent {
   protected props = useProps(
     chartSidePanelPropsDefinition
   ) as unknown as ChartSidePanelProps<ChartWithColorScaleDefinition>;
+
+  defaults = ColorGridChartDefaults;
 
   onColormapChange(colorScale): void {
     this.props.updateChart(this.props.chartId, {
