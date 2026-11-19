@@ -2,6 +2,7 @@ import { CellValueType, EvaluatedCell } from "../types/cells";
 import { Getters } from "../types/getters";
 import { CellPosition, UID, Zone } from "../types/misc";
 import { isDateTimeFormat } from "./format/format";
+import { recomputeZones } from "./recompute_zones";
 import { getZonesByColumns, isInside } from "./zones";
 
 export type ExtendedColumnType =
@@ -26,7 +27,15 @@ export interface ColumnAnalysis {
   nonEmpty: EvaluatedCell[];
 }
 
+export function hasSameRowSpan(zones: Zone[]) {
+  const [firstZone, ...otherZones] = recomputeZones(zones);
+  return otherZones.every((zone) => zone.top === firstZone.top && zone.bottom === firstZone.bottom);
+}
+
 export function analyzeColumns(zones: Zone[], getters: Getters): ColumnAnalysis[] {
+  if (!hasSameRowSpan(zones)) {
+    return [];
+  }
   return getZonesByColumns(zones).map((zone) => analyzeColumn(zone, getters));
 }
 

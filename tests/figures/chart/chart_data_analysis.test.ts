@@ -6,6 +6,7 @@ import {
   extendMockGetBoundingClientRect,
   selectCell,
   setCellContent,
+  setSelection,
   setViewportOffset,
   simulateClick,
   triggerMouseEvent,
@@ -38,21 +39,31 @@ test("clicking the data analysis button again closes the panel", async () => {
 });
 
 test("shows a prompt to select data when the selection is empty", async () => {
-  const { model, fixture } = await mountSpreadsheet();
+  const { model } = await mountSpreadsheet();
   selectCell(model, "A1");
   await simulateClick(".o-data-analysis-button");
-  expect(fixture.querySelector(".o-data-analysis-empty")?.textContent?.trim()).toBe(
+  expect(".o-data-analysis-empty").toHaveText(
     "Select cells containing data to see chart suggestions. Note that the order of selected columns can impact chart suggestions."
   );
 });
 
 test("shows a message when the selection has data but no chart can be suggested", async () => {
   const model = createModelFromGrid({ A1: "=1/0" });
-  const { fixture } = await mountSpreadsheet({ model });
+  await mountSpreadsheet({ model });
   selectCell(model, "A1");
   await simulateClick(".o-data-analysis-button");
-  expect(fixture.querySelector(".o-data-analysis-empty")?.textContent?.trim()).toBe(
+  expect(".o-data-analysis-empty").toHaveText(
     "No chart suggestions available for the selected data. Note that the order of selected columns can impact chart suggestions."
+  );
+});
+
+test("shows a message when the selected columns don't cover the same rows", async () => {
+  const model = createModelFromGrid({ A1: "1", A2: "2", A3: "3", B2: "4", B3: "5", B4: "6" });
+  await mountSpreadsheet({ model });
+  setSelection(model, ["A1:A3", "B2:B4"]);
+  await simulateClick(".o-data-analysis-button");
+  expect(".o-data-analysis-empty").toHaveText(
+    "The selected columns don't cover the same rows. Select the same rows in each column to see chart suggestions."
   );
 });
 

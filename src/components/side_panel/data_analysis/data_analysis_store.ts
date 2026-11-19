@@ -1,9 +1,11 @@
+import { hasSameRowSpan } from "../../../helpers/data_analysis";
 import {
   ChartSuggestion,
   getChartSuggestions,
 } from "../../../helpers/figures/charts/chart_suggestion_engine";
 import { zoneToXc } from "../../../helpers/zones";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
+import { _t } from "../../../translation";
 import { CellValueType } from "../../../types/cells";
 import { Command, invalidateEvaluationCommands } from "../../../types/commands";
 import { Get } from "../../../types/store_engine";
@@ -14,6 +16,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
   chartSuggestions: ChartSuggestion[] = [];
   private isDirty = false;
   ranges?: string[];
+  private hasSameRowSpan = true;
 
   constructor(get: Get) {
     super(get);
@@ -56,6 +59,22 @@ export class DataAnalysisStore extends SpreadsheetStore {
     }
   }
 
+  get emptyMessage(): string {
+    if (!this.hasData) {
+      return _t(
+        "Select cells containing data to see chart suggestions. Note that the order of selected columns can impact chart suggestions."
+      );
+    }
+    if (!this.hasSameRowSpan) {
+      return _t(
+        "The selected columns don't cover the same rows. Select the same rows in each column to see chart suggestions."
+      );
+    }
+    return _t(
+      "No chart suggestions available for the selected data. Note that the order of selected columns can impact chart suggestions."
+    );
+  }
+
   private refresh() {
     const sheetId = this.getters.getActiveSheetId();
     const zones = this.getters.getSelectedZones();
@@ -66,6 +85,8 @@ export class DataAnalysisStore extends SpreadsheetStore {
         .getEvaluatedCellsInZone(sheetId, zone)
         .some((cell) => cell.type !== CellValueType.empty)
     );
+
+    this.hasSameRowSpan = hasSameRowSpan(zones);
 
     const suggestions = this.hasData ? getChartSuggestions(zones, this.getters) : [];
     this.chartSuggestions = suggestions;
