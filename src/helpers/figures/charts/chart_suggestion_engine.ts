@@ -22,7 +22,14 @@ import {
 } from "../../../types/chart/chart_suggestion";
 import { Getters } from "../../../types/getters";
 import { toXC } from "../../coordinates";
-import { ColumnAnalysis, ExtendedColumnType } from "../../data_statistics/data_analysis";
+import {
+  CATEGORICAL_OR_BOOLEAN,
+  ColumnAnalysis,
+  ExtendedColumnType,
+  matchesShape,
+  NUMBER_OR_PERCENTAGE,
+  RulePattern,
+} from "../../data_statistics/data_analysis";
 import {
   dataset,
   getUnboundRange,
@@ -77,44 +84,6 @@ const PYRAMID_HEADER_KEYWORD_PATTERNS = PYRAMID_HEADER_KEYWORDS.map(
 export interface ChartSuggestion {
   description: string;
   definition: ChartDefinition;
-}
-
-// -----------------------------------------------------------------------------
-// Rule framework
-//
-// A column "shape" (the tuple of each selected column's ExtendedColumnType) is matched
-// against a table of rules to decide which chart suggestions to propose.
-// Rules are divided in two categories:
-//  * EXACT_PATTERNS: a fixed-length array of column types (e.g. "number + number" or "categorical + date + percentage").
-//  * EXTENDABLE_PATTERNS: a fixed-length set of leading types followed by one or more columns of a fixed type (e.g. "many-numbers" or "label + multiple numbers").
-// -----------------------------------------------------------------------------
-
-type ColumnTypeSpec = ExtendedColumnType | readonly ExtendedColumnType[];
-
-/** A RulePattern describes the column types that a rule applies to. It contains a fixed-length
- *  array of leading types, and optionally an extension type that can repeat one or more times.
- * The leadingTypes is required anytime, while the extension is only present for extendable patterns.
- */
-interface RulePattern {
-  readonly leadingTypes: readonly ColumnTypeSpec[];
-  //Present only for extendable patterns: every column after leadingTypes must match `type`,
-  readonly extension?: { readonly type: ColumnTypeSpec; readonly minSize: number };
-}
-
-function matchesColumnType(spec: ColumnTypeSpec, type: ExtendedColumnType): boolean {
-  return Array.isArray(spec) ? spec.includes(type) : spec === type;
-}
-
-function matchesShape(pattern: RulePattern, shape: ExtendedColumnType[]): boolean {
-  const { leadingTypes, extension } = pattern;
-  const expectedLength = leadingTypes.length + (extension?.minSize ?? 0);
-  if (extension ? shape.length < expectedLength : shape.length !== expectedLength) {
-    return false;
-  }
-  return shape.every((type, i) => {
-    const spec = i < leadingTypes.length ? leadingTypes[i] : extension?.type;
-    return spec !== undefined && matchesColumnType(spec, type);
-  });
 }
 
 interface ChartSuggestionRule<T> {
@@ -480,8 +449,6 @@ function buildManyNumbersContext(cols: ColumnAnalysis[], getters: Getters): Many
   };
 }
 
-const NUMBER_OR_PERCENTAGE: readonly ExtendedColumnType[] = ["number", "percentage"];
-const CATEGORICAL_OR_BOOLEAN: readonly ExtendedColumnType[] = ["categorical", "boolean"];
 const EXACT_PATTERNS: ChartSuggestionRule<any>[] = [
   {
     pattern: { leadingTypes: ["number"] },
