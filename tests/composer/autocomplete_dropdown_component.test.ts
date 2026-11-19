@@ -229,14 +229,15 @@ describe("Functions autocomplete", () => {
       );
     });
 
-    test("autocomplete not displayed for exact match", async () => {
+    test("autocomplete displayed for exact match", async () => {
       addToRegistry(functionRegistry, "FUZZY", {
         description: "",
         args: [],
         compute: () => ({ value: 1 }),
       });
       await typeInComposer("=FUZZY");
-      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
+      expect(".o-autocomplete-value").toHaveCount(1);
+      expect(".o-autocomplete-value").toHaveText("FUZZY");
     });
 
     test("Mouse events on the autocomplete dropdown don't make the composer loose focus", async () => {
