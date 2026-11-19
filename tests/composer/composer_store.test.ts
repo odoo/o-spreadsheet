@@ -664,6 +664,13 @@ describe("edition", () => {
     expect(composerStore.composerSelection).toEqual({ start: 2, end: 2 });
   });
 
+  test("setting a percentage format on a column automatically pre-appends the % symbol while typing.", () => {
+    setFormat(model, "A1:A100", "0.00%");
+    composerStore.startEdition("12");
+    expect(composerStore.currentContent).toBe("12%");
+    expect(composerStore.composerSelection).toEqual({ start: 2, end: 2 });
+  });
+
   test.each(["2%", "20.1%", "20.000001%"])(
     "display percentages as percentages in composer",
     (content) => {
