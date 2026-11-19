@@ -49,6 +49,7 @@ iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
   const hasIcon = getters.isCellValidCheckbox(position);
   if (hasIcon) {
     const value = !!getters.getEvaluatedCell(position).value;
+    const isDisabled = getters.isReadonly() || !!getters.getCell(position)?.isFormula;
     return {
       svg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED,
       hoverSvg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED_HOVERED,
@@ -58,16 +59,12 @@ iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
       margin: GRID_ICON_MARGIN,
       position,
       type: "data_validation_checkbox",
-      onClick: (position, env) => {
-        const cell = env.model.getters.getCell(position);
-        const isDisabled = env.model.getters.isReadonly() || !!cell?.isFormula;
-        if (isDisabled) {
-          return;
-        }
-
-        const cellContent = value ? "FALSE" : "TRUE";
-        env.model.dispatch("UPDATE_CELL", { ...position, content: cellContent });
-      },
+      onClick: isDisabled
+        ? undefined
+        : (position, env) => {
+            const cellContent = value ? "FALSE" : "TRUE";
+            env.model.dispatch("UPDATE_CELL", { ...position, content: cellContent });
+          },
     };
   }
   return undefined;
