@@ -96,7 +96,7 @@ export const chartShowValuesPlugin: Plugin = {
           : drawVerticalBarValues(chart, options);
         break;
       case "pyramid":
-        drawHorizontalBarValues(chart, options);
+        drawPyramidValues(chart, options);
         break;
       case "calendar":
       case "heatmap":
@@ -117,7 +117,7 @@ function drawValues(args: {
   options: ChartShowValuesPluginOptions;
   direction: "horizontal" | "vertical";
   getNumberValue: (dataset: any, valueIndex: number) => number | undefined;
-  getPercentage?: (dataset: any, valueIndex: number) => number | undefined;
+  getPercentages?: (chart: any, dataset: any) => number[] | undefined;
   getValuePosition: (args: CallbackArgs) => {
     x: number;
     y: number;
@@ -130,7 +130,7 @@ function drawValues(args: {
   style?: ChartStyle;
   splitValueAndPercentage?: boolean;
 }) {
-  const { chart, options, getNumberValue, getLabel, getPercentage, direction, style } = args;
+  const { chart, options, getNumberValue, getLabel, getPercentages, direction, style } = args;
   const ctx = chart.ctx as CanvasRenderingContext2D;
   ctx.save();
 
@@ -156,10 +156,15 @@ function drawValues(args: {
       continue;
     }
 
+    let percentages: number[] | undefined = undefined;
+    if (options.display?.percentages) {
+      percentages = getPercentages?.(chart, dataset);
+    }
+
     for (let i = 0; i < dataset._parsed.length; i++) {
       const numberValue = options.display?.values ? getNumberValue(dataset, i) : undefined;
       const label = options.display?.labels ? getLabel?.(chart, dataset, i) : undefined;
-      const percentage = options.display?.percentages ? getPercentage?.(dataset, i) : undefined;
+      const percentage = percentages?.[i];
       if (
         (numberValue === undefined || isNaN(numberValue)) &&
         !label &&
@@ -284,12 +289,13 @@ function drawVerticalBarValues(chart: any, options: ChartShowValuesPluginOptions
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
-    getPercentage: (dataset, i) => {
-      const total = dataset._dataset.data.reduce(
-        (sum: number, value: number) => sum + Number(value),
-        0
-      );
-      return total === 0 ? 0 : (Number(dataset._dataset.data[i]) / total) * 100;
+    getPercentages: (_, dataset) => {
+      const total =
+        dataset._dataset.data.reduce((sum: number, value: number) => sum + value, 0) / 100;
+      if (total === 0) {
+        return undefined;
+      }
+      return dataset._dataset.data.map((value: number) => value / total);
     },
     getValuePosition: getVerticalBarValuePosition,
     shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
@@ -396,30 +402,46 @@ function drawHorizontalBarValues(chart: any, options: ChartShowValuesPluginOptio
     options,
     direction: "horizontal",
     getNumberValue: (dataset, i) => dataset._parsed[i].x,
-    getPercentage: (dataset, i) => {
-      const total = dataset._dataset.data.reduce(
-        (sum: number, value: number) => sum + Number(value),
-        0
-      );
-      return total === 0 ? 0 : (Number(dataset._dataset.data[i]) / total) * 100;
-    },
-    getValuePosition: ({ chartElement, numberValue, textSize, dataset }) => {
-      const xAxisScale = chart.scales[dataset.xAxisID];
-      const xZeroLine = xAxisScale.getPixelForValue(0);
-      const distanceFromAxisOrigin = Math.abs(chartElement.x - xZeroLine);
-      let xPosition: number;
-      const sign = numberValue < 0 ? -1 : 1;
-      if (distanceFromAxisOrigin < textSize.width) {
-        xPosition = xZeroLine + sign * (textSize.width / 2 + HORIZONTAL_PADDING);
-      } else {
-        xPosition = chartElement.x - sign * (chartElement.width / 2);
+    getPercentages: (_, dataset) => {
+      const total =
+        dataset._dataset.data.reduce((sum: number, value: number) => sum + value, 0) / 100;
+      if (total === 0) {
+        return undefined;
       }
-      return {
-        x: xPosition,
-        y: chartElement.y,
-      };
+      return dataset._dataset.data.map((value: number) => value / total);
     },
+    getValuePosition: getHorizontalBarValuePosition,
     shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
+    getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
+  });
+}
+
+function drawPyramidValues(chart: any, options: ChartShowValuesPluginOptions) {
+  drawValues({
+    chart,
+    options,
+    direction: "horizontal",
+    getNumberValue: (dataset, i) => dataset._parsed[i].x,
+    getPercentages: (chart, dataset) => {
+      const total =
+        chart._metasets.reduce(
+          (sum: number, dataset: any) =>
+            sum + dataset._parsed.reduce((sum: number, item) => sum + Math.abs(item.x), 0),
+          0
+        ) / 100;
+      if (total === 0) {
+        return undefined;
+      }
+      return dataset._parsed.map((item) => Math.abs(item.x) / total);
+    },
+    // Use the actual bar value to know on which side to draw, even if the value itself is not displayed
+    getValuePosition: (args) =>
+      getHorizontalBarValuePosition({
+        ...args,
+        numberValue: args.dataset._parsed[args.valueIndex].x,
+      }),
+    shouldSkipValue: ({ chartElement, dataset }) =>
+      !chartElement.width || isLineOverlayOnBarChart(options, dataset),
     getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
   });
 }
@@ -451,9 +473,10 @@ function drawPieValues(chart: any, options: ChartShowValuesPluginOptions) {
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i]),
-    getPercentage: (dataset, i) => {
-      const total = dataset._parsed.reduce((sum: number, value: number) => sum + Number(value), 0);
-      return total === 0 ? 0 : (Number(dataset._parsed[i]) / total) * 100;
+    getPercentages: (_, dataset) => {
+      const total =
+        dataset._parsed.reduce((sum: number, value: number) => sum + Number(value), 0) / 100;
+      return dataset._parsed.map((value: number) => value / total);
     },
     getValuePosition: ({ chartElement }) => {
       const { midAngle: angle, midRadius } = getSliceDimensions(chartElement);
@@ -537,4 +560,22 @@ function getVerticalBarValuePosition(args: CallbackArgs) {
   }
 
   return { x: chartElement.x, y: yPosition };
+}
+
+function getHorizontalBarValuePosition(args: CallbackArgs) {
+  const { chartElement, numberValue, dataset, textSize, chart } = args;
+  const xAxisScale = chart.scales[dataset.xAxisID];
+  const xZeroLine = xAxisScale.getPixelForValue(0);
+  const distanceFromAxisOrigin = Math.abs(chartElement.x - xZeroLine);
+  let xPosition: number;
+  const sign = numberValue < 0 ? -1 : 1;
+  if (distanceFromAxisOrigin < textSize.width) {
+    xPosition = xZeroLine + sign * (textSize.width / 2 + HORIZONTAL_PADDING);
+  } else {
+    xPosition = chartElement.x - sign * (chartElement.width / 2);
+  }
+  return {
+    x: xPosition,
+    y: chartElement.y,
+  };
 }

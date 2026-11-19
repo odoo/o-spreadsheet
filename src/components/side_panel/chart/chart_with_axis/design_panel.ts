@@ -45,4 +45,8 @@ export class ChartWithAxisDesignPanel<
     }
     return axes;
   }
+
+  get showPercentageCheckbox() {
+    return false;
+  }
 }

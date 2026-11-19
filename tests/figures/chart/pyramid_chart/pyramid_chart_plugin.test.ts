@@ -152,6 +152,29 @@ describe("population pyramid chart", () => {
       expect(plugin.callback(-10, "x")).toBe("10");
       expect(plugin.callback(0, "x")).toBe("");
     });
+
+    test("Legend shows the percentage of each series when percentages are displayed", () => {
+      setCellContent(model, "A1", "Men");
+      setCellContent(model, "A2", "5");
+      setCellContent(model, "A3", "10");
+      setCellContent(model, "B1", "Women");
+      setCellContent(model, "B2", "20");
+      setCellContent(model, "B3", "15");
+      const dataSource = toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }],
+        dataSetsHaveTitle: true,
+      });
+      createChart(model, { type: "pyramid", ...dataSource }, "id");
+      const getLegendTexts = () => {
+        const config = getChartConfiguration(model, "id");
+        const chart = { data: config.data, isDatasetVisible: () => true };
+        return config.options.plugins.legend.labels.generateLabels(chart).map((item) => item.text);
+      };
+      expect(getLegendTexts()).toEqual(["Men", "Women"]);
+
+      updateChart(model, "id", { showData: { percentages: true } });
+      expect(getLegendTexts()).toEqual(["Men (30.00%)", "Women (70.00%)"]);
+    });
   });
 });
 

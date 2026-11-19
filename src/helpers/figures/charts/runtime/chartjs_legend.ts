@@ -32,7 +32,13 @@ import { DeepPartial } from "../../../../types/misc";
 import { Range } from "../../../../types/range";
 import { ColorGenerator } from "../../../color";
 import { BubbleChartData } from "../bubble_chart";
-import { chartFontColor, getPieColors, isTrendLineAxis, truncateLabel } from "../chart_common";
+import {
+  chartFontColor,
+  formatValueWithPercentage,
+  getPieColors,
+  isTrendLineAxis,
+  truncateLabel,
+} from "../chart_common";
 import {
   highlightBubbleChartItem,
   highlightComboChartItem,
@@ -80,12 +86,32 @@ export function getPyramidChartLegend(
   definition: GenericDefinition<PyramidChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): ChartLegend<"bar"> {
+  const legendLabels = getCustomLegendLabels(chartFontColor(definition.background), {
+    pointStyle: "rect",
+    lineWidth: 3,
+  });
+  if (definition.showData?.percentages) {
+    const generateLabels = legendLabels.labels.generateLabels;
+    legendLabels.labels.generateLabels = (chart: Chart) => {
+      const datasetSums = chart.data.datasets.map((dataset) =>
+        dataset.data.reduce<number>((sum, value) => sum + Math.abs(Number(value) || 0), 0)
+      );
+      const total = datasetSums.reduce((sum, value) => sum + value, 0);
+      return generateLabels(chart).map((item) => {
+        if (total === 0 || item.datasetIndex === undefined) {
+          return item;
+        }
+        const percentage = (datasetSums[item.datasetIndex] / total) * 100;
+        return {
+          ...item,
+          text: formatValueWithPercentage(item.text, percentage)!,
+        };
+      });
+    };
+  }
   return {
     ...getLegendDisplayOptions(definition),
-    ...getCustomLegendLabels(chartFontColor(definition.background), {
-      pointStyle: "rect",
-      lineWidth: 3,
-    }),
+    ...legendLabels,
   };
 }
 
