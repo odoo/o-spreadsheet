@@ -1,4 +1,13 @@
-import { providePlugins, proxy, signal, useEffect, usePlugin, useProps } from "@odoo/owl";
+import {
+  onMounted,
+  onWillUnmount,
+  providePlugins,
+  proxy,
+  signal,
+  useEffect,
+  usePlugin,
+  useProps,
+} from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
 import { LocalRendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
@@ -6,7 +15,7 @@ import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engi
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { HeaderIndex } from "../../types/misc";
-import { DOMDimension, Rect } from "../../types/rendering";
+import { DOMDimension, Rect, SheetDOMScrollInfo } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { ClickableCellsStore } from "../dashboard/clickable_cell_store";
@@ -44,6 +53,8 @@ export class StandaloneViewport extends OSComponent {
     onResizeColumns: types.function<(columnWeights: number[] | undefined) => void>().optional(),
     columnWeights: types.array<number>().optional(),
     size: types.object<DOMDimension>(),
+    initialScroll: types.object<SheetDOMScrollInfo>().optional(),
+    onWillUnmount: types.function<(scroll: SheetDOMScrollInfo) => void>().optional(),
   });
 
   private canvasRef = signal.ref(HTMLCanvasElement);
@@ -81,6 +92,17 @@ export class StandaloneViewport extends OSComponent {
         this.store.setCustomColWeights(this.props.columnWeights);
       }
       this.store.setContainerSize(this.contentWidth, this.props.size.height);
+    });
+    onMounted(() => {
+      const scroll = this.props.initialScroll;
+      if (scroll) {
+        this.viewStore.setViewportOffset({ offsetX: scroll.scrollX, offsetY: scroll.scrollY });
+      }
+    });
+    onWillUnmount(() => {
+      if (this.model().getters.tryGetSheet(this.props.range.sheetId)) {
+        this.props.onWillUnmount?.(this.viewStore.activeSheetScrollInfo);
+      }
     });
 
     useGridDrawing({
