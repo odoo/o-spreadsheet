@@ -166,7 +166,7 @@ export class FilterMenu extends OSComponent {
     const sheetId = this.viewStore.displayedSheetId;
     const contentZone = { ...tableZone, top: tableZone.top + table.config.numberOfHeaders };
     const sortAnchor = { col: filterPosition.col, row: contentZone.top };
-    const sortOptions = { emptyCellAsZero: true, sortHeaders: true };
+    const sortOptions = { emptyCellAsZero: false, sortHeaders: true };
     interactiveSort(this.spEnv, sheetId, sortAnchor, contentZone, sortDirection, sortOptions);
     this.props.onClosed?.();
   }

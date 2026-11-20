@@ -371,14 +371,13 @@ describe("Filter menu component", () => {
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A10: { content: "header" },
       A11: { content: "-1" },
-      // A12 : empty cell, we give it a value of 0
-      A13: { content: "1" },
-      A14: { content: "2" },
-      A15: { content: "olà" },
+      A12: { content: "1" },
+      A13: { content: "2" },
+      A14: { content: "olà" },
       B10: { content: "header" },
       B11: { content: "ba" },
-      B13: { content: "ab" },
-      B14: { content: "ca" },
+      B12: { content: "ab" },
+      B13: { content: "ca" },
     });
 
     await openFilterMenu("A10");
@@ -388,11 +387,11 @@ describe("Filter menu component", () => {
       A11: { content: "olà" },
       A12: { content: "2" },
       A13: { content: "1" },
-      A15: { content: "-1" },
+      A14: { content: "-1" },
       B10: { content: "header" },
       B12: { content: "ca" },
       B13: { content: "ab" },
-      B15: { content: "ba" },
+      B14: { content: "ba" },
     });
   });
 
@@ -493,6 +492,44 @@ describe("Filter menu component", () => {
     await openFilterMenu();
     await setInputValueAndTrigger(".o-filter-menu input", "59");
     expect(getFilterMenuValues().map((val) => val.value)).toEqual(["59"]);
+  });
+
+  test("Filter leaves empty cells at the bottom of the table", async () => {
+    createTableWithFilter(model, "A10:B15");
+    setCellContent(model, "A10", "header");
+    setCellContent(model, "A11", "2");
+    setCellContent(model, "A12", "13");
+    setCellContent(model, "A14", "-2");
+    setCellContent(model, "B10", "header");
+    setCellContent(model, "B11", "3");
+    setCellContent(model, "B13", "5");
+    setCellContent(model, "B14", "4");
+    await nextTick();
+    await openFilterMenu("A10");
+    await simulateClick(".o-filter-menu-item:nth-of-type(1)");
+    expect(getCellsObject(model, sheetId)).toMatchObject({
+      A10: { content: "header" },
+      A11: { content: "-2" },
+      A12: { content: "2" },
+      A13: { content: "13" },
+      B10: { content: "header" },
+      B11: { content: "4" },
+      B12: { content: "3" },
+      B14: { content: "5" },
+    });
+    await nextTick();
+    await openFilterMenu("A10");
+    await simulateClick(".o-filter-menu-item:nth-of-type(2)");
+    expect(getCellsObject(model, sheetId)).toMatchObject({
+      A10: { content: "header" },
+      A11: { content: "13" },
+      A12: { content: "2" },
+      A13: { content: "-2" },
+      B10: { content: "header" },
+      B12: { content: "3" },
+      B13: { content: "4" },
+      B14: { content: "5" },
+    });
   });
 
   describe("Filter criterion tests", () => {
