@@ -277,7 +277,7 @@ describe("Carousel figure component", () => {
       col: 1,
       row: 1,
       offset: { x: 1, y: 1 },
-      size: { width: 100, height: 100 },
+      size: { width: 80, height: 80 },
       figureId: "baseChartFigureId",
     });
     createChart(model, { type: "bar" }, "additionalChartId1", undefined, {
@@ -317,6 +317,10 @@ describe("Carousel figure component", () => {
     expect(
       new Set(carousel.items.map((item) => (item.type === "chart" ? item.chartId : undefined)))
     ).toEqual(new Set(["baseChartId1", "additionalChartId1", "additionalChartId2"]));
+    expect(carouselFigure).toMatchObject({
+      width: 105,
+      height: 105,
+    });
   });
 
   test("Can open carousel context menu with both right click and the menu icon", async () => {
