@@ -1,4 +1,4 @@
-import { onMounted, signal, useEffect, useProps, xml } from "@odoo/owl";
+import { onMounted, onPatched, signal, useProps, xml } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { Pixel } from "../../types/misc";
 import { ScrollDirection } from "../../types/scroll_direction";
@@ -35,15 +35,16 @@ export class ScrollBar extends Component<any> {
     this.scrollbar = new ScrollBarElement(this.scrollbarRef(), this.props.direction);
     onMounted(() => {
       this.scrollbar.el = this.scrollbarRef()!;
+      this.syncScroll();
     });
-    useEffect(() => {
-      if (!this.scrollbarRef()) {
-        return;
-      }
-      if (this.scrollbar.scroll !== this.props.offset) {
-        this.scrollbar.scroll = this.props.offset;
-      }
-    });
+    // Resync on every patch: the browser can reset or clamp the DOM scroll without `offset` changing.
+    onPatched(() => this.syncScroll());
+  }
+
+  private syncScroll() {
+    if (this.scrollbar.scroll !== this.props.offset) {
+      this.scrollbar.scroll = this.props.offset;
+    }
   }
 
   get sizeCss() {

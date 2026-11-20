@@ -206,6 +206,22 @@ describe("Standalone viewport", () => {
     expect(viewStore.activeSheetScrollInfo.scrollY).toBe(20);
   });
 
+  test("Scrollbar is re-synced after the browser resets its scroll", async () => {
+    setGrid(model, { A1: "Hello", A2: "World", A3: "!" });
+    await mountViewport("A1:A3", { size: { width: 1000, height: 30 } });
+    triggerWheelEvent(".o-standalone-viewport", { deltaY: 20 });
+    await nextTick();
+    const scrollBar = document.querySelector<HTMLElement>(".o-scrollbar")!;
+    expect(scrollBar.scrollTop).toBe(20);
+
+    // The browser resets the scroll without scroll event when the element is moved in the DOM
+    scrollBar.scrollTop = 0;
+    // Trigger a re-render that doesn't change the scroll offset
+    setCellContent(model, "A1", "Hi");
+    await nextTick();
+    expect(scrollBar.scrollTop).toBe(20);
+  });
+
   test("Standalone viewport scrollbar works with frozen rows", async () => {
     const cellHeight = DEFAULT_CELL_HEIGHT;
     setGrid(model, { A1: "=RANDARRAY(10,1)" });
