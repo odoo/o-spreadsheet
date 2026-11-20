@@ -72,10 +72,6 @@ export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
       }
     );
     const resizeObserver = new ResizeObserver(() => {
-      if (animation) {
-        animation.stop();
-        animation = null;
-      }
       drawGaugeChart(this.canvasEl, this.runtime, this.zoomStore.zoomLevel);
     });
     onMounted(() => {
