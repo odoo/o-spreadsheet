@@ -6,7 +6,6 @@ import { DevicePixelRatioPlugin } from "../../../../owl_plugins/device_pixel_rat
 import { ZoomPlugin } from "../../../../owl_plugins/zoom_plugin";
 import { EASING_FN } from "../../../../registries/cell_animation_registry";
 import { GaugeAnimatedRuntime, GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
-import { useResizeObserver } from "../../../helpers/listener_hook";
 import { useElementRect } from "../../../helpers/position_hook";
 import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
@@ -56,12 +55,6 @@ export class GaugeChartComponent extends OSComponent {
       }
 
       lastRuntime = this.runtime;
-    });
-    useResizeObserver(this.canvas, () => {
-      if (animation) {
-        animation.stop();
-        animation = null;
-      }
     });
     onWillUnmount(() => animation?.stop());
   }

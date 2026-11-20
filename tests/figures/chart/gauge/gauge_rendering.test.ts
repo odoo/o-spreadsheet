@@ -15,7 +15,8 @@ import {
   setCellContent,
   setViewportOffset,
 } from "../../../test_helpers/commands_helpers";
-import { mountSpreadsheet, nextTick } from "../../../test_helpers/helpers";
+import { click } from "../../../test_helpers/dom_helper";
+import { mountSpreadsheet, nextTick, useJestFakeTimers } from "../../../test_helpers/helpers";
 
 const testRuntime: GaugeChartRuntime = {
   background: "#FFFFFF",
@@ -294,6 +295,25 @@ describe("Gauge chart component animation", () => {
     setCellContent(model, "A1", "6");
     await nextTick();
     expect(gaugeAnimationSpy).toHaveBeenCalledTimes(2);
+  });
+
+  test("Animation is not stopped by a resize in dashboard and full screen", async () => {
+    useJestFakeTimers();
+    setCellContent(model, "A1", "50");
+    createGaugeChart(model, { metric: "=A1" });
+    model.updateMode("dashboard");
+    const { fixture } = await mountSpreadsheet({ model });
+
+    await click(fixture, ".o-figure [data-id='fullScreenChart']");
+    window.resizers.resize();
+
+    const canvas = fixture.querySelector<HTMLCanvasElement>(
+      ".o-fullscreen-figure canvas.o-gauge-chart"
+    )!;
+    const scaleSpy = jest.spyOn(canvas.getContext("2d")!, "scale");
+    jest.advanceTimersByTime(1000);
+    expect(scaleSpy).toHaveBeenCalled();
+    jest.useRealTimers();
   });
 });
 
