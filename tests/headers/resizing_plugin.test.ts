@@ -6,7 +6,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../../src/constants";
-import { toXC } from "../../src/helpers/coordinates";
+import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { getDefaultCellHeight as getDefaultCellHeightHelper } from "../../src/helpers/text_helper";
 import { Model } from "../../src/model";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
@@ -46,8 +46,12 @@ function getDefaultCellHeight(
   colSize = DEFAULT_CELL_WIDTH,
   locale = DEFAULT_LOCALE
 ) {
+  // MAWAT
   const cell = getCell(model, xc);
-  return Math.round(getDefaultCellHeightHelper(ctx, cell, locale, colSize));
+  const position = { sheetId: model.getters.getActiveSheetId(), ...toCartesian(xc) };
+  const style = model.getters.getCellStyle(position);
+  const format = model.getters.getCellFormat(position);
+  return Math.round(getDefaultCellHeightHelper(ctx, cell, style, format, locale, colSize));
 }
 
 describe("Model resizer", () => {
@@ -480,6 +484,24 @@ describe("Model resizer", () => {
 
       expect(unwrappedCellHeight).toBe(initialCellHeight);
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
+    });
+
+    //MAWAT
+    test("wrapping a whole column updates the row size", () => {
+      const LONG_TEXT = "This is a very long text that should be wrapped";
+      setCellContent(model, "A1", LONG_TEXT);
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
+
+      const columnA = toXC(0, 0) + ":" + toXC(0, model.getters.getNumberRows(sheet.id) - 1);
+      setFormatting(model, columnA, { wrapping: "wrap" });
+      const wrappedRowSize = model.getters.getRowSize(sheet.id, 0);
+      expect(wrappedRowSize).toBeGreaterThan(DEFAULT_CELL_HEIGHT);
+      // check cached header position has been updated
+      expect(model.getters.getColRowOffset("ROW", 0, 1, sheet.id)).toBe(wrappedRowSize);
+
+      setFormatting(model, columnA, { wrapping: undefined });
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
+      expect(model.getters.getColRowOffset("ROW", 0, 1, sheet.id)).toBe(DEFAULT_CELL_HEIGHT);
     });
 
     test("wrapped formatted text updates the row size", () => {

@@ -17,6 +17,8 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     "*invalidateEvaluationCommands": this.invalidateHeaderPositions,
     // Either the content, format or style can impact the header sizes of a sheet
     UPDATE_CELL: this.invalidateHeaderPositions,
+    // MAWAT
+    SET_FORMATTING: this.invalidateHeaderPositions,
     REMOVE_TABLE: this.invalidateHeaderPositions,
     UPDATE_TABLE: this.invalidateHeaderPositions,
     UPDATE_FILTER: this.invalidateHeaderPositions,

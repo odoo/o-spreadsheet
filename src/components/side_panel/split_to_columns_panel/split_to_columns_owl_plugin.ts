@@ -103,12 +103,13 @@ export class SplitToColumnsPlugin extends OwlPluginWithModel {
     this.removeMergesInSplitZone(selection, splitted);
     this.addColumnsToNotOverflowSheet(selection, splitted);
 
+    const col = selection.left;
     for (let i = 0; i < splitted.length; i++) {
       const row = selection.top + i;
       const splittedContent = splitted[i];
 
-      const col = selection.left;
-      const mainCell = this.model().getters.getCell({ sheetId, col, row });
+      const position = { sheetId, col, row };
+      const mainCell = this.model().getters.getCell(position);
 
       if (
         splittedContent.length === 1 &&
@@ -117,7 +118,7 @@ export class SplitToColumnsPlugin extends OwlPluginWithModel {
       ) {
         continue;
       }
-
+      const style = this.model().getters.getCellStyle(position);
       for (const [index, content] of splittedContent.entries()) {
         this.model().dispatch("UPDATE_CELL", {
           sheetId,
@@ -125,7 +126,7 @@ export class SplitToColumnsPlugin extends OwlPluginWithModel {
           row,
           content: canonicalizeNumberContent(content, this.model().getters.getLocale()),
           format: "",
-          style: mainCell?.style || null,
+          style: style || null,
         });
       }
     }

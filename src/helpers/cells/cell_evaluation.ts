@@ -2,15 +2,18 @@ import { CompiledFormula } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import {
   BooleanCell,
-  Cell,
+  // Cell,
   CellValue,
   CellValueType,
   EmptyCell,
   ErrorCell,
   EvaluatedCell,
-  FormulaCell,
+  // FormulaCell,
   LiteralCell,
   NumberCell,
+  StoredCell,
+  StoredFormulaCell, //MAWATFIX
+  StoredLiteralCell,
 } from "../../types/cells";
 import { Format, LocaleFormat } from "../../types/format";
 import type { RangeAdapterGetters, SettingsCoreGetters } from "../../types/getters";
@@ -49,7 +52,8 @@ export function createCell(
   style: Style | undefined,
   sheetId: UID,
   options?: { avoidAutomaticDateFormat: boolean }
-): Cell {
+): StoredCell {
+  //MAWATFIX
   if (!content.startsWith("=")) {
     return createLiteralCell(getters, id, content, format, style, options);
   }
@@ -63,7 +67,8 @@ export function createLiteralCell(
   format: Format | undefined,
   style: Style | undefined,
   options?: { avoidAutomaticDateFormat: boolean }
-): LiteralCell {
+): StoredLiteralCell {
+  //MAWATFIX
   const locale = getters.getLocale();
   const parsedValue = parseLiteral(content, locale);
 
@@ -102,7 +107,8 @@ export function createFormulaCell(
   format: Format | undefined,
   style: Style | undefined,
   sheetId: UID
-): FormulaCell {
+): StoredFormulaCell {
+  //MAWATFIX
   const compiledFormula = CompiledFormula.Compile(content, sheetId, getters);
   return createFormulaCellFromCompiledFormula(id, compiledFormula, format, style);
 }
@@ -112,7 +118,8 @@ export function createFormulaCellFromCompiledFormula(
   compiledFormula: CompiledFormula,
   format: Format | undefined,
   style: Style | undefined
-): FormulaCell {
+): StoredFormulaCell {
+  //MAWATFIX
   return {
     id,
     format,

@@ -4,7 +4,7 @@ import { createCell } from "../../helpers/cells/cell_evaluation";
 import { toCartesian, toXC } from "../../helpers/coordinates";
 import { deepCopy, deepEquals } from "../../helpers/misc";
 import { getRangeString } from "../../helpers/range";
-import { Cell } from "../../types/cells";
+import { StoredCell } from "../../types/cells";
 import { UpdateCellCommand } from "../../types/commands";
 import { Format } from "../../types/format";
 import { CellCoreGetters } from "../../types/getters";
@@ -127,7 +127,7 @@ export class Squisher {
    *     - for strings: returns the full string if changed, else "="
    *     - for references: returns a relative change (+Ck or +Rk) if possible, else the full reference or "=" if unchanged
    * */
-  squish(cell: Cell, forSheetId: UID): SquishedContent {
+  squish(cell: StoredCell, forSheetId: UID): SquishedContent {
     if (cell.isFormula) {
       if (
         NonSquishableFunctionRegistry.getAll().some((functionName) =>

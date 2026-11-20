@@ -234,7 +234,15 @@ export class HeaderSizeUIPlugin
     const cell = this.getters.getCell(position);
     const colSize = this.getters.getColSize(position.sheetId, position.col);
     return Math.min(
-      getDefaultCellHeight(this.ctx, cell, this.getters.getLocale(), colSize),
+      getDefaultCellHeight(
+        this.ctx,
+        cell,
+        //MAWAT
+        this.getters.getCellStyle(position),
+        this.getters.getCellFormat(position),
+        this.getters.getLocale(),
+        colSize
+      ),
       MAX_HEADER_SIZE
     );
   }

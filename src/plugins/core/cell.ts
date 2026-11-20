@@ -21,7 +21,7 @@ import { SheetPlugin } from "./sheet";
 
 import { getDateTimeFormat } from "../../helpers/locale";
 import { cellPositions, getZoneArea, isInside } from "../../helpers/zones";
-import { Cell } from "../../types/cells";
+import { Cell, StoredCell } from "../../types/cells";
 import {
   AddColumnsRowsCommand,
   ClearCellCommand,
@@ -55,7 +55,7 @@ import { Unsquisher } from "./unsquisher";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
-  cells: Record<UID, Record<number, Cell | undefined> | undefined>;
+  cells: Record<UID, Record<number, StoredCell | undefined> | undefined>;
   nextId: number;
   previousLocale: Locale | undefined;
 }
@@ -77,9 +77,11 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
     "getCell",
     "getCellStyle",
     "getCellFormat",
+    "getCellHardcodedFormat",
+    "getCellHardcodedStyle",
   ] as const;
   readonly nextId = 1;
-  public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+  public readonly cells: { [sheetId: string]: { [id: string]: StoredCell } } = {};
   previousLocale: Locale | undefined;
 
   private previousDefaultStyle: defaultStyle | undefined;
@@ -273,7 +275,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   }
 
   private duplicateSheet(sheetIdFrom: UID, sheetIdTo: UID) {
-    for (const cell of this.getters.getCells(sheetIdFrom)) {
+    for (const cell of this.getStoredCells(sheetIdFrom)) {
       const { col, row } = this.getters.getCellPosition(cell.id);
       this.dispatch("UPDATE_CELL", {
         sheetId: sheetIdTo,
@@ -367,7 +369,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
         .map((cell) => this.getters.getCellPosition(cell.id))
         .sort((a, b) => (a.col === b.col ? a.row - b.row : a.col - b.col));
       for (const position of positions) {
-        const cell = this.getters.getCell(position)!;
+        const cell = this.getStoredCell(position)!;
         const xc = toXC(position.col, position.row);
         if (cell.style && Object.keys(cell.style).length) {
           const styleId = getItemId<Style>(cell.style, styles);
@@ -401,7 +403,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
     style?: Style,
     format?: Format,
     compiledFormula?: CompiledFormula | undefined
-  ): Cell {
+  ): StoredCell {
     const cellId = this.getNextCellId();
     if (compiledFormula) {
       return createFormulaCellFromCompiledFormula(cellId, compiledFormula, format, style);
@@ -435,6 +437,35 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   // ---------------------------------------------------------------------------
   // GETTERS
   // ---------------------------------------------------------------------------
+  // Stored cells (internal use only)
+  getCellHardcodedStyle(position: CellPosition): Style {
+    return {
+      ...this.getStoredCell(position)?.style,
+    };
+  }
+
+  getCellHardcodedFormat(position: CellPosition): Format | undefined {
+    const cell = this.getStoredCell(position);
+    return cell?.format;
+  }
+
+  private getStoredCells(sheetId: UID): StoredCell[] {
+    return Object.values(this.cells[sheetId] || {});
+  }
+
+  private getStoredCellById(cellId: number): StoredCell | undefined {
+    const position = this.getters.getCellPosition(cellId);
+    return this.cells[position.sheetId]?.[cellId];
+  }
+
+  private getStoredCell({ sheetId, col, row }: CellPosition): StoredCell | undefined {
+    const cellId = this.getters.tryGetSheet(sheetId)?.rows[row]?.cells[col];
+    if (cellId === undefined) {
+      return undefined;
+    }
+    return this.getStoredCellById(cellId);
+  }
+
   getCells(sheetId: UID): Cell[] {
     return Object.values(this.cells[sheetId] || {});
   }
@@ -535,7 +566,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
     row: HeaderIndex
   ): { style?: Style; format?: Format } {
     const format: { style?: Style; format?: string } = {};
-    const cell = this.getters.getCell({ sheetId, col, row });
+    const cell = this.getStoredCell({ sheetId, col, row });
     if (cell) {
       if (cell.style) {
         format["style"] = cell.style;
@@ -557,7 +588,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
     const { sheetId, col, row } = cmd;
     const after: UpdateCellData = cmd;
     const position = { sheetId, col, row };
-    const before = this.getters.getCell(position);
+    const before = this.getStoredCell(position);
     const hasContent = after.content !== undefined || "formula" in after;
 
     // Compute the new cell properties
@@ -649,12 +680,12 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   getCellStyle(position: CellPosition): Style {
     return {
       ...this.getters.getCellDefaultStyle(position),
-      ...this.getters.getCell(position)?.style,
+      ...this.getStoredCell(position)?.style,
     };
   }
 
   getCellFormat(position: CellPosition): Format | undefined {
-    const cell = this.getters.getCell(position);
+    const cell = this.getStoredCell(position);
     if (cell?.format !== undefined) {
       return cell?.format;
     }
@@ -801,7 +832,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
     const defaults: [CellPosition, Format][] = [];
     const formatSheet = this.previousDefaultFormat;
     for (const position of zones.flatMap((zone) => cellPositions(sheetId, zone))) {
-      const cellFormat = this.getters.getCell(position)?.format;
+      const cellFormat = this.getStoredCell(position)?.format;
       if (cellFormat !== undefined) {
         continue;
       }
@@ -941,7 +972,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   }
 
   private updateCellStyle(position: CellPosition, style: Style) {
-    const cell = this.getters.getCell(position);
+    const cell = this.getStoredCell(position);
     const cellStyle = { ...cell?.style, ...style };
     this.dispatch("UPDATE_CELL", {
       sheetId: position.sheetId,
@@ -958,7 +989,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
         if (col < zone.left || zone.right < col) {
           continue;
         }
-        let cellStyle = this.getters.getCellById(cellId)?.style;
+        let cellStyle = this.getStoredCellById(cellId)?.style;
         if (!cellStyle) {
           continue;
         }
@@ -995,7 +1026,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
     const partialDefaults: [CellPosition, Style][] = [];
     const styleSheet = this.previousDefaultStyle;
     for (const position of zones.flatMap((zone) => cellPositions(sheetId, zone))) {
-      const cellStyle = this.getters.getCell(position)?.style ?? {};
+      const cellStyle = this.getStoredCell(position)?.style ?? {};
       const deltaStyle: Style = {};
       let hasDelta = false;
       for (const key in newDefaultStyle) {
@@ -1041,7 +1072,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
 
   private changeCellsDateFormatWithLocale(oldLocale: Locale, newLocale: Locale) {
     for (const sheetId of this.getters.getSheetIds()) {
-      for (const cell of this.getters.getCells(sheetId)) {
+      for (const cell of this.getStoredCells(sheetId)) {
         let formatToApply: Format | undefined;
         if (cell.format === oldLocale.dateFormat) {
           formatToApply = newLocale.dateFormat;
@@ -1089,7 +1120,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   }
 
   private checkUselessClearCell(cmd: ClearCellCommand): CommandResult {
-    const cell = this.getters.getCell(cmd);
+    const cell = this.getStoredCell(cmd);
     if (!cell) {
       return CommandResult.NoChanges;
     }
@@ -1100,7 +1131,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   }
 
   private checkUselessUpdateCell(cmd: UpdateCellCommand): CommandResult {
-    const cell = this.getters.getCell(cmd);
+    const cell = this.getStoredCell(cmd);
     const hasContent = "content" in cmd || "formula" in cmd;
     const hasStyle = "style" in cmd;
     const hasFormat = "format" in cmd;

@@ -468,7 +468,7 @@ export class AutofillStore extends SpreadsheetStore {
     const cells = cellsData.map((cellData) => cellData.cell);
     for (const cellData of cellsData) {
       let rule: AutofillModifier = { type: "COPY_MODIFIER" };
-      if (cellData && cellData.cell) {
+      if (cellData.cell) {
         const newRule = this.getRule(cellData.cell, cells);
         rule = newRule || rule;
       }

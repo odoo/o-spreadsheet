@@ -96,7 +96,9 @@ export class MoreFormatsPlugin extends OwlPluginWithModel {
     if (pivotCell.type === "VALUE") {
       return this.model().getters.getEvaluatedCell(activePosition).format;
     }
-    return this.model().getters.getCell(activePosition)?.format;
+    //MAWAT4
+    return this.model().getters.getCellFormat(activePosition);
+    // return this.model().getters.getCell(activePosition)?.format;
   }
 
   private detectFormatCategory(format: Format | undefined): CustomFormatCategory {

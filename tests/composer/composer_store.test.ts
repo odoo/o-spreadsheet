@@ -764,49 +764,98 @@ describe("edition", () => {
     expect(composerStore.currentContent).toBe("12/31/1899 12:00:00 PM");
   });
 
-  test.each(["", "0%", "#,##0", "#,##0[$ THUNE ]"])(
-    "Set Date to a cell formatted with format %s, format should be adapted",
-    (format: string) => {
-      setFormat(model, "A1", format);
-      composerStore.startEdition();
-      composerStore.setCurrentContent("12/12/2025");
-      composerStore.stopEdition();
-      expect(getEvaluatedCell(model, "A1").format).toBe("m/d/yyyy");
-    }
-  );
+  describe("New content overrides previous format", () => {
+    test.each(["", "0%", "#,##0", "#,##0[$ THUNE ]"])(
+      "Set Date to a cell formatted with format %s, format should be adapted",
+      (format: string) => {
+        setFormat(model, "A1", format);
+        composerStore.startEdition();
+        composerStore.setCurrentContent("12/12/2025");
+        composerStore.stopEdition();
+        expect(getEvaluatedCell(model, "A1").format).toBe("m/d/yyyy");
+      }
+    );
 
-  test.each(["@", "d/m/yyyy"])(
-    "Set date to a cell formatted with format %s, format should not be adapted",
-    (format: string) => {
-      setFormat(model, "A1", format);
-      composerStore.startEdition();
-      composerStore.setCurrentContent("12/12/2025");
-      composerStore.stopEdition();
-      expect(getEvaluatedCell(model, "A1").format).toBe(format);
-    }
-  );
+    test.each(["@", "d/m/yyyy"])(
+      "Set date to a cell formatted with format %s, format should not be adapted",
+      (format: string) => {
+        setFormat(model, "A1", format);
+        composerStore.startEdition();
+        composerStore.setCurrentContent("12/12/2025");
+        composerStore.stopEdition();
+        expect(getEvaluatedCell(model, "A1").format).toBe(format);
+      }
+    );
 
-  test.each(["0%", "#,##0", "#,##0[$ THUNE ]", "@"])(
-    "Set number to a cell formatted with format %s, format should be adapted",
-    (format: string) => {
-      setFormat(model, "A1", format);
-      composerStore.startEdition();
-      composerStore.setCurrentContent("25");
-      composerStore.stopEdition();
-      expect(getEvaluatedCell(model, "A1").format).toBe(format);
-    }
-  );
+    test.each(["0%", "#,##0", "#,##0[$ THUNE ]", "@"])(
+      "Set number to a cell formatted with format %s, format should be adapted",
+      (format: string) => {
+        setFormat(model, "A1", format);
+        composerStore.startEdition();
+        composerStore.setCurrentContent("25");
+        composerStore.stopEdition();
+        expect(getEvaluatedCell(model, "A1").format).toBe(format);
+      }
+    );
 
-  test.each(["d/m/yyyy", "mm/dd/yyyy"])(
-    "Set number to a cell formatted with format %s, format should not be adapted",
-    (format: string) => {
-      setFormat(model, "A1", format);
-      composerStore.startEdition();
-      composerStore.setCurrentContent("25");
-      composerStore.stopEdition();
-      expect(getEvaluatedCell(model, "A1").format).toBeUndefined();
-    }
-  );
+    test.each(["d/m/yyyy", "mm/dd/yyyy"])(
+      "Set number to a cell formatted with format %s, format should not be adapted",
+      (format: string) => {
+        setFormat(model, "A1", format);
+        composerStore.startEdition();
+        composerStore.setCurrentContent("25");
+        composerStore.stopEdition();
+        expect(getEvaluatedCell(model, "A1").format).toBeUndefined();
+      }
+    );
+  });
+
+  describe("New formatted content overrides default format", () => {
+    test.each(["", "0%", "#,##0", "#,##0[$ THUNE ]"])(
+      "Set Date to a cell formatted with format %s, format should be adapted",
+      (format: string) => {
+        setFormat(model, "A1:A100", format);
+        composerStore.startEdition();
+        composerStore.setCurrentContent("12/12/2025");
+        composerStore.stopEdition();
+        expect(getEvaluatedCell(model, "A1").format).toBe("m/d/yyyy");
+      }
+    );
+
+    // On sait que c'est pete pb de locale -> to fix
+    test.each(["@", "d/m/yyyy", "m/d/yyyy"])(
+      "Set date to a cell formatted with format %s, format should not be adapted",
+      (format: string) => {
+        setFormat(model, "A1:A100", format);
+        composerStore.startEdition();
+        composerStore.setCurrentContent("12/12/2025");
+        composerStore.stopEdition();
+        expect(getEvaluatedCell(model, "A1").format).toBe(format);
+      }
+    );
+
+    test.each(["0%", "#,##0", "#,##0[$ THUNE ]", "@"])(
+      "Set number to a cell formatted with format %s, format should be adapted",
+      (format: string) => {
+        setFormat(model, "A1:A100", format);
+        composerStore.startEdition();
+        composerStore.setCurrentContent("25");
+        composerStore.stopEdition();
+        expect(getEvaluatedCell(model, "A1").format).toBe(format);
+      }
+    );
+
+    test.each(["d/m/yyyy", "mm/dd/yyyy"])(
+      "Set number to a cell formatted with format %s, format should not be adapted",
+      (format: string) => {
+        setFormat(model, "A1:A100", format);
+        composerStore.startEdition();
+        composerStore.setCurrentContent("25");
+        composerStore.stopEdition();
+        expect(getEvaluatedCell(model, "A1").format).toBeUndefined();
+      }
+    );
+  });
 
   test("write too long formulas raises an error", async () => {
     const notificationPlugin = getPlugin(NotificationPlugin);

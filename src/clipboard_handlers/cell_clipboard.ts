@@ -8,7 +8,7 @@ import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
 import { cellPositions, isZoneInside } from "../helpers/zones";
 import { SquishedContent, Squisher } from "../plugins/core/squisher";
 import { Unsquisher } from "../plugins/core/unsquisher";
-import { Cell, CellValue, CellValueType, LiteralCell } from "../types/cells";
+import { Cell, CellValue, CellValueType, LiteralCell, StoredCell } from "../types/cells";
 import {
   ClipboardCellData,
   ClipboardCopyOptions,
@@ -63,7 +63,10 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       for (let ri = 0; ri < rowsIndexes.length; ri++) {
         const row = rowsIndexes[ri];
         const position = { col, row, sheetId };
-        let cell = this.getters.getCell(position);
+        const style = this.getters.getCellHardcodedStyle(position);
+        const format = this.getters.getCellHardcodedFormat(position);
+        const coreCell = this.getters.getCell(position);
+        let cell: StoredCell | undefined = coreCell && { ...coreCell, style, format };
         const evaluatedCell = this.getters.getEvaluatedCell(position);
         const pivotId = this.getters.getPivotIdFromPosition(position);
         const spreader = this.getters.getArrayFormulaSpreadingOn(position);
@@ -79,8 +82,8 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
             const pivotFormula = createPivotFormula(formulaPivotId, pivotCell);
             cell = {
               id: cell?.id ?? 0,
-              style: cell?.style,
-              format: cell?.format,
+              style: style,
+              format: format,
               content: pivotFormula,
               isFormula: false,
               parsedValue: evaluatedCell.value,
@@ -94,7 +97,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
             : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });
           cell = {
             id: cell?.id ?? 0,
-            style: cell?.style,
+            style: style,
             format: evaluatedCell.format,
             content,
             isFormula: false,
@@ -288,8 +291,9 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
             this.dispatch("CLEAR_CELL", position);
           } else if (clipboardOptions.pasteOption === "onlyFormat") {
             // Remove only the format/style from the target cell.
-            const targetCell = this.getters.getCell(position);
-            if (targetCell?.format || targetCell?.style) {
+            const targetCellStyle = this.getters.getCellHardcodedStyle(position);
+            const targetCellFormat = this.getters.getCellHardcodedStyle(position);
+            if (targetCellFormat || targetCellStyle) {
               this.dispatch("UPDATE_CELL", { ...position, format: "", style: null });
             }
           }
@@ -312,12 +316,12 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     clipboardPositions: ClipboardPositions
   ) {
     const { sheetId } = target;
-    const targetCell = this.getters.getCell(target);
+    const targetCellStyle = this.getters.getCellHardcodedStyle(target);
     const targetEvaluatedCell = this.getters.getEvaluatedCell(target);
     const originFormat = origin?.format || origin.evaluatedCell.format;
 
     let content = typeof origin.content === "string" ? origin.content : undefined;
-    const newStyle = { ...targetCell?.style, ...origin.style };
+    const newStyle = { ...targetCellStyle, ...origin.style };
     const style = Object.keys(newStyle ?? {}).length === 0 ? undefined : newStyle;
     if (clipboardOption?.pasteOption === "asValue") {
       // evaluatedCell.value may be absent for plain literal cells (stripped during HTML compaction).

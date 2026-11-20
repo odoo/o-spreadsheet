@@ -5,6 +5,9 @@ import {
   DEFAULT_CELL_WIDTH,
   DEFAULT_FIGURE_HEIGHT,
   DEFAULT_FIGURE_WIDTH,
+  DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+  DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+  DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../src/constants";
 import { toXC } from "../../../src/helpers/coordinates";
 import { zoneToXc } from "../../../src/helpers/zones";
@@ -19,6 +22,7 @@ import {
   freezeRows,
   resizeSheetView,
   setCellContent,
+  setFormatting,
   setSelection,
   setViewportOffset,
 } from "../../test_helpers/commands_helpers";
@@ -470,11 +474,31 @@ describe("Smart chart type detection", () => {
   test("Single cell: create a scorecard", async () => {
     setCellContent(model, "C3", "100");
     setSelection(model, ["C3"]);
+    setFormatting(model, "C3", { fillColor: "#FFFF0F" });
     await doAction(["insert", "insert_chart"], env);
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "scorecard",
       keyValue: "=C3",
+      background: "#FFFF0F",
+      baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
+      baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+      baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+    });
+
+    // check that default style is applied
+    setCellContent(model, "E3", "100");
+    setFormatting(model, "E1:E100", { fillColor: "#FFFF0F" });
+    setSelection(model, ["E3"]);
+    await doAction(["insert", "insert_chart"], env);
+    const chartIdBis = model.getters.getChartIds(model.getters.getActiveSheetId())[1];
+    expect(model.getters.getChartDefinition(chartIdBis)).toMatchObject({
+      type: "scorecard",
+      keyValue: "=E3",
+      background: "#FFFF0F",
+      baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
+      baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+      baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
     });
   });
 
