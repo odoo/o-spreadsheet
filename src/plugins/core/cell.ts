@@ -20,7 +20,7 @@ import { SettingsPlugin } from "./settings";
 import { SheetPlugin } from "./sheet";
 
 import { getDateTimeFormat } from "../../helpers/locale";
-import { cellPositions, getZoneArea, isInside } from "../../helpers/zones";
+import { cellPositions, getZoneArea, isInside, isZoneValid } from "../../helpers/zones";
 import { Cell } from "../../types/cells";
 import {
   AddColumnsRowsCommand,
@@ -36,7 +36,14 @@ import {
   UpdateCellPositionCommand,
   UpdateLocaleCommand,
 } from "../../types/commands";
-import { CellPosition, HeaderIndex, RangeAdapterFunctions, UID } from "../../types/misc";
+import {
+  CellPosition,
+  HeaderIndex,
+  Position,
+  RangeAdapterFunctions,
+  UID,
+  UnboundedZone,
+} from "../../types/misc";
 
 import { CompiledFormula, SerializedCompiledFormula } from "../../formulas/compiler";
 import {
@@ -44,6 +51,7 @@ import {
   createFormulaCellFromCompiledFormula,
 } from "../../helpers/cells/cell_evaluation";
 import { isExcelCompatible } from "../../helpers/format/format";
+import { createRange, getTransposedParts, orderRange } from "../../helpers/range";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { Format } from "../../types/format";
 import { Locale } from "../../types/locale";
@@ -71,6 +79,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   static getters = [
     "getCells",
     "getTranslatedCellFormula",
+    "getTransposedCellFormula",
     "getCellById",
     "getFormulaString",
     "getFormulaMovedInSheet",
@@ -476,14 +485,53 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
     if (!(compiledFormula instanceof CompiledFormula)) {
       compiledFormula = CompiledFormula.CompileForSerializedFormula(sheetId, compiledFormula);
     }
-    const adaptedDependencies = this.getters.createAdaptedRanges(
-      compiledFormula.rangeDependencies,
-      offsetX,
-      offsetY,
-      sheetId
-    );
+    const adaptedDependencies = compiledFormula.rangeDependencies.map((range) => {
+      if (!isZoneValid(range.zone)) {
+        return range;
+      }
+      return this.getters.createAdaptedRange(range, offsetX, offsetY, sheetId);
+    });
 
     return this.getFormulaString(sheetId, compiledFormula as CompiledFormula, adaptedDependencies);
+  }
+
+  getTransposedCellFormula(
+    sheetId: UID,
+    origin: Position,
+    offsetX: number,
+    offsetY: number,
+    compiledFormula: CompiledFormula
+  ) {
+    const unfixedParts = [{ rowFixed: false, colFixed: false }];
+    const transposedRangeDependencies = compiledFormula.rangeDependencies.map((range) => {
+      const { colFixed: leftFixed, rowFixed: topFixed } = range.parts[0];
+      const { colFixed: rightFixed, rowFixed: bottomFixed } = range.parts[1] || range.parts[0];
+      const isZoneFixed = (leftFixed || topFixed) && (rightFixed || bottomFixed);
+      if (!isZoneValid(range.zone) || isZoneFixed) {
+        return range;
+      }
+      const { left, right, top, bottom, hasHeader } = range.unboundedZone;
+      const dx = left - origin.col;
+      const dy = top - origin.row;
+      const newLeft = left - dx + dy;
+      const newTop = top - dy + dx;
+      const zone: UnboundedZone = {
+        left: newLeft,
+        top: newTop,
+        right: bottom !== undefined ? newLeft + (bottom - top) : undefined,
+        bottom: right !== undefined ? newTop + (right - left) : undefined,
+        hasHeader,
+      };
+      const parts = getTransposedParts(range.parts);
+      const transposedRange = orderRange(
+        createRange({ ...range, zone, parts: unfixedParts }, this.getters.getSheetSize)
+      );
+      return {
+        ...this.getters.createAdaptedRange(transposedRange, offsetX, offsetY, sheetId),
+        parts,
+      };
+    });
+    return this.getFormulaString(sheetId, compiledFormula, transposedRangeDependencies);
   }
 
   getFormulaMovedInSheet(targetSheetId: UID, compiledFormula: CompiledFormula) {

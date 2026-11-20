@@ -799,8 +799,8 @@ test.each([
   const model = new Model();
   const sheetId = model.getters.getActiveSheetId();
   const range = model.getters.getRangeFromSheetXC(sheetId, value);
-  const adaptedRange = model.getters.createAdaptedRanges([range], 1, 1, sheetId);
-  expect(model.getters.getRangeString(adaptedRange[0], sheetId)).toBe(expected);
+  const adaptedRange = model.getters.createAdaptedRange(range, 1, 1, sheetId);
+  expect(model.getters.getRangeString(adaptedRange, sheetId)).toBe(expected);
 });
 
 test("Plugins cannot dispatch a command during adaptRanges", () => {

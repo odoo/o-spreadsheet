@@ -5,6 +5,7 @@ import {
   ClipboardDV,
   ClipboardMIMEType,
   ClipboardOptions,
+  ClipboardPasteOptions,
   ClipboardPasteTarget,
   ClipboardPositions,
   ClipboardTableCell,
@@ -529,3 +530,11 @@ export const selectPastedZone = (
     { scrollIntoView: false }
   );
 };
+
+export function shouldPasteFormat(pasteOption?: ClipboardPasteOptions): boolean {
+  return !pasteOption || pasteOption === "format";
+}
+
+export function isTransposedPaste(pasteOption?: ClipboardPasteOptions): boolean {
+  return pasteOption === "transposeValue" || pasteOption === "transposeFormula";
+}

@@ -1,5 +1,5 @@
 import { DEFAULT_STYLE } from "../constants";
-import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
+import { shouldPasteFormat, splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
 import { deepCopy, defaultDict, isObjectEmptyRecursive, repeat } from "../helpers/misc";
 import { defaultValue } from "../plugins/core/default";
 import {
@@ -134,7 +134,7 @@ export class DefaultClipboardHandler extends ClipboardHandler<ClipboardContent[]
       return;
     }
     const sheetId = target.sheetId;
-    if (options.pasteOption === "asValue") {
+    if (!shouldPasteFormat(options.pasteOption)) {
       return;
     }
     const zones = target.zones;

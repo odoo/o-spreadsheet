@@ -104,13 +104,13 @@ describe("Data validation", () => {
     const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
     addDataValidation(model, "A1:A5", "id", criterion);
     copy(model, "A1:A5");
-    paste(model, "C1", "onlyFormat");
+    paste(model, "C1", "format");
 
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id", criterion, ranges: ["A1:A5"] },
     ]);
 
-    paste(model, "C1", "asValue");
+    paste(model, "C1", "value");
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id", criterion, ranges: ["A1:A5"] },
     ]);
