@@ -1,9 +1,9 @@
-import { App, useProps, xml } from "@odoo/owl";
+import { App, signal, useProps, xml } from "@odoo/owl";
 import { Color, Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { types } from "../../src/components/props_validation";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
-import { SelectionInputStore } from "../../src/components/selection_input/selection_input_store";
+import { SelectionInputPlugin } from "../../src/components/selection_input/selection_input_plugin";
 import { ColorGenerator } from "../../src/helpers/color";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { render } from "../../src/helpers/owl3_helpers";
@@ -69,7 +69,7 @@ class Parent extends Component<any> {
       hasSingleRange="this.hasSingleRange"
       onSelectionChanged="(ranges) => this.onChanged(ranges)"
       onSelectionConfirmed="this.onConfirmed"
-      colors="this.colors || []"
+      colors="this.colors() || []"
     />
   `;
   static components = { SelectionInput };
@@ -82,7 +82,7 @@ class Parent extends Component<any> {
   hasSingleRange: boolean | undefined;
   onChanged!: jest.Mock<void, [any]>;
   onConfirmed!: jest.Mock<void, []>;
-  colors: Color[] | undefined;
+  colors = signal<Color[] | undefined>(undefined);
 
   get id(): string {
     const selectionInput = getChildFromComponent(this, SelectionInput);
@@ -97,7 +97,7 @@ class Parent extends Component<any> {
     stores.inject(ModelStore, this.props.model);
     this.initialRanges = this.props.config.initialRanges;
     this.hasSingleRange = this.props.config.hasSingleRange;
-    this.colors = this.props.config.colors;
+    this.colors.set(this.props.config.colors);
     this.model = model;
     this.onChanged = this.props.config.onChanged || jest.fn();
     this.onConfirmed = this.props.config.onConfirmed || jest.fn();
@@ -313,7 +313,8 @@ describe("Selection Input", () => {
       { color: "#FF0000", zone: toZone("A1") },
       { color: "#00FF00", zone: toZone("B1") },
     ]);
-    parent.colors = ["#0000FF", "#FF00FF"];
+    parent.colors.set(["#0000FF", "#FF00FF"]);
+    render(parent, false);
     await simulateClick(fixture.querySelectorAll("input")[1]);
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #0000FF;");
     expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe("color: #FF00FF;");
@@ -872,7 +873,7 @@ describe("Selection Input", () => {
 
   test("ranges are computed only once per render", async () => {
     const { parent } = await createSelectionInput({ initialRanges: ["A1", "A2", "A3"] });
-    const spy = jest.spyOn(SelectionInputStore.prototype, "selectionInputs", "get");
+    const spy = jest.spyOn(SelectionInputPlugin.prototype, "selectionInputs", "get");
     render(parent, true);
     await nextTick();
     expect(spy).toHaveBeenCalledTimes(1);

@@ -1,4 +1,12 @@
-import { PluginConstructor, Scope, signal, useProps, useScope, xml } from "@odoo/owl";
+import {
+  PluginConstructor,
+  PluginInstance,
+  Scope,
+  signal,
+  useProps,
+  useScope,
+  xml,
+} from "@odoo/owl";
 import { createGetPluginFunctionFromScope } from "../../src/components/os_component";
 import { types } from "../../src/components/props_validation";
 import { useSpreadsheetProviders } from "../../src/components/spreadsheet/spreadsheet_providers";
@@ -95,4 +103,26 @@ export function makeOwlPluginManager(
   container = scopeDependencyContainer(scope, container);
 
   return { getPlugin, scope, container, model: configPlugins.model };
+}
+
+/**
+ * Instantiate a plugin in a new child plugin manager of the given scope, with its own config.
+ * Same as what `providePlugins` does in a component, so each call creates a new instance.
+ */
+export function makeLocalOwlPlugin<T extends PluginConstructor>(
+  parentScope: Scope,
+  Plugin: T,
+  config: Record<string, any>
+): PluginInstance<T> {
+  // PluginManager is not exported by owl
+  const PluginManager = parentScope.pluginManager.constructor as new (
+    app: any,
+    options: { parent: Scope["pluginManager"]; config: Record<string, any> }
+  ) => Scope["pluginManager"];
+  const manager = new PluginManager(parentScope.app, {
+    parent: parentScope.pluginManager,
+    config,
+  });
+  manager.startPlugins([Plugin]);
+  return manager.getPlugin(Plugin) as PluginInstance<T>;
 }
