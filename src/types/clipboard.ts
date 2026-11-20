@@ -40,6 +40,7 @@ export interface ClipboardOptions {
   isCutOperation: boolean;
   pasteOption?: ClipboardPasteOptions;
   selectTarget?: boolean;
+  targetFigureId?: UID;
 }
 
 export interface ClipboardPositions {
