@@ -376,13 +376,23 @@ describe("Adding rows footer at the end of sheet", () => {
   });
 
   test("will scroll down to the new last row after adding new rows", async () => {
+    const verticalScrollBar = fixture.querySelector(".o-scrollbar.vertical") as HTMLElement;
+    const contentEl = verticalScrollBar.firstElementChild as HTMLElement;
+    // Like a browser, cap the scroll to the scrollbar content size
+    let scrollTop = 0;
+    Object.defineProperty(verticalScrollBar, "scrollTop", {
+      get: () => scrollTop,
+      set: (value) => (scrollTop = Math.min(value, parseFloat(contentEl.style.height))),
+    });
     await scrollGrid({ deltaY: 10000 });
     const input = fixture.querySelector(".o-grid-add-rows input");
     await setInputValueAndTrigger(input, "1000");
     await click(fixture, ".o-grid-add-rows button");
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
-    expect(parent.env.getStore(ViewportsStore).visibleRows).toContain(numberOfRows - 1);
+    const viewStore = parent.env.getStore(ViewportsStore);
+    expect(viewStore.visibleRows).toContain(numberOfRows - 1);
+    expect(verticalScrollBar.scrollTop).toBe(viewStore.activeSheetScrollInfo.scrollY);
   });
 
   test("the input value will be the default value 100 after changing sheet", async () => {
