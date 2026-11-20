@@ -4,6 +4,8 @@ import { ExcelIconSet } from "../types/xlsx";
 /** In XLSX color format (no #)  */
 export const AUTO_COLOR = "000000";
 
+export const XLSX_FIGURE_BORDER = { color: "D9D9D9", width: 1 };
+
 export const XLSX_ICONSET_MAP: Record<IconSetType, ExcelIconSet> = {
   arrows: "3Arrows",
   smiley: "3Symbols",
