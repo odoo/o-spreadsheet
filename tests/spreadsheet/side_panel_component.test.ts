@@ -478,6 +478,30 @@ describe("Side Panel", () => {
       expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
     });
 
+    test("Collapsing a panel unmounts its body", async () => {
+      const body = document.querySelector(".main_body");
+
+      await click(fixture, ".o-collapse-panel");
+      expect(".main_body").toHaveCount(0);
+      await click(fixture, ".o-collapse-panel");
+      expect(document.querySelector(".main_body")).not.toBe(body);
+    });
+
+    test("Collapsing a panel keeps its body state if keepMountedWhenCollapsed is set", async () => {
+      addToRegistry(sidePanelRegistry, "CUSTOM_HIDDEN_PANEL", {
+        title: "Custom Hidden Panel",
+        Body: Body,
+        keepMountedWhenCollapsed: true,
+      });
+      sidePanelStore.open("CUSTOM_HIDDEN_PANEL");
+      await nextTick();
+      const body = document.querySelector(".main_body");
+
+      await click(fixture, ".o-collapse-panel");
+      await click(fixture, ".o-collapse-panel");
+      expect(document.querySelector(".main_body")).toBe(body);
+    });
+
     test("Opening a secondary panel collapses the pinned main panel", async () => {
       sidePanelStore.togglePinPanel();
       expect(sidePanelStore.mainPanel?.isCollapsed).toBeFalsy();

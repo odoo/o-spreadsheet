@@ -1,12 +1,18 @@
 <templates>
   <t t-name="o-spreadsheet-SidePanel">
     <t t-if="this.props.isCollapsed" t-call="o-spreadsheet-SidePanelCollapsed"/>
-    <t t-else="" t-call="o-spreadsheet-SidePanelExtended"/>
+    <t
+      t-if="!this.props.isCollapsed or this.props.panelContent.keepMountedWhenCollapsed"
+      t-call="o-spreadsheet-SidePanelExtended"
+    />
   </t>
 
   <t t-name="o-spreadsheet-SidePanelExtended">
-    <div class="o-sidePanel h-100 bg-white border-top border-start">
+    <div
+      class="h-100 bg-white border-top border-start"
+      t-att-class="{ 'o-sidePanel': !this.props.isCollapsed, 'd-none': this.props.isCollapsed }">
       <div
+        t-if="!this.props.isCollapsed"
         class="o-sidePanelHeader d-flex align-items-center justify-content-between border-bottom">
         <div
           t-if="this.props.onToggleCollapsePanel"
