@@ -87,9 +87,11 @@ describe("Sunburst chart side panel", () => {
         title: { text: "My Sunburst chart" },
         legendPosition: "bottom",
         background: "#00FF00",
-        showLabels: true,
-        showValues: false,
-        valuesDesign: { bold: false, italic: true, fontSize: 15 },
+        showData: {
+          values: false,
+          labels: true,
+          valuesDesign: { bold: false, italic: true, fontSize: 15 },
+        },
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
@@ -119,50 +121,58 @@ describe("Sunburst chart side panel", () => {
       expect(definition.background).toEqual("#000000");
     });
 
-    test("Can display or not the labels/values", async () => {
+    test("Can display/hide the labels/values/percentages", async () => {
       const chartId = createSunburstChart(model, {});
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       expect('input[name="showLabels"]').toHaveValue(true);
-      expect('input[name="showValues"]').toHaveValue(false);
+      expect('input[name="showValues"]').toHaveValue(true);
+      expect('input[name="showPercentages"]').toHaveValue(false);
       expect(".o-values-style").toHaveCount(1);
 
       await simulateClick('input[name="showLabels"]');
 
       expect('input[name="showLabels"]').toHaveValue(false);
-      expect('input[name="showValues"]').toHaveValue(false);
-      expect(".o-values-style").toHaveCount(0);
-      expect(getSunburstDefinition(chartId).showLabels).toEqual(false);
+      expect('input[name="showValues"]').toHaveValue(true);
+      expect('input[name="showPercentages"]').toHaveValue(false);
+      expect(".o-values-style").toHaveCount(1);
+      expect(getSunburstDefinition(chartId).showData?.labels).toEqual(false);
 
       await simulateClick('input[name="showValues"]');
 
       expect('input[name="showLabels"]').toHaveValue(false);
-      expect('input[name="showValues"]').toHaveValue(true);
+      expect('input[name="showValues"]').toHaveValue(false);
+      expect('input[name="showPercentages"]').toHaveValue(false);
+      expect(".o-values-style").toHaveCount(0);
+      expect(getSunburstDefinition(chartId).showData?.values).toEqual(false);
+
+      await simulateClick('input[name="showPercentages"]');
+      expect('input[name="showPercentages"]').toHaveValue(true);
       expect(".o-values-style").toHaveCount(1);
-      expect(getSunburstDefinition(chartId).showValues).toEqual(true);
+      expect(getSunburstDefinition(chartId).showData?.percentages).toEqual(true);
     });
 
     test("Can change Sunburst label style", async () => {
-      const chartId = createSunburstChart(model);
+      const chartId = createSunburstChart(model, { showData: { values: true } });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       expect('.o-values-style [title="Bold"]').not.toHaveClass("active");
       await simulateClick('.o-values-style [title="Bold"]');
       expect('.o-values-style [title="Bold"]').toHaveClass("active");
-      expect(getSunburstDefinition(chartId).valuesDesign?.bold).toEqual(true);
+      expect(getSunburstDefinition(chartId).showData?.valuesDesign?.bold).toEqual(true);
 
       expect('.o-values-style [title="Italic"]').not.toHaveClass("active");
       await simulateClick('.o-values-style [title="Italic"]');
       expect('.o-values-style [title="Italic"]').toHaveClass("active");
-      expect(getSunburstDefinition(chartId).valuesDesign?.italic).toEqual(true);
+      expect(getSunburstDefinition(chartId).showData?.valuesDesign?.italic).toEqual(true);
 
       expect('.o-values-style input[type="number"]').toHaveValue("13");
       await setInputValueAndTrigger(".o-values-style input[type='number']", "20");
-      expect(getSunburstDefinition(chartId).valuesDesign?.fontSize).toEqual(20);
+      expect(getSunburstDefinition(chartId).showData?.valuesDesign?.fontSize).toEqual(20);
 
       await changeColorPickerWidgetColor(".o-values-style", "Text color", "#FF0000");
       expect(getColorPickerWidgetColor(".o-values-style", "Text color")).toEqual("#FF0000");
-      expect(getSunburstDefinition(chartId).valuesDesign?.color).toEqual("#FF0000");
+      expect(getSunburstDefinition(chartId).showData?.valuesDesign?.color).toEqual("#FF0000");
     });
 
     test("Can change sunburst colors", async () => {

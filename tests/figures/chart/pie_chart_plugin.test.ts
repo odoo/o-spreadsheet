@@ -32,7 +32,7 @@ describe("pie chart", () => {
       aggregated: true,
       isDoughnut: false,
       pieHolePercentage: 0,
-      showValues: false,
+      showData: { values: false, labels: false },
       humanize: false,
       slicesColors: [],
       annotationText: "This is an annotation text",

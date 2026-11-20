@@ -128,11 +128,9 @@ describe("TreeMap chart", () => {
       }),
       auxiliaryRange: "Sheet1!A1:A4",
       aggregated: true,
-      showValues: false,
+      showData: { values: false, labels: false, valuesDesign: { italic: true } },
       headerDesign: { bold: false },
       showHeaders: true,
-      showLabels: false,
-      valuesDesign: { italic: true },
       treemapColoringOptions: { type: "categoryColor", colors: [], useValueBasedGradient: true },
     };
     const definition = createChartDefinitionFromContext("treemap", context);
@@ -146,11 +144,9 @@ describe("TreeMap chart", () => {
         dataSetsHaveTitle: true,
       }),
       legendPosition: "bottom",
-      showValues: false,
+      showData: { values: false, labels: false, valuesDesign: { italic: true } },
       headerDesign: { bold: false },
       showHeaders: true,
-      showLabels: false,
-      valuesDesign: { italic: true },
       coloringOptions: { type: "categoryColor", colors: [], useValueBasedGradient: true },
       humanize: false,
       annotationText: "This is an annotation text",
@@ -390,7 +386,7 @@ describe("TreeMap chart", () => {
         dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }],
         labelRange: "C1:C2",
       }),
-      valuesDesign: { bold: true, italic: true, align: "right", color: "#123456" },
+      showData: { valuesDesign: { bold: true, italic: true, align: "right", color: "#123456" } },
     });
     let labelConfig = getTreeMapDatasetConfig(chartId).labels as any;
     expect(labelConfig).toMatchObject({
@@ -404,15 +400,40 @@ describe("TreeMap chart", () => {
       "45",
     ]);
 
-    updateChart(model, chartId, { showLabels: false });
+    updateChart(model, chartId, { showData: { labels: false, values: true } });
     labelConfig = getTreeMapDatasetConfig(chartId).labels as any;
     expect(labelConfig?.formatter?.(getTreeMapElement({ value: 45, group: "Parent" }))).toEqual([
       "45",
     ]);
 
-    updateChart(model, chartId, { showValues: false });
+    updateChart(model, chartId, { showData: { values: false, labels: false } });
     labelConfig = getTreeMapDatasetConfig(chartId).labels as any;
     expect(labelConfig?.display).toEqual(false);
+  });
+
+  test("TreeMap percentages are computed on the total of the chart", () => {
+    // prettier-ignore
+    setGrid(model, {
+      A1: "Year", B1: "Quarter", C1: "Sales",
+      A2: "2024", B2: "Q1",      C2: "100",
+      A3: "2024", B3: "Q2",      C3: "300",
+    });
+    const chartId = createTreeMapChart(model, {
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }],
+        labelRange: "C1:C3",
+      }),
+      showData: { labels: false, values: false, percentages: true },
+    });
+    const q1Element = getTreeMapElement({ value: 100, group: "Q1" });
+
+    let labelConfig = getTreeMapDatasetConfig(chartId).labels as any;
+    expect(labelConfig?.display).toBe(true);
+    expect(labelConfig?.formatter?.(q1Element)).toEqual(["25.00%"]);
+
+    updateChart(model, chartId, { showData: { labels: true, values: true, percentages: true } });
+    labelConfig = getTreeMapDatasetConfig(chartId).labels as any;
+    expect(labelConfig?.formatter?.(q1Element)).toEqual(["Q1", "100 (25.00%)"]);
   });
 
   describe("TreeMap background colors", () => {

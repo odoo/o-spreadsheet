@@ -1,18 +1,12 @@
 import { ChartConfiguration, ChartDataset } from "chart.js";
 import { Color } from "../misc";
 import { Range } from "../range";
-import { ChartDataSource, ChartStyle, DataSetStyle } from "./chart";
-import { BaseChartDefinition, LegendPosition } from "./common_chart";
+import { ChartStyle } from "./chart";
+import { HierarchicalChartDefinition } from "./common_chart";
 
 export interface SunburstChartDefinition<T extends string | Range = Range>
-  extends BaseChartDefinition {
+  extends HierarchicalChartDefinition<T> {
   readonly type: "sunburst";
-  readonly dataSetStyles: DataSetStyle;
-  readonly dataSource: ChartDataSource<T>;
-  readonly legendPosition: LegendPosition;
-  readonly showValues?: boolean;
-  readonly showLabels?: boolean;
-  readonly valuesDesign?: ChartStyle;
   readonly groupColors?: (Color | undefined | null)[];
   readonly pieHolePercentage?: number;
 }
@@ -33,12 +27,14 @@ export interface SunburstTreeNode extends SunburstChartRawData {
 }
 
 export const SunburstChartDefaults = {
-  showValues: false,
-  showLabels: true,
-  valuesDesign: {
-    align: "center",
-    fontSize: 13,
-  } as ChartStyle,
+  showData: {
+    values: true,
+    labels: true,
+    valuesDesign: {
+      align: "center",
+      fontSize: 13,
+    } as ChartStyle,
+  },
 };
 
 export interface SunburstChartJSDataset extends ChartDataset<"doughnut"> {

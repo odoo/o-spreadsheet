@@ -1007,6 +1007,78 @@ test("migrate version 20.1.2: gauge dataRange becomes a metric formula", () => {
   expect(exportedData.sheets[0].figures[1].data).not.toHaveProperty("dataRange");
 });
 
+test("migrate version 20.1.3: showValues/showLabels/valuesDesign are moved into showData", () => {
+  const model = new Model({
+    version: "20.1.2",
+    sheets: [
+      {
+        id: "sh1",
+        figures: [
+          {
+            id: "barFigure",
+            tag: "chart",
+            data: {
+              chartId: "barFigure",
+              type: "bar",
+              showValues: true,
+            },
+          },
+          {
+            id: "sunburstFigure",
+            tag: "chart",
+            data: {
+              chartId: "sunburstFigure",
+              type: "sunburst",
+              showValues: true,
+              showLabels: false,
+              valuesDesign: { bold: true, fontSize: 15 },
+            },
+          },
+          {
+            id: "lineFigure",
+            tag: "chart",
+            data: { chartId: "lineFigure", type: "line" },
+          },
+          {
+            id: "carouselFigure",
+            tag: "carousel",
+            data: {
+              items: [{ type: "chart", chartId: "carouselChart" }],
+              chartDefinitions: {
+                carouselChart: {
+                  type: "treemap",
+                  showLabels: true,
+                  valuesDesign: { italic: true },
+                },
+              },
+            },
+          },
+        ],
+      },
+    ],
+  });
+  const figures = model.exportData().sheets[0].figures;
+
+  expect(figures[0].data.showData).toEqual({ values: true });
+  expect(figures[0].data).not.toHaveProperty("showValues");
+
+  expect(figures[1].data.showData).toEqual({
+    values: true,
+    labels: false,
+    valuesDesign: { bold: true, fontSize: 15 },
+  });
+  expect(figures[1].data).not.toHaveProperty("showValues");
+  expect(figures[1].data).not.toHaveProperty("showLabels");
+  expect(figures[1].data).not.toHaveProperty("valuesDesign");
+
+  expect(figures[2].data.showData).toBeUndefined();
+
+  const carouselChart = figures[3].data.chartDefinitions["carouselChart"];
+  expect(carouselChart.showData).toEqual({ labels: true, valuesDesign: { italic: true } });
+  expect(carouselChart).not.toHaveProperty("showLabels");
+  expect(carouselChart).not.toHaveProperty("valuesDesign");
+});
+
 describe("Import", () => {
   test("Import sheet with rows/cols size defined.", () => {
     const model = new Model({

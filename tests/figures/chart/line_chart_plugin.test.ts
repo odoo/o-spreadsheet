@@ -15,6 +15,26 @@ import {
 import { createModelFromGrid } from "../../test_helpers/helpers";
 
 describe("line chart", () => {
+  test("Percentages are only displayed on cumulative line charts", () => {
+    const model = createModelFromGrid({ A1: "1", A2: "2", A3: "3" });
+    createChart(
+      model,
+      {
+        type: "line",
+        ...toChartDataSource({ dataSets: [{ dataRange: "A1:A3" }] }),
+        showData: { percentages: true },
+        cumulative: false,
+      },
+      "chartId"
+    );
+    let options = getChartConfiguration(model, "chartId").options;
+    expect(options.plugins.chartShowValuesPlugin.display.percentages).toBe(false);
+
+    updateChart(model, "chartId", { cumulative: true });
+    options = getChartConfiguration(model, "chartId").options;
+    expect(options.plugins.chartShowValuesPlugin.display.percentages).toBe(true);
+  });
+
   test("create line chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
       ...GENERAL_CHART_CREATION_CONTEXT,
@@ -41,7 +61,7 @@ describe("line chart", () => {
       cumulative: true,
       axesDesign: {},
       fillArea: true,
-      showValues: false,
+      showData: { values: false, labels: false },
       hideDataMarkers: false,
       zoomable: true,
       humanize: false,

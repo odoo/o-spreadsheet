@@ -237,7 +237,7 @@ describe("calendar chart", () => {
         labelRange: "Sheet1!A1:A4",
       }),
       legendPosition: "bottom",
-      showValues: false,
+      showData: { values: false, labels: false },
       colorScale: { minColor: "#ffffff", maxColor: "#ff0000" },
       missingValueColor: "#ff0000",
       horizontalGroupBy: "day_of_week",

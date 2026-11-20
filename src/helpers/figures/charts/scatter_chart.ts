@@ -24,7 +24,7 @@ export const ScatterChart: ChartTypeBuilder<"scatter"> = {
     "dataSource",
     "legendPosition",
     "dataSetStyles",
-    "showValues",
+    "showData",
     "labelsAsText",
     "aggregated",
     "axesDesign",
@@ -59,7 +59,7 @@ export const ScatterChart: ChartTypeBuilder<"scatter"> = {
       type: "scatter",
       aggregated: context.aggregated ?? false,
       axesDesign: context.axesDesign,
-      showValues: context.showValues,
+      showData: context.showData,
       humanize: context.humanize,
       annotationLink: context.annotationLink,
       annotationText: context.annotationText,
@@ -74,6 +74,7 @@ export const ScatterChart: ChartTypeBuilder<"scatter"> = {
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
+      showValues: definition.showData?.values ?? false,
     };
   },
 

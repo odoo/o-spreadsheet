@@ -64,6 +64,7 @@ import { formatValue } from "../../../format/format";
 import { clip, isDefined, range } from "../../../misc";
 import { BubbleChartData } from "../bubble_chart";
 import {
+  formatValueWithPercentage,
   getPieColors,
   isTrendLineAxis,
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
@@ -746,8 +747,10 @@ export function getTreeMapChartDatasets(
     datasetEntries[i].value = Number(labels[i]);
   }
 
-  const showLabels = definition.showLabels ?? TreeMapChartDefaults.showLabels;
-  const showValues = definition.showValues ?? TreeMapChartDefaults.showValues;
+  const showLabels = definition.showData?.labels ?? TreeMapChartDefaults.showData.labels;
+  const showValues = definition.showData?.values ?? TreeMapChartDefaults.showData.values;
+  const showPercentages = definition.showData?.percentages ?? false;
+  const total = tree.reduce((sum, node) => sum + node.value, 0);
 
   const coloringOption = definition.coloringOptions || TreeMapChartDefaults.coloringOptions;
   let colorScale: ((value: number) => string) | undefined;
@@ -760,13 +763,19 @@ export function getTreeMapChartDatasets(
       data: [],
       tree: datasetEntries,
       labels: {
-        display: showLabels || showValues,
+        display: showLabels || showValues || showPercentages,
         overflow: "hidden",
-        ...getTextStyle(definition.valuesDesign, TreeMapChartDefaults.valuesDesign),
+        ...getTextStyle(
+          definition.showData?.valuesDesign,
+          TreeMapChartDefaults.showData.valuesDesign
+        ),
         formatter: (ctx) => {
           return [
             showLabels ? ctx.raw.g : undefined, // group name
-            showValues ? formatValue(ctx.raw.v, localeFormat) : undefined, // formatted value
+            formatValueWithPercentage(
+              showValues ? formatValue(ctx.raw.v, localeFormat) : undefined,
+              showPercentages ? (total === 0 ? 0 : (ctx.raw.v / total) * 100) : undefined
+            ),
           ].filter(isDefined);
         },
       },

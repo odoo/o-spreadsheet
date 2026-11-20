@@ -194,5 +194,25 @@ describe("Calendar chart side panel", () => {
       expect(getCalendarChartDefinition(chartId)?.missingValueColor).toEqual("#FF9900");
       expect(getRoundColorPickerValue(".o-missing-value")).toEqual("#FF9900");
     });
+
+    test("Values are shown by default", async () => {
+      createCalendarChart(model, {}, chartId);
+      await openChartDesignSidePanel(model, env, fixture, chartId);
+
+      expect('input[name="showValues"]').toHaveValue(true);
+      expect('input[name="showPercentages"]').toHaveValue(false);
+      const runtime = model.getters.getChartRuntime(chartId) as any;
+      expect(runtime.chartJsConfig.options.plugins.chartShowValuesPlugin.display.values).toBe(true);
+    });
+
+    test("Can show percentages", async () => {
+      createCalendarChart(model, {}, chartId);
+      await openChartDesignSidePanel(model, env, fixture, chartId);
+
+      expect('input[name="showPercentages"]').toHaveValue(false);
+      await click(fixture, 'input[name="showPercentages"]');
+      expect(getCalendarChartDefinition(chartId)?.showData?.percentages).toBe(true);
+      expect('input[name="showPercentages"]').toHaveValue(true);
+    });
   });
 });

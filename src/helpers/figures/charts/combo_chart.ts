@@ -26,7 +26,7 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
     "dataSetStyles",
     "aggregated",
     "axesDesign",
-    "showValues",
+    "showData",
     "hideDataMarkers",
     "zoomable",
   ] as const,
@@ -57,6 +57,7 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
+      showValues: definition.showData?.values ?? false,
     };
   },
 
@@ -80,7 +81,7 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
       title: context.title || { text: "" },
       type: "combo",
       axesDesign: context.axesDesign,
-      showValues: context.showValues,
+      showData: context.showData,
       hideDataMarkers: context.hideDataMarkers,
       zoomable: context.zoomable,
       humanize: context.humanize,

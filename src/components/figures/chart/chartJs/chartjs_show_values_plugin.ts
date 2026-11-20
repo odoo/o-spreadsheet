@@ -1,8 +1,21 @@
 import type { Chart, ChartMeta, ChartType, Plugin, PointElement } from "chart.js";
 import { colorToRGBA } from "../../../../helpers/color";
-import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
-import { computeCachedTextDimension, computeTextFont } from "../../../../helpers/text_helper";
-import type { ChartType as AllChartType } from "../../../../types/chart/chart";
+import {
+  chartFontColor,
+  formatValueWithPercentage,
+  isTrendLineAxis,
+} from "../../../../helpers/figures/charts/chart_common";
+import {
+  clipTextWithEllipsis,
+  computeCachedTextDimension,
+  computeTextFont,
+} from "../../../../helpers/text_helper";
+import type {
+  ChartType as AllChartType,
+  ChartShowValues,
+  ChartStyle,
+} from "../../../../types/chart/chart";
+import { PieChartDefaults } from "../../../../types/chart/pie_chart";
 import { Color } from "../../../../types/misc";
 
 interface Dimensions {
@@ -28,7 +41,7 @@ interface CallbackArgs {
 
 export interface ChartShowValuesPluginOptions {
   type: AllChartType;
-  showValues: boolean;
+  display?: ChartShowValues;
   background: (value: number | string, dataset: ChartMeta, index: number) => Color | undefined;
   horizontal?: boolean;
   callback: (value: number | string, dataset: ChartMeta, index: number) => string;
@@ -42,6 +55,7 @@ declare module "chart.js" {
 
 const MINIMAL_VERTICAL_DISTANCE = 13;
 const HORIZONTAL_PADDING = 3;
+const VERTICAL_PADDING = 3;
 
 function isLineOverlayOnBarChart(
   options: ChartShowValuesPluginOptions,
@@ -54,7 +68,7 @@ function isLineOverlayOnBarChart(
 export const chartShowValuesPlugin: Plugin = {
   id: "chartShowValuesPlugin",
   afterDatasetsDraw(chart: any, args, options: ChartShowValuesPluginOptions) {
-    if (!options.showValues) {
+    if (!options.display?.values && !options.display?.labels && !options.display?.percentages) {
       return;
     }
     const drawData = chart._metasets?.[0]?.data;
@@ -83,7 +97,7 @@ export const chartShowValuesPlugin: Plugin = {
           : drawVerticalBarValues(chart, options);
         break;
       case "pyramid":
-        drawHorizontalBarValues(chart, options);
+        drawPyramidValues(chart, options);
         break;
       case "calendar":
       case "heatmap":
@@ -104,13 +118,34 @@ function drawValues(args: {
   options: ChartShowValuesPluginOptions;
   direction: "horizontal" | "vertical";
   getNumberValue: (dataset: any, valueIndex: number) => number | undefined;
-  getValuePosition: (args: CallbackArgs) => { x: number; y: number };
+  getPercentages?: (chart: any, dataset: any) => number[] | undefined;
+  getValuePosition: (args: CallbackArgs) => {
+    x: number;
+    y: number;
+    angle?: number;
+    maxWidth?: number;
+  };
+  getLabel?: (chart: any, dataset: any, valueIndex: number) => string;
   shouldSkipValue: (args: CallbackArgs) => boolean;
   getTextColors: (args: CallbackArgs) => TextStyle;
+  style?: ChartStyle;
+  splitValueAndPercentage?: boolean;
 }) {
-  const { chart, options, getNumberValue, direction } = args;
+  const { chart, options, getNumberValue, getLabel, getPercentages, direction, style } = args;
   const ctx = chart.ctx as CanvasRenderingContext2D;
   ctx.save();
+
+  const font = computeTextFont(
+    {
+      fontSize: style?.fontSize ?? globalThis.Chart?.defaults.font.size ?? 12,
+      bold: style?.bold,
+      italic: style?.italic,
+    },
+    "px"
+  );
+  if (style) {
+    ctx.font = font;
+  }
 
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
@@ -122,9 +157,20 @@ function drawValues(args: {
       continue;
     }
 
+    let percentages: number[] | undefined = undefined;
+    if (options.display?.percentages) {
+      percentages = getPercentages?.(chart, dataset);
+    }
+
     for (let i = 0; i < dataset._parsed.length; i++) {
-      const numberValue = getNumberValue(dataset, i);
-      if (numberValue === undefined || isNaN(numberValue)) {
+      const numberValue = options.display?.values ? getNumberValue(dataset, i) : undefined;
+      const label = options.display?.labels ? getLabel?.(chart, dataset, i) : undefined;
+      const percentage = percentages?.[i];
+      if (
+        (numberValue === undefined || isNaN(numberValue)) &&
+        !label &&
+        (percentage === undefined || isNaN(percentage))
+      ) {
         continue;
       }
       const chartElement = dataset.data[i]; // BarElement, PointElement or ArcElement depending on the chart type
@@ -134,13 +180,32 @@ function drawValues(args: {
       if (!elementColor || colorToRGBA(elementColor).a !== 1) {
         continue;
       }
+      const valuesToDisplay: string[] = [];
+      if (label) {
+        valuesToDisplay.push(label);
+      }
+      const formattedValue =
+        numberValue !== undefined && !isNaN(numberValue)
+          ? options.callback(numberValue, dataset, i)
+          : undefined;
+      const displayedValues = args.splitValueAndPercentage
+        ? [
+            formattedValue,
+            formatValueWithPercentage(undefined, percentage, formattedValue !== undefined),
+          ]
+        : [formatValueWithPercentage(formattedValue, percentage)];
+      for (const displayedValue of displayedValues) {
+        if (displayedValue) {
+          valuesToDisplay.push(displayedValue);
+        }
+      }
+      const textSize = getTextDimensions(valuesToDisplay, ctx, font);
 
-      const valueToDisplay = options.callback(numberValue, dataset, i);
-      const textSize = getTextDimensions(valueToDisplay, ctx);
+      const value = numberValue ?? 0;
       const callbackArgs = {
         dataset,
         chartElement,
-        numberValue,
+        numberValue: value,
         valueIndex: i,
         textSize,
         options,
@@ -160,7 +225,7 @@ function drawValues(args: {
         }
         for (const otherPosition of textsPositions[key] || []) {
           if (Math.abs(otherPosition - position.y) < MINIMAL_VERTICAL_DISTANCE) {
-            position.y = otherPosition + MINIMAL_VERTICAL_DISTANCE * (numberValue < 0 ? 1 : -1);
+            position.y = otherPosition + MINIMAL_VERTICAL_DISTANCE * (value < 0 ? 1 : -1);
           }
         }
         textsPositions[key].push(position.y);
@@ -173,7 +238,7 @@ function drawValues(args: {
         for (const otherPosition of textsPositions[key]) {
           if (Math.abs(otherPosition - position.x) < textSize.width) {
             position.x =
-              numberValue < 0
+              value < 0
                 ? otherPosition - textSize.width - HORIZONTAL_PADDING
                 : otherPosition + textSize.width + HORIZONTAL_PADDING;
           }
@@ -181,19 +246,71 @@ function drawValues(args: {
         textsPositions[key].push(position.x);
       }
 
-      const { strokeColor, textColor } = args.getTextColors(callbackArgs);
+      const textColors = args.getTextColors(callbackArgs);
+      const strokeColor = textColors.strokeColor;
+      const textColor = style?.color ?? textColors.textColor;
+      let { x, y, angle, maxWidth } = position;
+      ctx.save();
+      ctx.translate(x, y);
+      if (label === undefined && percentage === undefined) {
+        angle = 0;
+      }
+      if (angle !== undefined) {
+        if (angle > Math.PI / 2) {
+          angle += Math.PI;
+        }
+        ctx.rotate(angle);
+      }
+      if (maxWidth !== undefined) {
+        for (const i in valuesToDisplay) {
+          valuesToDisplay[i] = clipTextWithEllipsis(ctx, valuesToDisplay[i], maxWidth);
+        }
+      }
+      const lineHeight = textSize.height / valuesToDisplay.length;
+      const getLineY = (lineIndex: number) =>
+        (lineIndex - (valuesToDisplay.length - 1) / 2) * lineHeight;
       if (!!strokeColor) {
         ctx.strokeStyle = strokeColor;
         ctx.lineWidth = 3; // Stroke the text with a big lineWidth width to have some kind of background
-        ctx.strokeText(valueToDisplay, position.x, position.y);
+        valuesToDisplay.forEach((text, lineIndex) => ctx.strokeText(text, 0, getLineY(lineIndex)));
       }
       ctx.fillStyle = textColor;
       ctx.lineWidth = 1;
-      ctx.fillText(valueToDisplay, position.x, position.y);
+      valuesToDisplay.forEach((text, lineIndex) => ctx.fillText(text, 0, getLineY(lineIndex)));
+      ctx.restore();
     }
   }
 
   ctx.restore();
+}
+
+function computePercentages(values: number[]): number[] | undefined {
+  const total = values.reduce((sum, value) => (isFinite(value) ? sum + value : sum), 0) / 100;
+  if (total === 0 || !isFinite(total)) {
+    return undefined;
+  }
+  return values.map((value) => value / total);
+}
+
+function getBarPercentages(chart: any, dataset: any): number[] | undefined {
+  if (!dataset._stacked) {
+    return computePercentages(dataset._dataset.data);
+  }
+  const stackDatasets = chart._metasets.filter(
+    (meta: any) =>
+      meta.type === "bar" &&
+      chart.isDatasetVisible(meta.index) &&
+      meta.vScale?.id === dataset.vScale?.id &&
+      meta.stack === dataset.stack
+  );
+  return dataset._dataset.data.map((value: number, index: number) => {
+    const stackValues = stackDatasets.map((meta: any) => meta._dataset.data[index]);
+    const total = stackValues.reduce(
+      (sum: number, stackValue: number) => (isFinite(stackValue) ? sum + stackValue : sum),
+      0
+    );
+    return total === 0 ? NaN : (value / total) * 100;
+  });
 }
 
 function drawVerticalBarValues(chart: any, options: ChartShowValuesPluginOptions) {
@@ -202,9 +319,11 @@ function drawVerticalBarValues(chart: any, options: ChartShowValuesPluginOptions
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
+    getPercentages: getBarPercentages,
     getValuePosition: getVerticalBarValuePosition,
     shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
     getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
+    splitValueAndPercentage: true,
   });
 }
 
@@ -229,12 +348,26 @@ function drawLineValues(chart: any, options: ChartShowValuesPluginOptions) {
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
-    getValuePosition: ({ chartElement }) => ({
+    getPercentages:
+      options.type === "line"
+        ? (_, dataset) => {
+            const values: number[] = dataset._parsed.map((value) =>
+              value === null || value === undefined ? NaN : Number(value.y)
+            );
+            const total = values.findLast((value) => isFinite(value));
+            if (!total) {
+              return undefined;
+            }
+            return values.map((value) => (value / total) * 100);
+          }
+        : undefined,
+    getValuePosition: ({ chartElement, textSize }) => ({
       x: chartElement.x,
-      y: chartElement.y - 10,
+      y: chartElement.y - VERTICAL_PADDING - textSize.height / 2,
     }),
     shouldSkipValue: () => false,
     getTextColors: chartElementColoredTextWithChartBackgroundHalo,
+    splitValueAndPercentage: true,
   });
 }
 
@@ -262,6 +395,21 @@ function drawColorGridValues(chart: any, options: ChartShowValuesPluginOptions) 
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => dataset._parsed[i].y,
+    getPercentages: (chart, dataset) => {
+      const total =
+        chart._metasets.reduce(
+          (sum: number, meta: any) =>
+            sum +
+            meta._dataset.values.reduce((sum: number, value: number) => sum + (value ?? 0), 0),
+          0
+        ) / 100;
+      if (total === 0) {
+        return undefined;
+      }
+      return dataset._dataset.values.map((value: number) =>
+        value === undefined ? undefined : value / total
+      );
+    },
     getValuePosition: ({ chartElement }) => ({
       x: chartElement.x,
       y: chartElement.y + chartElement.height / 2,
@@ -272,6 +420,7 @@ function drawColorGridValues(chart: any, options: ChartShowValuesPluginOptions) 
       strokeColor: undefined,
       textColor: chartFontColor(chartElement.options.backgroundColor),
     }),
+    splitValueAndPercentage: true,
   });
 }
 
@@ -306,23 +455,39 @@ function drawHorizontalBarValues(chart: any, options: ChartShowValuesPluginOptio
     options,
     direction: "horizontal",
     getNumberValue: (dataset, i) => dataset._parsed[i].x,
-    getValuePosition: ({ chartElement, numberValue, textSize, dataset }) => {
-      const xAxisScale = chart.scales[dataset.xAxisID];
-      const xZeroLine = xAxisScale.getPixelForValue(0);
-      const distanceFromAxisOrigin = Math.abs(chartElement.x - xZeroLine);
-      let xPosition: number;
-      const sign = numberValue < 0 ? -1 : 1;
-      if (distanceFromAxisOrigin < textSize.width) {
-        xPosition = xZeroLine + sign * (textSize.width / 2 + HORIZONTAL_PADDING);
-      } else {
-        xPosition = chartElement.x - sign * (chartElement.width / 2);
-      }
-      return {
-        x: xPosition,
-        y: chartElement.y,
-      };
-    },
+    getPercentages: getBarPercentages,
+    getValuePosition: getHorizontalBarValuePosition,
     shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
+    getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
+  });
+}
+
+function drawPyramidValues(chart: any, options: ChartShowValuesPluginOptions) {
+  drawValues({
+    chart,
+    options,
+    direction: "horizontal",
+    getNumberValue: (dataset, i) => dataset._parsed[i].x,
+    getPercentages: (chart, dataset) => {
+      const total =
+        chart._metasets.reduce(
+          (sum: number, dataset: any) =>
+            sum + dataset._parsed.reduce((sum: number, item) => sum + Math.abs(item.x), 0),
+          0
+        ) / 100;
+      if (total === 0) {
+        return undefined;
+      }
+      return dataset._parsed.map((item) => Math.abs(item.x) / total);
+    },
+    // Use the actual bar value to know on which side to draw, even if the value itself is not displayed
+    getValuePosition: (args) =>
+      getHorizontalBarValuePosition({
+        ...args,
+        numberValue: args.dataset._parsed[args.valueIndex].x,
+      }),
+    shouldSkipValue: ({ chartElement, dataset }) =>
+      !chartElement.width || isLineOverlayOnBarChart(options, dataset),
     getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
   });
 }
@@ -354,25 +519,56 @@ function drawPieValues(chart: any, options: ChartShowValuesPluginOptions) {
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i]),
+    getPercentages: (_, dataset) => computePercentages(dataset._parsed.map(Number)),
     getValuePosition: ({ chartElement }) => {
-      const { midAngle, midRadius } = getSliceDimensions(chartElement);
-      const x = chartElement.x + midRadius * Math.cos(midAngle);
-      const y = chartElement.y + midRadius * Math.sin(midAngle);
-      return { x, y };
+      const { midAngle: angle, midRadius } = getSliceDimensions(chartElement);
+      const x = chartElement.x + midRadius * Math.cos(angle);
+      const y = chartElement.y + midRadius * Math.sin(angle);
+      return { x, y, angle, maxWidth: 0.9 * (chartElement.outerRadius - chartElement.innerRadius) };
     },
+    getLabel: (chart, dataset, valueIndex) => chart.data.labels[valueIndex],
     shouldSkipValue: ({ chartElement, textSize }) => {
-      const { midRadius } = getSliceDimensions(chartElement);
-      const sliceAngle = chartElement.endAngle - chartElement.startAngle;
-      const midWidth = 2 * midRadius * Math.tan(sliceAngle / 2);
-      return sliceAngle < Math.PI / 2 && (textSize.width >= midWidth || midWidth < textSize.height);
+      const { midAngle } = getSliceDimensions(chartElement);
+      const { innerRadius, outerRadius, endAngle, startAngle } = chartElement;
+      const { width, height } = textSize;
+      const deltaX = outerRadius + innerRadius - width;
+      const bottomLeft = {
+        x: deltaX * Math.cos(midAngle) + height * Math.sin(midAngle),
+        y: deltaX * Math.sin(midAngle) - height * Math.cos(midAngle),
+      };
+      const topLeft = {
+        x: deltaX * Math.cos(midAngle) - height * Math.sin(midAngle),
+        y: deltaX * Math.sin(midAngle) + height * Math.cos(midAngle),
+      };
+      let bottomLeftAngle = Math.atan(bottomLeft.y / bottomLeft.x);
+      let topLeftAngle = Math.atan(topLeft.y / topLeft.x);
+      if (bottomLeft.x < 0) {
+        bottomLeftAngle += Math.PI;
+      }
+      if (topLeft.x < 0) {
+        topLeftAngle += Math.PI;
+      }
+      return bottomLeftAngle < startAngle || topLeftAngle > endAngle;
     },
     getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
+    style: { ...PieChartDefaults.showData.valuesDesign, ...options.display?.valuesDesign },
   });
 }
 
-function getTextDimensions(text: string, ctx: CanvasRenderingContext2D): Dimensions {
-  const font = computeTextFont({ fontSize: globalThis.Chart?.defaults.font.size ?? 12 }, "px");
-  return computeCachedTextDimension(ctx, text, font);
+function getTextDimensions(
+  text: string[],
+  ctx: CanvasRenderingContext2D,
+  font: string
+): Dimensions {
+  return text
+    .map((text) => computeCachedTextDimension(ctx, text, font))
+    .reduce(
+      (acc, dim) => ({
+        width: Math.max(acc.width, dim.width),
+        height: acc.height + dim.height,
+      }),
+      { width: 0, height: 0 }
+    );
 }
 
 function chartBackgroundColoredTextWithElementColoredHalo(args: CallbackArgs) {
@@ -406,4 +602,22 @@ function getVerticalBarValuePosition(args: CallbackArgs) {
   }
 
   return { x: chartElement.x, y: yPosition };
+}
+
+function getHorizontalBarValuePosition(args: CallbackArgs) {
+  const { chartElement, numberValue, dataset, textSize, chart } = args;
+  const xAxisScale = chart.scales[dataset.xAxisID];
+  const xZeroLine = xAxisScale.getPixelForValue(0);
+  const distanceFromAxisOrigin = Math.abs(chartElement.x - xZeroLine);
+  let xPosition: number;
+  const sign = numberValue < 0 ? -1 : 1;
+  if (distanceFromAxisOrigin < textSize.width) {
+    xPosition = xZeroLine + sign * (textSize.width / 2 + HORIZONTAL_PADDING);
+  } else {
+    xPosition = chartElement.x - sign * (chartElement.width / 2);
+  }
+  return {
+    x: xPosition,
+    y: chartElement.y,
+  };
 }

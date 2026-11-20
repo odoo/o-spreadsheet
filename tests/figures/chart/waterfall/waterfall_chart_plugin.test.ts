@@ -371,7 +371,7 @@ describe("Waterfall chart", () => {
       showSubTotals: true,
       axesDesign: {},
       verticalAxisPosition: "left",
-      showValues: false,
+      showData: { values: false, labels: false },
       zoomable: true,
       humanize: false,
       annotationText: "This is an annotation text",

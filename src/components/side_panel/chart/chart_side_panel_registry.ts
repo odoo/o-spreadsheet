@@ -22,6 +22,7 @@ import { HierarchicalChartConfigPanel } from "./hierarchical_chart/hierarchical_
 import { LineConfigPanel } from "./line_chart/line_chart_config_panel";
 import { LineChartDesignPanel } from "./line_chart/line_chart_design_panel";
 import { PieChartDesignPanel } from "./pie_chart/pie_chart_design_panel";
+import { PyramidChartDesignPanel } from "./pyramid_chart/pyramid_chart_design_panel";
 import { RadarChartDesignPanel } from "./radar_chart/radar_chart_design_panel";
 import { ScatterConfigPanel } from "./scatter_chart/scatter_chart_config_panel";
 import { ScorecardChartConfigPanel } from "./scorecard_chart_panel/scorecard_chart_config_panel";
@@ -88,7 +89,7 @@ chartSidePanelComponentRegistry
   })
   .add("pyramid", {
     configuration: GenericChartConfigPanel,
-    design: ChartWithAxisDesignPanel,
+    design: PyramidChartDesignPanel,
   })
   .add("radar", {
     configuration: GenericChartConfigPanel,

@@ -44,7 +44,7 @@ describe("bar chart", () => {
       aggregated: true,
       stacked: true,
       axesDesign: {},
-      showValues: false,
+      showData: { values: false, labels: false },
       showTotalLine: false,
       horizontal: false,
       zoomable: true,
@@ -312,6 +312,43 @@ describe("bar chart", () => {
     config = runtime.chartJsConfig as ChartConfiguration<"bar">;
     expect(config.data.datasets.map((ds) => ds.barPercentage)).toEqual([0.9, 0.9]);
     expect(config.data.datasets.map((ds) => ds.categoryPercentage)).toEqual([0.8, 0.8]);
+  });
+
+  test("Percentages are only displayed when there is a single data set", () => {
+    const model = createModelFromGrid({ A2: "2", B2: "3" });
+    createChart(
+      model,
+      {
+        type: "bar",
+        ...toChartDataSource({ dataSets: [{ dataRange: "A1:A3" }] }),
+        showData: { percentages: true },
+      },
+      "chartId"
+    );
+    let options = getChartConfiguration(model, "chartId").options;
+    expect(options.plugins.chartShowValuesPlugin.display.percentages).toBe(true);
+
+    updateChart(model, "chartId", {
+      ...toChartDataSource({ dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }] }),
+    });
+    options = getChartConfiguration(model, "chartId").options;
+    expect(options.plugins.chartShowValuesPlugin.display.percentages).toBe(false);
+  });
+
+  test("Percentages are displayed on a stacked bar chart with several data sets", () => {
+    const model = createModelFromGrid({ A2: "2", B2: "3" });
+    createChart(
+      model,
+      {
+        type: "bar",
+        ...toChartDataSource({ dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }] }),
+        showData: { percentages: true },
+        stacked: true,
+      },
+      "chartId"
+    );
+    const options = getChartConfiguration(model, "chartId").options;
+    expect(options.plugins.chartShowValuesPlugin.display.percentages).toBe(true);
   });
 
   test("bar chart runtime reflects axis bounds and grids", () => {
