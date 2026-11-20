@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-SelectionInput">
     <div class="o-selection" t-ref="this.selectionRef">
-      <t t-set="ranges" t-value="this.store.selectionInputs"/>
+      <t t-set="ranges" t-value="this.selectionPlugin.selectionInputs"/>
       <div
         t-foreach="ranges"
         t-as="range"
@@ -31,7 +31,7 @@
               'o-disabled-ranges' : range.disabled and !range.isFocused,
               'o-focused' : range.isFocused,
               'o-invalid border-danger position-relative': this.isInvalid || !range.isValidRange,
-              'text-decoration-underline': range.xc and range.isFocused and this.store.mode === 'select-range'
+              'text-decoration-underline': range.xc and range.isFocused and this.selectionPlugin.mode() === 'select-range'
             }"
             t-ref="range.isFocused ? this.focusedInputRef : this.unfocusedInputRef"
           />
@@ -62,7 +62,7 @@
           t-on-click="this.addEmptyInput">
           Add range
         </button>
-        <div class="ms-auto" t-if="this.store.hasFocus or this.isResettable">
+        <div class="ms-auto" t-if="this.selectionPlugin.hasFocus or this.isResettable">
           <button class="o-button o-selection-ko" t-if="this.isResettable" t-on-click="this.reset">
             Reset
           </button>
