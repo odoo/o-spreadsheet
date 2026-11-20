@@ -50,6 +50,29 @@ describe("Bar chart show value", () => {
     expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
   });
 
+  test.each([false, true])(
+    "Percentages are relative to the stack total on a stacked bar chart (horizontal: %s)",
+    (horizontal) => {
+      const model = createModelFromGrid({ A1: "10", A2: "20", B1: "30", B2: "20" });
+      const definition: Partial<BarChartDefinition<string>> & { type: "bar" } = {
+        type: "bar",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }],
+          dataSetsHaveTitle: false,
+        }),
+        showData: { values: true, percentages: true },
+        stacked: true,
+        horizontal,
+        title: { text: "" },
+        legendPosition: "none",
+      };
+      createChart(model, definition, "chartId");
+
+      const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+      expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+    }
+  );
+
   test("Outline color is the same as the background color", () => {
     const model = createModelFromGrid({ A1: "1", A2: "2", A3: "3" });
     const definition: Partial<BarChartDefinition<string>> & { type: "bar" } = {

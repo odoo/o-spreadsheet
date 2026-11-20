@@ -284,20 +284,42 @@ function drawValues(args: {
   ctx.restore();
 }
 
+function computePercentages(values: number[]): number[] | undefined {
+  const total = values.reduce((sum, value) => (isFinite(value) ? sum + value : sum), 0) / 100;
+  if (total === 0 || !isFinite(total)) {
+    return undefined;
+  }
+  return values.map((value) => value / total);
+}
+
+function getBarPercentages(chart: any, dataset: any): number[] | undefined {
+  if (!dataset._stacked) {
+    return computePercentages(dataset._dataset.data);
+  }
+  const stackDatasets = chart._metasets.filter(
+    (meta: any) =>
+      meta.type === "bar" &&
+      chart.isDatasetVisible(meta.index) &&
+      meta.vScale?.id === dataset.vScale?.id &&
+      meta.stack === dataset.stack
+  );
+  return dataset._dataset.data.map((value: number, index: number) => {
+    const stackValues = stackDatasets.map((meta: any) => meta._dataset.data[index]);
+    const total = stackValues.reduce(
+      (sum: number, stackValue: number) => (isFinite(stackValue) ? sum + stackValue : sum),
+      0
+    );
+    return total === 0 ? NaN : (value / total) * 100;
+  });
+}
+
 function drawVerticalBarValues(chart: any, options: ChartShowValuesPluginOptions) {
   drawValues({
     chart,
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
-    getPercentages: (_, dataset) => {
-      const total =
-        dataset._dataset.data.reduce((sum: number, value: number) => sum + value, 0) / 100;
-      if (total === 0) {
-        return undefined;
-      }
-      return dataset._dataset.data.map((value: number) => value / total);
-    },
+    getPercentages: getBarPercentages,
     getValuePosition: getVerticalBarValuePosition,
     shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
     getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
@@ -329,8 +351,8 @@ function drawLineValues(chart: any, options: ChartShowValuesPluginOptions) {
     getPercentages:
       options.type === "line"
         ? (_, dataset) => {
-            const values: number[] = dataset._dataset.data.map((value: unknown) =>
-              value === null || value === undefined ? NaN : Number(value)
+            const values: number[] = dataset._parsed.map((value) =>
+              value === null || value === undefined ? NaN : Number(value.y)
             );
             const total = values.findLast((value) => isFinite(value));
             if (!total) {
@@ -433,14 +455,7 @@ function drawHorizontalBarValues(chart: any, options: ChartShowValuesPluginOptio
     options,
     direction: "horizontal",
     getNumberValue: (dataset, i) => dataset._parsed[i].x,
-    getPercentages: (_, dataset) => {
-      const total =
-        dataset._dataset.data.reduce((sum: number, value: number) => sum + value, 0) / 100;
-      if (total === 0) {
-        return undefined;
-      }
-      return dataset._dataset.data.map((value: number) => value / total);
-    },
+    getPercentages: getBarPercentages,
     getValuePosition: getHorizontalBarValuePosition,
     shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
     getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
@@ -504,11 +519,7 @@ function drawPieValues(chart: any, options: ChartShowValuesPluginOptions) {
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i]),
-    getPercentages: (_, dataset) => {
-      const total =
-        dataset._parsed.reduce((sum: number, value: number) => sum + Number(value), 0) / 100;
-      return dataset._parsed.map((value: number) => value / total);
-    },
+    getPercentages: (_, dataset) => computePercentages(dataset._parsed.map(Number)),
     getValuePosition: ({ chartElement }) => {
       const { midAngle: angle, midRadius } = getSliceDimensions(chartElement);
       const x = chartElement.x + midRadius * Math.cos(angle);

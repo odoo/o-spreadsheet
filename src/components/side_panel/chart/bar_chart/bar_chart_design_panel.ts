@@ -11,9 +11,7 @@ export class BarChartDesignPanel extends GenericZoomableChartDesignPanel<
   }
 
   get showPercentageCheckbox() {
-    return (
-      this.props.definition.dataSource.type === "range" &&
-      this.props.definition.dataSource.dataSets.length < 2
-    );
+    const { dataSource, stacked } = this.props.definition;
+    return dataSource.type === "range" && (stacked || dataSource.dataSets.length < 2);
   }
 }

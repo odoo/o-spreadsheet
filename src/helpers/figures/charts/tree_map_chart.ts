@@ -1,6 +1,6 @@
 import { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { TreeMapChartDefaults, TreeMapChartRuntime } from "../../../types/chart/tree_map_chart";
+import { TreeMapChartRuntime } from "../../../types/chart/tree_map_chart";
 import { CommandResult } from "../../../types/commands";
 import { ColorThemeName } from "../../../types/rendering";
 import { AbstractChart } from "./abstract_chart";
@@ -48,10 +48,7 @@ export const TreeMapChart: ChartTypeBuilder<"treemap"> = {
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "treemap",
-      showData: {
-        ...TreeMapChartDefaults.showData,
-        ...context.showData,
-      },
+      showData: context.showData,
       showHeaders: context.showHeaders,
       headerDesign: context.headerDesign,
       coloringOptions: context.treemapColoringOptions,

@@ -60,7 +60,7 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
       title: context.title || { text: "" },
       type: "radar",
       fillArea: context.fillArea ?? false,
-      showData: context.showData ?? {},
+      showData: context.showData,
       hideDataMarkers: context.hideDataMarkers,
       humanize: context.humanize,
       annotationLink: context.annotationLink,

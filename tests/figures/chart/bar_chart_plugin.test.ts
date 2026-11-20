@@ -335,6 +335,22 @@ describe("bar chart", () => {
     expect(options.plugins.chartShowValuesPlugin.display.percentages).toBe(false);
   });
 
+  test("Percentages are displayed on a stacked bar chart with several data sets", () => {
+    const model = createModelFromGrid({ A2: "2", B2: "3" });
+    createChart(
+      model,
+      {
+        type: "bar",
+        ...toChartDataSource({ dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }] }),
+        showData: { percentages: true },
+        stacked: true,
+      },
+      "chartId"
+    );
+    const options = getChartConfiguration(model, "chartId").options;
+    expect(options.plugins.chartShowValuesPlugin.display.percentages).toBe(true);
+  });
+
   test("bar chart runtime reflects axis bounds and grids", () => {
     const model = createModelFromGrid({
       A1: "Month",

@@ -32,7 +32,7 @@ export function getChartShowValues(
   return {
     type: definition.type,
     horizontal: "horizontal" in definition && definition.horizontal,
-    display: { showData: defaultOptions, ...definition }.showData,
+    display: { ...defaultOptions, ...definition["showData"] },
     background: () => definition.background,
     callback: (value: number | string, dataset: ChartMeta) => {
       const axisId = getDatasetAxisId(definition, dataset);
@@ -46,7 +46,7 @@ export function getBarChartShowValues(
   args: ChartRuntimeGenerationArgs
 ): ChartShowValuesPluginOptions {
   const showValues = getChartShowValues(definition, args);
-  if (!showValues.display?.percentages || args.dataSetsValues.length === 1) {
+  if (!showValues.display?.percentages || definition.stacked || args.dataSetsValues.length === 1) {
     return showValues;
   }
   return { ...showValues, display: { ...showValues.display, percentages: false } };

@@ -2565,6 +2565,23 @@ describe("charts", () => {
     }
   );
 
+  test("Percentage checkbox is displayed for bar charts with several data sets only when stacked", async () => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, {
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+      }),
+    });
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    expect("input[name='showPercentages']").toHaveCount(0);
+
+    updateChart(model, chartId, { stacked: true });
+    await nextTick();
+    expect("input[name='showPercentages']").toHaveCount(1);
+  });
+
   test("Percentage checkbox is only displayed for cumulative line charts", async () => {
     createTestChart("line");
     await mountChartSidePanel();
