@@ -3,6 +3,7 @@ import { useLocalStore } from "../../../store_engine/store_hooks";
 import { ChartDefinition } from "../../../types/chart/chart";
 import { Store } from "../../../types/store_engine";
 import { useChartDragAndDrop } from "../../helpers/chart_drag_and_drop";
+import { NumberInput } from "../../number_input/number_input";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { SidePanelCollapsible } from "../components/collapsible/side_panel_collapsible";
@@ -23,6 +24,7 @@ export class DataAnalysisPanel extends OSComponent {
     OccurrencesStatistics,
     GeneralStatsSection,
     DateSection,
+    NumberInput,
   };
 
   store!: Store<DataAnalysisStore>;
@@ -38,5 +40,10 @@ export class DataAnalysisPanel extends OSComponent {
       return;
     }
     this.chartDnd.startChartDragAndDrop(ev, definition);
+  }
+
+  updateIgnoredRows(value: string) {
+    const ignoredRows = parseInt(value, 10);
+    this.store.updateIgnoredRows(isNaN(ignoredRows) ? 0 : Math.max(0, ignoredRows));
   }
 }
