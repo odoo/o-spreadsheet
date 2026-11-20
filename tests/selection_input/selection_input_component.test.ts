@@ -1,13 +1,13 @@
-import { App, useProps, xml } from "@odoo/owl";
+import { App, signal, useProps, xml } from "@odoo/owl";
 import { Color, Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { types } from "../../src/components/props_validation";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
-import { SelectionInputStore } from "../../src/components/selection_input/selection_input_store";
+import { SelectionInputPlugin } from "../../src/components/selection_input/selection_input_plugin";
 import { ColorGenerator } from "../../src/helpers/color";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { render } from "../../src/helpers/owl3_helpers";
-import { toZone } from "../../src/helpers/zones";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
 import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { useStoreProvider } from "../../src/store_engine/store_hooks";
@@ -69,7 +69,7 @@ class Parent extends Component<any> {
       hasSingleRange="this.hasSingleRange"
       onSelectionChanged="(ranges) => this.onChanged(ranges)"
       onSelectionConfirmed="this.onConfirmed"
-      colors="this.colors || []"
+      colors="this.colors() || []"
     />
   `;
   static components = { SelectionInput };
@@ -82,7 +82,7 @@ class Parent extends Component<any> {
   hasSingleRange: boolean | undefined;
   onChanged!: jest.Mock<void, [any]>;
   onConfirmed!: jest.Mock<void, []>;
-  colors: Color[] | undefined;
+  colors = signal<Color[] | undefined>(undefined);
 
   get id(): string {
     const selectionInput = getChildFromComponent(this, SelectionInput);
@@ -97,27 +97,31 @@ class Parent extends Component<any> {
     stores.inject(ModelStore, this.props.model);
     this.initialRanges = this.props.config.initialRanges;
     this.hasSingleRange = this.props.config.hasSingleRange;
-    this.colors = this.props.config.colors;
+    this.colors.set(this.props.config.colors);
     this.model = model;
     this.onChanged = this.props.config.onChanged || jest.fn();
     this.onConfirmed = this.props.config.onConfirmed || jest.fn();
   }
 }
 
+interface MultiParentInputConfig {
+  ranges: string[];
+  hasSingleRange?: boolean;
+}
+
+/** Mounts one SelectionInput per config, each wrapped in a `.input-{n}` div (1-based) */
 class MultiParent extends Component<any> {
   static template = xml/* xml */ `
     <div>
-      <div class="input-1">
-        <SelectionInput ranges="[]"/>
-      </div>
-      <div class="input-2">
-        <SelectionInput ranges="[]"/>
+      <div t-foreach="this.props.inputs" t-as="input" t-key="input_index" t-attf-class="input-{{input_index + 1}}">
+        <SelectionInput ranges="input.ranges" hasSingleRange="input.hasSingleRange"/>
       </div>
     </div>
   `;
   static components = { SelectionInput };
   protected props = useProps({
     model: types.object({}),
+    inputs: types.array<MultiParentInputConfig>(),
   }) as any;
 
   setup() {
@@ -127,6 +131,25 @@ class MultiParent extends Component<any> {
     const stores = useStoreProvider();
     stores.inject(ModelStore, this.props.model);
   }
+}
+
+async function createMultiSelectionInput(inputs: MultiParentInputConfig[]) {
+  model = new Model();
+  let getPlugin: OwlPluginGetter;
+  ({ fixture, getPlugin } = await mountComponent(MultiParent, {
+    model,
+    props: { model, inputs },
+  }));
+  await nextTick();
+  return { getPlugin, model, fixture };
+}
+
+function highlightedZones(getPlugin: OwlPluginGetter) {
+  return getPlugin(HighlightPlugin).highlights.map((h) => zoneToXc(h.range.zone));
+}
+
+function inputColor(selector: string) {
+  return fixture.querySelector<HTMLInputElement>(selector)!.style.color;
 }
 
 async function createSelectionInput(
@@ -313,7 +336,7 @@ describe("Selection Input", () => {
       { color: "#FF0000", zone: toZone("A1") },
       { color: "#00FF00", zone: toZone("B1") },
     ]);
-    parent.colors = ["#0000FF", "#FF00FF"];
+    parent.colors.set(["#0000FF", "#FF00FF"]);
     await simulateClick(fixture.querySelectorAll("input")[1]);
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #0000FF;");
     expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe("color: #FF00FF;");
@@ -522,14 +545,46 @@ describe("Selection Input", () => {
   });
 
   test("focus is transferred from one input to another", async () => {
-    model = new Model();
-    ({ fixture } = await mountComponent(MultiParent, { props: { model }, model }));
-    await nextTick();
+    await createMultiSelectionInput([{ ranges: [] }, { ranges: [] }]);
     expect(fixture.querySelector(".input-1 .o-focused")).toBeFalsy();
     expect(fixture.querySelector(".input-2 .o-focused")).toBeTruthy();
     await simulateClick(".input-1 input");
     expect(fixture.querySelector(".input-1 .o-focused")).toBeTruthy();
     expect(fixture.querySelector(".input-2 .o-focused")).toBeFalsy();
+  });
+
+  test("highlights are updated when focus switched from one input to another", async () => {
+    const { getPlugin } = await createMultiSelectionInput([{ ranges: ["D4"] }, { ranges: ["D5"] }]);
+    await simulateClick(".input-1 input");
+    expect(".input-1 input").toHaveClass("o-focused");
+    expect(".input-2 input").not.toHaveClass("o-focused");
+    expect(inputColor(".input-1 input")).toBeTruthy();
+    expect(inputColor(".input-2 input")).toBeFalsy();
+    expect(highlightedZones(getPlugin)).toEqual(["D4"]);
+    await simulateClick(".input-2 input");
+    expect(".input-1 input").not.toHaveClass("o-focused");
+    expect(".input-2 input").toHaveClass("o-focused");
+    expect(inputColor(".input-1 input")).toBeFalsy();
+    expect(inputColor(".input-2 input")).toBeTruthy();
+    expect(highlightedZones(getPlugin)).toEqual(["D5"]);
+  });
+
+  test("Can add a empty range to a second input without pre-focusing", async () => {
+    await createMultiSelectionInput([{ ranges: [], hasSingleRange: true }, { ranges: [] }]);
+    await simulateClick(".input-1 input");
+    await simulateClick(".input-2 .o-add-selection");
+    expect(".input-2 input").toHaveCount(2);
+  });
+
+  test("Can change the range of a second input without pre-focusing", async () => {
+    await createMultiSelectionInput([{ ranges: [], hasSingleRange: true }, { ranges: [] }]);
+    await simulateClick(".input-1 input");
+    await setInputValueAndTrigger(".input-2 input", "F1,F2");
+    const inputs = fixture.querySelectorAll<HTMLInputElement>(".input-2 input");
+    expect(inputs).toHaveLength(2);
+    expect(inputs[0]).toHaveValue("F1");
+    expect(inputs[1]).toHaveValue("F2");
+    expect(inputs[1]).toHaveClass("o-focused");
   });
 
   test("focus is transferred into the newly added input automatically when typing comma at the end", async () => {
@@ -872,7 +927,7 @@ describe("Selection Input", () => {
 
   test("ranges are computed only once per render", async () => {
     const { parent } = await createSelectionInput({ initialRanges: ["A1", "A2", "A3"] });
-    const spy = jest.spyOn(SelectionInputStore.prototype, "selectionInputs", "get");
+    const spy = jest.spyOn(SelectionInputPlugin.prototype, "selectionInputs", "get");
     render(parent, true);
     await nextTick();
     expect(spy).toHaveBeenCalledTimes(1);

@@ -15,7 +15,7 @@ import { MenuPopover } from "./components/menu_popover/menu_popover";
 import { CellPopoverStore } from "./components/popover/cell_popover_store";
 import { Popover } from "./components/popover/popover";
 import { SelectionInput } from "./components/selection_input/selection_input";
-import { SelectionInputStore } from "./components/selection_input/selection_input_store";
+import { SelectionInputPlugin } from "./components/selection_input/selection_input_plugin";
 import { BarConfigPanel } from "./components/side_panel/chart/bar_chart/bar_chart_config_panel";
 import { ChartTitle } from "./components/side_panel/chart/building_blocks/chart_title/chart_title";
 import { ChartDataSeries } from "./components/side_panel/chart/building_blocks/data_series/data_series";
@@ -604,7 +604,6 @@ export const stores = {
   FindAndReplaceStore,
   HoveredTableStore,
   ModelStore,
-  SelectionInputStore,
   SpreadsheetStore,
   useStore,
   useLocalStore,
@@ -634,6 +633,7 @@ export const owlPlugins = {
   RendererPlugin,
   HighlightPlugin,
   DelayedHoveredCellPlugin,
+  SelectionInputPlugin,
 };
 
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";
