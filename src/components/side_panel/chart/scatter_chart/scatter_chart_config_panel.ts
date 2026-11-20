@@ -46,6 +46,9 @@ export class ScatterConfigPanel extends GenericChartConfigPanel {
         onChange: this.onUpdateLabelsAsText.bind(this),
       });
     }
+    if (this.hasMultipleLabelRanges) {
+      options.push(this.getGroupByParentCategories());
+    }
     return options;
   }
 }
