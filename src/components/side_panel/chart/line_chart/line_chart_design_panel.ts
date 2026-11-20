@@ -11,4 +11,8 @@ export class LineChartDesignPanel extends GenericZoomableChartDesignPanel<
     ...GenericZoomableChartDesignPanel.components,
     ChartShowDataMarkers,
   };
+
+  get showPercentageCheckbox() {
+    return this.props.definition.cumulative;
+  }
 }

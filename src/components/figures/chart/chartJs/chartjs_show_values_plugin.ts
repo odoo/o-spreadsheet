@@ -55,6 +55,7 @@ declare module "chart.js" {
 
 const MINIMAL_VERTICAL_DISTANCE = 13;
 const HORIZONTAL_PADDING = 3;
+const VERTICAL_PADDING = 3;
 
 function isLineOverlayOnBarChart(
   options: ChartShowValuesPluginOptions,
@@ -325,12 +326,26 @@ function drawLineValues(chart: any, options: ChartShowValuesPluginOptions) {
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
-    getValuePosition: ({ chartElement }) => ({
+    getPercentages:
+      options.type === "line"
+        ? (_, dataset) => {
+            const values: number[] = dataset._dataset.data.map((value: unknown) =>
+              value === null || value === undefined ? NaN : Number(value)
+            );
+            const total = values.findLast((value) => isFinite(value));
+            if (!total) {
+              return undefined;
+            }
+            return values.map((value) => (value / total) * 100);
+          }
+        : undefined,
+    getValuePosition: ({ chartElement, textSize }) => ({
       x: chartElement.x,
-      y: chartElement.y - 10,
+      y: chartElement.y - VERTICAL_PADDING - textSize.height / 2,
     }),
     shouldSkipValue: () => false,
     getTextColors: chartElementColoredTextWithChartBackgroundHalo,
+    splitValueAndPercentage: true,
   });
 }
 

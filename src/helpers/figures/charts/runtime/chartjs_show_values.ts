@@ -12,6 +12,7 @@ import {
   ColorGridChartDefaults,
   ColorGridChartDefinition,
 } from "../../../../types/chart/common_chart";
+import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PyramidChartDefinition } from "../../../../types/chart/pyramid_chart";
 import {
   SunburstChartDefaults,
@@ -46,6 +47,17 @@ export function getBarChartShowValues(
 ): ChartShowValuesPluginOptions {
   const showValues = getChartShowValues(definition, args);
   if (!showValues.display?.percentages || args.dataSetsValues.length === 1) {
+    return showValues;
+  }
+  return { ...showValues, display: { ...showValues.display, percentages: false } };
+}
+
+export function getLineChartShowValues(
+  definition: LineChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartShowValuesPluginOptions {
+  const showValues = getChartShowValues(definition, args);
+  if (!showValues.display?.percentages || definition.cumulative) {
     return showValues;
   }
   return { ...showValues, display: { ...showValues.display, percentages: false } };

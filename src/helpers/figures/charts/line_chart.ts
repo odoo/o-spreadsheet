@@ -13,7 +13,7 @@ import { getLineChartDatasets } from "./runtime/chartjs_dataset";
 import { getChartLayout } from "./runtime/chartjs_layout";
 import { getLineChartLegend } from "./runtime/chartjs_legend";
 import { getLineChartScales } from "./runtime/chartjs_scales";
-import { getChartShowValues } from "./runtime/chartjs_show_values";
+import { getLineChartShowValues } from "./runtime/chartjs_show_values";
 import { getChartTitle } from "./runtime/chartjs_title";
 import { getLineChartTooltip } from "./runtime/chartjs_tooltip";
 
@@ -114,7 +114,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
           title: getChartTitle(definition, getters),
           legend: getLineChartLegend(definition, chartData),
           tooltip: getLineChartTooltip(definition, chartData),
-          chartShowValuesPlugin: getChartShowValues(definition, chartData),
+          chartShowValuesPlugin: getLineChartShowValues(definition, chartData),
           background: { color: chartData.background },
         },
         ...eventHandlers,

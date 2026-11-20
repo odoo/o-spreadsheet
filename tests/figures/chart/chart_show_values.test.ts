@@ -305,6 +305,25 @@ describe("Line chart show value", () => {
     const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
   });
+
+  test("Can show values and percentages on a cumulative line chart", () => {
+    const model = createModelFromGrid({ A1: "1", A2: "2", A3: "3", A4: "4" });
+    const definition: Partial<LineChartDefinition<string>> & { type: "line" } = {
+      type: "line",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A4" }],
+        dataSetsHaveTitle: false,
+      }),
+      cumulative: true,
+      showData: { values: true, percentages: true },
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
 });
 
 describe("Scatter chart show value", () => {

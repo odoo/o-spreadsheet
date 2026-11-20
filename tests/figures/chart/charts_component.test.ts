@@ -2565,6 +2565,17 @@ describe("charts", () => {
     }
   );
 
+  test("Percentage checkbox is only displayed for cumulative line charts", async () => {
+    createTestChart("line");
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    expect("input[name='showPercentages']").toHaveCount(0);
+
+    updateChart(model, chartId, { cumulative: true });
+    await nextTick();
+    expect("input[name='showPercentages']").toHaveCount(1);
+  });
+
   test.each(["pie"] as const)("Label checkbox is displayed for %s charts", async (type) => {
     createTestChart(type);
     await mountChartSidePanel();
