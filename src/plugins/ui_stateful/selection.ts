@@ -730,8 +730,8 @@ export class GridSelectionPlugin extends UIPlugin {
     // The clipboards copy the data before pasting to ensure that
     // clipboardA paste doesn't interfere with clipboardB copy
     const registries = [
-      clipboardHandlersRegistries.cellHandlers,
       clipboardHandlersRegistries.sheetHandlers,
+      clipboardHandlersRegistries.cellHandlers,
       clipboardHandlersRegistries.rangeHandlers,
     ];
 
