@@ -37,7 +37,6 @@ import {
   addDataValidation,
   addEqualCf,
   addRows,
-  cleanClipBoardHighlight,
   copy,
   copyPasteAboveCells,
   copyPasteCellsOnLeft,
@@ -149,7 +148,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     copy(model, "B2");
     expect(getClipboardVisibleZones(store).length).toBe(1);
-    cleanClipBoardHighlight(model);
+    store.clearClipboardHighlight();
     expect(getClipboardVisibleZones(store).length).toBe(0);
   });
 
@@ -158,7 +157,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     cut(model, "B2");
     expect(getClipboardVisibleZones(store).length).toBe(1);
-    cleanClipBoardHighlight(model);
+    store.clearClipboardHighlight();
     expect(getClipboardVisibleZones(store).length).toBe(0);
   });
 
