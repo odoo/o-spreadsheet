@@ -38,6 +38,12 @@ jest.mock("../../src/helpers/figures/charts/chart_ui_common", () => {
   };
 });
 
+jest.mock("../../src/constants", () => {
+  // This ensure the tested snapshot UI test are not dependent on the user machine
+  const actual = jest.requireActual("../../src/constants");
+  return { ...actual, DEFAULT_FONT: "Roboto", USABLE_FONTS: actual.POSSIBLE_FONTS };
+});
+
 window.Chart = Object.assign(Chart, ChartHelpers);
 window.alert = () => {};
 window.confirm = () => true;

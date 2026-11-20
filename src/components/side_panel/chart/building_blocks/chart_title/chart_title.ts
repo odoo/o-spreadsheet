@@ -19,6 +19,7 @@ export class ChartTitle extends OSComponent {
     style: types.TitleDesign(),
     defaultStyle: types.object<Partial<TitleDesign>>().optional(),
     updateStyle: types.function<(style: TitleDesign) => void>(),
+    hasFontSelector: types.boolean().optional(true),
   });
 
   updateTitle(value: string) {

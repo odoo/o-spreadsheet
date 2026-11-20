@@ -7,6 +7,15 @@
       height: fit-content;
     }
 
+    .o-font-editor {
+      flex-grow: 1;
+      overflow: hidden;
+      max-width: 200px;
+      .o-font-editor-button {
+        flex-grow: 1;
+      }
+    }
+
     .o-divider {
       margin: 0px 4px;
       height: 14px;

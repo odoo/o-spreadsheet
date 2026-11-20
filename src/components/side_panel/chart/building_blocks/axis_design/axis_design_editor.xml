@@ -16,6 +16,7 @@
       style="this.axisTitleStyle"
       placeholder.translate="Add a Title"
       defaultStyle="{align: 'center', color: '', fontSize: this.defaultFontSize}"
+      hasFontSelector="false"
     />
     <Section
       t-if="this.props.canEditBoundaries and !this.isCategoricalAxis"

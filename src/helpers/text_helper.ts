@@ -12,7 +12,7 @@ import { Canvas2DContext } from "../types/canvas";
 import { Cell } from "../types/cells";
 import { CellErrorType } from "../types/errors";
 import { Locale } from "../types/locale";
-import { Color, Pixel, PixelPosition, Style } from "../types/misc";
+import { Color, Font, Pixel, PixelPosition, Style } from "../types/misc";
 import { parseLiteral } from "./cells/cell_evaluation";
 import { lightenColor } from "./color";
 import { formatValue } from "./format/format";
@@ -64,12 +64,19 @@ export function getCellContentHeight(
 
 export function getDefaultContextFont(
   fontSize: number,
-  bold: boolean | undefined = false,
-  italic: boolean | undefined = false
+  bold: boolean | number | undefined = false,
+  italic: boolean | undefined = false,
+  font: Font | undefined = ""
 ): string {
-  const italicStr = italic ? "italic" : "";
-  const weight = bold ? "bold" : "";
-  return `${italicStr} ${weight} ${fontSize}px ${DEFAULT_FONT}`;
+  const italicStr = italic ? "italic " : "";
+  let weight = "";
+  if (typeof bold === "number") {
+    weight = bold.toString();
+  } else {
+    weight = bold ? "bold" : "";
+  }
+  const fontStr = font ? `${font},${DEFAULT_FONT}` : DEFAULT_FONT;
+  return `${italicStr}${weight} ${fontSize}px ${fontStr}`;
 }
 
 export function computeMultilineTextSize(
@@ -168,10 +175,8 @@ export function computeTextFont(
   fontUnit: "px" | "pt" = "pt",
   fontWeight: number = DEFAULT_FONT_WEIGHT
 ): string {
-  const italic = style.italic ? "italic " : "";
-  const weight = style.bold ? "bold" : fontWeight;
   const size = fontUnit === "pt" ? computeTextFontSizeInPixels(style) : style.fontSize;
-  return `${italic}${weight} ${size ?? DEFAULT_FONT_SIZE}px ${DEFAULT_FONT}`;
+  return getDefaultContextFont(size ?? DEFAULT_FONT_SIZE, fontWeight, style.italic, style.font);
 }
 
 export function computeTextFontSizeInPixels(style?: Style): number {
