@@ -85,6 +85,7 @@ export class ConditionalFormatPreviewList extends OSComponent {
         ...cf,
         ranges: zones.map((zone) => zoneToXc(this.model().getters.getUnboundedZone(sheetId, zone))),
       },
+      sheetId,
       isNewCf: true,
     });
   }

@@ -78,7 +78,7 @@ describe("Edit criterion in side panel", () => {
         displayStyle: "arrow",
       });
       ({ fixture, env } = await mountComponent(SidePanels, { model }));
-      env.getStore(SidePanelStore).open("DataValidationEditor", { ruleId: "id" });
+      env.getStore(SidePanelStore).open("DataValidationEditor", { ruleId: "id", sheetId });
       await nextTick();
     });
 
@@ -97,7 +97,7 @@ describe("Edit criterion in side panel", () => {
         type: "containsText",
         values: ["hola"],
       });
-      env.getStore(SidePanelStore).open("DataValidationEditor", { ruleId: "dv1" });
+      env.getStore(SidePanelStore).open("DataValidationEditor", { ruleId: "dv1", sheetId });
       await nextTick();
       const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-input .o-composer");
       expect(inputs).toHaveLength(1);
@@ -252,7 +252,7 @@ describe("Edit criterion in side panel", () => {
         displayStyle: "arrow",
       });
       ({ fixture, env } = await mountComponent(SidePanels, { model }));
-      env.getStore(SidePanelStore).open("DataValidationEditor", { ruleId: "id" });
+      env.getStore(SidePanelStore).open("DataValidationEditor", { ruleId: "id", sheetId });
       await nextTick();
     });
 

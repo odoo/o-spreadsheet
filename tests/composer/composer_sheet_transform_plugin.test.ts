@@ -53,7 +53,7 @@ describe("describe", () => {
     setCellContent(model, "A1", "A1");
     expect(composerStore.editionMode).toBe("editing");
     expect(getCellContent(model, "A1")).toEqual("A1");
-    composerStore.cancelEdition();
+    composerStore.cancelEdition({ resetContent: true, activateSheet: true });
     expect(getCellContent(model, "A1")).toEqual("A1");
   });
 

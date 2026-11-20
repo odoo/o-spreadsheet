@@ -1,4 +1,6 @@
 import { proxy, useProps } from "@odoo/owl";
+import { adaptFormulaToSheet } from "../../../../helpers/formulas";
+import { UuidGenerator } from "../../../../helpers/uuid";
 import { zoneToXc } from "../../../../helpers/zones";
 import { ComponentConstructor } from "../../../../owl3_compatibility_layer";
 import {
@@ -8,13 +10,15 @@ import {
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
-import { AddDataValidationCommand, CancelledReason } from "../../../../types/commands";
+import { CancelledReason, CommandResult } from "../../../../types/commands";
 import {
   availableDataValidationOperators,
   DataValidationCriterion,
   DataValidationCriterionType,
+  DataValidationRule,
 } from "../../../../types/data_validation";
 import { UID, ValueAndLabel } from "../../../../types/misc";
+import { RangeData } from "../../../../types/range";
 import { Store } from "../../../../types/store_engine";
 import { DataValidationRuleData } from "../../../../types/workbook_data";
 import { OSComponent } from "../../../os_component";
@@ -32,6 +36,10 @@ interface State {
   isTypeUpdated: boolean;
 }
 
+interface RulesBySheetId {
+  [key: UID]: { rule: Omit<DataValidationRule, "ranges">; ranges: RangeData[] };
+}
+
 export class DataValidationEditor extends OSComponent {
   static template = "o-spreadsheet-DataValidationEditor";
   static components = { SelectionInput, Select, Section, ValidationMessages };
@@ -39,6 +47,7 @@ export class DataValidationEditor extends OSComponent {
     ruleId: types.UID(),
     onCancel: types.function().optional(),
     onCloseSidePanel: types.function(),
+    sheetId: types.UID(),
   });
 
   state = proxy<State>({
@@ -46,18 +55,16 @@ export class DataValidationEditor extends OSComponent {
     errors: [],
     isTypeUpdated: false,
   });
-  private editingSheetId!: UID;
   private sidePanelStore!: Store<SidePanelStore>;
 
   setup() {
-    this.editingSheetId = this.model().getters.getActiveSheetId();
     this.sidePanelStore = useStore(SidePanelStore);
-    const rule = this.model().getters.getDataValidationRule(this.editingSheetId, this.props.ruleId);
+    const rule = this.model().getters.getDataValidationRule(this.props.sheetId, this.props.ruleId);
     if (rule) {
       this.state.rule = {
         ...rule,
         ranges: rule.ranges.map((range) =>
-          this.model().getters.getRangeString(range, this.editingSheetId)
+          this.model().getters.getRangeString(range, this.props.sheetId)
         ),
       };
     }
@@ -86,7 +93,23 @@ export class DataValidationEditor extends OSComponent {
   }
 
   onSave() {
-    const result = this.model().dispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload);
+    const rulesBySheetId = this.rulesBySheetId;
+    if (!rulesBySheetId) {
+      return;
+    }
+    const sheetId = this.props.sheetId;
+    const ruleId = this.props.ruleId;
+    const doesRuleExistOnOriginalSheet = !!this.model().getters.getDataValidationRule(
+      sheetId,
+      ruleId
+    );
+    const sheetIdsToRemove =
+      doesRuleExistOnOriginalSheet && !(sheetId in rulesBySheetId) ? [sheetId] : [];
+    const result = this.model().dispatch("UPDATE_DATA_VALIDATION_RULES", {
+      ruleId,
+      sheetIdsToRemove,
+      rulesBySheetId,
+    });
     if (!result.isSuccessful) {
       this.state.errors = result.reasons;
       return;
@@ -94,8 +117,25 @@ export class DataValidationEditor extends OSComponent {
     this.sidePanelStore.replace("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
-  get dispatchPayload(): Omit<AddDataValidationCommand, "type"> {
+  get rulesBySheetId(): RulesBySheetId | undefined {
     const rule = { ...this.state.rule, ranges: undefined };
+    const getters = this.model().getters;
+    const ranges = this.state.rule.ranges.map((xc) =>
+      getters.getRangeFromSheetXC(this.props.sheetId, xc)
+    );
+    if (ranges.some((range) => range.invalidXc || range.invalidSheetName)) {
+      this.state.errors = [CommandResult.InvalidRange];
+      return;
+    }
+    if (!ranges.length) {
+      this.state.errors = [CommandResult.EmptyRange];
+      return;
+    }
+    this.state.errors = [];
+    const rangesBySheet = Object.groupBy(
+      ranges.map((range) => getters.getRangeData(range)),
+      (range) => range._sheetId
+    );
 
     const criterion = rule.criterion;
     const criterionEvaluator = criterionEvaluatorRegistry.get(criterion.type);
@@ -104,13 +144,36 @@ export class DataValidationEditor extends OSComponent {
       .slice(0, criterionEvaluator.numberOfValues(criterion))
       .filter((value) => value && value.trim() !== "");
     rule.criterion = { ...criterion, values };
-    return {
-      sheetId: this.editingSheetId,
-      ranges: this.state.rule.ranges.map((xc) =>
-        this.model().getters.getRangeDataFromXc(this.editingSheetId, xc)
-      ),
-      rule,
-    };
+
+    const payload: RulesBySheetId = {};
+    for (const sheetId in rangesBySheet) {
+      // Copies on other sheets get their own id to avoid overwriting an existing rule there
+      const id = sheetId === this.props.sheetId ? rule.id : UuidGenerator.smallUuid();
+      const ranges = rangesBySheet[sheetId];
+      if (!ranges) {
+        continue;
+      }
+      const criterion =
+        sheetId === this.props.sheetId
+          ? rule.criterion
+          : this.adaptCriterionToSheet(rule.criterion, sheetId);
+      payload[sheetId] = { ranges, rule: { ...rule, id, criterion } };
+    }
+
+    return payload;
+  }
+
+  private adaptCriterionToSheet(
+    criterion: DataValidationCriterion,
+    toSheetId: UID
+  ): DataValidationCriterion {
+    const getters = this.model().getters;
+    const values = criterion.values.map((value) =>
+      criterion.type === "isValueInRange" || value.startsWith("=")
+        ? adaptFormulaToSheet(getters, value, toSheetId, this.props.sheetId)
+        : value
+    );
+    return { ...criterion, values };
   }
 
   get dvCriterionOptions(): ValueAndLabel[] {
