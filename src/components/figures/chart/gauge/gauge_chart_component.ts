@@ -69,7 +69,7 @@ export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
       }
     );
     const resizeObserver = new ResizeObserver(() => {
-      if (animation) {
+      if (animation && !this.env.model.getters.isDashboard()) {
         animation.stop();
         animation = null;
       }
