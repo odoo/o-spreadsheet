@@ -17,6 +17,42 @@ describe("Function auto complete", () => {
     expect(composer.currentContent).toEqual("=SUM(");
   });
 
+  test("typing an exact match shows the autocomplete", async () => {
+    const { store: composer } = makeStore(CellComposerStore);
+    composer.startEdition("=");
+    composer.setCurrentContent("=VLOOKUP");
+    await nextTick();
+    expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(["VLOOKUP"]);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
+    expect(composer.currentContent).toEqual("=VLOOKUP(");
+  });
+
+  test("autocomplete is shown again when typing after selecting a proposal", async () => {
+    const { store: composer, model } = makeStore(CellComposerStore);
+    createNamedRange(model, "MyRange", "B1:B10");
+    composer.startEdition("=MyR");
+    await nextTick();
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
+    await nextTick();
+    expect(composer.currentContent).toBe("=MyRange");
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
+
+    composer.setCurrentContent("=MyRange");
+    await nextTick();
+    expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(["MyRange"]);
+  });
+
+  test.each(["=TRUE", "=true", "=FALSE", "=false"])(
+    "typing %s does not show the autocomplete",
+    async (content) => {
+      const { store: composer } = makeStore(CellComposerStore);
+      composer.startEdition("=");
+      composer.setCurrentContent(content);
+      await nextTick();
+      expect(composer.isAutoCompleteDisplayed).toBe(false);
+    }
+  );
+
   test("function auto complete uses fuzzy search", async () => {
     const { store: composer, model } = makeStore(CellComposerStore);
     setCellContent(model, "A1", "=VOK");

@@ -179,6 +179,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
 
     this.setContent(content, selection, true);
+    this.hasSelectedAProposal = false;
     this.updateTokenColor();
     this.computeFormulaCursorContext();
     this.computeParenthesisRelatedToCursor();
@@ -870,11 +871,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     if (
       this.editionMode === "inactive" ||
       !tokenAtCursor ||
-      ["TRUE", "FALSE"].includes(tokenAtCursor.value.toUpperCase()) ||
-      !(
-        this.canStartComposerRangeSelection() ||
-        ["SYMBOL", "STRING", "UNKNOWN"].includes(tokenAtCursor.type)
-      )
+      ["TRUE", "FALSE"].includes(tokenAtCursor.value.toUpperCase())
     ) {
       return;
     }
@@ -904,10 +901,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
           canBeToggled: provider.canBeToggled,
         };
       }
-      if (
-        exactMatch &&
-        (this._currentContent !== this.initialContent || this.hasSelectedAProposal)
-      ) {
+      if (exactMatch && this.hasSelectedAProposal) {
         // this means the user has chosen a proposal
         return;
       }
