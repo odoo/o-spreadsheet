@@ -103,3 +103,12 @@ export function percentile(values: number[], percent: number, isInclusive: boole
     sortedValues[indexLow] * (indexSup - percentIndex)
   );
 }
+
+/**
+ * Tolerates the error of one floating point operation: 2 * Number.EPSILON relative
+ * to the operands, absolute below 1 so that comparisons to 0 still work.
+ */
+export function areAlmostEqual(value1: number, value2: number): boolean {
+  const scale = Math.max(1, Math.abs(value1), Math.abs(value2));
+  return Math.abs(value1 - value2) <= 2 * Number.EPSILON * scale;
+}

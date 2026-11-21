@@ -1,3 +1,4 @@
+import { areAlmostEqual } from "../helpers/numbers";
 import { positionToZone } from "../helpers/zones";
 import { _t } from "../translation";
 import { DivisionByZeroError, EvaluationError, InvalidReferenceError } from "../types/errors";
@@ -78,10 +79,6 @@ function isEmpty(data: Maybe<FunctionResultObject>): boolean {
 }
 
 const getNeutral = { number: 0, string: "", boolean: false };
-
-function areAlmostEqual(value1: number, value2: number, epsilon: number = 2e-16): boolean {
-  return Math.abs(value1 - value2) < epsilon;
-}
 
 export const EQ = {
   description: _t("Equal."),

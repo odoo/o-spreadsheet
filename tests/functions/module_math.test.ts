@@ -910,6 +910,22 @@ describe("COUNTIF formula", () => {
     updateLocale(model, FR_LOCALE);
     expect(getEvaluatedCell(model, "A2").value).toBe(0);
   });
+
+  test("COUNTIF tolerates floating point errors", () => {
+    const grid = {
+      A1: "=3.7-2.4", // 1.3000000000000003
+      A2: "=4.1-2.8", // 1.2999999999999998
+      A3: "=2.5-1.2", // 1.3
+      B1: "=COUNTIF(A1:A3, 1.3)",
+      B2: '=COUNTIF(A1:A3, "1.3")',
+      B3: '=COUNTIF(A1:A3, "<>1.3")',
+      B4: '=COUNTIF(A1:A3, "<1.3")',
+      B5: '=COUNTIF(A1:A3, ">1.3")',
+      B6: '=COUNTIF(A1:A3, "<=1.3")',
+      B7: '=COUNTIF(A1:A3, ">=1.3")',
+    };
+    expect(evaluateGrid(grid)).toMatchObject({ B1: 3, B2: 3, B3: 0, B4: 0, B5: 0, B6: 3, B7: 3 });
+  });
 });
 
 describe("COUNTIFS formula", () => {
@@ -2790,6 +2806,19 @@ describe("SUM formula", () => {
 });
 
 describe("SUMIF formula", () => {
+  test("SUMIF tolerates floating point errors", () => {
+    const grid = {
+      A1: "=1-0.9", // 0.09999999999999998
+      A2: "=1.1-1", // 0.10000000000000009
+      A3: "0.1",
+      B1: "100",
+      B2: "200",
+      B3: "300",
+      C1: "=SUMIF(A1:A3, 0.1, B1:B3)",
+    };
+    expect(evaluateGrid(grid)).toMatchObject({ C1: 600 });
+  });
+
   test("functional tests on range", () => {
     // prettier-ignore
     const grid = {
