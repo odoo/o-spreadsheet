@@ -26,11 +26,11 @@
 
           <PivotLayoutConfigurator
             t-if="!this.pivot.isInvalidRange"
-            unusedGroupableFields="this.store.unusedGroupableFields"
-            measureFields="this.store.measureFields"
-            unusedGranularities="this.store.unusedGranularities"
-            dateGranularities="this.store.dateGranularities"
-            datetimeGranularities="this.store.datetimeGranularities"
+            unusedGroupableFields="this.pivotSidePanelPlugin.unusedGroupableFields()"
+            measureFields="this.pivotSidePanelPlugin.measureFields()"
+            unusedGranularities="this.pivotSidePanelPlugin.unusedGranularities()"
+            dateGranularities="this.pivotSidePanelPlugin.dateGranularities()"
+            datetimeGranularities="this.pivotSidePanelPlugin.datetimeGranularities()"
             definition="this.definition"
             onDimensionsUpdated.bind="this.onDimensionsUpdated"
             onFiltersUpdated.bind="this.onFiltersUpdated"
@@ -44,7 +44,7 @@
                 Domain
                 <AddDimensionButton
                   onFieldPicked.bind="this.addFilter"
-                  fields="this.store.unusedFilterFields"
+                  fields="this.pivotSidePanelPlugin.unusedFilterFields()"
                 />
               </div>
               <t t-foreach="this.definition.filters" t-as="filter" t-key="filter_index">
@@ -61,11 +61,11 @@
       </div>
       <PivotDeferUpdate
         t-if="!isReadonly"
-        deferUpdate="this.store.updatesAreDeferred"
-        toggleDeferUpdate="(value) => this.store.deferUpdates(value)"
-        isDirty="this.store.isDirty"
-        discard="this.store.discardPendingUpdate"
-        apply="this.store.applyUpdate"
+        deferUpdate="this.pivotSidePanelPlugin.updatesAreDeferred()"
+        toggleDeferUpdate="(value) => this.pivotSidePanelPlugin.deferUpdates(value)"
+        isDirty="this.pivotSidePanelPlugin.isDirty()"
+        discard="() => this.pivotSidePanelPlugin.discardPendingUpdate()"
+        apply="() => this.pivotSidePanelPlugin.applyUpdate()"
       />
     </div>
   </t>

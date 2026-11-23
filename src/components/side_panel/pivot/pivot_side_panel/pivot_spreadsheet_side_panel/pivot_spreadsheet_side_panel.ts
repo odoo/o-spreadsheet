@@ -1,9 +1,8 @@
 import { proxy, signal, useProps } from "@odoo/owl";
+import { provideAndUsePlugin } from "../../../../../helpers/owl3_helpers";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivot } from "../../../../../helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
-import { useLocalStore } from "../../../../../store_engine/store_hooks";
 import { SpreadsheetPivotCoreDefinition } from "../../../../../types/pivot";
-import { Store } from "../../../../../types/store_engine";
 import { OSComponent } from "../../../../os_component";
 import { types } from "../../../../props_validation";
 import { SelectionInput } from "../../../../selection_input/selection_input";
@@ -14,7 +13,7 @@ import { PivotFilterEditor } from "../../pivot_filter/pivot_filter";
 import { AddDimensionButton } from "../../pivot_layout_configurator/add_dimension_button/add_dimension_button";
 import { PivotLayoutConfigurator } from "../../pivot_layout_configurator/pivot_layout_configurator";
 import { PivotTitleSection } from "../../pivot_title_section/pivot_title_section";
-import { PivotSidePanelStore } from "../pivot_side_panel_store";
+import { PivotSidePanelPlugin } from "../pivot_side_panel_store";
 
 export class PivotSpreadsheetSidePanel extends OSComponent {
   static template = "o-spreadsheet-PivotSpreadsheetSidePanel";
@@ -33,14 +32,15 @@ export class PivotSpreadsheetSidePanel extends OSComponent {
     pivotId: types.UID(),
     onCloseSidePanel: types.function(),
   });
-  store!: Store<PivotSidePanelStore>;
+  pivotSidePanelPlugin = provideAndUsePlugin(PivotSidePanelPlugin, {
+    pivotId: this.props.pivotId,
+  });
 
   state!: { range?: string; rangeHasChanged: boolean };
 
   pivotSidePanelRef = signal.ref();
 
   setup() {
-    this.store = useLocalStore(PivotSidePanelStore, this.props.pivotId);
     this.state = proxy({
       range: undefined,
       rangeHasChanged: false,
@@ -48,7 +48,7 @@ export class PivotSpreadsheetSidePanel extends OSComponent {
   }
 
   get shouldDisplayInvalidRangeError() {
-    if (this.store.isDirty && this.state.rangeHasChanged) {
+    if (this.pivotSidePanelPlugin.isDirty() && this.state.rangeHasChanged) {
       return false;
     }
     return this.pivot.isInvalidRange;
@@ -66,11 +66,11 @@ export class PivotSpreadsheetSidePanel extends OSComponent {
   }
 
   get pivot() {
-    return this.store.pivot as SpreadsheetPivot;
+    return this.pivotSidePanelPlugin.pivot as SpreadsheetPivot;
   }
 
   get definition(): SpreadsheetPivotRuntimeDefinition {
-    return this.store.definition as SpreadsheetPivotRuntimeDefinition;
+    return this.pivotSidePanelPlugin.definition() as SpreadsheetPivotRuntimeDefinition;
   }
 
   getScrollableContainerEl() {
@@ -101,9 +101,9 @@ export class PivotSpreadsheetSidePanel extends OSComponent {
 
     this.state.range = this.model().getters.getRangeString(range, "forceSheetReference");
     const dataSet = { sheetId: range.sheetId, zone: range.unboundedZone };
-    this.store.update({ dataSet });
+    this.pivotSidePanelPlugin.update({ dataSet });
     // Immediately apply the update to recompute the pivot fields
-    this.store.applyUpdate();
+    this.pivotSidePanelPlugin.applyUpdate();
   }
 
   flipAxis() {
@@ -115,11 +115,11 @@ export class PivotSpreadsheetSidePanel extends OSComponent {
   }
 
   onDimensionsUpdated(definition: Partial<SpreadsheetPivotCoreDefinition>) {
-    this.store.update(definition);
+    this.pivotSidePanelPlugin.update(definition);
   }
 
   onFiltersUpdated(definition: Partial<SpreadsheetPivotCoreDefinition>) {
-    this.store.update(definition);
+    this.pivotSidePanelPlugin.update(definition);
   }
 
   addFilter(fieldName: string) {
