@@ -4,23 +4,25 @@
       <Select
         class="'o-pivot-measure-display-type'"
         values="this.measureDisplayTypeOptions"
-        selectedValue="this.store.measureDisplay.type"
-        onChange="(value) => this.store.updateMeasureDisplayType(value)"
+        selectedValue="this.pivotMeasureDisplayPanelPlugin.measureDisplay().type"
+        onChange="(value) => this.pivotMeasureDisplayPanelPlugin.updateMeasureDisplayType(value)"
       />
       <div
         class="o-pivot-measure-display-description mt-3 ps-3 border-start"
-        t-out="this.measureDisplayDescription[this.store.measureDisplay.type]"
+        t-out="this.measureDisplayDescription[this.pivotMeasureDisplayPanelPlugin.measureDisplay().type]"
       />
     </Section>
 
-    <Section t-if="this.store.doesDisplayNeedsField" title.translate="Base field:">
+    <Section
+      t-if="this.pivotMeasureDisplayPanelPlugin.doesDisplayNeedsField()"
+      title.translate="Base field:">
       <div class="o-pivot-measure-display-field w-100 py-1 px-3 border">
-        <t t-if="this.store.fields.length">
+        <t t-if="this.pivotMeasureDisplayPanelPlugin.fields().length">
           <RadioSelection
             choices="this.fieldChoices"
-            selectedValue="this.store.measureDisplay.fieldNameWithGranularity"
+            selectedValue="this.pivotMeasureDisplayPanelPlugin.measureDisplay().fieldNameWithGranularity"
             name="'baseField'"
-            onChange.bind="(val) => this.store.updateMeasureDisplayField(val)"
+            onChange.bind="(val) => this.pivotMeasureDisplayPanelPlugin.updateMeasureDisplayField(val)"
             direction="'vertical'"
           />
         </t>
@@ -30,14 +32,16 @@
       </div>
     </Section>
 
-    <t t-set="values" t-value="this.store.values"/>
-    <Section t-if="this.store.doesDisplayNeedsValue and values.length" title.translate="Base item:">
+    <t t-set="values" t-value="this.pivotMeasureDisplayPanelPlugin.values()"/>
+    <Section
+      t-if="this.pivotMeasureDisplayPanelPlugin.doesDisplayNeedsValue() and values.length"
+      title.translate="Base item:">
       <div class="o-pivot-measure-display-value w-100 py-1 px-3 border">
         <RadioSelection
           choices="values"
-          selectedValue="this.store.measureDisplay.value"
+          selectedValue="this.pivotMeasureDisplayPanelPlugin.measureDisplay().value"
           name="'baseValue'"
-          onChange.bind="(val) => this.store.updateMeasureDisplayValue(val)"
+          onChange.bind="(val) => this.pivotMeasureDisplayPanelPlugin.updateMeasureDisplayValue(val)"
           direction="'vertical'"
         />
       </div>
