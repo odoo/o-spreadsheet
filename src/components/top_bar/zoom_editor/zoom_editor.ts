@@ -1,7 +1,7 @@
 import { usePlugin, useProps } from "@odoo/owl";
 import { MAX_ZOOM, MIN_ZOOM, ZOOM_VALUES } from "../../../constants";
 import { ZoomPlugin } from "../../../owl_plugins/zoom_plugin";
-import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
+import { ToolBarDropdownPlugin, useToolBarDropdownPlugin } from "../../helpers/top_bar_tool_hook";
 import { NumberEditor } from "../../number_editor/number_editor";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
@@ -11,7 +11,7 @@ export class ToolBarZoom extends OSComponent {
   static components = { NumberEditor };
 
   protected props = useProps({ class: types.string() });
-  topBarToolStore!: ToolBarDropdownStore;
+  topBarToolPlugin!: ToolBarDropdownPlugin;
   private zoomPlugin = usePlugin(ZoomPlugin);
 
   valueList = ZOOM_VALUES;
@@ -19,7 +19,7 @@ export class ToolBarZoom extends OSComponent {
   maxZoom = MAX_ZOOM * 100;
 
   setup() {
-    this.topBarToolStore = useToolBarDropdownStore();
+    this.topBarToolPlugin = useToolBarDropdownPlugin();
   }
 
   getZoomLevel(): number {
@@ -32,14 +32,14 @@ export class ToolBarZoom extends OSComponent {
   }
 
   toggle() {
-    if (this.topBarToolStore.isActive) {
-      this.topBarToolStore.closeDropdowns();
+    if (this.topBarToolPlugin.isActive) {
+      this.topBarToolPlugin.closeDropdowns();
     } else {
-      this.topBarToolStore.openDropdown();
+      this.topBarToolPlugin.openDropdown();
     }
   }
 
   onFocusInput() {
-    this.topBarToolStore.openDropdown();
+    this.topBarToolPlugin.openDropdown();
   }
 }

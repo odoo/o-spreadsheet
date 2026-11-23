@@ -4,7 +4,7 @@ import { formatNumberMenuItemSpec } from "../../../registries/menus/number_forma
 import { Rect } from "../../../types/rendering";
 import { ActionButton } from "../../action_button/action_button";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
-import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
+import { ToolBarDropdownPlugin, useToolBarDropdownPlugin } from "../../helpers/top_bar_tool_hook";
 import { MenuPopover } from "../../menu_popover/menu_popover";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
@@ -20,7 +20,7 @@ export class NumberFormatsTool extends OSComponent {
 
   protected props = useProps({ class: types.string() });
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
-  topBarToolStore!: ToolBarDropdownStore;
+  topBarToolPlugin!: ToolBarDropdownPlugin;
 
   buttonRef = signal.ref();
   state: State = proxy({
@@ -29,21 +29,21 @@ export class NumberFormatsTool extends OSComponent {
   });
 
   setup() {
-    this.topBarToolStore = useToolBarDropdownStore();
+    this.topBarToolPlugin = useToolBarDropdownPlugin();
   }
 
   toggleMenu() {
     if (this.isActive) {
-      this.topBarToolStore.closeDropdowns();
+      this.topBarToolPlugin.closeDropdowns();
     } else {
       const menu = createAction(this.formatNumberMenuItemSpec);
       this.state.menuItems = menu.children(this.spEnv).sort((a, b) => a.sequence - b.sequence);
       this.state.anchorRect = getBoundingRectAsPOJO(this.buttonRef()!);
-      this.topBarToolStore.openDropdown();
+      this.topBarToolPlugin.openDropdown();
     }
   }
 
   get isActive() {
-    return this.topBarToolStore.isActive;
+    return this.topBarToolPlugin.isActive;
   }
 }

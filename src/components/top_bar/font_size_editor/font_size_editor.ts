@@ -2,7 +2,7 @@ import { useProps } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../../constants";
 import { FontSizeEditor } from "../../font_size_editor/font_size_editor";
-import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
+import { ToolBarDropdownPlugin, useToolBarDropdownPlugin } from "../../helpers/top_bar_tool_hook";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
@@ -11,10 +11,10 @@ export class TopBarFontSizeEditor extends OSComponent {
   static template = "o-spreadsheet-TopBarFontSizeEditor";
 
   protected props = useProps({ class: types.string() });
-  topBarToolStore!: ToolBarDropdownStore;
+  topBarToolPlugin!: ToolBarDropdownPlugin;
 
   setup() {
-    this.topBarToolStore = useToolBarDropdownStore();
+    this.topBarToolPlugin = useToolBarDropdownPlugin();
   }
 
   get currentFontSize(): number {
@@ -26,18 +26,18 @@ export class TopBarFontSizeEditor extends OSComponent {
 
   onToggle() {
     if (this.isActive) {
-      this.topBarToolStore.closeDropdowns();
+      this.topBarToolPlugin.closeDropdowns();
     } else {
-      this.topBarToolStore.openDropdown();
+      this.topBarToolPlugin.openDropdown();
     }
   }
 
   onFocusInput() {
-    this.topBarToolStore.openDropdown();
+    this.topBarToolPlugin.openDropdown();
   }
 
   get isActive() {
-    return this.topBarToolStore.isActive;
+    return this.topBarToolPlugin.isActive;
   }
 
   get class() {

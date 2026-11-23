@@ -1,10 +1,10 @@
-import { onWillUpdateProps, proxy, signal, usePlugin, useProps } from "@odoo/owl";
+import { proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { DEFAULT_BORDER_DESC } from "../../constants";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { BorderPosition, BorderStyle, Color, Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { getElBoundingRect } from "../helpers/dom_helpers";
-import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
+import { ToolBarDropdownPlugin, useToolBarDropdownPlugin } from "../helpers/top_bar_tool_hook";
 import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
 import { BorderEditor } from "./border_editor";
@@ -24,7 +24,7 @@ export class BorderEditorWidget extends OSComponent {
     dropdownMaxHeight: types.Pixel().optional(),
     class: types.string().optional(),
   });
-  topBarToolStore!: ToolBarDropdownStore;
+  topBarToolPlugin!: ToolBarDropdownPlugin;
   private viewPlugin = usePlugin(ViewportsPlugin);
 
   borderEditorButtonRef = signal.ref();
@@ -35,12 +35,7 @@ export class BorderEditorWidget extends OSComponent {
   });
 
   setup() {
-    this.topBarToolStore = useToolBarDropdownStore();
-    onWillUpdateProps(() => {
-      if (!this.isActive) {
-        this.state.currentPosition = undefined;
-      }
-    });
+    this.topBarToolPlugin = useToolBarDropdownPlugin();
   }
 
   get dropdownMaxHeight(): Pixel {
@@ -67,14 +62,15 @@ export class BorderEditorWidget extends OSComponent {
   }
 
   get isActive(): boolean {
-    return this.topBarToolStore.isActive;
+    return this.topBarToolPlugin.isActive;
   }
 
   toggleBorderEditor() {
     if (this.isActive) {
-      this.topBarToolStore.closeDropdowns();
+      this.topBarToolPlugin.closeDropdowns();
     } else {
-      this.topBarToolStore.openDropdown();
+      this.state.currentPosition = undefined;
+      this.topBarToolPlugin.openDropdown();
     }
   }
 

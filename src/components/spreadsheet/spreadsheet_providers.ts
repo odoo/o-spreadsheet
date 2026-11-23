@@ -32,6 +32,7 @@ import { FullScreenFigurePlugin } from "../full_screen_figure/full_screen_figure
 import { provideSpreadsheetRect } from "../helpers/position_hook";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { SplitToColumnsPlugin } from "../side_panel/split_to_columns_panel/split_to_columns_owl_plugin";
+import { TopBarToolPlugin } from "../top_bar/top_bar_tool_store";
 
 interface SpreadsheetProvidersConfig {
   model: Model;
@@ -68,6 +69,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
       ChartAnimationPlugin,
       ZoomableChartPlugin,
       ViewportsPlugin,
+      TopBarToolPlugin,
     ],
     {
       popoverContainerRectSignal: spreadsheetRectPlugin.rect,

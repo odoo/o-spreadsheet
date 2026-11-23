@@ -3,7 +3,7 @@ import { setStyle } from "../../../actions/menu_items_actions";
 import { DEFAULT_FONT } from "../../../constants";
 import { Font } from "../../../types/misc";
 import { FontEditor } from "../../font_editor/font_editor";
-import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
+import { ToolBarDropdownPlugin, useToolBarDropdownPlugin } from "../../helpers/top_bar_tool_hook";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
@@ -12,10 +12,10 @@ export class TopBarFontEditor extends OSComponent {
   static components = { FontEditor };
 
   protected props = useProps({ class: types.string() });
-  topBarToolStore!: ToolBarDropdownStore;
+  topBarToolPlugin!: ToolBarDropdownPlugin;
 
   setup() {
-    this.topBarToolStore = useToolBarDropdownStore();
+    this.topBarToolPlugin = useToolBarDropdownPlugin();
   }
 
   get currentFont(): string {
@@ -23,7 +23,7 @@ export class TopBarFontEditor extends OSComponent {
   }
 
   get isActive() {
-    return this.topBarToolStore.isActive;
+    return this.topBarToolPlugin.isActive;
   }
 
   get class() {
@@ -33,14 +33,14 @@ export class TopBarFontEditor extends OSComponent {
 
   toggleDropdown() {
     if (this.isActive) {
-      this.topBarToolStore.closeDropdowns();
+      this.topBarToolPlugin.closeDropdowns();
     } else {
-      this.topBarToolStore.openDropdown();
+      this.topBarToolPlugin.openDropdown();
     }
   }
 
   setFont(font: Font) {
     setStyle(this.model(), { font });
-    this.topBarToolStore.closeDropdowns();
+    this.topBarToolPlugin.closeDropdowns();
   }
 }
