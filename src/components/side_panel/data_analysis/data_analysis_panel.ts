@@ -1,14 +1,13 @@
 import { useProps } from "@odoo/owl";
-import { useLocalStore } from "../../../store_engine/store_hooks";
+import { provideAndUsePlugin } from "../../../helpers/owl3_helpers";
 import { ChartDefinition } from "../../../types/chart/chart";
-import { Store } from "../../../types/store_engine";
 import { useChartDragAndDrop } from "../../helpers/chart_drag_and_drop";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { SidePanelCollapsible } from "../components/collapsible/side_panel_collapsible";
 import { Section } from "../components/section/section";
 import { ChartSuggestionPreview } from "./chart_suggestion/chart_suggestion_preview";
-import { DataAnalysisStore } from "./data_analysis_store";
+import { DataAnalysisPlugin } from "./data_analysis_store";
 import { DateSection } from "./data_statistics/date_section";
 import { GeneralStatsSection } from "./data_statistics/general_stats_section";
 import { OccurrencesStatistics } from "./data_statistics/occurrences_statistics";
@@ -25,13 +24,9 @@ export class DataAnalysisPanel extends OSComponent {
     DateSection,
   };
 
-  store!: Store<DataAnalysisStore>;
+  dataAnalysisPlugin = provideAndUsePlugin(DataAnalysisPlugin);
 
   private chartDnd = useChartDragAndDrop();
-
-  setup() {
-    this.store = useLocalStore(DataAnalysisStore);
-  }
 
   onStartChartSuggestionDrag(definition: ChartDefinition, ev: PointerEvent) {
     if (ev.button !== 0) {

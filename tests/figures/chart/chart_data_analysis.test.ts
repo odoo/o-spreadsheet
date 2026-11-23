@@ -1,4 +1,3 @@
-import { DataAnalysisStore } from "../../../src/components/side_panel/data_analysis/data_analysis_store";
 import {
   clickAndDrag,
   createCarousel,
@@ -19,14 +18,15 @@ import {
   spyDispatch,
 } from "../../test_helpers/helpers";
 
-test("suggestions are updated if the selection changes", async () => {
-  const { model, env } = await mountSpreadsheet();
-  const store = env.getStore(DataAnalysisStore);
+test("statistics are updated if the selection changes", async () => {
+  const model = createModelFromGrid({ A1: "5", A2: "8" });
+  await mountSpreadsheet({ model });
   selectCell(model, "A1");
   await simulateClick(".o-data-analysis-button");
-  expect(store.ranges).toEqual(["A1"]);
+  expect(".o-data-analysis-panel [data-test-id='sum']").toHaveText("5");
   selectCell(model, "A2");
-  expect(store.ranges).toEqual(["A2"]);
+  await nextTick();
+  expect(".o-data-analysis-panel [data-test-id='sum']").toHaveText("8");
 });
 
 test("clicking the data analysis button again closes the panel", async () => {

@@ -1,26 +1,16 @@
-import { invalidateEvaluationCommands } from "../../../command_registry";
-import { analyzeColumns, ExtendedColumnType } from "../../../helpers/data_statistics/data_analysis";
-import {
-  DateGranularity,
-  DateSections,
-  StatValue,
-} from "../../../helpers/data_statistics/statistics_items";
+import { computed, signal } from "@odoo/owl";
+import { analyzeColumns } from "../../../helpers/data_statistics/data_analysis";
+import { DateGranularity, StatValue } from "../../../helpers/data_statistics/statistics_items";
 import {
   buildBooleanItems,
   buildDateStatSections,
   buildGeneralStatItems,
   buildOccurrencesItems,
 } from "../../../helpers/data_statistics/statistics_suggestion";
-import {
-  ChartSuggestion,
-  getChartSuggestions,
-} from "../../../helpers/figures/charts/chart_suggestion_engine";
+import { getChartSuggestions } from "../../../helpers/figures/charts/chart_suggestion_engine";
 import { cellsSortingCriterion } from "../../../helpers/sort";
-import { zoneToXc } from "../../../helpers/zones";
-import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
+import { OwlPluginWithModel } from "../../../owl_plugins/owl_plugin_with_model";
 import { CellValueType } from "../../../types/cells";
-import { Command } from "../../../types/commands";
-import { Get } from "../../../types/store_engine";
 
 const OCCURRENCES_PAGE_SIZE = 50;
 
@@ -30,122 +20,52 @@ export interface OccurrencesSortType {
   order: "asc" | "desc" | "none";
 }
 
-export class DataAnalysisStore extends SpreadsheetStore {
-  mutators = [
-    "setDateGranularity",
-    "toggleDateSort",
-    "toggleOccurrencesSort",
-    "loadMoreOccurrences",
-  ] as const;
-  shape: ExtendedColumnType[] = [];
-  hasHeader: boolean = false;
-  generalStatItems: StatValue[] = [];
-  occurrencesItems: StatValue[] = [];
-  dateStatSections: DateSections = this.defaultDateSections;
-
-  dateGranularity: DateGranularity = "month";
-  dateOccurenceSortType: DateOccurenceSortType = "chrono";
-  displayedDateItems: StatValue[] = [];
-
-  occurrencesSortType: OccurrencesSortType = { sortOn: "value", order: "desc" };
-  numberOfDisplayedOccurrences = OCCURRENCES_PAGE_SIZE;
-  displayedOccurrencesItems: StatValue[] = [];
-  hasMoreOccurrences = false;
-
-  hasData: boolean = false;
-  chartSuggestions: ChartSuggestion[] = [];
-  private isDirty = false;
-  ranges?: string[];
-
-  constructor(get: Get) {
-    super(get);
-    this.model.selection.observe(this, {
-      handleEvent: () => this.refresh(),
-    });
-    this.onDispose(() => {
-      this.model.selection.unobserve(this);
-    });
-    this.refresh();
-  }
-
-  handle(cmd: Command) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
-    ) {
-      this.isDirty = true;
+export class DataAnalysisPlugin extends OwlPluginWithModel {
+  generalStatItems = computed(() => {
+    if (this.hasData() && this.shape().length === 1) {
+      const col = this.analyzedColumns()[0];
+      return buildGeneralStatItems(
+        this.model().getters,
+        col,
+        this.model().getters.getActiveSheetId()
+      );
     }
-    switch (cmd.type) {
-      case "HIDE_COLUMNS_ROWS":
-      case "UNHIDE_COLUMNS_ROWS":
-      case "GROUP_HEADERS":
-      case "UNGROUP_HEADERS":
-      case "ACTIVATE_SHEET":
-      case "ACTIVATE_NEXT_SHEET":
-      case "ACTIVATE_PREVIOUS_SHEET":
-      case "EVALUATE_CELLS":
-      case "SET_FORMATTING":
-      case "CLEAR_FORMATTING":
-        this.isDirty = true;
-        break;
-    }
-  }
+    return [];
+  });
 
-  finalize() {
-    if (this.isDirty) {
-      this.refresh();
-      this.isDirty = false;
-    }
-  }
-
-  setDateGranularity(granularity: DateGranularity) {
-    this.dateGranularity = granularity;
-    this.sortDateItems();
-  }
-
-  toggleDateSort() {
-    switch (this.dateOccurenceSortType) {
-      case "desc":
-        this.dateOccurenceSortType = "chrono";
-        break;
-      case "asc":
-        this.dateOccurenceSortType = "desc";
-        break;
-      case "chrono":
-        this.dateOccurenceSortType = "asc";
-        break;
-    }
-    this.sortDateItems();
-  }
-
-  toggleOccurrencesSort(sortOn: "name" | "value") {
-    const sortType = this.occurrencesSortType;
-    if (sortType.sortOn !== sortOn) {
-      this.occurrencesSortType = { sortOn, order: "asc" };
-    } else {
-      switch (sortType.order) {
-        case "desc":
-          this.occurrencesSortType = { sortOn, order: "none" };
-          break;
-        case "asc":
-          this.occurrencesSortType = { sortOn, order: "desc" };
-          break;
-        case "none":
-          this.occurrencesSortType = { sortOn, order: "asc" };
-          break;
+  occurrencesItems = computed(() => {
+    if (this.hasData() && this.shape().length === 1) {
+      const col = this.analyzedColumns()[0];
+      const sheetId = this.model().getters.getActiveSheetId();
+      switch (col.type) {
+        case "boolean":
+          return buildBooleanItems(this.model().getters, col, sheetId);
+        default:
+          return buildOccurrencesItems(this.model().getters, col, sheetId);
       }
     }
-    this.sortOccurrencesItems();
-  }
+    return [];
+  });
 
-  loadMoreOccurrences() {
-    this.numberOfDisplayedOccurrences += OCCURRENCES_PAGE_SIZE;
-    this.sortOccurrencesItems();
-  }
+  dateStatSections = computed(() => {
+    if (this.hasData() && this.shape().length === 1) {
+      const col = this.analyzedColumns()[0];
+      const sheetId = this.model().getters.getActiveSheetId();
+      switch (col.type) {
+        case "date":
+          return buildDateStatSections(this.model().getters, col, sheetId);
+        default:
+          return this.defaultDateSections;
+      }
+    }
+    return this.defaultDateSections;
+  });
 
-  private sortDateItems() {
-    const items = [...this.dateStatSections[this.dateGranularity]];
-    switch (this.dateOccurenceSortType) {
+  dateGranularity = signal<DateGranularity>("month");
+  dateOccurenceSortType = signal<DateOccurenceSortType>("chrono");
+  displayedDateItems = computed(() => {
+    const items = [...this.dateStatSections()[this.dateGranularity()]];
+    switch (this.dateOccurenceSortType()) {
       case "asc":
         items.sort((a, b) => Number(a.value) - Number(b.value) || a.name.localeCompare(b.name));
         break;
@@ -153,12 +73,13 @@ export class DataAnalysisStore extends SpreadsheetStore {
         items.sort((a, b) => Number(b.value) - Number(a.value) || a.name.localeCompare(b.name));
         break;
     }
-    this.displayedDateItems = items;
-  }
+    return items;
+  });
+  occurrencesSortType = signal.Object<OccurrencesSortType>({ sortOn: "value", order: "desc" });
 
-  private sortOccurrencesItems() {
-    const { sortOn, order } = this.occurrencesSortType;
-    const items = [...this.occurrencesItems];
+  sortedOccurrencesItems = computed(() => {
+    const { sortOn, order } = this.occurrencesSortType();
+    const items = [...this.occurrencesItems()];
     if (order !== "none") {
       items.sort((a, b) => {
         if (sortOn === "name") {
@@ -169,8 +90,85 @@ export class DataAnalysisStore extends SpreadsheetStore {
           : Number(b.value) - Number(a.value);
       });
     }
-    this.displayedOccurrencesItems = items.slice(0, this.numberOfDisplayedOccurrences);
-    this.hasMoreOccurrences = items.length > this.numberOfDisplayedOccurrences;
+    return items;
+  });
+
+  private numberOfDisplayedOccurrences = signal(OCCURRENCES_PAGE_SIZE);
+  displayedOccurrencesItems = computed(() =>
+    this.sortedOccurrencesItems().slice(0, this.numberOfDisplayedOccurrences())
+  );
+  hasMoreOccurrences = computed(
+    () => this.sortedOccurrencesItems().length > this.numberOfDisplayedOccurrences()
+  );
+
+  private analyzedColumns = computed(() => {
+    const zones = this.model().getters.getSelectedZones();
+    return analyzeColumns(zones, this.model().getters);
+  });
+
+  hasData = computed(() => {
+    const sheetId = this.model().getters.getActiveSheetId();
+    const zones = this.model().getters.getSelectedZones();
+    return zones.some((zone) =>
+      this.model()
+        .getters.getEvaluatedCellsInZone(sheetId, zone)
+        .some((cell) => cell.type !== CellValueType.empty)
+    );
+  });
+
+  hasHeader = computed(() => {
+    return this.analyzedColumns().some((c) => c.headerInZone);
+  });
+
+  shape = computed(() => this.analyzedColumns().map((col) => col.type));
+
+  chartSuggestions = computed(() => {
+    return this.hasData()
+      ? getChartSuggestions(this.shape(), this.analyzedColumns(), this.model().getters)
+      : [];
+  });
+
+  setDateGranularity(granularity: DateGranularity) {
+    this.dateGranularity.set(granularity);
+  }
+
+  toggleDateSort() {
+    switch (this.dateOccurenceSortType()) {
+      case "desc":
+        this.dateOccurenceSortType.set("chrono");
+        break;
+      case "asc":
+        this.dateOccurenceSortType.set("desc");
+        break;
+      case "chrono":
+        this.dateOccurenceSortType.set("asc");
+        break;
+    }
+  }
+
+  toggleOccurrencesSort(sortOn: "name" | "value") {
+    const sortType = this.occurrencesSortType();
+    if (sortType.sortOn !== sortOn) {
+      this.occurrencesSortType.set({ sortOn, order: "asc" });
+    } else {
+      switch (sortType.order) {
+        case "desc":
+          this.occurrencesSortType.set({ sortOn, order: "none" });
+          break;
+        case "asc":
+          this.occurrencesSortType.set({ sortOn, order: "desc" });
+          break;
+        case "none":
+          this.occurrencesSortType.set({ sortOn, order: "asc" });
+          break;
+      }
+    }
+  }
+
+  loadMoreOccurrences() {
+    this.numberOfDisplayedOccurrences.set(
+      this.numberOfDisplayedOccurrences() + OCCURRENCES_PAGE_SIZE
+    );
   }
 
   get defaultDateSections() {
@@ -184,46 +182,10 @@ export class DataAnalysisStore extends SpreadsheetStore {
       date: [],
     };
   }
-
-  private refresh() {
-    const sheetId = this.getters.getActiveSheetId();
-    const zones = this.getters.getSelectedZones();
-    this.ranges = zones.map(zoneToXc);
-
-    this.hasData = zones.some((zone) =>
-      this.getters
-        .getEvaluatedCellsInZone(sheetId, zone)
-        .some((cell) => cell.type !== CellValueType.empty)
-    );
-    const cols = analyzeColumns(zones, this.getters);
-    this.shape = cols.map((c) => c.type);
-    this.hasHeader = cols.some((c) => c.headerInZone);
-
-    const suggestions = this.hasData ? getChartSuggestions(this.shape, cols, this.getters) : [];
-    this.chartSuggestions = suggestions;
-    this.generalStatItems = [];
-    this.occurrencesItems = [];
-    this.dateStatSections = this.defaultDateSections;
-    if (this.hasData && this.shape.length === 1) {
-      const col = cols[0];
-      this.generalStatItems = buildGeneralStatItems(this.getters, col, sheetId);
-      switch (col.type) {
-        case "date":
-          this.dateStatSections = buildDateStatSections(this.getters, col, sheetId);
-          break;
-        case "boolean":
-          this.occurrencesItems = buildBooleanItems(this.getters, col, sheetId);
-          break;
-        default:
-          this.occurrencesItems = buildOccurrencesItems(this.getters, col, sheetId);
-      }
-    }
-    this.sortOccurrencesItems();
-    this.sortDateItems();
-  }
 }
 
 const sortCategoriesAscending = cellsSortingCriterion("asc");
+
 function compareCategories(a: StatValue, b: StatValue): number {
   if (a.rawData && b.rawData) {
     return sortCategoriesAscending(a.rawData, b.rawData);
