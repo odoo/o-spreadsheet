@@ -1,5 +1,5 @@
 import { Model, schemeToColorScale, UID } from "../../../../src";
-import { MainChartPanelStore } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel_store";
+import { MainChartPanelPlugin } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel_store";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { GeoChartDefinition } from "../../../../src/types/chart/geo_chart";
 import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
@@ -18,7 +18,7 @@ import {
   toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
 import { mockChart, mockGeoJsonService, mountComponent } from "../../../test_helpers/helpers";
-import { makeStoreWithModel } from "../../../test_helpers/stores";
+import { makeOwlPluginManager } from "../../../test_helpers/owl_plugins_helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -155,10 +155,12 @@ test("missingValueColor survives a round trip through another chart type", () =>
   const model = new Model({}, { external: { geoJsonService: mockGeoJsonService } });
   const chartId = "chartId";
   createGeoChart(model, { missingValueColor: "#ff0000" }, chartId);
-  const { store: chartPanelStore } = makeStoreWithModel(model, MainChartPanelStore);
+  const chartPanelPlugin = makeOwlPluginManager([MainChartPanelPlugin], { model }).getPlugin(
+    MainChartPanelPlugin
+  );
 
-  chartPanelStore.changeChartType(chartId, "bar");
-  chartPanelStore.changeChartType(chartId, "geo");
+  chartPanelPlugin.changeChartType(chartId, "bar");
+  chartPanelPlugin.changeChartType(chartId, "geo");
 
   const definition = model.getters.getChartDefinition(chartId) as GeoChartDefinition<string>;
   expect(definition.missingValueColor).toBe("#ff0000");

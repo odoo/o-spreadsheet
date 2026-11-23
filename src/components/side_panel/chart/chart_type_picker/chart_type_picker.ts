@@ -1,4 +1,4 @@
-import { proxy, signal, useProps } from "@odoo/owl";
+import { proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { chartDataSourceRegistry } from "../../../../registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "../../../../registries/chart_subtype_registry";
 import { CHART_TYPES, ChartDefinition, ChartType } from "../../../../types/chart/chart";
@@ -10,7 +10,7 @@ import { Popover } from "../../../popover/popover";
 import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
 import { ChartTypePickerPopover } from "../chart_type_picker_popover/chart_type_picker_popover";
-import { MainChartPanelStore } from "../main_chart_panel/main_chart_panel_store";
+import { MainChartPanelPlugin } from "../main_chart_panel/main_chart_panel_store";
 
 const CHART_TYPE_WITHOUT_DATA_SOURCE: Set<ChartType> = new Set([
   "scorecard",
@@ -29,8 +29,9 @@ export class ChartTypePicker extends OSComponent {
 
   protected props = useProps({
     chartId: types.UID(),
-    chartPanelStore: types.Store<MainChartPanelStore>(),
   });
+
+  private mainChartPanelPlugin = usePlugin(MainChartPanelPlugin);
 
   selectRef = signal.ref();
 
@@ -53,7 +54,7 @@ export class ChartTypePicker extends OSComponent {
   }
 
   onTypeChange(type: ChartType) {
-    this.props.chartPanelStore.changeChartType(this.props.chartId, type);
+    this.mainChartPanelPlugin.changeChartType(this.props.chartId, type);
   }
 
   private getChartDefinition(chartId: UID): ChartDefinition {

@@ -1,14 +1,13 @@
 import { useProps } from "@odoo/owl";
-import { useLocalStore } from "../../../../store_engine/store_hooks";
+import { provideAndUsePlugin } from "../../../../helpers/owl3_helpers";
 import { ChartDefinition, ChartType } from "../../../../types/chart/chart";
 import { UID } from "../../../../types/misc";
-import { Store } from "../../../../types/store_engine";
 import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "../chart_side_panel_registry";
 import { ChartTypePicker } from "../chart_type_picker/chart_type_picker";
-import { MainChartPanelStore } from "./main_chart_panel_store";
+import { MainChartPanelPlugin } from "./main_chart_panel_store";
 
 export class ChartPanel extends OSComponent {
   static template = "o-spreadsheet-ChartPanel";
@@ -19,18 +18,14 @@ export class ChartPanel extends OSComponent {
     chartId: types.UID(),
   });
 
-  store!: Store<MainChartPanelStore>;
+  mainChartPanelPlugin = provideAndUsePlugin(MainChartPanelPlugin);
 
   get chartId() {
     return this.props.chartId;
   }
 
-  setup(): void {
-    this.store = useLocalStore(MainChartPanelStore);
-  }
-
   switchPanel(panel: "configuration" | "design") {
-    this.store.activatePanel(panel);
+    this.mainChartPanelPlugin.activatePanel(panel);
   }
 
   updateChart<T extends ChartDefinition>(chartId: UID, updateDefinition: Partial<T>) {
@@ -71,7 +66,7 @@ export class ChartPanel extends OSComponent {
     if (!this.chartId) {
       return;
     }
-    this.store.changeChartType(this.chartId, type);
+    this.mainChartPanelPlugin.changeChartType(this.chartId, type);
   }
 
   get chartPanel(): ChartSidePanel {

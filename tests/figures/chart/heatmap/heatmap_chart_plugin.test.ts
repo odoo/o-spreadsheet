@@ -1,5 +1,5 @@
 import { Model } from "../../../../src";
-import { MainChartPanelStore } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel_store";
+import { MainChartPanelPlugin } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel_store";
 import { HeatmapChart } from "../../../../src/helpers/figures/charts/heatmap_chart";
 import { chartDataSourceRegistry } from "../../../../src/registries/chart_data_source_registry";
 import { CalendarChartDefinition } from "../../../../src/types/chart/calendar_chart";
@@ -19,7 +19,11 @@ import {
 } from "../../../test_helpers";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 import { createModelFromGrid } from "../../../test_helpers/helpers";
-import { makeStoreWithModel } from "../../../test_helpers/stores";
+import { makeOwlPluginManager } from "../../../test_helpers/owl_plugins_helpers";
+
+function createMainChartPanelPlugin(model: Model) {
+  return makeOwlPluginManager([MainChartPanelPlugin], { model }).getPlugin(MainChartPanelPlugin);
+}
 
 describe("heatmap chart", () => {
   test("create heatmap chart from creation context", () => {
@@ -720,13 +724,13 @@ describe("switching chart type between line and heatmap", () => {
       },
       chartId
     );
-    const { store: chartPanelStore } = makeStoreWithModel(model, MainChartPanelStore);
+    const chartPanelPlugin = createMainChartPanelPlugin(model);
 
-    chartPanelStore.changeChartType(chartId, "heatmap");
+    chartPanelPlugin.changeChartType(chartId, "heatmap");
     const heatmapDefinition = model.getters.getChartDefinition(chartId);
     expect(heatmapDefinition.type).toBe("heatmap");
 
-    chartPanelStore.changeChartType(chartId, "line");
+    chartPanelPlugin.changeChartType(chartId, "line");
     const lineDefinition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(lineDefinition.type).toBe("line");
     const dataSource = lineDefinition.dataSource as Extract<
@@ -753,10 +757,10 @@ describe("switching chart type between line and heatmap", () => {
       },
       chartId
     );
-    const { store: chartPanelStore } = makeStoreWithModel(model, MainChartPanelStore);
+    const chartPanelPlugin = createMainChartPanelPlugin(model);
 
-    chartPanelStore.changeChartType(chartId, "line");
-    chartPanelStore.changeChartType(chartId, "heatmap");
+    chartPanelPlugin.changeChartType(chartId, "line");
+    chartPanelPlugin.changeChartType(chartId, "heatmap");
 
     const heatmapDefinition = model.getters.getChartDefinition(
       chartId
@@ -778,9 +782,9 @@ describe("switching chart type between line and heatmap", () => {
       },
       chartId
     );
-    const { store: chartPanelStore } = makeStoreWithModel(model, MainChartPanelStore);
+    const chartPanelPlugin = createMainChartPanelPlugin(model);
 
-    chartPanelStore.changeChartType(chartId, "line");
+    chartPanelPlugin.changeChartType(chartId, "line");
 
     const lineDefinition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(lineDefinition.type).toBe("line");
@@ -791,7 +795,7 @@ describe("switching chart type between line and heatmap", () => {
     expect(dataSource.dataSets.map((ds) => ds.dataRange)).toEqual(["A1:A4"]);
     expect(dataSource.labelRange).toBe("B1:B4");
 
-    chartPanelStore.changeChartType(chartId, "heatmap");
+    chartPanelPlugin.changeChartType(chartId, "heatmap");
     const heatmapDefinition = model.getters.getChartDefinition(
       chartId
     ) as HeatmapChartDefinition<string>;
@@ -819,16 +823,16 @@ describe("switching chart type between calendar and heatmap", () => {
       },
       chartId
     );
-    const { store: chartPanelStore } = makeStoreWithModel(model, MainChartPanelStore);
+    const chartPanelPlugin = createMainChartPanelPlugin(model);
 
-    chartPanelStore.changeChartType(chartId, "calendar");
+    chartPanelPlugin.changeChartType(chartId, "calendar");
     const calendarDefinition = model.getters.getChartDefinition(
       chartId
     ) as CalendarChartDefinition<string>;
     expect(calendarDefinition.colorScale).toEqual({ minColor: "#000000", maxColor: "#ffffff" });
     expect(calendarDefinition.missingValueColor).toBe("#ff00ff");
 
-    chartPanelStore.changeChartType(chartId, "heatmap");
+    chartPanelPlugin.changeChartType(chartId, "heatmap");
     const heatmapDefinition = model.getters.getChartDefinition(
       chartId
     ) as HeatmapChartDefinition<string>;
@@ -847,10 +851,10 @@ describe("switching chart type between calendar and heatmap", () => {
       },
       chartId
     );
-    const { store: chartPanelStore } = makeStoreWithModel(model, MainChartPanelStore);
+    const chartPanelPlugin = createMainChartPanelPlugin(model);
 
-    chartPanelStore.changeChartType(chartId, "heatmap");
-    chartPanelStore.changeChartType(chartId, "calendar");
+    chartPanelPlugin.changeChartType(chartId, "heatmap");
+    chartPanelPlugin.changeChartType(chartId, "calendar");
 
     const calendarDefinition = model.getters.getChartDefinition(
       chartId
