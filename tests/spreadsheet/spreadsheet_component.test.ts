@@ -10,6 +10,7 @@ import {
 } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toZone } from "../../src/helpers/zones";
+import { ExposeViewportsPlugin } from "../../src/owl_plugins/expose_viewports_owl_plugin";
 import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { IsSmallPlugin } from "../../src/owl_plugins/is_small_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
@@ -547,4 +548,13 @@ test("Grid dimensions are rounded for the viewports", async () => {
     width: 500 - SCROLLBAR_WIDTH,
     height: 100 - SCROLLBAR_WIDTH,
   });
+});
+
+test("Can expose viewports to the outside if provided ExposeViewportsPlugin", async () => {
+  const { getPlugin, viewStore } = await mountSpreadsheet(
+    { model: new Model() },
+    { providedPlugins: [ExposeViewportsPlugin] }
+  );
+
+  expect(getPlugin(ExposeViewportsPlugin).viewports()).toEqual(viewStore);
 });
