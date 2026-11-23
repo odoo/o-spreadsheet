@@ -104,7 +104,7 @@ import { ZoomedMouseEvent } from "../helpers/zoom";
 import { Highlight } from "../highlight/highlight/highlight";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { OSComponent } from "../os_component";
-import { PaintFormatStore } from "../paint_format_button/paint_format_store";
+import { PaintFormatPlugin } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
@@ -182,7 +182,7 @@ export class Grid extends OSComponent {
   private cellPopovers!: Store<CellPopoverStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
-  private paintFormatStore!: Store<PaintFormatStore>;
+  private paintFormatPlugin = usePlugin(PaintFormatPlugin);
   private clientFocusStore!: Store<ClientFocusStore>;
   private clipboardStore!: Store<ClipboardStore>;
   private clipboardPlugin = usePlugin(NavigatorClipboardPlugin);
@@ -205,7 +205,6 @@ export class Grid extends OSComponent {
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.sidePanel = useStore(SidePanelStore);
-    this.paintFormatStore = useStore(PaintFormatStore);
     this.clientFocusStore = useStore(ClientFocusStore);
     this.clipboardStore = useStore(ClipboardStore);
 
@@ -336,8 +335,8 @@ export class Grid extends OSComponent {
           this.cellPopovers.close();
         } else if (this.menuState.isOpen) {
           this.closeMenu();
-        } else if (this.paintFormatStore.isActive) {
-          this.paintFormatStore.cancel();
+        } else if (this.paintFormatPlugin.isActive()) {
+          this.paintFormatPlugin.cancel();
         } else {
           this.model().dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
         }
@@ -735,8 +734,8 @@ export class Grid extends OSComponent {
     };
     const onMouseUp = () => {
       this.model().selection.commitSelection();
-      if (this.paintFormatStore.isActive) {
-        this.paintFormatStore.pasteFormat(this.model().getters.getSelectedZones());
+      if (this.paintFormatPlugin.isActive()) {
+        this.paintFormatPlugin.pasteFormat(this.model().getters.getSelectedZones());
       }
     };
     this.dragNDropGrid.start(zoomedMouseEvent, onMouseMove, onMouseUp);
@@ -766,8 +765,8 @@ export class Grid extends OSComponent {
 
     updateSelectionWithArrowKeys(ev, this.model().selection);
 
-    if (this.paintFormatStore.isActive) {
-      this.paintFormatStore.pasteFormat(this.model().getters.getSelectedZones());
+    if (this.paintFormatPlugin.isActive()) {
+      this.paintFormatPlugin.pasteFormat(this.model().getters.getSelectedZones());
     }
   }
 

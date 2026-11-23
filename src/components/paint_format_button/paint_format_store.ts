@@ -1,4 +1,4 @@
-import { usePlugin } from "@odoo/owl";
+import { computed, onWillDestroy, signal, usePlugin } from "@odoo/owl";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import {
@@ -9,12 +9,11 @@ import {
   selectPastedZone,
 } from "../../helpers/clipboard/clipboard_helpers";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
+import { OwlPluginWithModel } from "../../owl_plugins/owl_plugin_with_model";
 import { clipboardHandlersRegistries } from "../../registries/clipboard_handlers_registries";
-import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { ClipboardOptions } from "../../types/clipboard";
 import { Command } from "../../types/commands";
 import { ClipboardCell, Highlight, UID, Zone } from "../../types/misc";
-import { Get } from "../../types/store_engine";
 
 interface ClipboardContent {
   cells: ClipboardCell[][];
@@ -31,18 +30,16 @@ const PAINT_FORMAT_HANDLER_KEYS = [
   "merge",
 ] as const;
 
-export class PaintFormatStore extends SpreadsheetStore {
-  mutators = ["activate", "cancel", "pasteFormat"] as const;
-
+export class PaintFormatPlugin extends OwlPluginWithModel {
   protected highlightPlugin = usePlugin(HighlightPlugin);
 
-  private status: "inactive" | "oneOff" | "persistent" = "inactive";
-  private copiedData?: ClipboardContent;
+  private status = signal<"inactive" | "oneOff" | "persistent">("inactive");
+  private copiedData = signal<ClipboardContent | undefined>(undefined);
 
-  constructor(get: Get) {
-    super(get);
+  setup() {
+    super.setup();
     this.highlightPlugin.register(this);
-    this.onDispose(() => {
+    onWillDestroy(() => {
       this.highlightPlugin.unRegister(this);
     });
   }
@@ -56,22 +53,25 @@ export class PaintFormatStore extends SpreadsheetStore {
   }
 
   activate(args: { persistent: boolean }) {
-    this.copiedData = this.copyFormats();
-    this.status = args.persistent ? "persistent" : "oneOff";
+    this.copiedData.set(this.copyFormats());
+    this.status.set(args.persistent ? "persistent" : "oneOff");
   }
 
   cancel() {
-    this.status = "inactive";
-    this.copiedData = undefined;
+    this.status.set("inactive");
+    this.copiedData.set(undefined);
   }
 
   pasteFormat(target: Zone[]) {
-    this.model.dispatch("PAINT_FORMAT", { target, sheetId: this.getters.getActiveSheetId() });
+    this.model().dispatch("PAINT_FORMAT", {
+      target,
+      sheetId: this.model().getters.getActiveSheetId(),
+    });
   }
 
-  get isActive() {
-    return this.status !== "inactive";
-  }
+  isActive = computed(() => {
+    return this.status() !== "inactive";
+  });
 
   private get clipboardHandlers(): {
     handlerName: string;
@@ -81,14 +81,14 @@ export class PaintFormatStore extends SpreadsheetStore {
       const HandlerClass = clipboardHandlersRegistries.cellHandlers.get(handlerName);
       return {
         handlerName,
-        handler: new HandlerClass(this.getters, this.model.dispatch),
+        handler: new HandlerClass(this.model().getters, this.model().dispatch),
       };
     });
   }
 
   private copyFormats(): ClipboardContent | undefined {
-    const sheetId = this.getters.getActiveSheetId();
-    const zones = this.getters.getSelectedZones();
+    const sheetId = this.model().getters.getActiveSheetId();
+    const zones = this.model().getters.getSelectedZones();
 
     const copiedData: Partial<ClipboardContent> = { zones, sheetId };
     for (const { handlerName, handler } of this.clipboardHandlers) {
@@ -102,14 +102,15 @@ export class PaintFormatStore extends SpreadsheetStore {
   }
 
   private paintFormat(sheetId: UID, target: Zone[]) {
-    if (!this.copiedData) {
+    const copiedData = this.copiedData();
+    if (!copiedData) {
       return;
     }
     const options: ClipboardOptions = {
       isCutOperation: false,
       pasteOption: "onlyFormat",
     };
-    const expandedData = expandHandlerData(this.clipboardHandlers, this.copiedData);
+    const expandedData = expandHandlerData(this.clipboardHandlers, copiedData);
     const { target: pasteTarget, selectedZones } = getPasteTargetFromHandlers(
       sheetId,
       target,
@@ -118,23 +119,23 @@ export class PaintFormatStore extends SpreadsheetStore {
       options
     );
     applyClipboardHandlersPaste(this.clipboardHandlers, expandedData, pasteTarget, options, {
-      sheetId: this.copiedData.sheetId,
-      zones: this.copiedData.zones,
+      sheetId: copiedData.sheetId,
+      zones: copiedData.zones,
     });
-    selectPastedZone(this.model.selection, target, selectedZones);
+    selectPastedZone(this.model().selection, target, selectedZones);
 
-    if (this.status === "oneOff") {
+    if (this.status() === "oneOff") {
       this.cancel();
     }
   }
 
   get highlights(): Highlight[] {
-    const data = this.copiedData;
+    const data = this.copiedData();
     if (!data) {
       return [];
     }
     return data.zones.map((zone) => ({
-      range: this.model.getters.getRangeFromZone(data.sheetId, zone),
+      range: this.model().getters.getRangeFromZone(data.sheetId, zone),
       color: SELECTION_BORDER_COLOR,
       dashed: true,
       sheetId: data.sheetId,

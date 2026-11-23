@@ -1,9 +1,7 @@
-import { useStore } from "../../store_engine/store_hooks";
-import { Store } from "../../types/store_engine";
 import { OSComponent } from "../os_component";
-import { PaintFormatStore } from "./paint_format_store";
+import { PaintFormatPlugin } from "./paint_format_store";
 
-import { useProps } from "@odoo/owl";
+import { usePlugin, useProps } from "@odoo/owl";
 import { types } from "../props_validation";
 export class PaintFormatButton extends OSComponent {
   static template = "o-spreadsheet-PaintFormatButton";
@@ -12,25 +10,21 @@ export class PaintFormatButton extends OSComponent {
     class: types.string().optional(),
   });
 
-  private paintFormatStore!: Store<PaintFormatStore>;
-
-  setup() {
-    this.paintFormatStore = useStore(PaintFormatStore);
-  }
+  private paintFormatPlugin = usePlugin(PaintFormatPlugin);
 
   get isActive() {
-    return this.paintFormatStore.isActive;
+    return this.paintFormatPlugin.isActive();
   }
 
   onDblClick() {
-    this.paintFormatStore.activate({ persistent: true });
+    this.paintFormatPlugin.activate({ persistent: true });
   }
 
   togglePaintFormat() {
     if (this.isActive) {
-      this.paintFormatStore.cancel();
+      this.paintFormatPlugin.cancel();
     } else {
-      this.paintFormatStore.activate({ persistent: false });
+      this.paintFormatPlugin.activate({ persistent: false });
     }
   }
 }

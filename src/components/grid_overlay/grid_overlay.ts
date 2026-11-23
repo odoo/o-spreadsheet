@@ -28,7 +28,7 @@ import { getElBoundingRect, isChildEvent, isCtrlKey, isMobileOS } from "../helpe
 import { useInterval } from "../helpers/time_hooks";
 import { ZoomedMouseEvent } from "../helpers/zoom";
 import { OSComponent } from "../os_component";
-import { PaintFormatStore } from "../paint_format_button/paint_format_store";
+import { PaintFormatPlugin } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
 import { HoveredIconStore } from "./hovered_icon_store";
@@ -185,7 +185,7 @@ export class GridOverlay extends OSComponent {
   });
   private gridOverlayRef = signal.ref();
   private cellPopovers!: Store<CellPopoverStore>;
-  private paintFormatStore!: Store<PaintFormatStore>;
+  private paintFormatPlugin = usePlugin(PaintFormatPlugin);
   private hoveredIconStore!: Store<HoveredIconStore>;
   viewPlugin = usePlugin(ViewportsPlugin);
   private zoomPlugin = usePlugin(ZoomPlugin);
@@ -203,7 +203,6 @@ export class GridOverlay extends OSComponent {
     });
 
     this.cellPopovers = useStore(CellPopoverStore);
-    this.paintFormatStore = useStore(PaintFormatStore);
     this.hoveredIconStore = useStore(HoveredIconStore);
   }
 
@@ -223,7 +222,7 @@ export class GridOverlay extends OSComponent {
   }
 
   get isPaintingFormat() {
-    return this.paintFormatStore.isActive;
+    return this.paintFormatPlugin.isActive();
   }
 
   onPointerMove(ev: MouseEvent) {

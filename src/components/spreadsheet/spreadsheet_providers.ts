@@ -30,6 +30,7 @@ import { ZoomableChartPlugin } from "../figures/chart/chartJs/zoomable_chart/zoo
 import { DraggedFigurePlugin } from "../figures/figure_dnd_container/figure_dnd_owl_plugin";
 import { FullScreenFigurePlugin } from "../full_screen_figure/full_screen_figure_owl_plugin";
 import { provideSpreadsheetRect } from "../helpers/position_hook";
+import { PaintFormatPlugin } from "../paint_format_button/paint_format_store";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { SplitToColumnsPlugin } from "../side_panel/split_to_columns_panel/split_to_columns_owl_plugin";
 import { TopBarToolPlugin } from "../top_bar/top_bar_tool_store";
@@ -83,7 +84,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
   stores.inject(ModelStore, model);
 
   // HighlightPlugin has to be declared after RendererPlugin to capture it.
-  providePlugins([DraggedFigurePlugin, HighlightPlugin]);
+  providePlugins([DraggedFigurePlugin, HighlightPlugin, PaintFormatPlugin]);
 
   for (const store of globalStores.getAll()) {
     useStore(store);

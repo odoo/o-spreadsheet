@@ -2,7 +2,7 @@ import { usePlugin, xml } from "@odoo/owl";
 import { Currency, Model, Pixel, Style } from "../src";
 import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
 import { OSComponent } from "../src/components/os_component";
-import { PaintFormatStore } from "../src/components/paint_format_button/paint_format_store";
+import { PaintFormatPlugin } from "../src/components/paint_format_button/paint_format_store";
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
 import { DEFAULT_FONT_SIZE, POSSIBLE_FONTS } from "../src/constants";
@@ -14,7 +14,7 @@ import { ViewportsPlugin, ViewportsPluginInstance } from "../src/owl_plugins/vie
 import { topbarMenuRegistry } from "../src/registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
 import { DOMFocusableElementStore } from "../src/stores/DOM_focus_store";
-import { SpreadsheetActionEnv } from "../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../src/types/spreadsheet_env";
 import { MockFileStore } from "./__mocks__/mock_file_store";
 import { mockJsDomForImageProvider } from "./__mocks__/mock_image_provider";
 import { MockTransportService } from "./__mocks__/transport_service";
@@ -143,8 +143,9 @@ class Comp2 extends Comp {
 
 async function mountParent(model: Model = new Model()) {
   let parent: Component;
-  ({ parent, fixture, env, viewPlugin } = await mountComponent(Parent, { model }));
-  return { parent: parent as Parent, model, fixture, viewPlugin };
+  let getPlugin: OwlPluginGetter;
+  ({ parent, fixture, env, viewPlugin, getPlugin } = await mountComponent(Parent, { model }));
+  return { parent: parent as Parent, model, fixture, viewPlugin, getPlugin };
 }
 
 describe("TopBar component", () => {
@@ -345,27 +346,27 @@ describe("TopBar component", () => {
 
   describe("Paint format tools", () => {
     test("Single click to activate paint format (once)", async () => {
-      const { parent } = await mountParent();
+      const { getPlugin } = await mountParent();
       const paintFormatTool = fixture.querySelector('.o-menu-item-button[title="Paint Format"]')!;
       expect(paintFormatTool.classList.contains("active")).toBeFalsy();
 
       await click(paintFormatTool);
       expect(paintFormatTool.classList.contains("active")).toBeTruthy();
 
-      parent.env.getStore(PaintFormatStore).pasteFormat(target("B2"));
+      getPlugin(PaintFormatPlugin).pasteFormat(target("B2"));
       await nextTick();
       expect(paintFormatTool.classList.contains("active")).toBeFalsy();
     });
 
     test("Double click to activate and keep it", async () => {
-      const { parent } = await mountParent();
+      const { getPlugin } = await mountParent();
       const paintFormatTool = fixture.querySelector('.o-menu-item-button[title="Paint Format"]')!;
       expect(paintFormatTool.classList.contains("active")).toBeFalsy();
 
       await doubleClick(paintFormatTool);
       expect(paintFormatTool.classList.contains("active")).toBeTruthy();
 
-      parent.env.getStore(PaintFormatStore).pasteFormat(target("B2"));
+      getPlugin(PaintFormatPlugin).pasteFormat(target("B2"));
       expect(paintFormatTool.classList.contains("active")).toBeTruthy();
     });
 

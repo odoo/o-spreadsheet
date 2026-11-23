@@ -4,7 +4,7 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { resetTimeoutDuration } from "../../src/components/helpers/touch_handlers_hook";
 import { getDataFilterIcon } from "../../src/components/icons/icons";
-import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
+import { PaintFormatPlugin } from "../../src/components/paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../../src/components/popover/cell_popover_store";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import {
@@ -1240,11 +1240,11 @@ describe("Grid component", () => {
   });
 
   describe("paint format tool with grid selection", () => {
-    let paintFormatStore: Store<PaintFormatStore>;
+    let paintFormatPlugin: PluginInstance<typeof PaintFormatPlugin>;
     let highlightPlugin: PluginInstance<typeof HighlightPlugin>;
 
     beforeEach(() => {
-      paintFormatStore = env.getStore(PaintFormatStore);
+      paintFormatPlugin = env.getPlugin(PaintFormatPlugin);
       highlightPlugin = env.getPlugin(HighlightPlugin);
     });
 
@@ -1253,7 +1253,7 @@ describe("Grid component", () => {
       selectCell(model, "B2");
       setFormatting(model, "B2", { bold: true });
       setBorders(model, "B2", { top: DEFAULT_BORDER_DESC });
-      paintFormatStore.activate({ persistent: false });
+      paintFormatPlugin.activate({ persistent: false });
       await gridMouseEvent(env, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
       await gridMouseEvent(env, "pointerup", "C8");
@@ -1269,7 +1269,7 @@ describe("Grid component", () => {
     test("Paste format works with table style", async () => {
       createTableWithFilter(model, "A1:B2", { styleId: "TableStyleLight11" });
       selectCell(model, "A1");
-      paintFormatStore.activate({ persistent: false });
+      paintFormatPlugin.activate({ persistent: false });
       await gridMouseEvent(env, "pointerdown", "C8");
       await gridMouseEvent(env, "pointerup", "C8");
 
@@ -1280,7 +1280,7 @@ describe("Grid component", () => {
       const sheetId = model.getters.getActiveSheetId();
       addEqualCf(model, "A1", { fillColor: "#0000FF" }, "1", "cf2");
       selectCell(model, "A1");
-      paintFormatStore.activate({ persistent: false });
+      paintFormatPlugin.activate({ persistent: false });
       await gridMouseEvent(env, "pointerdown", "C8");
       await gridMouseEvent(env, "pointerup", "C8");
 
@@ -1295,7 +1295,7 @@ describe("Grid component", () => {
       expect(model.getters.getMerges(sheetId)).toMatchObject([toZone("B1:B3")]);
       expect(model.getters.getSelectedZones()).toMatchObject([toZone("B1:B3")]);
 
-      paintFormatStore.activate({ persistent: false });
+      paintFormatPlugin.activate({ persistent: false });
 
       await gridMouseEvent(env, "pointerdown", "A1");
       await gridMouseEvent(env, "pointerup", "A1");
@@ -1308,7 +1308,7 @@ describe("Grid component", () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
       setFormatting(model, "B2", { bold: true });
-      paintFormatStore.activate({ persistent: true });
+      paintFormatPlugin.activate({ persistent: true });
       await gridMouseEvent(env, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
       await gridMouseEvent(env, "pointerup", "C8");
@@ -1324,7 +1324,7 @@ describe("Grid component", () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
       setFormatting(model, "B2", { bold: true });
-      paintFormatStore.activate({ persistent: false });
+      paintFormatPlugin.activate({ persistent: false });
       expect(getCell(model, "C2")).toBeUndefined();
       await keyDown({ key: "ArrowRight" });
       expect(getCell(model, "C2")!.style).toEqual({ bold: true });
@@ -1334,7 +1334,7 @@ describe("Grid component", () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
       setFormatting(model, "B2", { bold: true });
-      paintFormatStore.activate({ persistent: false });
+      paintFormatPlugin.activate({ persistent: false });
       await keyDown({ key: "Escape" });
       await gridMouseEvent(env, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
@@ -1346,7 +1346,7 @@ describe("Grid component", () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
       setFormatting(model, "B2", { bold: true });
-      paintFormatStore.activate({ persistent: true });
+      paintFormatPlugin.activate({ persistent: true });
       setFormatting(model, "B2", { bold: false });
 
       await gridMouseEvent(env, "pointerdown", "D8");
@@ -1357,12 +1357,12 @@ describe("Grid component", () => {
 
     test("zone to paint is highlighted", async () => {
       selectCell(model, "B2");
-      paintFormatStore.activate({ persistent: false });
+      paintFormatPlugin.activate({ persistent: false });
       expect(highlightPlugin.highlights.map(flattenHighlightRange)).toMatchObject([
         { zone: toZone("B2") },
       ]);
 
-      paintFormatStore.cancel();
+      paintFormatPlugin.cancel();
       expect(highlightPlugin.highlights).toEqual([]);
     });
 
@@ -1373,7 +1373,7 @@ describe("Grid component", () => {
       copy(model, "A1");
 
       const clipboardContent = await clipboardStore.getClipboardTextAndImageContent();
-      paintFormatStore.activate({ persistent: false });
+      paintFormatPlugin.activate({ persistent: false });
       expect(await clipboardStore.getClipboardTextAndImageContent()).toEqual(clipboardContent);
     });
 
@@ -1383,7 +1383,7 @@ describe("Grid component", () => {
       cut(model, "A1");
       selectCell(model, "B2");
       setFormatting(model, "B2", { bold: true });
-      paintFormatStore.activate({ persistent: false });
+      paintFormatPlugin.activate({ persistent: false });
       expect(clipboardStore.isCutOperation());
 
       await gridMouseEvent(env, "pointerdown", "D8");
@@ -1396,7 +1396,7 @@ describe("Grid component", () => {
       setFormatting(model, "B2", { bold: true });
       setBorders(model, "B2", { top: DEFAULT_BORDER_DESC });
 
-      paintFormatStore.activate({ persistent: false });
+      paintFormatPlugin.activate({ persistent: false });
       await gridMouseEvent(env, "pointerdown", "D8");
       await gridMouseEvent(env, "pointerup", "D8");
 
