@@ -1,3 +1,4 @@
+import { load } from "../../src";
 import { ICON_SETS } from "../../src/components/icons/icons";
 import {
   buildSheetLink,
@@ -13,6 +14,7 @@ import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../src/types/chart/pie_chart";
 import { ScatterChartDefinition } from "../../src/types/chart/scatter_chart";
+import { XLSXImportError } from "../../src/types/errors";
 import { Image } from "../../src/types/image";
 import { SheetData, WorkbookData } from "../../src/types/workbook_data";
 import { XLSXSharedFormula } from "../../src/types/xlsx";
@@ -1209,4 +1211,12 @@ test.each([
   ["('Sheet 1'!B11:C11,'Sheet 1'!A12:C12,'Sheet 1'!A13:C13)", true],
 ])("isCompositeRange helper with string %s", (a: string, expected: boolean) => {
   expect(isCompositeRange(a)).toBe(expected);
+});
+
+test("Importing an non-parsable xlsx file throws an XLSXImportError", () => {
+  expect(() => load({ "[Content_Types].xml": "Not a valid XML" })).toThrow(XLSXImportError);
+});
+
+test("Importing an empty xlsx file throws an XLSXImportError", () => {
+  expect(() => load({ "[Content_Types].xml": "<types></types>" })).toThrow(XLSXImportError);
 });

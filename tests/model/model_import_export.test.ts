@@ -19,6 +19,7 @@ import {
 } from "../../src/types";
 import { LineChartDefinition } from "../../src/types/chart";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
+import { DataMigrationError } from "../../src/types/errors";
 import {
   activateSheet,
   resizeColumns,
@@ -1221,7 +1222,9 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
 
 test("Reject data import from data with a subsequent version", () => {
   const futureVersion = (parseFloat(getCurrentVersion()) + 1).toString();
-  expect(() => new Model({ version: futureVersion })).toThrow(
+  const creationCallback = () => new Model({ version: futureVersion });
+  expect(creationCallback).toThrow(DataMigrationError);
+  expect(creationCallback).toThrow(
     `Data version ${futureVersion} postdates the current version of o-spreadsheet (version ${getCurrentVersion()}). It cannot be loaded.`
   );
 });
