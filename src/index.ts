@@ -351,7 +351,7 @@ import "./registries/chart_types";
 import "./registries/interactive_icon_on_cell_registry";
 
 import { AutofillPlugin } from "./components/autofill/autofill_owl_plugin";
-import { TableAutofillStore } from "./components/autofill/table_autofill_store";
+import { TableAutofillPlugin } from "./components/autofill/table_autofill_store";
 import { Composer } from "./components/composer/composer/composer";
 import { StandaloneComposer } from "./components/composer/standalone_composer/standalone_composer";
 import { CarouselFigure } from "./components/figures/figure_carousel/figure_carousel";
@@ -610,7 +610,6 @@ export const stores = {
   useLocalStore,
   SidePanelStore,
   PivotSidePanelStore,
-  TableAutofillStore,
   ClientFocusStore,
   GridRenderer,
   ClipboardStore,
@@ -631,6 +630,7 @@ export const owlPlugins = {
   ExposeViewportsPlugin,
   DevicePixelRatioPlugin,
   PivotMeasureDisplayPanelPlugin,
+  TableAutofillPlugin,
   RendererPlugin,
   HighlightPlugin,
   DelayedHoveredCellPlugin,

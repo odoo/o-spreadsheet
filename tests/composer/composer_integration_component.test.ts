@@ -635,6 +635,16 @@ describe("Composer interactions", () => {
     await nextTick();
     expect(composerStore.currentContent).toBe("=B8:C8");
   });
+
+  test("typing a formula in a table cell autofills the table column", async () => {
+    createTable(model, "A1:A3", { numberOfHeaders: 0 });
+    selectCell(model, "A1");
+    await typeInComposerGrid("=B1");
+    await keyDown({ key: "Enter" });
+    expect(getCellRawContent(model, "A1")).toBe("=B1");
+    expect(getCellRawContent(model, "A2")).toBe("=B2");
+    expect(getCellRawContent(model, "A3")).toBe("=B3");
+  });
 });
 
 describe("Grid composer", () => {

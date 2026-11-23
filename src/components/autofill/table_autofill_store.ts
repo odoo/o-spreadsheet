@@ -1,16 +1,16 @@
 import { getTableContentZone } from "../../helpers/table_helpers";
 import { isInside } from "../../helpers/zones";
-import { SpreadsheetStore } from "../../stores/spreadsheet_store";
+import { OwlPluginWithModel } from "../../owl_plugins/owl_plugin_with_model";
 import { CellValueType } from "../../types/cells";
 import { Command } from "../../types/commands";
 import { CellPosition, Zone } from "../../types/misc";
 
-export class TableAutofillStore extends SpreadsheetStore {
+export class TableAutofillPlugin extends OwlPluginWithModel {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "AUTOFILL_TABLE_COLUMN":
-        const table = this.getters.getCoreTable(cmd);
-        const cell = this.getters.getCell(cmd);
+        const table = this.model().getters.getCoreTable(cmd);
+        const cell = this.model().getters.getCell(cmd);
         if (!table?.config.automaticAutofill || table.type === "dynamic" || !cell?.isFormula) {
           return;
         }
@@ -37,7 +37,9 @@ export class TableAutofillStore extends SpreadsheetStore {
       if (r === row) {
         continue;
       }
-      if (this.getters.getEvaluatedCell({ col, row: r, sheetId }).type !== CellValueType.empty) {
+      if (
+        this.model().getters.getEvaluatedCell({ col, row: r, sheetId }).type !== CellValueType.empty
+      ) {
         return;
       }
     }
@@ -45,18 +47,18 @@ export class TableAutofillStore extends SpreadsheetStore {
     // TODO: seems odd that autofill a table column have side effects on the selection. Autofill commands should be
     // refactored to take the selection as a parameter
     const oldSelection = {
-      zone: this.getters.getSelectedZone(),
-      cell: this.getters.getActivePosition(),
+      zone: this.model().getters.getSelectedZone(),
+      cell: this.model().getters.getActivePosition(),
     };
 
-    this.model.selection.selectCell(col, row);
-    this.model.dispatch("AUTOFILL_SELECT", { col, row: zone.bottom });
-    this.model.dispatch("AUTOFILL");
+    this.model().selection.selectCell(col, row);
+    this.model().dispatch("AUTOFILL_SELECT", { col, row: zone.bottom });
+    this.model().dispatch("AUTOFILL");
 
-    this.model.selection.selectCell(col, row);
-    this.model.dispatch("AUTOFILL_SELECT", { col, row: zone.top });
-    this.model.dispatch("AUTOFILL");
+    this.model().selection.selectCell(col, row);
+    this.model().dispatch("AUTOFILL_SELECT", { col, row: zone.top });
+    this.model().dispatch("AUTOFILL");
 
-    this.model.selection.selectZone(oldSelection);
+    this.model().selection.selectZone(oldSelection);
   }
 }

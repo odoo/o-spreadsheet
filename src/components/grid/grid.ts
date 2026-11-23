@@ -71,6 +71,8 @@ import { DOMCoordinates, DOMDimension, Rect } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
 import { Table } from "../../types/table";
 import { Autofill } from "../autofill/autofill";
+import { AutofillPlugin } from "../autofill/autofill_owl_plugin";
+import { TableAutofillPlugin } from "../autofill/table_autofill_plugin";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { ComposerSelection } from "../composer/composer/abstract_composer_store";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
@@ -214,6 +216,8 @@ export class Grid extends OSComponent {
         AutomaticSumPlugin,
         SelectionRendererPlugin,
         ArrayFormulaHighlightPlugin,
+        TableAutofillPlugin,
+        AutofillPlugin,
       ],
       {
         popoverContainerRectSignal: useElementRect(this.gridRef),

@@ -1,6 +1,6 @@
 import { Model, UID } from "../../src";
 import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
-import { TableAutofillStore } from "../../src/components/autofill/table_autofill_store";
+import { TableAutofillPlugin } from "../../src/components/autofill/table_autofill_store";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
@@ -28,10 +28,9 @@ describe("Table formula autofill ", () => {
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    ({ container } = makeOwlPluginManager([AutofillPlugin], {
+    ({ container } = makeOwlPluginManager([AutofillPlugin, TableAutofillPlugin], {
       model,
     }));
-    container.get(TableAutofillStore);
     container.get(ClipboardStore);
   });
 
@@ -106,9 +105,8 @@ describe("Table autofill with composer", () => {
 
   beforeEach(() => {
     model = new Model();
-    ({ container } = makeOwlPluginManager([AutofillPlugin], { model }));
+    ({ container } = makeOwlPluginManager([AutofillPlugin, TableAutofillPlugin], { model }));
     composerStore = container.get(CellComposerStore);
-    container.get(TableAutofillStore);
     container.get(ClipboardStore);
   });
 
@@ -148,8 +146,7 @@ describe("Table autofill with composer", () => {
 describe("Table autofill with copy/paste", () => {
   beforeEach(() => {
     model = new Model();
-    const { container } = makeOwlPluginManager([AutofillPlugin], { model });
-    container.get(TableAutofillStore);
+    const { container } = makeOwlPluginManager([AutofillPlugin, TableAutofillPlugin], { model });
     container.get(ClipboardStore);
   });
 
