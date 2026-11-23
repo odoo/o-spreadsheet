@@ -9,15 +9,13 @@ import {
 import { getCarouselLayout } from "../../helpers/carousel_helpers";
 import { isDefined } from "../../helpers/misc";
 import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
-import { useLocalStore } from "../../store_engine/store_hooks";
 import { PropsOf } from "../../types/props_of";
 import { GridRenderingContext } from "../../types/rendering";
-import { Store } from "../../types/store_engine";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
 import { CarouselDataViewPrint } from "./carousel_data_view_print";
-import { FigureRendererStore } from "./figure_renderer_store";
+import { FigureRendererPlugin } from "./figure_renderer_owl_plugin";
 
 export class StandaloneGridCanvas extends OSComponent {
   static template = "o-spreadsheet-StandaloneGridCanvas";
@@ -30,12 +28,14 @@ export class StandaloneGridCanvas extends OSComponent {
     canvas: types.object<HTMLCanvasElement>(),
   });
 
-  figureRendererStore!: Store<FigureRendererStore>;
+  figureRendererPlugin!: PluginInstance<typeof FigureRendererPlugin>;
   rendererPlugin!: PluginInstance<typeof RendererPlugin>;
   setup() {
-    providePlugins([RendererPlugin], { layers: ["Background", "Chart"] });
+    providePlugins([RendererPlugin, FigureRendererPlugin], {
+      layers: ["Background", "Chart"],
+    });
     this.rendererPlugin = usePlugin(RendererPlugin);
-    this.figureRendererStore = useLocalStore(FigureRendererStore, this.rendererPlugin);
+    this.figureRendererPlugin = usePlugin(FigureRendererPlugin);
     useGridDrawing({
       canvasRef: () => this.props.canvas,
       renderingCtx: () => this.props.renderingCtx,
@@ -53,13 +53,13 @@ export class StandaloneGridCanvas extends OSComponent {
       .getVisibleFigures(props.sheetId)
       .filter((figure) => figure.tag === "image")
       .map((figure) => this.model().getters.getImagePath(figure.id))
-      .filter((path) => path && !this.figureRendererStore.loadedImages[path]);
+      .filter((path) => path && !this.figureRendererPlugin.loadedImages()[path]);
 
     await Promise.all(
       imagePaths.map(async (path) => {
         const response = await fetch(path);
         const blob = await response.blob();
-        this.figureRendererStore.addLoadedImage(path, await createImageBitmap(blob));
+        this.figureRendererPlugin.addLoadedImage(path, await createImageBitmap(blob));
       })
     );
   }

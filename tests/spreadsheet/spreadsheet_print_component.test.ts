@@ -2,13 +2,16 @@ import { createCanvas } from "canvas";
 import { Model } from "../../src";
 import { SpreadsheetPrint } from "../../src/components/spreadsheet_print/spreadsheet_print";
 import { SpreadsheetPrintPlugin } from "../../src/components/spreadsheet_print/spreadsheet_print_owl_plugin";
-import { FigureRendererStore } from "../../src/components/standalone_grid_canvas/figure_renderer_store";
+import { FigureRendererPlugin } from "../../src/components/standalone_grid_canvas/figure_renderer_owl_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, PRINT_DPR } from "../../src/constants";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
+import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
+import { registerCleanup } from "../setup/jest.setup";
 import {
   createCarousel,
   createChart,
+  createImage,
   createSheet,
   editSelectComponent,
   keyDown,
@@ -125,6 +128,18 @@ describe("Spreadsheet print rendering", () => {
     return getPlugin(SpreadsheetPrintPlugin);
   }
 
+  /** jsdom implements neither `fetch` nor `createImageBitmap`, which are used to load image figures */
+  function mockImageLoading() {
+    const imageBitmap = { width: 200, height: 200 } as ImageBitmap;
+    const fetchSpy = jest.fn(async () => ({ blob: async () => new Blob([]) } as Response));
+    Object.assign(globalThis, { fetch: fetchSpy, createImageBitmap: async () => imageBitmap });
+    registerCleanup(() => {
+      delete globalThis["fetch" as keyof typeof globalThis];
+      delete globalThis["createImageBitmap" as keyof typeof globalThis];
+    });
+    return { fetchSpy, imageBitmap };
+  }
+
   test("Can print change print scaling", async () => {
     setCellContent(model, "A1", "=RANDARRAY(50, 12)");
     await mountSpreadsheetPrint();
@@ -133,11 +148,40 @@ describe("Spreadsheet print rendering", () => {
     expect(getPrintStore().printScale()).toBe("actualSize");
   });
 
+  test("Printed pages includes the image figures", async () => {
+    const { fetchSpy, imageBitmap } = mockImageLoading();
+    const drawImageSpy = jest.spyOn(MockCanvasRenderingContext2D.prototype, "drawImage");
+
+    createImage(model, {
+      sheetId,
+      figureId: "figureId",
+      definition: { path: "image/path.png" },
+      size: { width: 200, height: 200 },
+    });
+    await mountSpreadsheetPrint();
+
+    expect(getPrintPages()).toHaveLength(1);
+    expect(getLastZonesRendered(storeSpy)).toEqual([
+      { sheetId, left: 0, top: 0, right: 2, bottom: 8 },
+    ]);
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(fetchSpy).toHaveBeenCalledWith("image/path.png");
+    expect(drawImageSpy).toHaveBeenCalledWith(imageBitmap, 0, 0, 200, 200);
+
+    // re-rendering the pages reuses the already loaded image
+    await simulateClick("input[name='showGridLines']");
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(drawImageSpy).toHaveBeenCalledWith(imageBitmap, 0, 0, 200, 200);
+  });
+
   test("Printed pages includes the figures", async () => {
+    const drawChartSpy = jest
+      .spyOn(FigureRendererPlugin.prototype as any, "drawChart")
+      .mockImplementation(() => {});
+
     setCellContent(model, "A1", "Hello");
     await mountSpreadsheetPrint();
-    const figureRendererStore = storeSpy.getStores(FigureRendererStore)[0];
-    const drawChartSpy = jest.spyOn(figureRendererStore, "drawChart").mockImplementation(() => {});
     const figure = { figureId: "figureId", col: 0, row: 0, size: { width: 200, height: 200 } };
 
     expect(getPrintPages()).toHaveLength(1);
