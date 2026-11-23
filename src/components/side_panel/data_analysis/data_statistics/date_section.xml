@@ -12,9 +12,12 @@
       <div
         t-on-click="() => this.store.toggleDateSort()"
         class="o-button-icon ms-auto d-flex align-items-center small text-right">
-        <t t-if="this.store.dateSortType === 'desc'" t-call="o-spreadsheet-Icon.CARET_DOWN"/>
-        <t t-if="this.store.dateSortType === 'asc'" t-call="o-spreadsheet-Icon.CARET_UP"/>
-        <span t-if="this.store.dateSortType === 'chrono'" class="o-caret-sort-icon">
+        <t
+          t-if="this.store.dateOccurenceSortType === 'desc'"
+          t-call="o-spreadsheet-Icon.CARET_DOWN"
+        />
+        <t t-if="this.store.dateOccurenceSortType === 'asc'" t-call="o-spreadsheet-Icon.CARET_UP"/>
+        <span t-if="this.store.dateOccurenceSortType === 'chrono'" class="o-caret-sort-icon">
           <t t-call="o-spreadsheet-Icon.CARET_UP_DOWN"/>
         </span>
       </div>

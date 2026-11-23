@@ -309,6 +309,29 @@ describe("data statistics", () => {
     });
   });
 
+  test("the date sort icon follows the sort order of the date occurrences", async () => {
+    const model = createModelFromGrid({ A1: "2023-01-01", A2: "2023-01-02", A3: "2023-01-01" });
+    await mountSpreadsheet({ model });
+    setSelection(model, ["A1:A3"]);
+    await simulateClick(".o-data-analysis-button");
+    const header = ".o-stat-sort-header";
+    const toggle = `${header} .o-button-icon`;
+    const caretUp = `${toggle} [data-icon='arrow_drop_up']`;
+    const caretDown = `${toggle} [data-icon='arrow_drop_down']`;
+    const caretUpDown = `${toggle} .o-caret-sort-icon`;
+
+    expect(caretUpDown).toHaveCount(1);
+
+    await simulateClick(toggle);
+    expect(caretUp).toHaveCount(1);
+
+    await simulateClick(toggle);
+    expect(caretDown).toHaveCount(1);
+
+    await simulateClick(toggle);
+    expect(caretUpDown).toHaveCount(1);
+  });
+
   describe("hovering a stat row highlights matching cells", () => {
     test("hovering a stat row highlights matching cells", async () => {
       const grid = { A1: "apple", A2: "banana", A3: "banana" };
