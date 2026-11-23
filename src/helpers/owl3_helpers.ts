@@ -7,6 +7,7 @@ import {
   PluginInstance,
   providePlugins,
   usePlugin,
+  useScope,
 } from "@odoo/owl";
 
 /**
@@ -35,6 +36,15 @@ export function provideAndUsePlugin<T extends PluginConstructor>(
 ): PluginInstance<T> {
   providePlugins([pluginConstructor], config);
   return usePlugin(pluginConstructor);
+}
+
+export function useMaybePlugin<T extends PluginConstructor>(
+  pluginType: T
+): PluginInstance<T> | undefined {
+  if (useScope().pluginManager?.getPluginById(pluginType.id)) {
+    return usePlugin(pluginType);
+  }
+  return undefined;
 }
 
 /**

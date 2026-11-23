@@ -264,7 +264,7 @@ async function _mount<Props extends ComponentProps>(
 // Requires to be called wit jest realTimers
 export async function mountSpreadsheet(
   props: PropsOf<Spreadsheet> = { model: new Model() },
-  args: { useRealRender?: boolean } = {}
+  args: { useRealRender?: boolean; providedPlugins?: PluginConstructor[] } = {}
 ): Promise<Omit<MountComponentReturn, "parent"> & { parent: Spreadsheet }> {
   const model = props.model;
   const spreadsheetProps = {
@@ -277,7 +277,7 @@ export async function mountSpreadsheet(
     model,
     SpreadsheetRoot,
     Spreadsheet,
-    { renderOnModelUpdate: false }, // handled in spreadsheet component
+    { renderOnModelUpdate: false, providedPlugins: args.providedPlugins }, // handled in spreadsheet component
     { spreadsheetProps, useRealRender: args.useRealRender }
   );
   await nextTick();
