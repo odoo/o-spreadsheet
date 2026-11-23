@@ -1,5 +1,5 @@
 import { SpreadsheetChart } from "../helpers/figures/chart";
-import { boundColRowOffsetInSheet } from "../helpers/figures/figure/figure";
+import { addNewChartToFigure, boundColRowOffsetInSheet } from "../helpers/figures/figure/figure";
 import { UuidGenerator } from "../helpers/uuid";
 import {
   ClipboardFigureData,
@@ -120,6 +120,60 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
         figureId,
         selectMultiple: clippedContent.figureIds.length > 1,
       });
+    }
+  }
+
+  pasteIntoFigure(
+    target: ClipboardPasteTarget,
+    clippedContent: ClipboardContent,
+    options: ClipboardOptions,
+    positions: ClipboardPositions
+  ) {
+    if (!target.figureIds) {
+      return;
+    }
+    const sheetId = target.sheetId;
+    let carouselFigureId: UID | undefined;
+    for (const clippedFigure of clippedContent.figures) {
+      const copy = clippedFigure.copiedChart;
+      let copiedDefinition = SpreadsheetChart.fromDefinition(
+        this.getters,
+        sheetId,
+        copy.copyInSheetId(sheetId)
+      ).getDefinition();
+
+      // parse the definition to filter out ranges that became invalid since the copy.
+      copiedDefinition = SpreadsheetChart.fromStrDefinition(
+        this.getters,
+        sheetId,
+        copiedDefinition
+      ).getDefinition();
+      const targetFigureId = carouselFigureId ?? options.targetFigureId;
+      if (!targetFigureId) {
+        throw new Error("No target figure id provided for pasting into figure.");
+      }
+      const targetFigure = this.getters.getFigure(sheetId, targetFigureId);
+      if (!targetFigure) {
+        throw new Error(`No figure for the given id: ${targetFigureId}`);
+      }
+      const newCarouselId = UuidGenerator.smallUuid();
+      addNewChartToFigure(
+        copiedDefinition,
+        targetFigure,
+        sheetId,
+        newCarouselId,
+        this.dispatch.bind(this)
+      );
+      carouselFigureId = targetFigure.tag === "carousel" ? targetFigureId : newCarouselId;
+      if (options.isCutOperation) {
+        this.dispatch("DELETE_FIGURE", {
+          sheetId: clippedFigure.copiedChart.sheetId,
+          figureId: clippedFigure.copiedFigure.id,
+        });
+      }
+    }
+    if (carouselFigureId) {
+      this.dispatch("SELECT_FIGURE", { figureId: carouselFigureId });
     }
   }
 

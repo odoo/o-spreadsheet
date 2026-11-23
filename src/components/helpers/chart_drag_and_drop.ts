@@ -7,6 +7,7 @@ import {
 } from "../../constants";
 import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
+import { addNewChartToFigure } from "../../helpers/figures/figure/figure";
 import { UuidGenerator } from "../../helpers/uuid";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { SpreadsheetRectPlugin } from "../../owl_plugins/spreadsheet_rect_plugin";
@@ -70,23 +71,16 @@ export function useChartDragAndDrop() {
         ? model.getters.getFigure(sheetId, overlappingFigureId)
         : undefined;
       let dropFigureId: UID | undefined = undefined;
-      if (overlappingFigure?.tag === "carousel") {
-        dropFigureId = dropFigureId = overlappingFigure.id;
-        model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
-          sheetId,
-          figureId: overlappingFigure.id,
-          newChartId: UuidGenerator.smallUuid(),
-          chartDefinition: definition,
-        });
-      } else if (overlappingFigure?.tag === "chart") {
-        dropFigureId = UuidGenerator.smallUuid();
-        model.dispatch("CREATE_CHART_AND_MERGE_INTO_CAROUSEL", {
-          chartId: UuidGenerator.smallUuid(),
-          figureId: dropFigureId,
-          sheetId,
+      const tag = overlappingFigure?.tag;
+      if (tag && ["carousel", "chart"].includes(tag)) {
+        dropFigureId = tag === "carousel" ? overlappingFigure.id : UuidGenerator.smallUuid();
+        addNewChartToFigure(
           definition,
-          baseFigureId: overlappingFigure.id,
-        });
+          overlappingFigure,
+          sheetId,
+          dropFigureId,
+          model.dispatch.bind(model)
+        );
       } else {
         dropFigureId = UuidGenerator.smallUuid();
         model.dispatch("CREATE_CHART", {

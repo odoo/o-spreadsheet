@@ -55,7 +55,7 @@ describe("full screen carousel", () => {
   test("Can use the data view in full screen", async () => {
     createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
-    selectCarouselItem(model, "carouselId", { type: "carouselDataView" });
+    selectCarouselItem(model, "carouselId", 0);
     model.updateMode("dashboard");
     await nextTick();
 
