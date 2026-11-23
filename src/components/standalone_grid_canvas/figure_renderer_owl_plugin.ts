@@ -1,43 +1,26 @@
-import { PluginInstance, usePlugin } from "@odoo/owl";
+import { signal } from "@odoo/owl";
 import { DEFAULT_CAROUSEL_TITLE_STYLE, GRAY_400 } from "../../constants";
 import { getCarouselLayout } from "../../helpers/carousel_helpers";
 import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
 import { chartStyleToCellStyle, deepCopy } from "../../helpers/misc";
 import { computeTextFont } from "../../helpers/text_helper";
-import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
-import { DisposableStore } from "../../store_engine/store";
-import { ModelStore } from "../../stores/model_store";
+import { OwlPluginWithModel } from "../../owl_plugins/owl_plugin_with_model";
 import { FigureUI } from "../../types/figure";
 import { RenderingGetters } from "../../types/getters";
 import { UID } from "../../types/misc";
 import { GridRenderingContext, Rect } from "../../types/rendering";
-import { Get } from "../../types/store_engine";
 
-/** Store that draws the figures directly onto the canvas */
-export class FigureRendererStore extends DisposableStore {
-  mutators = ["addLoadedImage"] as const;
-
-  private getters: RenderingGetters = this.get(ModelStore).getters;
-  loadedImages: Record<string, ImageBitmap> = {};
-
-  constructor(
-    get: Get,
-    private renderer: PluginInstance<typeof RendererPlugin> = usePlugin(RendererPlugin)
-  ) {
-    super(get);
-
-    this.renderer.register(this);
-    this.onDispose(() => {
-      this.renderer.unRegister(this);
-    });
-  }
+/** Plugin that draws the figures directly onto the canvas */
+export class FigureRendererPlugin extends OwlPluginWithModel {
+  private getters: RenderingGetters = this.model().getters;
+  loadedImages = signal.Object<Record<string, ImageBitmap>>({});
 
   get renderingLayers() {
     return ["Chart"] as const;
   }
 
   addLoadedImage(url: string, image: ImageBitmap) {
-    this.loadedImages[url] = image;
+    this.loadedImages()[url] = image;
   }
 
   drawLayer(renderingCtx: GridRenderingContext): void {
@@ -55,7 +38,7 @@ export class FigureRendererStore extends DisposableStore {
           this.drawChart(renderingCtx, chartId, figureRect);
         }
       } else if (figure.tag === "image") {
-        const loadedImage = this.loadedImages[this.getters.getImagePath(figure.id)];
+        const loadedImage = this.loadedImages()[this.getters.getImagePath(figure.id)];
         if (loadedImage) {
           ctx.drawImage(loadedImage, x, y, width, height);
         }
