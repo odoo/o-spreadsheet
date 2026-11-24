@@ -1,7 +1,7 @@
 import { CHART_AXIS_TITLE_FONT_SIZE, CHART_TITLE_FONT_SIZE } from "../../constants";
 import { ColorGenerator, lightenColor } from "../../helpers/color";
 import { chartMutedFontColor } from "../../helpers/figures/charts/chart_common";
-import { largeMax, range } from "../../helpers/misc";
+import { largeMax, range, rangeIterator } from "../../helpers/misc";
 import { ExcelChartDataset, ExcelChartDefinition, TitleDesign } from "../../types/chart/chart";
 import { Color } from "../../types/misc";
 import { ExcelWorkbookData, FigureData } from "../../types/workbook_data";
@@ -983,7 +983,7 @@ function addDoughnutChart(
     //dataset slice labels
     const dsSize = getRangeSize(dataset.range, chartSheetIndex, data);
     const dataPoints: XMLString[] = [];
-    for (const index of range(0, dsSize)) {
+    for (const index of rangeIterator(0, dsSize)) {
       const pointShapeProperty = shapeProperty({
         backgroundColor: doughnutColors[index],
         line: { color: "FFFFFF", width: 1.5 },

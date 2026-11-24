@@ -1,4 +1,4 @@
-import { defaultDict, range } from "../../helpers/misc";
+import { defaultDict, rangeIterator } from "../../helpers/misc";
 import { CellPosition, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
 import { EvaluationPlugin } from "../evaluation_plugin";
@@ -104,7 +104,7 @@ export class HeaderVisibilityEvaluationPlugin extends EvaluationPlugin {
     dimension: Dimension,
     { last, first }: { first: HeaderIndex; last: HeaderIndex }
   ): HeaderIndex {
-    const lastVisibleIndex = range(last, first, -1).find(
+    const lastVisibleIndex = rangeIterator(last, first, -1).find(
       (index) => !this.isHeaderHidden(sheetId, dimension, index)
     );
     return lastVisibleIndex || first;

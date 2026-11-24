@@ -4,7 +4,7 @@ import {
   isLastDayOfMonth,
   jsDateToRoundNumber,
 } from "../helpers/dates";
-import { range } from "../helpers/misc";
+import { rangeIterator } from "../helpers/misc";
 import { _t } from "../translation";
 import { EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
@@ -1599,7 +1599,7 @@ export const MIRR = {
 
     let fv = 0;
     let pv = 0;
-    for (const i of range(0, n)) {
+    for (const i of rangeIterator(0, n)) {
       const amount = cashFlow[i];
       if (amount >= 0) {
         fv += amount * (rRate + 1) ** (n - i - 1);
@@ -2853,7 +2853,7 @@ export const XIRR = {
     }
 
     const map = new Map<number, number>();
-    for (const i of range(0, _dates.length)) {
+    for (const i of rangeIterator(0, _dates.length)) {
       const date = _dates[i];
       if (map.has(date)) {
         map.set(date, map.get(date)! + _cashFlows[i]);
@@ -2882,7 +2882,7 @@ export const XIRR = {
      */
     const func = (rate: number) => {
       let value = values[0];
-      for (const i of range(1, values.length)) {
+      for (const i of rangeIterator(1, values.length)) {
         const dateDiff = (dates[0] - dates[i]) / 365;
         value += values[i] * (1 + rate) ** dateDiff;
       }
@@ -2890,7 +2890,7 @@ export const XIRR = {
     };
     const derivFunc = (rate: number) => {
       let deriv = 0;
-      for (const i of range(1, values.length)) {
+      for (const i of rangeIterator(1, values.length)) {
         const dateDiff = (dates[0] - dates[i]) / 365;
         deriv += dateDiff * values[i] * (1 + rate) ** (dateDiff - 1);
       }
@@ -2956,7 +2956,7 @@ export const XNPV = {
 
     // aggregate values of the same date
     const map = new Map<number, number>();
-    for (const i of range(0, _dates.length)) {
+    for (const i of rangeIterator(0, _dates.length)) {
       const date = _dates[i];
       if (map.has(date)) {
         map.set(date, map.get(date)! + _cashFlows[i]);
@@ -2982,7 +2982,7 @@ export const XNPV = {
      *
      */
     let pv = values[0];
-    for (const i of range(1, values.length)) {
+    for (const i of rangeIterator(1, values.length)) {
       const dateDiff = (dates[0] - dates[i]) / 365;
       pv += values[i] * (1 + rate) ** dateDiff;
     }

@@ -1,5 +1,5 @@
 import { toXC } from "../../helpers/coordinates";
-import { range } from "../../helpers/misc";
+import { rangeIterator } from "../../helpers/misc";
 import { toZone, zoneToDimension } from "../../helpers/zones";
 import { ExcelFilterData, ExcelSheetData, ExcelTableData } from "../../types/workbook_data";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
@@ -71,7 +71,7 @@ function addFilter(filter: ExcelFilterData): XMLString {
 function addTableColumns(table: ExcelTableData, sheetData: ExcelSheetData): XMLString {
   const tableZone = toZone(table.range);
   const columns: XMLString[] = [];
-  for (const i of range(0, zoneToDimension(tableZone).numberOfCols)) {
+  for (const i of rangeIterator(0, zoneToDimension(tableZone).numberOfCols)) {
     const colHeaderXc = toXC(tableZone.left + i, tableZone.top);
     const colName = (sheetData.cells[colHeaderXc] as string | undefined) || `col${i}`;
     const colAttributes: XMLAttributes = [

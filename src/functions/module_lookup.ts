@@ -1,7 +1,7 @@
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
 import { toXC } from "../helpers/coordinates";
-import { range } from "../helpers/misc";
+import { rangeIterator } from "../helpers/misc";
 import {
   addAlignFormatToPivotHeader,
   getPivotStyleFromFnArgs,
@@ -959,9 +959,9 @@ export const PIVOT = {
       return [[{ value: pivotTitle }]];
     }
     const result: Matrix<FunctionResultObject> = [];
-    for (const col of range(0, numberOfCols)) {
+    for (const col of rangeIterator(0, numberOfCols)) {
       result[col] = [];
-      for (const row of range(0, numberOfRows)) {
+      for (const row of rangeIterator(0, numberOfRows)) {
         const pivotCell = cells[col][row];
         switch (pivotCell.type) {
           case "EMPTY":

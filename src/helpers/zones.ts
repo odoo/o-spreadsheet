@@ -8,7 +8,7 @@ import {
   numberToLetters,
   toXC,
 } from "./coordinates";
-import { TokenizingChars, range } from "./misc";
+import { TokenizingChars, rangeIterator } from "./misc";
 import { recomputeZones } from "./recompute_zones";
 
 /**
@@ -464,8 +464,8 @@ export function positions(zone: Zone): Position[] {
   const positions: Position[] = [];
 
   const { left, right, top, bottom } = reorderZone(zone);
-  for (const col of range(left, right + 1)) {
-    for (const row of range(top, bottom + 1)) {
+  for (const col of rangeIterator(left, right + 1)) {
+    for (const row of rangeIterator(top, bottom + 1)) {
       positions.push({ col, row });
     }
   }
@@ -479,8 +479,8 @@ export function cellPositions(sheetId: UID, zone: Zone): CellPosition[] {
   const positions: CellPosition[] = [];
 
   const { left, right, top, bottom } = reorderZone(zone);
-  for (const col of range(left, right + 1)) {
-    for (const row of range(top, bottom + 1)) {
+  for (const col of rangeIterator(left, right + 1)) {
+    for (const row of rangeIterator(top, bottom + 1)) {
       positions.push({ sheetId, col, row });
     }
   }
@@ -685,7 +685,7 @@ export function areZonesContinuous(zones: Zone[]): boolean {
 export function getZonesCols(zones: Zone[]): Set<number> {
   const set = new Set<number>();
   for (const zone of recomputeZones(zones)) {
-    for (const col of range(zone.left, zone.right + 1)) {
+    for (const col of rangeIterator(zone.left, zone.right + 1)) {
       set.add(col);
     }
   }
@@ -716,7 +716,7 @@ export function getZonesByColumns(zones: Zone[]): Zone[] {
 export function getZonesRows(zones: Zone[]): Set<number> {
   const set = new Set<number>();
   for (const zone of recomputeZones(zones)) {
-    for (const row of range(zone.top, zone.bottom + 1)) {
+    for (const row of rangeIterator(zone.top, zone.bottom + 1)) {
       set.add(row);
     }
   }
