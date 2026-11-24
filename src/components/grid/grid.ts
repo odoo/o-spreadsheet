@@ -50,7 +50,7 @@ import {
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
-import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
+import { ArrayFormulaHighlightPlugin } from "../../stores/array_formula_highlight";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { _t } from "../../translation";
@@ -205,11 +205,16 @@ export class Grid extends OSComponent {
     this.sidePanel = useStore(SidePanelStore);
     this.paintFormatStore = useStore(PaintFormatStore);
     this.clientFocusStore = useStore(ClientFocusStore);
-    useStore(ArrayFormulaHighlight);
     this.clipboardStore = useStore(ClipboardStore);
 
     providePlugins(
-      [PopoverContainerPlugin, CheckboxTogglePlugin, AutomaticSumPlugin, SelectionRendererPlugin],
+      [
+        PopoverContainerPlugin,
+        CheckboxTogglePlugin,
+        AutomaticSumPlugin,
+        SelectionRendererPlugin,
+        ArrayFormulaHighlightPlugin,
+      ],
       {
         popoverContainerRectSignal: useElementRect(this.gridRef),
       }
