@@ -178,6 +178,18 @@ describe("EQ formula", () => {
     expect(evaluateCell("A1", { A1: "=EQ(0, 0.1+0.2-0.3)" })).toBe(true);
   });
 
+  test("floating point tolerance on durations, negatives and other types", () => {
+    expect(evaluateCell("A1", { A1: "=EQ(TIME(0,10,0)*150, 25/24)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=EQ(-1.3, -3.7+2.4)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=EQ("1.3", 3.7-2.4)' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=EQ(TRUE, 1+1E-16)" })).toBe(false);
+  });
+
+  test("src/helpers/numbers.ts:112 — an overflowing intermediate is not almost equal to a finite number", () => {
+    expect(evaluateCell("A1", { A1: "=EQ(1E308*10, 5)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=GT(1E308*10, 5)" })).toBe(true);
+  });
+
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A3: "0" })).toBe(true);
@@ -301,6 +313,11 @@ describe("GT formula", () => {
     expect(evaluateCell("A1", { A1: "=GT(3.7-2.4, 1.3)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=GT(1.3, 4.1-2.8)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=GT(1.3+1e-15, 1.3)" })).toBe(true);
+  });
+
+  test("floating point tolerance does not apply across types", () => {
+    expect(evaluateCell("A1", { A1: '=GT("1.3", 3.7-2.4)' })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=GT(TRUE, 1-1E-16)" })).toBe(true);
   });
 });
 
@@ -519,6 +536,11 @@ describe("LT formula", () => {
     expect(evaluateCell("A1", { A1: "=LT(1.3, 3.7-2.4)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LT(4.1-2.8, 1.3)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LT(1.3, 1.3+1e-15)" })).toBe(true);
+  });
+
+  test("floating point tolerance with negative numbers", () => {
+    expect(evaluateCell("A1", { A1: "=LT(-3.7+2.4, -1.3)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=LT(-1.3, -3.7+2.4)" })).toBe(false);
   });
 });
 

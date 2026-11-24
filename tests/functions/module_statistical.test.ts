@@ -445,6 +445,17 @@ describe("AVERAGEA formula", () => {
 });
 
 describe("AVERAGEIF formula", () => {
+  test("AVERAGEIF tolerates floating point errors", () => {
+    const grid = {
+      A1: "=1.1*3",
+      A2: "=0.1*3",
+      B1: "10",
+      B2: "20",
+      C1: "=AVERAGEIF(A1:A2, 3.3, B1:B2)",
+    };
+    expect(evaluateGrid(grid)).toMatchObject({ C1: 10 });
+  });
+
   test("functional tests on range", () => {
     // prettier-ignore
     const grid = {
@@ -1181,6 +1192,17 @@ describe("MAXA formula", () => {
 });
 
 describe("MAXIFS formula", () => {
+  test("MAXIFS tolerates floating point errors", () => {
+    const grid = {
+      A1: "=1.1*3",
+      A2: "=0.1*3",
+      B1: "10",
+      B2: "20",
+      C1: '=MAXIFS(B1:B2, A1:A2, ">3.3")',
+    };
+    expect(evaluateGrid(grid)).toMatchObject({ C1: 0 });
+  });
+
   test("functional tests on range", () => {
     // prettier-ignore
     const grid = {

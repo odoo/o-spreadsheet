@@ -926,9 +926,64 @@ describe("COUNTIF formula", () => {
     };
     expect(evaluateGrid(grid)).toMatchObject({ B1: 3, B2: 3, B3: 0, B4: 0, B5: 0, B6: 3, B7: 3 });
   });
+
+  test("COUNTIF tolerates floating point errors on durations, negatives, zero and numeric text", () => {
+    const grid = {
+      A1: "=TIME(0,10,0)*30", // 0.20833333333333331, not TIME(5,0,0)
+      A2: "=-3.7+2.4",
+      A3: "=0.1+0.2-0.3",
+      A4: "'1.3000000000000003",
+      A5: "TRUE",
+      B1: "=COUNTIF(A1, TIME(5,0,0))",
+      B2: '=COUNTIF(A1, "05:00:00")',
+      B3: '=COUNTIF(A1, "<05:00:00")',
+      B4: "=COUNTIF(A2, -1.3)",
+      B5: '=COUNTIF(A2, "<-1.3")',
+      B6: "=COUNTIF(A3, 0)",
+      B7: '=COUNTIF(A3, ">0")',
+      B8: "=COUNTIF(A4, 1.3)",
+      B9: '=COUNTIF(A4, ">1.3")',
+      B10: "=COUNTIF(A5, 1)",
+    };
+    expect(evaluateGrid(grid)).toMatchObject({
+      B1: 1,
+      B2: 1,
+      B3: 0,
+      B4: 1,
+      B5: 0,
+      B6: 1,
+      B7: 0,
+      B8: 1,
+      B9: 0,
+      B10: 0,
+    });
+  });
+
+  test("src/functions/helpers.ts:625 — COUNTIF distinguishes distinct small numbers", () => {
+    const grid = {
+      A1: "1.6E-19",
+      A2: "1E-19",
+      B1: "=COUNTIF(A1:A2, 1.6E-19)",
+      B2: '=COUNTIF(A1:A2, ">1E-19")',
+    };
+    expect(evaluateGrid(grid)).toMatchObject({ B1: 1, B2: 1 });
+  });
 });
 
 describe("COUNTIFS formula", () => {
+  test("COUNTIFS and SUMIFS tolerate floating point errors", () => {
+    const grid = {
+      A1: "=1.1*3",
+      A2: "=0.1*3",
+      B1: "10",
+      B2: "20",
+      C1: '=COUNTIFS(A1, 3.3, A2, "<=0.3")',
+      C2: '=SUMIFS(B1:B2, A1:A2, "<>0.3")',
+      C3: '=COUNTUNIQUEIFS(A1:A2, A1:A2, "3.3")',
+    };
+    expect(evaluateGrid(grid)).toMatchObject({ C1: 1, C2: 10, C3: 1 });
+  });
+
   test("functional tests on range", () => {
     // prettier-ignore
     const grid = {

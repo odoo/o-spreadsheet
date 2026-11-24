@@ -25,6 +25,18 @@ describe("database formula", () => {
     }
 
   describe("DCOUNT formula", () => {
+    test("DCOUNT tolerates floating point errors", () => {
+      const grid = {
+        A1: "VALUE",
+        A2: "=1.1*3",
+        A3: "=0.1*3",
+        B1: "VALUE",
+        B2: "3.3",
+        C1: '=DCOUNT(A1:A3, "VALUE", B1:B2)',
+      };
+      expect(evaluateGrid(grid)).toMatchObject({ C1: 1 });
+    });
+
     test("functional tests on cell arguments", () => {
       // prettier-ignore
       const gridDcount = {
