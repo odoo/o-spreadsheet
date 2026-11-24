@@ -13,7 +13,7 @@ import { PivotFilterEditor } from "../../pivot_filter/pivot_filter";
 import { AddDimensionButton } from "../../pivot_layout_configurator/add_dimension_button/add_dimension_button";
 import { PivotLayoutConfigurator } from "../../pivot_layout_configurator/pivot_layout_configurator";
 import { PivotTitleSection } from "../../pivot_title_section/pivot_title_section";
-import { PivotSidePanelPlugin } from "../pivot_side_panel_store";
+import { PivotSidePanelPlugin } from "../pivot_side_panel_plugin";
 
 export class PivotSpreadsheetSidePanel extends OSComponent {
   static template = "o-spreadsheet-PivotSpreadsheetSidePanel";

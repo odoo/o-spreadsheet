@@ -10,7 +10,7 @@ import { types } from "../../../../props_validation";
 import { TableStylePicker } from "../../../../tables/table_style_picker/table_style_picker";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
-import { PivotSidePanelPlugin } from "../pivot_side_panel_store";
+import { PivotSidePanelPlugin } from "../pivot_side_panel_plugin";
 
 export class PivotDesignPanel extends OSComponent {
   static template = "o-spreadsheet-PivotDesignPanel";
