@@ -44,25 +44,22 @@ import {
   makeTestComposerStore,
 } from "../test_helpers/helpers";
 
+import { PluginInstance } from "@odoo/owl";
 import { DIRECTION, Model } from "../../src";
-import { AutofillStore } from "../../src/components/autofill/autofill_store";
+import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
-import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
-import { Store } from "../../src/types/store_engine";
 import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 import { watchDashedOutline } from "../test_helpers/renderer_helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
 
-let autoFill: Store<AutofillStore>;
-let container: DependencyContainer;
+let autoFill: PluginInstance<typeof AutofillPlugin>;
 let model: Model;
 let getPlugin: OwlPluginGetter;
 
 function autofillTooltip(from: string, to: string): string | undefined {
   autofillSelect(model, from, to);
-  return autoFill.tooltip?.props.content;
+  return autoFill.tooltip()?.props.content;
 }
 
 /**
@@ -76,8 +73,8 @@ function getDirection(from: string, xc: string): DIRECTION {
 
 beforeEach(() => {
   model = new Model();
-  ({ getPlugin, container } = makeOwlPluginManager([RendererPlugin], { model }));
-  autoFill = container.get(AutofillStore);
+  ({ getPlugin } = makeOwlPluginManager([RendererPlugin, AutofillPlugin], { model }));
+  autoFill = getPlugin(AutofillPlugin);
 });
 
 describe("Autofill", () => {
@@ -857,7 +854,9 @@ describe("Autofill", () => {
 
   test("autofill with merge greater than the grid size", () => {
     model = new Model({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
-    autoFill = makeStoreWithModel(model, AutofillStore).store;
+    autoFill = makeOwlPluginManager([RendererPlugin, AutofillPlugin], { model }).getPlugin(
+      AutofillPlugin
+    );
     merge(model, "A1:A2");
     autofill(model, "A1:A2", "A5");
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["A1", "A2", "A3", "A4"]));

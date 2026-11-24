@@ -1,5 +1,5 @@
 import { ClipboardPasteTarget, Model, Style, UID, Zone } from "../../src";
-import { AutofillStore } from "../../src/components/autofill/autofill_store";
+import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
 import { getClipboardDataPositions } from "../../src/helpers/clipboard/clipboard_helpers";
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { deepEquals } from "../../src/helpers/misc";
@@ -23,7 +23,7 @@ import {
   unMerge,
 } from "../test_helpers";
 import { target } from "../test_helpers/helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 const ALIGN_STYLE: Style = { align: "left" };
 const FCOLOR_STYLE = { fillColor: "#abcdef" };
@@ -73,7 +73,7 @@ describe("Default Plugin: Style", () => {
     model = new Model({
       sheets: [{ id: "sh1", colNumber: 25, rowNumber: 20 }],
     });
-    const { container } = makeStoreWithModel(model, AutofillStore);
+    const { container } = makeOwlPluginManager([AutofillPlugin], { model });
     container.get(ClipboardStore);
     sheetId = model.getters.getActiveSheetId();
   });

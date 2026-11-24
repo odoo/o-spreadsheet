@@ -34,11 +34,11 @@ import { fontSizeInPixels, getContextFontSize } from "../../src/helpers/text_hel
 import { toZone } from "../../src/helpers/zones";
 import { FormulaFingerprintPlugin } from "../../src/owl_plugins/formula_fingerprints_store";
 import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
+import { SelectionRendererPlugin } from "../../src/owl_plugins/selection_renderer_owl_plugin";
 import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
-import { SelectionRendererStore } from "../../src/stores/selection_renderer_store";
 import { Mode } from "../../src/types/model";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
@@ -71,10 +71,9 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
 import { createModelFromGrid, getFingerprint, target } from "../test_helpers/helpers";
-import { makeViewportsPlugin } from "../test_helpers/owl_plugins_helpers";
+import { makeOwlPluginManager, makeViewportsPlugin } from "../test_helpers/owl_plugins_helpers";
 import { createModelWithTestPivotDataset } from "../test_helpers/pivot_helpers";
 import { MockGridRenderingContext, watchDashedOutline } from "../test_helpers/renderer_helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
   const fontSize = getContextFontSize(this.font);
   return {
@@ -105,13 +104,9 @@ function removeOffsetOfFillStyles(fillStyles: any[]): any[] {
 }
 
 function setRenderer(model: Model = new Model(), layers: LayerName[] = ["Background"]) {
-  const {
-    container,
-    store: gridRendererStore,
-    getPlugin,
-  } = makeStoreWithModel(model, GridRenderer);
+  const { container, getPlugin } = makeOwlPluginManager([SelectionRendererPlugin], { model });
+  const gridRendererStore = container.get(GridRenderer);
   container.get(ClipboardStore); // Instantiate a ClipboardStore
-  container.get(SelectionRendererStore); // Instantiate a SelectionRendererStore
   gridRendererStore["getBoxesWithAnimations"] = function (boxes: Box[]) {
     for (const box of boxes) {
       this["lastRenderBoxes"].set(box.id, box);

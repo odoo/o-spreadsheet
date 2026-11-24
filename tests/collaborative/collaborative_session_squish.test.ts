@@ -1,6 +1,6 @@
 import { CoreCommand, Model, RemoteRevisionMessage } from "../../src";
 import { CommandSquisher, SquishedCoreCommand } from "../../src/collaborative/command_squisher";
-import { AutofillStore } from "../../src/components/autofill/autofill_store";
+import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
 import { toZone } from "../../src/helpers/zones";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { RemoteRevisionsSquishedMessage } from "../../src/types/collaborative/transport_service";
@@ -21,6 +21,7 @@ import {
   setCellStyle,
   setFormat,
 } from "../test_helpers/commands_helpers";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -31,7 +32,7 @@ describe("Collaborative session", () => {
       { sheets: [{ id: "sheet1", name: "Sheet 1", cells: { A1: "Hello" } }] },
       { transportService: transport, client: { id: "alice", name: "Alice" } }
     );
-    makeStoreWithModel(model, AutofillStore);
+    makeOwlPluginManager([AutofillPlugin], { model });
     const spy = jest.spyOn(transport, "sendMessage");
 
     autofill(model, "A1", "A5");
@@ -145,7 +146,7 @@ describe("Collaborative session", () => {
       {},
       { transportService: transport, client: { id: "alice", name: "Alice" } }
     );
-    makeStoreWithModel(model, AutofillStore);
+    makeOwlPluginManager([AutofillPlugin], { model });
     setCellContent(model, "A5", "Hello");
     const spy = jest.spyOn(transport, "sendMessage");
 
@@ -189,7 +190,7 @@ describe("Collaborative session", () => {
       {},
       { transportService: transport, client: { id: "alice", name: "Alice" } }
     );
-    makeStoreWithModel(model, AutofillStore);
+    makeOwlPluginManager([AutofillPlugin], { model });
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "Hello");
     setCellContent(model, "A2", "Hello");
@@ -866,7 +867,7 @@ describe("Collaborative session - clientId preservation", () => {
     const { network, alice, bob } = setupCollaborativeEnv({
       sheets: [{ id: "sheet1", cells: { A1: { content: "hello" } } }],
     });
-    makeStoreWithModel(bob, AutofillStore);
+    makeOwlPluginManager([AutofillPlugin], { model: bob });
 
     // Alice adds 4 rows sequentially — all clients now have 5 rows (rows 0–4).
     addRows(alice, "after", 0, 4);
@@ -911,7 +912,7 @@ describe("Collaborative session - clientId preservation", () => {
     const { network, alice, bob } = setupCollaborativeEnv({
       sheets: [{ id: "sheet1", cells: { A1: { content: "1" }, A2: { content: "2" } } }],
     });
-    makeStoreWithModel(bob, AutofillStore);
+    makeOwlPluginManager([AutofillPlugin], { model: bob });
 
     const spy = jest.spyOn(network, "sendMessage");
 

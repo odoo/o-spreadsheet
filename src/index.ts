@@ -350,7 +350,7 @@ import "./registries/auto_completes/autocompelete_registration";
 import "./registries/chart_types";
 import "./registries/interactive_icon_on_cell_registry";
 
-import { AutofillStore } from "./components/autofill/autofill_store";
+import { AutofillPlugin } from "./components/autofill/autofill_owl_plugin";
 import { TableAutofillStore } from "./components/autofill/table_autofill_store";
 import { Composer } from "./components/composer/composer/composer";
 import { StandaloneComposer } from "./components/composer/standalone_composer/standalone_composer";
@@ -612,7 +612,6 @@ export const stores = {
   PivotSidePanelStore,
   PivotMeasureDisplayPanelStore,
   TableAutofillStore,
-  AutofillStore,
   ClientFocusStore,
   GridRenderer,
   ClipboardStore,
@@ -621,6 +620,7 @@ export const stores = {
 
 export const owlPlugins = {
   OwlPluginWithModel,
+  AutofillPlugin,
   ViewportsPlugin,
   PopoverContainerPlugin,
   NotificationPlugin,

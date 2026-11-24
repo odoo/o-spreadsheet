@@ -1,4 +1,12 @@
-import { PluginConstructor, Scope, signal, useProps, useScope, xml } from "@odoo/owl";
+import {
+  PluginConstructor,
+  PluginInstance,
+  Scope,
+  signal,
+  useProps,
+  useScope,
+  xml,
+} from "@odoo/owl";
 import { createGetPluginFunctionFromScope } from "../../src/components/os_component";
 import { types } from "../../src/components/props_validation";
 import { useSpreadsheetProviders } from "../../src/components/spreadsheet/spreadsheet_providers";
@@ -10,6 +18,7 @@ import { DependencyContainer } from "../../src/store_engine/dependency_container
 import { useStoreProvider } from "../../src/store_engine/store_hooks";
 import { _t } from "../../src/translation";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
+import { registerCleanup } from "../setup/jest.setup";
 
 /**
  * While we have a mix of owl plugins and stores, some stores use owl plugins with usePlugin called inside
@@ -106,4 +115,23 @@ export function makeViewportsPlugin(model: Model = new Model()) {
     model,
     getPlugin,
   };
+}
+
+export interface OwlPluginSpy<T extends PluginConstructor> {
+  getPlugins: () => PluginInstance<T>[];
+}
+
+/**
+ * Keep track of every instance of the given owl plugin created after this call. Useful to get a
+ * plugin provided by a component, which is not reachable from the scope of the test.
+ */
+export function spyPluginCreation<T extends PluginConstructor>(Plugin: T): OwlPluginSpy<T> {
+  const instances: PluginInstance<T>[] = [];
+  const originalSetup = Plugin.prototype.setup;
+  const spy = jest.spyOn(Plugin.prototype, "setup").mockImplementation(function (this: any) {
+    instances.push(this);
+    return originalSetup?.call(this);
+  });
+  registerCleanup(() => spy.mockRestore());
+  return { getPlugins: () => instances };
 }
