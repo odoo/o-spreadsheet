@@ -412,12 +412,7 @@ export class Evaluator {
 
   private clearEvaluatedRanges(ranges: Iterable<BoundedRange>) {
     for (const range of ranges) {
-      const { left, bottom, right, top } = range.zone;
-      for (let col = left; col <= right; col++) {
-        for (let row = top; row <= bottom; row++) {
-          this.evaluatedCells.delete({ sheetId: range.sheetId, col, row });
-        }
-      }
+      this.evaluatedCells.clearZone(range.sheetId, range.zone);
     }
   }
 
