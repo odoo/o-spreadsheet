@@ -1,10 +1,9 @@
-import { onWillDestroy, signal, untrack, usePlugin } from "@odoo/owl";
+import { signal, untrack, usePlugin } from "@odoo/owl";
 import { drawHighlight } from "../helpers/rendering";
 import { zoneToDimension } from "../helpers/zones";
 import { Highlight } from "../types/misc";
 import { GridRenderingContext, LayerName, Rect } from "../types/rendering";
 import { OwlPluginWithModel } from "./owl_plugin_with_model";
-import { RendererPlugin } from "./renderer_plugin";
 import { ViewportsPlugin } from "./viewports_owl_plugin";
 
 export interface HighlightProvider {
@@ -13,16 +12,7 @@ export interface HighlightProvider {
 
 export class HighlightPlugin extends OwlPluginWithModel {
   private providers = signal.Array<HighlightProvider>([]);
-  private renderer = usePlugin(RendererPlugin);
   private viewPlugin = usePlugin(ViewportsPlugin);
-
-  setup() {
-    super.setup();
-    this.renderer.register(this);
-    onWillDestroy(() => {
-      this.renderer.unRegister(this);
-    });
-  }
 
   get renderingLayers() {
     return ["Highlights"] as const;

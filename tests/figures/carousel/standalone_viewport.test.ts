@@ -8,7 +8,7 @@ import { buildSheetLink, range } from "../../../src/helpers/misc";
 import { zoneToXc } from "../../../src/helpers/zones";
 import { DevicePixelRatioPlugin } from "../../../src/owl_plugins/device_pixel_ratio_owl_plugin";
 import { FormulaFingerprintPlugin } from "../../../src/owl_plugins/formula_fingerprints_store";
-import { LocalRendererPlugin } from "../../../src/owl_plugins/renderer_plugin";
+import { RendererPlugin } from "../../../src/owl_plugins/renderer_plugin";
 import { ViewportsPlugin } from "../../../src/owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../../src/owl_plugins/zoom_plugin";
 import { CellHoverOverlayStore } from "../../../src/stores/cell_hover_overlay_store";
@@ -362,7 +362,7 @@ describe("Standalone viewport", () => {
   test("Standalone viewport is drawn again when the formula fingerprints are toggled", async () => {
     setGrid(model, { A1: "=1" });
     await mountViewport("A1:A2");
-    const rendererPlugin = subActionEnv.getPlugin(LocalRendererPlugin);
+    const rendererPlugin = subActionEnv.getPlugin(RendererPlugin);
 
     let drawCount = 0;
     rendererPlugin.register({ renderingLayers: ["Background"], drawLayer: () => drawCount++ });
@@ -379,7 +379,7 @@ describe("Standalone viewport", () => {
 
   test("Standalone viewport is drawn with the device pixel ratio", async () => {
     const { getPlugin } = await mountViewport("A1:A2");
-    const rendererPlugin = getPlugin(LocalRendererPlugin);
+    const rendererPlugin = getPlugin(RendererPlugin);
 
     let lastDpr = 0;
     rendererPlugin.register({
@@ -402,7 +402,7 @@ describe("Standalone viewport", () => {
     jest.spyOn(window, "requestAnimationFrame").mockReturnValue(42);
     const cancelAnimationFrameSpy = jest.spyOn(window, "cancelAnimationFrame");
 
-    getPlugin(LocalRendererPlugin).startAnimation("animation");
+    getPlugin(RendererPlugin).startAnimation("animation");
     app.destroy();
 
     expect(cancelAnimationFrameSpy).toHaveBeenCalledWith(42);

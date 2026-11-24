@@ -1,6 +1,6 @@
 import { providePlugins, signal, usePlugin, useProps } from "@odoo/owl";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
-import { LocalRendererPlugin } from "../../owl_plugins/renderer_plugin";
+import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
@@ -57,8 +57,8 @@ export class SpreadsheetDashboard extends OSComponent {
     useLocalStore(HoveredTableStore);
 
     const layers = OrderedLayers().filter((layer) => layer !== "Headers");
-    providePlugins([LocalRendererPlugin], { layers });
-    const rendererPlugin = usePlugin(LocalRendererPlugin);
+    providePlugins([RendererPlugin], { layers });
+    const rendererPlugin = usePlugin(RendererPlugin);
 
     useGridDrawing({
       canvasRef: this.canvasRef,
