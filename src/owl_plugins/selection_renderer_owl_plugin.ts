@@ -5,7 +5,7 @@ import { positionToZone } from "../helpers/zones";
 import { EASING_FN } from "../registries/cell_animation_registry";
 import { UID, Zone } from "../types/misc";
 import { GridRenderingContext, LayerName, Rect } from "../types/rendering";
-import { SpreadsheetStore } from "./spreadsheet_store";
+import { OwlPluginWithModel } from "./owl_plugin_with_model";
 
 export const SELECTION_ANIMATION_DURATION = 100;
 
@@ -28,7 +28,7 @@ interface SelectionAnimation {
   progress: number;
 }
 
-export class SelectionRendererStore extends SpreadsheetStore {
+export class SelectionRendererPlugin extends OwlPluginWithModel {
   private lastRenderingState: SelectionRenderingState | undefined = undefined;
   animatedSelection: SelectionAnimation | undefined = undefined;
 
@@ -52,15 +52,15 @@ export class SelectionRendererStore extends SpreadsheetStore {
     // at the wrong position. We should think of a way to improve that.
     const { viewports, sheetId, selectedZones: zones } = renderingContext;
 
-    const theme = this.getters.getSpreadsheetTheme();
+    const theme = this.model().getters.getSpreadsheetTheme();
     const onlyOneCell =
       zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
     const fillStyle = onlyOneCell
       ? theme.singleCellSelectionBackgroundColor
       : theme.multipleCellsSelectionBackgroundColor;
 
-    const numberOfRows = this.getters.getNumberRows(sheetId);
-    const numberOfColumns = this.getters.getNumberCols(sheetId);
+    const numberOfRows = this.model().getters.getNumberRows(sheetId);
+    const numberOfColumns = this.model().getters.getNumberCols(sheetId);
 
     const isWholeRowSelected = zones.some(
       (zone) => zone.top === 0 && zone.bottom === numberOfRows - 1
@@ -70,7 +70,7 @@ export class SelectionRendererStore extends SpreadsheetStore {
     );
 
     const state: SelectionRenderingState = {
-      isDarkMode: this.getters.isDarkMode(),
+      isDarkMode: this.model().getters.isDarkMode(),
       sheetId,
       fillStyle,
       selectedZones: zones,
@@ -93,8 +93,8 @@ export class SelectionRendererStore extends SpreadsheetStore {
       return state;
     }
 
-    const zone = this.getters.isInMerge(position)
-      ? this.getters.getMerge(position)!
+    const zone = this.model().getters.isInMerge(position)
+      ? this.model().getters.getMerge(position)!
       : positionToZone(position);
     state.activeZoneRect = viewports.getVisibleRect(sheetId, zone);
     return state;

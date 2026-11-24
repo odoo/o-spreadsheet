@@ -1,6 +1,6 @@
 import { useProps, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
-import { AutofillStore } from "../../src/components/autofill/autofill_store";
+import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
 import { types } from "../../src/components/props_validation";
 import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
@@ -22,17 +22,17 @@ import {
   spyDispatch,
   useJestFakeTimers,
 } from "../test_helpers/helpers";
-import { spyStoreCreation, StoreSpy } from "../test_helpers/stores";
+import { OwlPluginSpy, spyPluginCreation } from "../test_helpers/owl_plugins_helpers";
 
 let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
 let env: SpreadsheetActionEnv;
-let storeSpy: StoreSpy;
+let autofillPluginSpy: OwlPluginSpy<typeof AutofillPlugin>;
 
 describe("Autofill component", () => {
   beforeEach(async () => {
-    storeSpy = spyStoreCreation();
+    autofillPluginSpy = spyPluginCreation(AutofillPlugin);
     ({ parent, model, fixture, env } = await mountSpreadsheet());
   });
   test("Can drag and drop autofill on columns", async () => {
@@ -212,7 +212,7 @@ describe("Autofill component", () => {
   });
 
   test("Can display tooltip with a custom component", async () => {
-    const autofillStore = storeSpy.getStores(AutofillStore)[0];
+    const autofillPlugin = autofillPluginSpy.getPlugins()[0];
     class CustomTooltip extends Component {
       static template = xml/* xml */ `
         <div class="custom_tooltip" t-out="this.props.content"/>
@@ -222,11 +222,9 @@ describe("Autofill component", () => {
       });
     }
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    Object.assign(autofillStore, {
-      tooltip: {
-        props: { content: "blabla" },
-        component: CustomTooltip,
-      },
+    autofillPlugin.tooltip.set({
+      props: { content: "blabla" },
+      component: CustomTooltip,
     });
     setCellContent(model, "A1", "test");
     await nextTick();

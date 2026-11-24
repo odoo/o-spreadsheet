@@ -1,16 +1,16 @@
 import { proxy, usePlugin, useProps, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
+import { provideAndUsePlugin } from "../../helpers/owl3_helpers";
 import { Component } from "../../owl3_compatibility_layer";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
-import { useLocalStore, useStore } from "../../store_engine/store_hooks";
+import { useStore } from "../../store_engine/store_hooks";
 import { HeaderIndex } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
-import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
-import { AutofillStore } from "./autofill_store";
+import { AutofillPlugin } from "./autofill_owl_plugin";
 import { TableAutofillStore } from "./table_autofill_store";
 
 // -----------------------------------------------------------------------------
@@ -35,10 +35,9 @@ export class Autofill extends OSComponent {
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
   private zoomPlugin = usePlugin(ZoomPlugin);
-  private autofillStore!: Store<AutofillStore>;
+  private autofillPlugin = provideAndUsePlugin(AutofillPlugin);
 
   setup(): void {
-    this.autofillStore = useLocalStore(AutofillStore);
     useStore(TableAutofillStore);
   }
 
@@ -53,7 +52,7 @@ export class Autofill extends OSComponent {
 
   get isVisible() {
     const sheetId = this.model().getters.getActiveSheetId();
-    return this.autofillStore.isAutofillVisible(sheetId);
+    return this.autofillPlugin.isAutofillVisible(sheetId);
   }
 
   get styleNextValue() {
@@ -65,7 +64,7 @@ export class Autofill extends OSComponent {
   }
 
   getTooltip() {
-    const tooltip = this.autofillStore.tooltip;
+    const tooltip = this.autofillPlugin.tooltip();
     if (tooltip && !tooltip.component) {
       tooltip.component = TooltipComponent;
     }

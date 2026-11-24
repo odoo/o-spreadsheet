@@ -1,5 +1,5 @@
 import { Model, UID } from "../../src";
-import { AutofillStore } from "../../src/components/autofill/autofill_store";
+import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
 import { TableAutofillStore } from "../../src/components/autofill/table_autofill_store";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
@@ -16,7 +16,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellRawContent } from "../test_helpers/getters_helpers";
-import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 const TABLE_CONFIG_NO_HEADERS = { ...DEFAULT_TABLE_CONFIG, numberOfHeaders: 0, hasFilters: false };
 
@@ -28,7 +28,9 @@ describe("Table formula autofill ", () => {
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    ({ container } = makeStoreWithModel(model, AutofillStore));
+    ({ container } = makeOwlPluginManager([AutofillPlugin], {
+      model,
+    }));
     container.get(TableAutofillStore);
     container.get(ClipboardStore);
   });
@@ -103,8 +105,9 @@ describe("Table autofill with composer", () => {
   }
 
   beforeEach(() => {
-    ({ model, store: composerStore, container } = makeStore(CellComposerStore));
-    container.get(AutofillStore);
+    model = new Model();
+    ({ container } = makeOwlPluginManager([AutofillPlugin], { model }));
+    composerStore = container.get(CellComposerStore);
     container.get(TableAutofillStore);
     container.get(ClipboardStore);
   });
@@ -145,7 +148,7 @@ describe("Table autofill with composer", () => {
 describe("Table autofill with copy/paste", () => {
   beforeEach(() => {
     model = new Model();
-    const { container } = makeStoreWithModel(model, AutofillStore);
+    const { container } = makeOwlPluginManager([AutofillPlugin], { model });
     container.get(TableAutofillStore);
     container.get(ClipboardStore);
   });

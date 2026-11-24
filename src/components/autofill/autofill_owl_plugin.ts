@@ -1,14 +1,14 @@
-import { usePlugin } from "@odoo/owl";
+import { signal, usePlugin } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH, CANVAS_SHIFT, SELECTION_BORDER_COLOR } from "../../constants";
 import { toCartesian, toXC } from "../../helpers/coordinates";
 import { clip, toReplacingBorder } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside, positionToZone, toZone } from "../../helpers/zones";
+import { OwlPluginWithModel } from "../../owl_plugins/owl_plugin_with_model";
+import { SelectionRendererPlugin } from "../../owl_plugins/selection_renderer_owl_plugin";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { autofillModifiersRegistry } from "../../registries/autofill_modifiers";
 import { autofillRulesRegistry } from "../../registries/autofill_rules";
-import { SelectionRendererStore } from "../../stores/selection_renderer_store";
-import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import {
   AutofillData,
   AutofillModifier,
@@ -81,28 +81,30 @@ class AutofillGenerator {
   }
 }
 
-export class AutofillStore extends SpreadsheetStore {
-  storeGetters = ["isAutofillVisible"] as const;
-
+export class AutofillPlugin extends OwlPluginWithModel {
   private autofillZone: Zone | undefined;
   private steps: number | undefined;
   private lastCellSelected: { col?: number; row?: number } = {};
   private direction: DIRECTION | undefined;
-  tooltip: Tooltip | undefined;
+  tooltip = signal<Tooltip | undefined>(undefined);
 
   private viewPlugin = usePlugin(ViewportsPlugin);
-  private selectionRendererStore = this.get(SelectionRendererStore);
+  private selectionRendererPlugin = usePlugin(SelectionRendererPlugin);
 
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
 
   canAutofillSelect(col: HeaderIndex, row: HeaderIndex): boolean {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     this.lastCellSelected.col =
-      col === -1 ? this.lastCellSelected.col : clip(col, 0, this.getters.getNumberCols(sheetId));
+      col === -1
+        ? this.lastCellSelected.col
+        : clip(col, 0, this.model().getters.getNumberCols(sheetId));
     this.lastCellSelected.row =
-      row === -1 ? this.lastCellSelected.row : clip(row, 0, this.getters.getNumberRows(sheetId));
+      row === -1
+        ? this.lastCellSelected.row
+        : clip(row, 0, this.model().getters.getNumberRows(sheetId));
     if (this.lastCellSelected.col !== undefined && this.lastCellSelected.row !== undefined) {
       return true;
     }
@@ -137,10 +139,10 @@ export class AutofillStore extends SpreadsheetStore {
    */
   private autofill(apply: boolean) {
     if (!this.autofillZone || !this.steps || this.direction === undefined) {
-      this.tooltip = undefined;
+      this.tooltip.set(undefined);
       return;
     }
-    const source = this.getters.getSelectedZone();
+    const source = this.model().getters.getSelectedZone();
     const target = this.autofillZone;
     const autofillCellsData: AutofillCellData[] = [];
 
@@ -199,7 +201,7 @@ export class AutofillStore extends SpreadsheetStore {
       const bordersZones: Record<string, Zone[]> = {};
       const cfNewRanges: Record<UID, string[]> = {};
       const dvNewZones: Record<UID, Zone[]> = {};
-      const sheetId = this.getters.getActiveSheetId();
+      const sheetId = this.model().getters.getActiveSheetId();
       for (const data of autofillCellsData) {
         this.collectBordersData(data, bordersZones);
         this.autofillMerge(sheetId, data);
@@ -211,11 +213,11 @@ export class AutofillStore extends SpreadsheetStore {
       this.autofillConditionalFormats(sheetId, cfNewRanges);
       this.autofillDataValidations(sheetId, dvNewZones);
       this.autofillZone = undefined;
-      this.model.selection.resizeAnchorZone(this.direction, this.steps);
+      this.model().selection.resizeAnchorZone(this.direction, this.steps);
       this.lastCellSelected = {};
       this.direction = undefined;
       this.steps = 0;
-      this.tooltip = undefined;
+      this.tooltip.set(undefined);
     }
   }
 
@@ -233,7 +235,7 @@ export class AutofillStore extends SpreadsheetStore {
     cfNewRanges: Record<UID, string[]>
   ) {
     const { originCol, originRow, col, row } = data;
-    const cfsAtOrigin = this.getters.getRulesByCell(sheetId, originCol, originRow);
+    const cfsAtOrigin = this.model().getters.getRulesByCell(sheetId, originCol, originRow);
     const xc = toXC(col, row);
     for (const cf of cfsAtOrigin) {
       if (!(cf.id in cfNewRanges)) {
@@ -250,7 +252,7 @@ export class AutofillStore extends SpreadsheetStore {
   ) {
     const { originCol, originRow, col, row } = data;
     const cellPosition = { sheetId, col: originCol, row: originRow };
-    const dvsAtOrigin = this.getters.getValidationRuleForCell(cellPosition);
+    const dvsAtOrigin = this.model().getters.getValidationRuleForCell(cellPosition);
     if (!dvsAtOrigin) {
       return;
     }
@@ -261,7 +263,7 @@ export class AutofillStore extends SpreadsheetStore {
   }
 
   private autofillCell(sheetId: UID, data: AutofillCellData) {
-    this.model.dispatch("UPDATE_CELL", {
+    this.model().dispatch("UPDATE_CELL", {
       sheetId,
       col: data.col,
       row: data.row,
@@ -270,7 +272,7 @@ export class AutofillStore extends SpreadsheetStore {
       format: data.format || "",
     });
     // Still usefull in odoo ATM to autofill field sync
-    this.model.dispatch("AUTOFILL_CELL", data);
+    this.model().dispatch("AUTOFILL_CELL", data);
   }
 
   private autofillBorders(sheetId: UID, bordersPositions: Record<string, Zone[]>) {
@@ -279,7 +281,7 @@ export class AutofillStore extends SpreadsheetStore {
         stringifiedBorder === "undefined"
           ? undefined
           : toReplacingBorder(JSON.parse(stringifiedBorder) as Border);
-      this.model.dispatch("SET_BORDERS_ON_TARGET", {
+      this.model().dispatch("SET_BORDERS_ON_TARGET", {
         sheetId,
         border,
         target: recomputeZones(bordersPositions[stringifiedBorder]),
@@ -290,13 +292,20 @@ export class AutofillStore extends SpreadsheetStore {
   private autofillConditionalFormats(sheetId: UID, cfNewRanges: Record<UID, string[]>) {
     for (const cfId in cfNewRanges) {
       const changes = cfNewRanges[cfId];
-      const cf = this.getters.getConditionalFormats(sheetId).find((cf) => cf.id === cfId);
+      const cf = this.model()
+        .getters.getConditionalFormats(sheetId)
+        .find((cf) => cf.id === cfId);
       if (!cf) {
         continue;
       }
-      const newCfRanges = this.getters.getAdaptedCfRanges(sheetId, cf, changes.map(toZone), []);
+      const newCfRanges = this.model().getters.getAdaptedCfRanges(
+        sheetId,
+        cf,
+        changes.map(toZone),
+        []
+      );
       if (newCfRanges) {
-        this.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        this.model().dispatch("ADD_CONDITIONAL_FORMAT", {
           cf: {
             id: cf.id,
             rule: cf.rule,
@@ -312,15 +321,15 @@ export class AutofillStore extends SpreadsheetStore {
   private autofillDataValidations(sheetId: UID, dvNewZones: Record<UID, Zone[]>) {
     for (const dvId in dvNewZones) {
       const changes = dvNewZones[dvId];
-      const dvOrigin = this.getters.getDataValidationRule(sheetId, dvId);
+      const dvOrigin = this.model().getters.getDataValidationRule(sheetId, dvId);
       if (!dvOrigin) {
         continue;
       }
       const dvRangesXcs = dvOrigin.ranges.map((range) => range.zone);
       const newDvRanges = recomputeZones(dvRangesXcs.concat(changes), []);
-      this.model.dispatch("ADD_DATA_VALIDATION_RULE", {
+      this.model().dispatch("ADD_DATA_VALIDATION_RULE", {
         rule: dvOrigin,
-        ranges: newDvRanges.map((zone) => this.getters.getRangeDataFromZone(sheetId, zone)),
+        ranges: newDvRanges.map((zone) => this.model().getters.getRangeDataFromZone(sheetId, zone)),
         sheetId,
       });
     }
@@ -330,7 +339,7 @@ export class AutofillStore extends SpreadsheetStore {
    * Select a cell which becomes the last cell of the autofillZone
    */
   private select(col: HeaderIndex, row: HeaderIndex) {
-    const source = this.getters.getSelectedZone();
+    const source = this.model().getters.getSelectedZone();
     if (isInside(col, row, source)) {
       this.autofillZone = undefined;
       return;
@@ -362,15 +371,18 @@ export class AutofillStore extends SpreadsheetStore {
    * autofiller
    */
   private autofillAuto() {
-    const activePosition = this.getters.getActivePosition();
+    const activePosition = this.model().getters.getActivePosition();
 
-    const table = this.getters.getTable(activePosition);
+    const table = this.model().getters.getTable(activePosition);
     let autofillRow = table ? table.range.zone.bottom : this.getAutofillAutoLastRow();
 
     // Stop autofill at the next non-empty cell
-    const selection = this.getters.getSelectedZone();
+    const selection = this.model().getters.getSelectedZone();
     for (let row = selection.bottom + 1; row <= autofillRow; row++) {
-      if (this.getters.getEvaluatedCell({ ...activePosition, row }).type !== CellValueType.empty) {
+      if (
+        this.model().getters.getEvaluatedCell({ ...activePosition, row }).type !==
+        CellValueType.empty
+      ) {
         autofillRow = row - 1;
         break;
       }
@@ -383,23 +395,23 @@ export class AutofillStore extends SpreadsheetStore {
   }
 
   private getAutofillAutoLastRow() {
-    const zone = this.getters.getSelectedZone();
-    const sheetId = this.getters.getActiveSheetId();
+    const zone = this.model().getters.getSelectedZone();
+    const sheetId = this.model().getters.getActiveSheetId();
     let col: HeaderIndex = zone.left;
     let row: HeaderIndex = zone.bottom;
 
     if (col > 0) {
       let leftPosition = { sheetId, col: col - 1, row };
-      while (this.getters.getEvaluatedCell(leftPosition).type !== CellValueType.empty) {
+      while (this.model().getters.getEvaluatedCell(leftPosition).type !== CellValueType.empty) {
         row += 1;
         leftPosition = { sheetId, col: col - 1, row };
       }
     }
     if (row === zone.bottom) {
       col = zone.right;
-      if (col <= this.getters.getNumberCols(sheetId)) {
+      if (col <= this.model().getters.getNumberCols(sheetId)) {
         let rightPosition = { sheetId, col: col + 1, row };
-        while (this.getters.getEvaluatedCell(rightPosition).type !== CellValueType.empty) {
+        while (this.model().getters.getEvaluatedCell(rightPosition).type !== CellValueType.empty) {
           row += 1;
           rightPosition = { sheetId, col: col + 1, row };
         }
@@ -418,7 +430,7 @@ export class AutofillStore extends SpreadsheetStore {
   ): AutofillCellData {
     const { cellData, tooltip, origin } = generator.next();
     const { content, style, border, format } = cellData;
-    this.tooltip = tooltip;
+    this.tooltip.set(tooltip);
     return {
       originCol: origin.col,
       originRow: origin.row,
@@ -447,16 +459,16 @@ export class AutofillStore extends SpreadsheetStore {
     const nextCells: GeneratorCell[] = [];
 
     const cellsData: AutofillData[] = [];
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     for (const xc of source) {
       const { col, row } = toCartesian(xc);
       const position = { sheetId, col, row };
-      const cell = this.getters.getCell(position);
-      let style: Style | undefined = this.getters.getCellStyle(position);
+      const cell = this.model().getters.getCell(position);
+      let style: Style | undefined = this.model().getters.getCellStyle(position);
       if (Object.keys(style).length === 0) {
         style = undefined;
       }
-      const format = this.getters.getCellFormat(position);
+      const format = this.model().getters.getCellFormat(position);
       cellsData.push({
         col,
         row,
@@ -473,13 +485,13 @@ export class AutofillStore extends SpreadsheetStore {
         const newRule = this.getRule(cellData.cell, cells);
         rule = newRule || rule;
       }
-      const border = this.getters.getCellBorder(cellData) ?? undefined;
+      const border = this.model().getters.getCellBorder(cellData) ?? undefined;
       nextCells.push({
         data: { ...cellData, border },
         rule,
       });
     }
-    return new AutofillGenerator(nextCells, this.getters, this.direction!);
+    return new AutofillGenerator(nextCells, this.model().getters, this.direction!);
   }
 
   private saveZone(top: HeaderIndex, bottom: HeaderIndex, left: HeaderIndex, right: HeaderIndex) {
@@ -491,7 +503,7 @@ export class AutofillStore extends SpreadsheetStore {
    * a given cell (col, row)
    */
   private getDirection(col: HeaderIndex, row: HeaderIndex): DIRECTION {
-    const source = this.getters.getSelectedZone();
+    const source = this.model().getters.getSelectedZone();
     const position = {
       up: { number: source.top - row, value: DIRECTION.UP },
       down: { number: row - source.bottom, value: DIRECTION.DOWN },
@@ -517,18 +529,21 @@ export class AutofillStore extends SpreadsheetStore {
     const { originCol, originRow, col, row } = data;
     const position = { sheetId, col, row };
     const originPosition = { sheetId, col: originCol, row: originRow };
-    if (this.getters.isInMerge(position) && !this.getters.isInMerge(originPosition)) {
-      const zone = this.getters.getMerge(position);
+    if (
+      this.model().getters.isInMerge(position) &&
+      !this.model().getters.isInMerge(originPosition)
+    ) {
+      const zone = this.model().getters.getMerge(position);
       if (zone) {
-        this.model.dispatch("REMOVE_MERGE", {
+        this.model().dispatch("REMOVE_MERGE", {
           sheetId,
           target: [zone],
         });
       }
     }
-    const originMerge = this.getters.getMerge(originPosition);
+    const originMerge = this.model().getters.getMerge(originPosition);
     if (originMerge?.left === originCol && originMerge?.top === originRow) {
-      this.model.dispatch("ADD_MERGE", {
+      this.model().dispatch("ADD_MERGE", {
         sheetId,
         target: [
           {
@@ -543,10 +558,10 @@ export class AutofillStore extends SpreadsheetStore {
   }
 
   isAutofillVisible(sheetId: UID): boolean {
-    if (this.getters.isCurrentSheetLocked() || this.getters.isReadonly()) {
+    if (this.model().getters.isCurrentSheetLocked() || this.model().getters.isReadonly()) {
       return false;
     }
-    const zone = this.getters.getSelectedZone();
+    const zone = this.model().getters.getSelectedZone();
     // FIXME: this.viewPlugin could be wrong during the drawing process (we should use the renderingCtx's viewports)
     // we should probably change the print process so we can trust this.viewports even during rendering
     const rect = this.viewPlugin.viewports().getVisibleRect(sheetId, {
@@ -596,9 +611,9 @@ export class AutofillStore extends SpreadsheetStore {
       return;
     }
 
-    const zone = this.getters.getSelectedZone();
+    const zone = this.model().getters.getSelectedZone();
     const selectionAnimationRect =
-      this.selectionRendererStore.animatedSelection?.currentState?.selectedZonesRects[0];
+      this.selectionRendererPlugin.animatedSelection?.currentState?.selectedZonesRects[0];
     const bottomRightRect =
       selectionAnimationRect ||
       viewports.getVisibleRect(sheetId, {
@@ -614,7 +629,7 @@ export class AutofillStore extends SpreadsheetStore {
     const width = autofillSquareSize;
     const height = autofillSquareSize;
 
-    const background = this.getters.getSheet(sheetId).backgroundColor;
+    const background = this.model().getters.getSheet(sheetId).backgroundColor;
     if (background) {
       ctx.fillStyle = background;
       ctx.fillRect(x - 1 - CANVAS_SHIFT, y - 1 - CANVAS_SHIFT, width + 2, height + 2);

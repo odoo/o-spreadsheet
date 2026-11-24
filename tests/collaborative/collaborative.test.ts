@@ -7,7 +7,7 @@ import {
   Model,
   UIPlugin,
 } from "../../src";
-import { AutofillStore } from "../../src/components/autofill/autofill_store";
+import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { range } from "../../src/helpers/misc";
@@ -82,6 +82,7 @@ import {
   toCellPosition,
   toRangeData,
 } from "../test_helpers/helpers";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
@@ -711,7 +712,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("autofill overwrite style and format", () => {
-    makeStoreWithModel(bob, AutofillStore);
+    makeOwlPluginManager([AutofillPlugin], { model: bob });
     setCellContent(alice, "A1", "hello");
     network.concurrent(() => {
       setFormatting(alice, "A2", { bold: true });

@@ -38,6 +38,7 @@ import { CheckboxTogglePlugin } from "../../owl_plugins/checkbox_toggle_plugin";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
+import { SelectionRendererPlugin } from "../../owl_plugins/selection_renderer_owl_plugin";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
@@ -52,7 +53,6 @@ import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { ClipboardStore } from "../../stores/clipboard_store";
-import { SelectionRendererStore } from "../../stores/selection_renderer_store";
 import { _t } from "../../translation";
 import { CellValueType } from "../../types/cells";
 import { ClipboardMIMEType } from "../../types/clipboard";
@@ -207,11 +207,13 @@ export class Grid extends OSComponent {
     this.clientFocusStore = useStore(ClientFocusStore);
     useStore(ArrayFormulaHighlight);
     this.clipboardStore = useStore(ClipboardStore);
-    useStore(SelectionRendererStore);
 
-    providePlugins([PopoverContainerPlugin, CheckboxTogglePlugin, AutomaticSumPlugin], {
-      popoverContainerRectSignal: useElementRect(this.gridRef),
-    });
+    providePlugins(
+      [PopoverContainerPlugin, CheckboxTogglePlugin, AutomaticSumPlugin, SelectionRendererPlugin],
+      {
+        popoverContainerRectSignal: useElementRect(this.gridRef),
+      }
+    );
     this.checkboxTogglePlugin = usePlugin(CheckboxTogglePlugin);
     this.automaticSumPlugin = usePlugin(AutomaticSumPlugin);
     useListener(document.body, "cut", this.copy.bind(this, true));

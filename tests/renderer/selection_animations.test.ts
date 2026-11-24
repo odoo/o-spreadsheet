@@ -1,6 +1,6 @@
 import { PluginInstance } from "@odoo/owl";
 import { DOMCoordinates, Model, Rect } from "../../src";
-import { AutofillStore } from "../../src/components/autofill/autofill_store";
+import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
 import {
   AUTOFILL_EDGE_LENGTH,
   CANVAS_SHIFT,
@@ -9,14 +9,13 @@ import {
 } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
 import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
-import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
-import { EASING_FN } from "../../src/registries/cell_animation_registry";
-import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import {
   SELECTION_ANIMATION_DURATION,
-  SelectionRendererStore,
+  SelectionRendererPlugin,
   SelectionRenderingState,
-} from "../../src/stores/selection_renderer_store";
+} from "../../src/owl_plugins/selection_renderer_owl_plugin";
+import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
+import { EASING_FN } from "../../src/registries/cell_animation_registry";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { registerCleanup } from "../setup/jest.setup";
 import {
@@ -29,22 +28,21 @@ import {
   setSelection,
 } from "../test_helpers/commands_helpers";
 import { setMobileMode } from "../test_helpers/helpers";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
 
 let easingSpy: jest.SpyInstance;
 let lastDrawnSelectionState!: SelectionRenderingState;
 let lastDrawnAutofillRectCenter!: DOMCoordinates;
 let model: Model;
-let container: DependencyContainer;
 let getPlugin: OwlPluginGetter;
 let drawGrid: () => void;
-let selectionRendererStore: SelectionRendererStore;
+let selectionRendererPlugin: PluginInstance<typeof SelectionRendererPlugin>;
 let rendererPlugin: PluginInstance<typeof RendererPlugin>;
 let animationFrameCallback: (timeStamp: number) => void;
 
 function isCurrentlyAnimating(): boolean {
-  return selectionRendererStore.animatedSelection !== undefined;
+  return selectionRendererPlugin.animatedSelection !== undefined;
 }
 
 beforeAll(() => {
@@ -67,14 +65,9 @@ function toCellRect(xc: string): Rect {
 }
 
 beforeEach(() => {
-  model = new Model();
-  ({
-    container,
-    store: selectionRendererStore,
-    getPlugin,
-  } = makeStoreWithModel(model, SelectionRendererStore));
+  ({ model, getPlugin } = makeOwlPluginManager([SelectionRendererPlugin, AutofillPlugin]));
+  selectionRendererPlugin = getPlugin(SelectionRendererPlugin);
   rendererPlugin = getPlugin(RendererPlugin);
-  container.get(AutofillStore);
 
   const ctx = new MockGridRenderingContext(model, getPlugin, 1000, 1000, {
     onFunctionCall: (fn, args, renderingContext) => {
@@ -90,7 +83,7 @@ beforeEach(() => {
   });
 
   jest
-    .spyOn(selectionRendererStore, "drawSelection")
+    .spyOn(selectionRendererPlugin, "drawSelection")
     .mockImplementation((ctx, state) => (lastDrawnSelectionState = state));
 
   const spyRequestAnimationFrame = jest

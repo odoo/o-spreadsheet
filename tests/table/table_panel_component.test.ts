@@ -20,12 +20,13 @@ import {
 
 import { Model } from "../../src";
 import { FIRST_TABLE_IN_SELECTION } from "../../src/actions/menu_items_actions";
-import { AutofillStore } from "../../src/components/autofill/autofill_store";
+import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
 import { TableAutofillStore } from "../../src/components/autofill/table_autofill_store";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { TableTerms } from "../../src/components/translations_terms";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
+import { ModelPlugin } from "../../src/owl_plugins/model_owl_plugin";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
@@ -47,9 +48,12 @@ describe("Table side panel", () => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
     createTable(model, "A1:C3");
-    ({ fixture, env } = await mountComponent(SidePanels, { model }));
+    ({ fixture, env } = await mountComponent(SidePanels, {
+      model,
+      providedPlugins: [AutofillPlugin, ModelPlugin],
+      providedPluginsConfig: { model },
+    }));
     const table = FIRST_TABLE_IN_SELECTION(env);
-    env.getStore(AutofillStore);
     env.getStore(TableAutofillStore);
     env.getStore(SidePanelStore).open("TableSidePanel", { table });
     await nextTick();

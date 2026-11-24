@@ -9,7 +9,7 @@ import {
 } from "../../src";
 import { ICommandSquisher, SquishedCoreCommand } from "../../src/collaborative/command_squisher";
 import { Session } from "../../src/collaborative/session";
-import { AutofillStore } from "../../src/components/autofill/autofill_store";
+import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { lazy } from "../../src/helpers/misc";
 import { buildRevisionLog } from "../../src/history/factory";
@@ -23,7 +23,7 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { nextTick, useJestFakeTimers } from "../test_helpers/helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 class MockCommandSquisher implements ICommandSquisher {
   public *collectConsecutiveUpdateCellCommands(
@@ -410,13 +410,13 @@ describe("Collaborative session", () => {
         client: { id: "alice", name: "Alice" },
       }
     );
-    const { container } = makeStoreWithModel(model, ClipboardStore);
+    const { container } = makeOwlPluginManager([AutofillPlugin], { model });
+    container.get(ClipboardStore);
     const spy = jest.spyOn(transport, "sendMessage");
     setCellContent(model, "A1", "1");
     copy(model, "A1");
     paste(model, "A2");
     expect(spy).toHaveBeenLastCalledWith(expect.objectContaining({ rootCommandType: "PASTE" }));
-    container.get(AutofillStore);
     autofill(model, "A1:A2", "A3");
     expect(spy).toHaveBeenLastCalledWith(expect.objectContaining({ rootCommandType: "AUTOFILL" }));
   });
