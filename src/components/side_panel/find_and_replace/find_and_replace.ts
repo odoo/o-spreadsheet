@@ -14,7 +14,7 @@ import { SelectionInput } from "../../selection_input/selection_input";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
-import { FindAndReplaceStore } from "./find_and_replace_store";
+import { FindAndReplaceStore } from "./find_and_replace_plugin";
 
 export class FindAndReplacePanel extends OSComponent {
   static template = "o-spreadsheet-FindAndReplacePanel";
