@@ -13,7 +13,7 @@ import {
 import { numberToLetters } from "../helpers/coordinates";
 import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
-import { isConsecutive, largeMax, largeMin } from "../helpers/misc";
+import { isConsecutive } from "../helpers/misc";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
@@ -112,8 +112,8 @@ export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetActionEnv) => {
   let last: number;
   const activesRows = env.model().getters.getActiveRows();
   if (activesRows.size !== 0) {
-    first = largeMin([...activesRows]);
-    last = largeMax([...activesRows]);
+    first = activesRows.min!;
+    last = activesRows.max!;
   } else {
     const zone = env.model().getters.getSelectedZones()[0];
     first = zone.top;
@@ -144,8 +144,8 @@ export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetActionEnv) => {
   let last: number;
   const activeCols = env.model().getters.getActiveCols();
   if (activeCols.size !== 0) {
-    first = largeMin([...activeCols]);
-    last = largeMax([...activeCols]);
+    first = activeCols.min!;
+    last = activeCols.max!;
   } else {
     const zone = env.model().getters.getSelectedZones()[0];
     first = zone.left;
@@ -176,8 +176,8 @@ export const REMOVE_ROWS_NAME = (env: SpreadsheetActionEnv) => {
   let last: number;
   const activesRows = env.model().getters.getActiveRows();
   if (activesRows.size !== 0) {
-    first = largeMin([...activesRows]);
-    last = largeMax([...activesRows]);
+    first = activesRows.min!;
+    last = activesRows.max!;
   } else {
     const zone = env.model().getters.getSelectedZones()[0];
     first = zone.top;
@@ -236,8 +236,8 @@ export const REMOVE_COLUMNS_NAME = (env: SpreadsheetActionEnv) => {
   let last: number;
   const activeCols = env.model().getters.getActiveCols();
   if (activeCols.size !== 0) {
-    first = largeMin([...activeCols]);
-    last = largeMax([...activeCols]);
+    first = activeCols.min!;
+    last = activeCols.max!;
   } else {
     const zone = env.model().getters.getSelectedZones()[0];
     first = zone.left;
@@ -282,7 +282,7 @@ export const INSERT_ROWS_BEFORE_ACTION = (env: SpreadsheetActionEnv) => {
   let row: number;
   let quantity: number;
   if (activeRows.size) {
-    row = largeMin([...activeRows]);
+    row = activeRows.min!;
     quantity = activeRows.size;
   } else {
     const zone = env.model().getters.getSelectedZones()[0];
@@ -304,7 +304,7 @@ export const INSERT_ROWS_AFTER_ACTION = (env: SpreadsheetActionEnv) => {
   let row: number;
   let quantity: number;
   if (activeRows.size) {
-    row = largeMax([...activeRows]);
+    row = activeRows.max!;
     quantity = activeRows.size;
   } else {
     const zone = env.model().getters.getSelectedZones()[0];
@@ -326,7 +326,7 @@ export const INSERT_COLUMNS_BEFORE_ACTION = (env: SpreadsheetActionEnv) => {
   let column: number;
   let quantity: number;
   if (activeCols.size) {
-    column = largeMin([...activeCols]);
+    column = activeCols.min!;
     quantity = activeCols.size;
   } else {
     const zone = env.model().getters.getSelectedZones()[0];
@@ -348,7 +348,7 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetActionEnv) => {
   let column: number;
   let quantity: number;
   if (activeCols.size) {
-    column = largeMax([...activeCols]);
+    column = activeCols.max!;
     quantity = activeCols.size;
   } else {
     const zone = env.model().getters.getSelectedZones()[0];

@@ -1,6 +1,6 @@
 import { usePlugin } from "@odoo/owl";
 import { DEFAULT_CELL_WIDTH } from "../../constants";
-import { deepEquals, range, rangeIterator, sumArray } from "../../helpers/misc";
+import { deepEquals, range, rangeIterator, SequenceSet, sumArray } from "../../helpers/misc";
 import { isInside, isZoneValid } from "../../helpers/zones";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
@@ -136,8 +136,8 @@ export class StandaloneViewportStore extends SpreadsheetStore {
       hideFrozenPaneBorder: true,
       dpr: this.devicePixelRatioPlugin.devicePixelRatio() || 1,
       selectedZones: [],
-      activeCols: new Set(),
-      activeRows: new Set(),
+      activeCols: new SequenceSet(),
+      activeRows: new SequenceSet(),
       activePosition: undefined,
     };
     return renderingCtx;

@@ -8,7 +8,7 @@ import {
   numberToLetters,
   toXC,
 } from "./coordinates";
-import { TokenizingChars, rangeIterator } from "./misc";
+import { SequenceSet, TokenizingChars, rangeIterator } from "./misc";
 import { recomputeZones } from "./recompute_zones";
 
 /**
@@ -682,12 +682,10 @@ export function areZonesContinuous(zones: Zone[]): boolean {
 }
 
 /** Return all the columns in the given list of zones */
-export function getZonesCols(zones: Zone[]): Set<number> {
-  const set = new Set<number>();
+export function getZonesCols(zones: Zone[]): SequenceSet {
+  const set = new SequenceSet();
   for (const zone of recomputeZones(zones)) {
-    for (const col of rangeIterator(zone.left, zone.right + 1)) {
-      set.add(col);
-    }
+    set.add(zone.left, zone.right);
   }
   return set;
 }
@@ -713,12 +711,10 @@ export function getZonesByColumns(zones: Zone[]): Zone[] {
 }
 
 /** Return all the rows in the given list of zones */
-export function getZonesRows(zones: Zone[]): Set<number> {
-  const set = new Set<number>();
+export function getZonesRows(zones: Zone[]): SequenceSet {
+  const set = new SequenceSet();
   for (const zone of recomputeZones(zones)) {
-    for (const row of rangeIterator(zone.top, zone.bottom + 1)) {
-      set.add(row);
-    }
+    set.add(zone.top, zone.bottom);
   }
   return set;
 }

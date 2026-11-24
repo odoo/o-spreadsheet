@@ -1,5 +1,6 @@
 import { computed, signal } from "@odoo/owl";
 import { PRINT_DPR } from "../../constants";
+import { SequenceSet } from "../../helpers/misc";
 import { ViewportCollection } from "../../helpers/viewport_collection";
 import { cellPositions, intersection } from "../../helpers/zones";
 import { OwlPluginWithModel } from "../../owl_plugins/owl_plugin_with_model";
@@ -182,8 +183,8 @@ export class SpreadsheetPrintPlugin extends OwlPluginWithModel {
       hideGridLines: this.hideGridLines(),
       dpr: PRINT_DPR, // Increase the canvas' dpr on print so the image is of better quality
       selectedZones: [],
-      activeCols: new Set(),
-      activeRows: new Set(),
+      activeCols: new SequenceSet(),
+      activeRows: new SequenceSet(),
       activePosition: undefined,
     };
   }

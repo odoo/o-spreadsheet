@@ -1,6 +1,6 @@
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
-import { clip, deepCopy, range } from "../../helpers/misc";
+import { clip, deepCopy, range, SequenceSet } from "../../helpers/misc";
 import { createRange, isFullColRange, isFullRowRange } from "../../helpers/range";
 import { getFullReference, splitReference } from "../../helpers/references";
 import {
@@ -54,8 +54,8 @@ interface SheetInfo {
 export interface SelectionState {
   sheetId: UID;
   selectedZones: Zone[];
-  activeCols: Set<number>;
-  activeRows: Set<number>;
+  activeCols: SequenceSet;
+  activeRows: SequenceSet;
   activePosition: CellPosition | undefined;
 }
 
@@ -375,29 +375,25 @@ export class GridSelectionPlugin extends UIPlugin {
     return this.getters.getEvaluatedCell(this.getActivePosition());
   }
 
-  getActiveCols(): Set<number> {
-    const activeCols = new Set<number>();
+  getActiveCols(): SequenceSet {
+    const activeCols = new SequenceSet();
     for (const zone of this.gridSelection.zones) {
       if (
         zone.top === 0 &&
         zone.bottom === this.getters.getNumberRows(this.getters.getActiveSheetId()) - 1
       ) {
-        for (let i = zone.left; i <= zone.right; i++) {
-          activeCols.add(i);
-        }
+        activeCols.add(zone.left, zone.right);
       }
     }
     return activeCols;
   }
 
-  getActiveRows(): Set<number> {
-    const activeRows = new Set<number>();
+  getActiveRows(): SequenceSet {
+    const activeRows = new SequenceSet();
     const sheetId = this.getters.getActiveSheetId();
     for (const zone of this.gridSelection.zones) {
       if (zone.left === 0 && zone.right === this.getters.getNumberCols(sheetId) - 1) {
-        for (let i = zone.top; i <= zone.bottom; i++) {
-          activeRows.add(i);
-        }
+        activeRows.add(zone.top, zone.bottom);
       }
     }
     return activeRows;

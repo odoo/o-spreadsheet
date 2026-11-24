@@ -868,3 +868,109 @@ export function repeat<T>(array: T[], times: number): T[] {
 
   return result;
 }
+
+export class SequenceSet {
+  private ranges: { min: number; max: number }[] = [];
+  private _size: number = 0;
+
+  add(min: number, max: number) {
+    if (min > max) {
+      return;
+    }
+    const start = this.nearestSmallerIndex(min - 1);
+    let end = start;
+    while (end < this.ranges.length && this.ranges[end].min <= max + 1) {
+      this._size -= this.ranges[end].max - this.ranges[end].min + 1;
+      end++;
+    }
+    if (start < end) {
+      min = Math.min(min, this.ranges[start].min);
+      max = Math.max(max, this.ranges[end - 1].max);
+    }
+    this._size += max - min + 1;
+    if (end - start === 1) {
+      this.ranges[start] = { min, max };
+    } else {
+      this.ranges.splice(start, end - start, { min, max });
+    }
+  }
+
+  remove(num: number): boolean {
+    const index = this.getRangeIndex(num);
+    if (index < 0) {
+      return false;
+    }
+    const range = this.ranges[index];
+    if (range.min === range.max) {
+      this.ranges.splice(index, 1);
+    } else if (num === range.min) {
+      range.min++;
+    } else if (num === range.max) {
+      range.max--;
+    } else {
+      this.ranges.splice(index + 1, 0, { min: num + 1, max: range.max });
+      range.max = num - 1;
+    }
+    this._size--;
+    return true;
+  }
+
+  has(num: number): boolean {
+    return this.getRangeIndex(num) >= 0;
+  }
+
+  private getRangeIndex(num: number): number {
+    const index = this.nearestSmallerIndex(num);
+    return index < this.ranges.length && this.ranges[index].min <= num ? index : -1;
+  }
+
+  private nearestSmallerIndex(num: number): number {
+    const ranges = this.ranges;
+    let lo = 0;
+    let hi = ranges.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >>> 1;
+      if (ranges[mid].max < num) {
+        lo = mid + 1;
+      } else {
+        hi = mid;
+      }
+    }
+    return lo;
+  }
+
+  *[Symbol.iterator](): Generator<number> {
+    for (const range of this.ranges) {
+      for (let index = range.min; index <= range.max; index++) {
+        yield index;
+      }
+    }
+  }
+
+  *entries(): Generator<[number, number]> {
+    let i = 0;
+    for (const range of this.ranges) {
+      for (let index = range.min; index <= range.max; index++) {
+        yield [i++, index];
+      }
+    }
+  }
+
+  *consecutives(): Generator<[number, number]> {
+    for (const range of this.ranges) {
+      yield [range.min, range.max];
+    }
+  }
+
+  get size(): number {
+    return this._size;
+  }
+
+  get min(): number | undefined {
+    return this.ranges[0]?.min;
+  }
+
+  get max(): number | undefined {
+    return this.ranges[this.ranges.length - 1]?.max;
+  }
+}
