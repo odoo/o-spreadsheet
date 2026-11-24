@@ -373,6 +373,8 @@ import { CalendarButton } from "./components/side_panel/criterion_form/calendar_
 import { PerfItem } from "./components/side_panel/perf_profile/perf_item";
 import { Spreadsheet } from "./components/spreadsheet/spreadsheet";
 import { useSpreadsheetProviders } from "./components/spreadsheet/spreadsheet_providers";
+import { SpreadsheetPrint } from "./components/spreadsheet_print/spreadsheet_print";
+import { SpreadsheetPrintFilterPlugin } from "./components/spreadsheet_print/spreadsheet_print_filter_plugin";
 import { TopBar } from "./components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "./components/top_bar/top_bar_tools_registry";
 import { createComputeFunction } from "./functions/create_compute_function";
@@ -569,6 +571,7 @@ export const components = {
   OSComponent,
   CarouselFigure,
   PerfItem,
+  SpreadsheetPrint,
 };
 
 export const hooks = {
@@ -630,6 +633,7 @@ export const owlPlugins = {
   DevicePixelRatioPlugin,
   RendererPlugin,
   HighlightPlugin,
+  SpreadsheetPrintFilterPlugin,
 };
 
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";

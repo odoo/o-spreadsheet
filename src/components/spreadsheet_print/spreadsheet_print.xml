@@ -5,7 +5,7 @@
       <div class="o-print-header flex-shrink-0 d-flex align-items-center">
         <h3 class="m-0 p-3 ps-4 text-white">Print Preview</h3>
         <span class="text-white">
-          <t t-out="pages.length"/>
+          <t t-out="pages.length + (this.model().getters.isDashboard() ? 1 : 0)"/>
           pages
         </span>
         <button
