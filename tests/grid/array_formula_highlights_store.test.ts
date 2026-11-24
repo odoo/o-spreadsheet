@@ -1,13 +1,13 @@
 import { toZone } from "../../src/helpers/zones";
-import { ArrayFormulaHighlight } from "../../src/stores/array_formula_highlight";
+import { ArrayFormulaHighlightPlugin } from "../../src/stores/array_formula_highlight";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { flattenHighlightRange, getHighlightsFromPlugin, setGrid } from "../test_helpers/helpers";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
-import { makeStore } from "../test_helpers/stores";
 
 describe("array function highlights", () => {
   test("Putting the selection inside an array formula highlights it", () => {
-    const { model, getPlugin } = makeStore(ArrayFormulaHighlight);
+    const { model, getPlugin } = makeOwlPluginManager([ArrayFormulaHighlightPlugin]);
     setCellContent(model, "A2", "=TRANSPOSE(A1:C1)");
     expect(getHighlightsFromPlugin(getPlugin)).toEqual([]);
     const highlight = {
@@ -25,7 +25,7 @@ describe("array function highlights", () => {
   });
 
   test("Selecting an array formula that cannot spill is still highlighted", () => {
-    const { model, getPlugin } = makeStore(ArrayFormulaHighlight);
+    const { model, getPlugin } = makeOwlPluginManager([ArrayFormulaHighlightPlugin]);
     setCellContent(model, "A2", "=TRANSPOSE(A1:C1)");
     setCellContent(model, "A4", "blocking the spread");
     expect(getHighlightsFromPlugin(getPlugin)).toEqual([]);
@@ -45,14 +45,14 @@ describe("array function highlights", () => {
   });
 
   test("Non-array formula are not highlighted", () => {
-    const { model, getPlugin } = makeStore(ArrayFormulaHighlight);
+    const { model, getPlugin } = makeOwlPluginManager([ArrayFormulaHighlightPlugin]);
     setCellContent(model, "A2", "=A1");
     selectCell(model, "A2");
     expect(getHighlightsFromPlugin(getPlugin)).toEqual([]);
   });
 
   test("Array formula using a spill error is not highlighted as blocked", () => {
-    const { model, getPlugin } = makeStore(ArrayFormulaHighlight);
+    const { model, getPlugin } = makeOwlPluginManager([ArrayFormulaHighlightPlugin]);
     setCellContent(model, "A1", "=MUNIT(2)");
     setCellContent(model, "A2", "5"); // block the spread of A1
     setCellContent(model, "A4", "=A1:B2");
@@ -71,7 +71,7 @@ describe("array function highlights", () => {
   });
 
   test("Selecting an array formula that cannot spill is still highlighted", () => {
-    const { model, getPlugin } = makeStore(ArrayFormulaHighlight);
+    const { model, getPlugin } = makeOwlPluginManager([ArrayFormulaHighlightPlugin]);
     setCellContent(model, "A2", "=TRANSPOSE(A1:C1)");
     setCellContent(model, "A4", "blocking the spread");
     expect(getHighlightsFromPlugin(getPlugin)).toEqual([]);
@@ -91,7 +91,7 @@ describe("array function highlights", () => {
   });
 
   test("Selecting an styled pivot does not highlight it", () => {
-    const { model, getPlugin } = makeStore(ArrayFormulaHighlight);
+    const { model, getPlugin } = makeOwlPluginManager([ArrayFormulaHighlightPlugin]);
     setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2", F1: "=PIVOT(1)" });
     addPivot(model, "A1:B2", { style: { tableStyleId: "None" } }, "pivotId");
 
