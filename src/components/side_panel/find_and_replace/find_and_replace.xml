@@ -13,23 +13,25 @@
             placeholder="e.g. 'search me'"
           />
           <div class="o-input-count" t-if="this.hasSearchResult">
-            <t t-out="this.store.selectedMatchIndex+1"/>
+            <t t-out="this.findAndReplacePlugin.selectedMatchIndex() + 1"/>
             /
-            <t t-out="this.store.searchMatches.length"/>
+            <t t-out="this.findAndReplacePlugin.searchMatches().length"/>
           </div>
-          <div t-elif="!this.pendingSearch and this.store.toSearch !== ''" class="o-input-count">
+          <div
+            t-elif="!this.pendingSearch and this.findAndReplacePlugin.toSearch() !== ''"
+            class="o-input-count">
             0 / 0
           </div>
           <div
             class="d-flex flex-row o-result-buttons align-items-center"
             t-if="this.hasSearchResult">
             <button
-              t-on-click="() => this.store.selectPreviousMatch()"
+              t-on-click="() => this.findAndReplacePlugin.selectPreviousMatch()"
               class="o-button ms-2 d-flex justify-content-center align-items-center">
               <t t-call="o-spreadsheet-Icon.ARROW_UP"/>
             </button>
             <button
-              t-on-click="() => this.store.selectNextMatch()"
+              t-on-click="() => this.findAndReplacePlugin.selectNextMatch()"
               class="o-button ms-1 d-flex justify-content-center align-items-center">
               <t t-call="o-spreadsheet-Icon.ARROW_DOWN"/>
             </button>
@@ -117,7 +119,7 @@
               type="text"
               class="o-input o-input-without-count o-replace"
               t-on-keydown="this.onKeydownReplace"
-              t-att-value="this.store.toReplace"
+              t-att-value="this.findAndReplacePlugin.toReplace()"
               t-on-input="this.onReplaceInput"
               placeholder="e.g. 'replace me'"
             />
@@ -126,14 +128,14 @@
         <Section>
           <div class="o-sidePanelButtons">
             <button
-              t-att-disabled="this.store.selectedMatchIndex === null"
-              t-on-click="() => this.store.replace()"
+              t-att-disabled="this.findAndReplacePlugin.selectedMatchIndex() === null"
+              t-on-click="() => this.findAndReplacePlugin.replace()"
               class="o-button o-replace">
               Replace
             </button>
             <button
-              t-att-disabled="this.store.selectedMatchIndex === null"
-              t-on-click="() => this.store.replaceAll()"
+              t-att-disabled="this.findAndReplacePlugin.selectedMatchIndex() === null"
+              t-on-click="() => this.findAndReplacePlugin.replaceAll()"
               class="o-button o-replace-all">
               Replace all
             </button>

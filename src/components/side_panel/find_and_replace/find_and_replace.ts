@@ -1,11 +1,10 @@
 import { onMounted, onWillUnmount, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { debounce } from "../../../helpers/misc";
+import { provideAndUsePlugin } from "../../../helpers/owl3_helpers";
 import { zoneToXc } from "../../../helpers/zones";
-import { useLocalStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { SearchOptions } from "../../../types/find_and_replace";
 import { DebouncedFunction, ValueAndLabel } from "../../../types/misc";
-import { Store } from "../../../types/store_engine";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
@@ -14,7 +13,7 @@ import { SelectionInput } from "../../selection_input/selection_input";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
-import { FindAndReplaceStore } from "./find_and_replace_plugin";
+import { FindAndReplacePlugin } from "./find_and_replace_plugin";
 
 export class FindAndReplacePanel extends OSComponent {
   static template = "o-spreadsheet-FindAndReplacePanel";
@@ -24,72 +23,61 @@ export class FindAndReplacePanel extends OSComponent {
   });
 
   private searchInputRef = signal.ref(HTMLInputElement);
-  private store!: Store<FindAndReplaceStore>;
+  private findAndReplacePlugin = provideAndUsePlugin(FindAndReplacePlugin);
   private state!: { dataRange: string };
   private updateSearchContent!: DebouncedFunction<(value: string) => void>;
 
   get hasSearchResult() {
-    return this.store.selectedMatchIndex !== null;
+    return this.findAndReplacePlugin.selectedMatchIndex() !== null;
   }
 
   get searchOptions() {
-    return this.store.searchOptions;
+    return this.findAndReplacePlugin.searchOptions();
   }
 
-  get allSheetsMatchesCount() {
-    const {
-      allSheetsMatchesCount: count,
-      allSheetsHiddenMatchesCount: hidden,
-      searchOptions,
-    } = this.store;
+  get allSheetsInfo() {
+    const { total, hidden } = this.findAndReplacePlugin.matchesCount.allSheets;
     let label =
-      count === 1 ? _t("1 match in all sheets") : _t("%(count)s matches in all sheets", { count });
-    if (searchOptions.includeHidden) {
+      total === 1 ? _t("1 match in all sheets") : _t("%(total)s matches in all sheets", { total });
+    if (this.searchOptions.includeHidden) {
       label += this.hiddenLabel(hidden);
     }
     return label;
   }
 
-  get currentSheetMatchesCount() {
-    const {
-      activeSheetMatchesCount: count,
-      activeSheetHiddenMatchesCount: hidden,
-      searchOptions,
-    } = this.store;
+  get activeSheetInfo() {
+    const { total, hidden } = this.findAndReplacePlugin.matchesCount.activeSheet;
     const sheetName = this.model().getters.getSheetName(this.model().getters.getActiveSheetId());
     let label =
-      count === 1
+      total === 1
         ? _t("1 match in '%(sheetName)s'", { sheetName })
-        : _t("%(count)s matches in '%(sheetName)s'", { count, sheetName });
-    if (searchOptions.includeHidden) {
+        : _t("%(total)s matches in '%(sheetName)s'", { total, sheetName });
+    if (this.searchOptions.includeHidden) {
       label += this.hiddenLabel(hidden);
     }
     return label;
   }
 
-  get specificRangeMatchesCount() {
+  get specificRangeInfo() {
     const range = this.searchOptions.specificRange;
     if (!range || range.invalidSheetName || range.invalidXc) {
       return "";
     }
-    const {
-      specificRangeMatchesCount: count,
-      specificRangeHiddenMatchesCount: hidden,
-      searchOptions,
-    } = this.store;
-    const { sheetId, zone } = range;
+    const { total, hidden } = this.findAndReplacePlugin.matchesCount.specificRange;
+    const rangeString = zoneToXc(range.zone);
+    const sheetName = this.model().getters.getSheetName(range.sheetId);
     let label =
-      count === 1
-        ? _t("1 match in range %(range)s of '%(sheetName)s'", {
-            range: zoneToXc(zone),
-            sheetName: this.model().getters.getSheetName(sheetId),
+      total === 1
+        ? _t("1 match in range %(rangeString)s of '%(sheetName)s'", {
+            rangeString,
+            sheetName,
           })
-        : _t("%(count)s matches in range %(range)s of '%(sheetName)s'", {
-            count,
-            range: zoneToXc(zone),
-            sheetName: this.model().getters.getSheetName(sheetId),
+        : _t("%(total)s matches in range %(rangeString)s of '%(sheetName)s'", {
+            total,
+            rangeString,
+            sheetName,
           });
-    if (searchOptions.includeHidden) {
+    if (this.searchOptions.includeHidden) {
       label += this.hiddenLabel(hidden);
     }
     return label;
@@ -102,28 +90,26 @@ export class FindAndReplacePanel extends OSComponent {
   }
 
   get searchInfo(): string[] {
-    if (!this.store.toSearch) {
+    if (!this.findAndReplacePlugin.toSearch()) {
       return [];
     }
-    return [
-      this.specificRangeMatchesCount,
-      this.currentSheetMatchesCount,
-      this.allSheetsMatchesCount,
-    ].filter(Boolean);
+    return [this.specificRangeInfo, this.activeSheetInfo, this.allSheetsInfo].filter(Boolean);
   }
 
   get hiddenSheetsWithMatchesInfo(): string[] {
-    return this.store.hiddenSheetsWithMatches.map((sheetId) =>
-      this.model().getters.getSheetName(sheetId)
-    );
+    return this.findAndReplacePlugin
+      .hiddenSheetsWithMatches()
+      .map((sheetId) => this.model().getters.getSheetName(sheetId));
   }
 
   setup() {
-    this.store = useLocalStore(FindAndReplaceStore);
     this.state = proxy({ dataRange: "" });
     onMounted(() => this.searchInputRef()?.focus());
     onWillUnmount(() => this.updateSearchContent.stopDebounce());
-    this.updateSearchContent = debounce(this.store.updateSearchContent, 200);
+    this.updateSearchContent = debounce(
+      (value: string) => this.findAndReplacePlugin.updateSearchContent(value),
+      200
+    );
     useListener(
       window,
       "keydown",
@@ -148,7 +134,7 @@ export class FindAndReplacePanel extends OSComponent {
   }
 
   onReplaceInput(ev: InputEvent) {
-    this.store.updateReplaceContent((ev.target as HTMLInputElement).value);
+    this.findAndReplacePlugin.updateReplaceContent((ev.target as HTMLInputElement).value);
   }
 
   onKeydownPanel(ev: KeyboardEvent) {
@@ -163,7 +149,9 @@ export class FindAndReplacePanel extends OSComponent {
     if (ev.key === "Enter") {
       ev.preventDefault();
       ev.stopPropagation();
-      ev.shiftKey ? this.store.selectPreviousMatch() : this.store.selectNextMatch();
+      ev.shiftKey
+        ? this.findAndReplacePlugin.selectPreviousMatch()
+        : this.findAndReplacePlugin.selectNextMatch();
     }
   }
 
@@ -171,28 +159,28 @@ export class FindAndReplacePanel extends OSComponent {
     if (ev.key === "Enter") {
       ev.preventDefault();
       ev.stopPropagation();
-      this.store.replace();
+      this.findAndReplacePlugin.replace();
     }
   }
 
   searchFormulas(searchFormulas: boolean) {
-    this.store.searchFormulas(searchFormulas);
+    this.findAndReplacePlugin.searchFormulas(searchFormulas);
   }
 
   searchExactMatch(exactMatch: boolean) {
-    this.store.updateSearchOptions({ exactMatch });
+    this.findAndReplacePlugin.updateSearchOptions({ exactMatch });
   }
 
   searchMatchCase(matchCase: boolean) {
-    this.store.updateSearchOptions({ matchCase });
+    this.findAndReplacePlugin.updateSearchOptions({ matchCase });
   }
 
   searchIncludeHidden(includeHidden: boolean) {
-    this.store.updateSearchOptions({ includeHidden });
+    this.findAndReplacePlugin.updateSearchOptions({ includeHidden });
   }
 
   changeSearchScope(searchScope: SearchOptions["searchScope"]) {
-    this.store.updateSearchOptions({ searchScope });
+    this.findAndReplacePlugin.updateSearchOptions({ searchScope });
   }
 
   onSearchRangeChanged(ranges: string[]) {
@@ -207,11 +195,11 @@ export class FindAndReplacePanel extends OSComponent {
       this.model().getters.getActiveSheetId(),
       this.state.dataRange
     );
-    this.store.updateSearchOptions({ specificRange });
+    this.findAndReplacePlugin.updateSearchOptions({ specificRange });
   }
 
   get specificRange(): string {
-    const range = this.store.searchOptions.specificRange;
+    const range = this.searchOptions.specificRange;
     return range ? this.model().getters.getRangeString(range, "forceSheetReference") : "";
   }
 
