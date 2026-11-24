@@ -4,7 +4,7 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { resetTimeoutDuration } from "../../src/components/helpers/touch_handlers_hook";
 import { getDataFilterIcon } from "../../src/components/icons/icons";
-import { PaintFormatPlugin } from "../../src/components/paint_format_button/paint_format_store";
+import { PaintFormatPlugin } from "../../src/components/paint_format_button/paint_format_plugin";
 import { CellPopoverStore } from "../../src/components/popover/cell_popover_store";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import {

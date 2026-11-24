@@ -104,7 +104,7 @@ import { ZoomedMouseEvent } from "../helpers/zoom";
 import { Highlight } from "../highlight/highlight/highlight";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { OSComponent } from "../os_component";
-import { PaintFormatPlugin } from "../paint_format_button/paint_format_store";
+import { PaintFormatPlugin } from "../paint_format_button/paint_format_plugin";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";

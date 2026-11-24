@@ -8,7 +8,7 @@ import { numberToJsDate } from "../../../../helpers/dates";
 import { _t } from "../../../../translation";
 import { OSComponent } from "../../../os_component";
 import { Select } from "../../../select/select";
-import { DataAnalysisPlugin } from "../data_analysis_store";
+import { DataAnalysisPlugin } from "../data_analysis_plugin";
 import { useStatHighlights } from "./stat_highlights_hook";
 import { StatisticItem } from "./statistic_item";
 

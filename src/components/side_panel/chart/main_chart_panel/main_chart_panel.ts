@@ -7,7 +7,7 @@ import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "../chart_side_panel_registry";
 import { ChartTypePicker } from "../chart_type_picker/chart_type_picker";
-import { MainChartPanelPlugin } from "./main_chart_panel_store";
+import { MainChartPanelPlugin } from "./main_chart_panel_plugin";
 
 export class ChartPanel extends OSComponent {
   static template = "o-spreadsheet-ChartPanel";

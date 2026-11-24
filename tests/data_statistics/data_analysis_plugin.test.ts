@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { DataAnalysisPlugin } from "../../src/components/side_panel/data_analysis/data_analysis_store";
+import { DataAnalysisPlugin } from "../../src/components/side_panel/data_analysis/data_analysis_plugin";
 import { analyzeColumns } from "../../src/helpers/data_statistics/data_analysis";
 import { StatValue } from "../../src/helpers/data_statistics/statistics_items";
 import { buildOccurrencesItems } from "../../src/helpers/data_statistics/statistics_suggestion";

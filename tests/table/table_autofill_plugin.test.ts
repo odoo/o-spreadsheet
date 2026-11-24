@@ -1,6 +1,6 @@
 import { Model, UID } from "../../src";
 import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
-import { TableAutofillPlugin } from "../../src/components/autofill/table_autofill_store";
+import { TableAutofillPlugin } from "../../src/components/autofill/table_autofill_plugin";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";

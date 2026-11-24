@@ -7,7 +7,7 @@ import { types } from "../../props_validation";
 import { SidePanelCollapsible } from "../components/collapsible/side_panel_collapsible";
 import { Section } from "../components/section/section";
 import { ChartSuggestionPreview } from "./chart_suggestion/chart_suggestion_preview";
-import { DataAnalysisPlugin } from "./data_analysis_store";
+import { DataAnalysisPlugin } from "./data_analysis_plugin";
 import { DateSection } from "./data_statistics/date_section";
 import { GeneralStatsSection } from "./data_statistics/general_stats_section";
 import { OccurrencesStatistics } from "./data_statistics/occurrences_statistics";

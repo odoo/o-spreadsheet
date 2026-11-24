@@ -1,6 +1,6 @@
 import { onWillUnmount, usePlugin } from "@odoo/owl";
 import { useComponent } from "../../owl3_compatibility_layer";
-import { TopBarToolPlugin } from "../top_bar/top_bar_tool_store";
+import { TopBarToolPlugin } from "../top_bar/top_bar_tool_plugin";
 
 export type ToolBarDropdownPlugin = ReturnType<typeof useToolBarDropdownPlugin>;
 

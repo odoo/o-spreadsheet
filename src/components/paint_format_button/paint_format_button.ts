@@ -1,5 +1,5 @@
 import { OSComponent } from "../os_component";
-import { PaintFormatPlugin } from "./paint_format_store";
+import { PaintFormatPlugin } from "./paint_format_plugin";
 
 import { usePlugin, useProps } from "@odoo/owl";
 import { types } from "../props_validation";

@@ -21,7 +21,7 @@ import { NamedRangeSelector } from "../named_range_selector/named_range_selector
 import { OSComponent } from "../os_component";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
-import { TopBarToolPlugin } from "./top_bar_tool_store";
+import { TopBarToolPlugin } from "./top_bar_tool_plugin";
 import { topBarToolBarRegistry } from "./top_bar_tools_registry";
 
 interface State {

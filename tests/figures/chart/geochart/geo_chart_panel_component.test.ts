@@ -1,5 +1,5 @@
 import { Model, schemeToColorScale, UID } from "../../../../src";
-import { MainChartPanelPlugin } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel_store";
+import { MainChartPanelPlugin } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel_plugin";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { GeoChartDefinition } from "../../../../src/types/chart/geo_chart";
 import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";

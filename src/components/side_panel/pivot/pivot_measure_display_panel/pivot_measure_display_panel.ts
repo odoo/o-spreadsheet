@@ -11,7 +11,7 @@ import { Checkbox } from "../../components/checkbox/checkbox";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { Section } from "../../components/section/section";
 import { SidePanelStore } from "../../side_panel/side_panel_store";
-import { PivotMeasureDisplayPanelPlugin } from "./pivot_measure_display_panel_store";
+import { PivotMeasureDisplayPanelPlugin } from "./pivot_measure_display_panel_plugin";
 
 export class PivotMeasureDisplayPanel extends OSComponent {
   static template = "o-spreadsheet-PivotMeasureDisplayPanel";

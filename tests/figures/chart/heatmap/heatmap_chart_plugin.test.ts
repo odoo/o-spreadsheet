@@ -1,5 +1,5 @@
 import { Model } from "../../../../src";
-import { MainChartPanelPlugin } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel_store";
+import { MainChartPanelPlugin } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel_plugin";
 import { HeatmapChart } from "../../../../src/helpers/figures/charts/heatmap_chart";
 import { chartDataSourceRegistry } from "../../../../src/registries/chart_data_source_registry";
 import { CalendarChartDefinition } from "../../../../src/types/chart/calendar_chart";

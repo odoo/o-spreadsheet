@@ -2,7 +2,7 @@ import { usePlugin, xml } from "@odoo/owl";
 import { Currency, Model, Pixel, Style } from "../src";
 import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
 import { OSComponent } from "../src/components/os_component";
-import { PaintFormatPlugin } from "../src/components/paint_format_button/paint_format_store";
+import { PaintFormatPlugin } from "../src/components/paint_format_button/paint_format_plugin";
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
 import { DEFAULT_FONT_SIZE, POSSIBLE_FONTS } from "../src/constants";

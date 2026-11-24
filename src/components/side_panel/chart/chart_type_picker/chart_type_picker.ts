@@ -10,7 +10,7 @@ import { Popover } from "../../../popover/popover";
 import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
 import { ChartTypePickerPopover } from "../chart_type_picker_popover/chart_type_picker_popover";
-import { MainChartPanelPlugin } from "../main_chart_panel/main_chart_panel_store";
+import { MainChartPanelPlugin } from "../main_chart_panel/main_chart_panel_plugin";
 
 const CHART_TYPE_WITHOUT_DATA_SOURCE: Set<ChartType> = new Set([
   "scorecard",

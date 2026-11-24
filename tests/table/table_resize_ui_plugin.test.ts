@@ -1,7 +1,7 @@
 import { PluginInstance } from "@odoo/owl";
 import { CommandResult, Model, ResizeTableCommand, UID } from "../../src";
 import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
-import { TableAutofillPlugin } from "../../src/components/autofill/table_autofill_store";
+import { TableAutofillPlugin } from "../../src/components/autofill/table_autofill_plugin";
 import { toZone } from "../../src/helpers/zones";
 import { TableResizePlugin } from "../../src/owl_plugins/table_resize_plugin";
 import {

@@ -1,6 +1,6 @@
 import { Model } from "../../../src";
 import { ChartTypePicker } from "../../../src/components/side_panel/chart/chart_type_picker/chart_type_picker";
-import { MainChartPanelPlugin } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel_store";
+import { MainChartPanelPlugin } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel_plugin";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { click, pointerDown } from "../../test_helpers/dom_helper";
 import { mountComponent } from "../../test_helpers/helpers";

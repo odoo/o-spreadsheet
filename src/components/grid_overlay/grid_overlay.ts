@@ -28,7 +28,7 @@ import { getElBoundingRect, isChildEvent, isCtrlKey, isMobileOS } from "../helpe
 import { useInterval } from "../helpers/time_hooks";
 import { ZoomedMouseEvent } from "../helpers/zoom";
 import { OSComponent } from "../os_component";
-import { PaintFormatPlugin } from "../paint_format_button/paint_format_store";
+import { PaintFormatPlugin } from "../paint_format_button/paint_format_plugin";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
 import { HoveredIconStore } from "./hovered_icon_store";
