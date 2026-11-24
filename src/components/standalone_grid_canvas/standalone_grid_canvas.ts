@@ -8,7 +8,7 @@ import {
 } from "@odoo/owl";
 import { getCarouselLayout } from "../../helpers/carousel_helpers";
 import { isDefined } from "../../helpers/misc";
-import { LocalRendererPlugin, RendererPlugin } from "../../owl_plugins/renderer_plugin";
+import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { useLocalStore } from "../../store_engine/store_hooks";
 import { PropsOf } from "../../types/props_of";
 import { GridRenderingContext } from "../../types/rendering";
@@ -33,8 +33,8 @@ export class StandaloneGridCanvas extends OSComponent {
   figureRendererStore!: Store<FigureRendererStore>;
   rendererPlugin!: PluginInstance<typeof RendererPlugin>;
   setup() {
-    providePlugins([LocalRendererPlugin], { layers: ["Background", "Chart"] });
-    this.rendererPlugin = usePlugin(LocalRendererPlugin);
+    providePlugins([RendererPlugin], { layers: ["Background", "Chart"] });
+    this.rendererPlugin = usePlugin(RendererPlugin);
     this.figureRendererStore = useLocalStore(FigureRendererStore, this.rendererPlugin);
     useGridDrawing({
       canvasRef: () => this.props.canvas,

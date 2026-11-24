@@ -1,6 +1,6 @@
 import { providePlugins, proxy, signal, untrack, useEffect, usePlugin, useProps } from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
-import { LocalRendererPlugin } from "../../owl_plugins/renderer_plugin";
+import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { ViewportsPlugin, ViewportsPluginInstance } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
@@ -73,8 +73,8 @@ export class StandaloneViewport extends OSComponent {
     this.viewPlugin = usePlugin(ViewportsPlugin);
     this.store = useLocalStore(StandaloneViewportStore, this.props.range, this.props.columnWeights);
     this.cellPopoverStore = useStore(CellPopoverStore);
-    providePlugins([LocalRendererPlugin], { layers: ["Background", "Chart"] });
-    const rendererPlugin = usePlugin(LocalRendererPlugin);
+    providePlugins([RendererPlugin], { layers: ["Background", "Chart"] });
+    const rendererPlugin = usePlugin(RendererPlugin);
     useEffect(() => {
       this.store.setRange(this.props.range);
       if (this.dndState.col === undefined) {
