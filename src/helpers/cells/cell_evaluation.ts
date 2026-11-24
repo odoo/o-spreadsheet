@@ -15,7 +15,14 @@ import {
 import { Format, LocaleFormat } from "../../types/format";
 import type { RangeAdapterGetters, SettingsCoreGetters } from "../../types/getters";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
-import { CellPosition, FunctionResultObject, Style, UID } from "../../types/misc";
+import {
+  CellPosition,
+  FunctionResultObject,
+  Style,
+  UID,
+  UnboundedZone,
+  Zone,
+} from "../../types/misc";
 import { parseDateTime } from "../dates";
 import {
   detectDateFormat,
@@ -27,6 +34,7 @@ import {
 import { detectLink } from "../links";
 import { isBoolean, memoize } from "../misc";
 import { isNumber, parseNumber } from "../numbers";
+import { getZoneArea, isBound } from "../zones";
 
 export function evaluateLiteral(
   literalCell: LiteralCell,
@@ -369,4 +377,8 @@ function addOrigin(cell: EvaluatedCell, origin: CellPosition | undefined): Evalu
   }
   cell.origin = origin;
   return cell;
+}
+
+export function iterateOverPosition(zone: UnboundedZone): zone is Zone {
+  return isBound(zone) && getZoneArea(zone) < 1000;
 }

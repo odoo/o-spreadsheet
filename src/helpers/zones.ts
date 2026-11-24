@@ -403,6 +403,10 @@ export function isInside(col: number, row: number, zone: Zone): boolean {
   return col >= left && col <= right && row >= top && row <= bottom;
 }
 
+export function isBound(zone: UnboundedZone): zone is Zone {
+  return zone.bottom !== undefined && zone.right !== undefined;
+}
+
 /**
  * Check if a zone is inside another
  */
