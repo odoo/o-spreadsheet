@@ -1,15 +1,16 @@
-import { onWillDestroy, signal, useConfig } from "@odoo/owl";
+import { onWillDestroy, Plugin, signal, useConfig, usePlugin } from "@odoo/owl";
 import { GridRenderingContext, LayerName, OrderedLayers } from "../types/rendering";
-import { OwlPluginWithModel } from "./owl_plugin_with_model";
+import { ModelPlugin } from "./model_owl_plugin";
 
 export interface Renderer {
   drawLayer(ctx: GridRenderingContext, layer: LayerName, timestamp: number | undefined): void;
   renderingLayers: Readonly<LayerName[]>;
 }
 
-export class RendererPlugin extends OwlPluginWithModel {
+export class RendererPlugin extends Plugin {
   layers: LayerName[] = useConfig("layers") || OrderedLayers();
   renderers = signal.Object<Partial<Record<LayerName, Renderer[]>>>({});
+  modelPlugin = usePlugin(ModelPlugin);
 
   private context: GridRenderingContext | undefined = undefined;
 
@@ -62,7 +63,7 @@ export class RendererPlugin extends OwlPluginWithModel {
     }
     this.context = context;
     for (const layer of this.layers) {
-      this.model().drawLayer(context, layer);
+      this.modelPlugin.model().drawLayer(context, layer);
       this.drawLayer(context, layer, timestamp);
     }
   }
@@ -86,16 +87,4 @@ export class RendererPlugin extends OwlPluginWithModel {
       this.animationFrameId = null;
     }
   }
-}
-
-/**
- * Renderer of a nested canvas (dashboard, standalone viewport, print page...).
- * It has its own id so it never shadows the root RendererPlugin: the stores that
- * must draw on the main grid always get the root one with `usePlugin(RendererPlugin)`.
- * The components drawing on the nested canvas must receive this renderer explicitly.
- *
- * Should disappear with the HighlightStore convertion (and more generally with the stores)
- */
-export class LocalRendererPlugin extends RendererPlugin {
-  static id = "LocalRendererPlugin";
 }
