@@ -101,13 +101,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         this.history.update("mergeCellMap", cmd.sheetId, {});
         break;
       case "DUPLICATE_SHEET":
-        const merges = this.merges[cmd.sheetId];
-        if (!merges) {
-          break;
-        }
-        for (const range of Object.values(merges).filter(isDefined)) {
-          this.addMerge(cmd.sheetIdTo, range.zone);
-        }
+        this.onDuplicateSheet(cmd.sheetId, cmd.sheetIdTo);
         break;
       case "ADD_MERGE":
         for (const zone of cmd.target) {
@@ -460,6 +454,25 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         }
       }
       this.history.update("merges", sheetId, mergeId, undefined);
+    }
+  }
+
+  private onDuplicateSheet(sheetIdFrom: UID, sheetIdTo: UID) {
+    const merges = this.merges[sheetIdFrom];
+    if (!merges) {
+      return;
+    }
+    for (const range of Object.values(merges).filter(isDefined)) {
+      const id = this.nextId++;
+      this.history.update(
+        "merges",
+        sheetIdTo,
+        id,
+        this.getters.getRangeFromSheetXC(sheetIdTo, zoneToXc(range.zone))
+      );
+      for (const { col, row } of positions(range.zone)) {
+        this.history.update("mergeCellMap", sheetIdTo, col, row, id);
+      }
     }
   }
 
