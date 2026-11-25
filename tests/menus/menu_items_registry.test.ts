@@ -56,13 +56,13 @@ import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_
 import { FONT_SIZES, POSSIBLE_FONTS } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
+import { ClipboardPlugin } from "../../src/owl_plugins/clipboard_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../src/registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../../src/registries/menus/row_menu_registry";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { FR_LOCALE } from "../test_helpers/constants";
 
@@ -204,9 +204,9 @@ describe("Menu Item actions", () => {
     const spyWriteClipboard = jest.spyOn(env.getPlugin(NavigatorClipboardPlugin), "write");
     await doAction(["edit", "copy"], env);
     expect(dispatch).toHaveBeenCalledWith("COPY");
-    const clipboardStore = env.getStore(ClipboardStore);
+    const clipboardPlugin = env.getPlugin(ClipboardPlugin);
     expect(spyWriteClipboard).toHaveBeenCalledWith(
-      await clipboardStore.getClipboardTextAndImageContent()
+      await clipboardPlugin.getClipboardTextAndImageContent()
     );
   });
 
@@ -214,9 +214,9 @@ describe("Menu Item actions", () => {
     const spyWriteClipboard = jest.spyOn(env.getPlugin(NavigatorClipboardPlugin), "write");
     await doAction(["edit", "cut"], env);
     expect(dispatch).toHaveBeenCalledWith("CUT");
-    const clipboardStore = env.getStore(ClipboardStore);
+    const clipboardPlugin = env.getPlugin(ClipboardPlugin);
     expect(spyWriteClipboard).toHaveBeenCalledWith(
-      await clipboardStore.getClipboardTextAndImageContent()
+      await clipboardPlugin.getClipboardTextAndImageContent()
     );
   });
 

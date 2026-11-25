@@ -1,8 +1,10 @@
+import { PluginInstance } from "@odoo/owl";
 import { CommandResult, Model, UID } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { parseOSClipboardContent } from "../../src/helpers/clipboard/clipboard_helpers";
 import { UuidGenerator } from "../../src/helpers/uuid";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
+import { ClipboardPlugin } from "../../src/owl_plugins/clipboard_owl_plugin";
+import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   activateSheet,
@@ -32,18 +34,20 @@ import {
   nextTick,
   target,
 } from "../test_helpers/helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 mockChart();
 
 describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => {
   let model: Model;
-  let clipboardStore: ClipboardStore;
+  let clipboardPlugin: PluginInstance<typeof ClipboardPlugin>;
+  let getPlugin: OwlPluginGetter;
   let sheetId: UID;
   let figureId: UID;
 
   beforeEach(async () => {
-    ({ model, store: clipboardStore } = makeStore(ClipboardStore));
+    ({ model, getPlugin } = makeOwlPluginManager([]));
+    clipboardPlugin = getPlugin(ClipboardPlugin);
     sheetId = model.getters.getActiveSheetId();
     figureId = UuidGenerator.uuidv4();
     if (type === "chart") {
@@ -178,7 +182,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
   });
 
   test("Can paste a chart with ranges that were deleted between the copy and the paste", () => {
-    const { model } = makeStore(ClipboardStore);
+    const { model } = makeOwlPluginManager([]);
     createSheet(model, { sheetId: "sheet2Id", name: "Sheet2" });
     createChart(
       model,
@@ -215,7 +219,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     copy(model);
 
     const clipboardSpreadsheetContent = await parseOSClipboardContent(
-      await clipboardStore.getClipboardTextAndImageContent()
+      await clipboardPlugin.getClipboardTextAndImageContent()
     );
     const clipboardData = clipboardSpreadsheetContent.data;
     expect(clipboardData?.figureId).toBe(undefined);
@@ -227,14 +231,14 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     test("Cannot paste with empty target", () => {
       selectFigure(model, figureId);
       copy(model);
-      const result = clipboardStore.isCommandValid({ type: "PASTE", target: [] });
+      const result = clipboardPlugin.isCommandValid({ type: "PASTE", target: [] });
       expect(result).toBeCancelledBecause(CommandResult.EmptyTarget);
     });
 
     test("Cannot paste with clipboard options when pasting a figure", () => {
       selectFigure(model, figureId);
       copy(model);
-      const result = clipboardStore.isCommandValid({
+      const result = clipboardPlugin.isCommandValid({
         type: "PASTE",
         target: target("A1"),
         pasteOption: "onlyFormat",
@@ -246,7 +250,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
 
 describe("chart specific Clipboard test", () => {
   test("Can copy paste chart on another sheet", () => {
-    const { model } = makeStore(ClipboardStore);
+    const { model } = makeOwlPluginManager([]);
     const chartId = "thisIsAnId";
     createChart(model, { type: "bar" }, chartId);
     updateChart(
@@ -273,7 +277,7 @@ describe("Carousel clipboard test", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    ({ model } = makeStore(ClipboardStore));
+    ({ model } = makeOwlPluginManager([]));
     sheetId = model.getters.getActiveSheetId();
   });
 

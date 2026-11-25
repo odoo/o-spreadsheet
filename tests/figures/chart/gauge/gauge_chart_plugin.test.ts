@@ -1,6 +1,5 @@
 import { CellErrorType, CommandResult, Model } from "../../../../src";
 import { deepCopy } from "../../../../src/helpers/misc";
-import { ClipboardStore } from "../../../../src/stores/clipboard_store";
 
 import {
   GaugeChartDefinition,
@@ -29,8 +28,10 @@ import {
   updateChart,
   updateNamedRange,
 } from "../../../test_helpers/commands_helpers";
-import { makeViewportsPlugin } from "../../../test_helpers/owl_plugins_helpers";
-import { makeStoreWithModel } from "../../../test_helpers/stores";
+import {
+  makeOwlPluginManager,
+  makeViewportsPlugin,
+} from "../../../test_helpers/owl_plugins_helpers";
 let model: Model;
 
 const lowerColor = "#6aa84f";
@@ -79,7 +80,7 @@ const randomSectionRule: SectionRule = {
 
 beforeEach(() => {
   model = new Model();
-  makeStoreWithModel(model, ClipboardStore);
+  makeOwlPluginManager([], { model });
 });
 
 describe("datasource tests", function () {

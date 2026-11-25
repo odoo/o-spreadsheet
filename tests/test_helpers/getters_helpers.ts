@@ -1,3 +1,4 @@
+import { PluginInstance } from "@odoo/owl";
 import {
   Border,
   Cell,
@@ -15,8 +16,7 @@ import {
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
-import { Store } from "../../src/types/store_engine";
+import { ClipboardPlugin } from "../../src/owl_plugins/clipboard_owl_plugin";
 import { setSelection } from "./commands_helpers";
 
 /**
@@ -277,8 +277,8 @@ export function getFilter(
   return model.getters.getFilter({ sheetId, col, row });
 }
 
-export function getClipboardVisibleZones(store: Store<ClipboardStore>): Zone[] {
-  return store["status"] === "visible" ? store["copiedData"]?.["zones"] ?? [] : [];
+export function getClipboardVisibleZones(plugin: PluginInstance<typeof ClipboardPlugin>): Zone[] {
+  return plugin["status"]() === "visible" ? plugin["copiedData"]()?.["zones"] ?? [] : [];
 }
 
 export function getCellIcons(model: Model, xc: string) {

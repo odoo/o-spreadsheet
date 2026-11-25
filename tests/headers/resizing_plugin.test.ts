@@ -9,7 +9,6 @@ import {
 import { toXC } from "../../src/helpers/coordinates";
 import { getDefaultCellHeight as getDefaultCellHeightHelper } from "../../src/helpers/text_helper";
 import { Model } from "../../src/model";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 
 import {
   activateSheet,
@@ -37,8 +36,7 @@ import {
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
-import { makeViewportsPlugin } from "../test_helpers/owl_plugins_helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager, makeViewportsPlugin } from "../test_helpers/owl_plugins_helpers";
 const ctx = document.createElement("canvas").getContext("2d")!;
 function getDefaultCellHeight(
   model: Model,
@@ -546,7 +544,7 @@ describe("Model resizer", () => {
     });
 
     test("deleting tallest cell in the row update row height", () => {
-      makeStoreWithModel(model, ClipboardStore);
+      makeOwlPluginManager([], { model });
       setFormatting(model, "A1", { fontSize: 36 });
       deleteCells(model, "A1", "left");
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);

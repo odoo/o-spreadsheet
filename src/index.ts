@@ -389,6 +389,7 @@ import {
 import { domainToColRowDomain } from "./helpers/pivot/pivot_domain_helpers";
 import { drawHighlight } from "./helpers/rendering";
 import { fuzzyLookup } from "./helpers/search";
+import { ClipboardPlugin } from "./owl_plugins/clipboard_owl_plugin";
 import { DevicePixelRatioPlugin } from "./owl_plugins/device_pixel_ratio_owl_plugin";
 import { ExposeViewportsPlugin } from "./owl_plugins/expose_viewports_owl_plugin";
 import { IsSmallPlugin } from "./owl_plugins/is_small_plugin";
@@ -407,7 +408,6 @@ import { onIterationEndEvaluationRegistry } from "./registries/evaluation_regist
 import { performanceRegistry } from "./registries/performance_registry";
 import { specificRangeTransformRegistry } from "./registries/srt_registry";
 import { globalStores } from "./store_engine/store_registries";
-import { ClipboardStore } from "./stores/clipboard_store";
 
 export const helpers = {
   arg,
@@ -615,7 +615,6 @@ export const stores = {
   AutofillStore,
   ClientFocusStore,
   GridRenderer,
-  ClipboardStore,
   globalStores,
 };
 
@@ -625,6 +624,7 @@ export const owlPlugins = {
   NotificationPlugin,
   IsSmallPlugin,
   SpreadsheetRectPlugin,
+  ClipboardPlugin,
   NavigatorClipboardPlugin,
   ModelPlugin,
   ZoomPlugin,

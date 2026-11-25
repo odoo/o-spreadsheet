@@ -1,7 +1,6 @@
 import { CellPosition, CommandResult, ConditionalFormattingOperatorValues, UID } from "../../src";
 import { ICON_SETS } from "../../src/components/icons/icons";
 import { Model } from "../../src/model";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   ConditionalFormat,
   ConditionalFormatRule,
@@ -41,7 +40,7 @@ import {
   toRangesData,
   useJestFakeTimers,
 } from "../test_helpers/helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 let model: Model;
 let sheetId: UID;
@@ -2333,7 +2332,7 @@ describe("conditional formats types", () => {
     });
 
     test("CF is updated with insert/delete cells", () => {
-      makeStoreWithModel(model, ClipboardStore);
+      makeOwlPluginManager([], { model });
       addCf(
         model,
         "A1:A10",

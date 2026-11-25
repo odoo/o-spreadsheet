@@ -35,6 +35,7 @@ import { isInside, positionToZone } from "../../helpers/zones";
 import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { AutomaticSumPlugin } from "../../owl_plugins/automatic_sum_plugin";
 import { CheckboxTogglePlugin } from "../../owl_plugins/checkbox_toggle_plugin";
+import { ClipboardPlugin } from "../../owl_plugins/clipboard_owl_plugin";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
@@ -51,7 +52,6 @@ import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { ClientFocusStore } from "../../stores/client_focus_store";
-import { ClipboardStore } from "../../stores/clipboard_store";
 import { SelectionRendererStore } from "../../stores/selection_renderer_store";
 import { _t } from "../../translation";
 import { CellValueType } from "../../types/cells";
@@ -182,8 +182,8 @@ export class Grid extends OSComponent {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
   private clientFocusStore!: Store<ClientFocusStore>;
-  private clipboardStore!: Store<ClipboardStore>;
-  private clipboardPlugin = usePlugin(NavigatorClipboardPlugin);
+  private clipboardPlugin = usePlugin(ClipboardPlugin);
+  private navigatorClipboardPlugin = usePlugin(NavigatorClipboardPlugin);
   private checkboxTogglePlugin!: PluginInstance<typeof CheckboxTogglePlugin>;
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
@@ -207,7 +207,6 @@ export class Grid extends OSComponent {
     this.paintFormatStore = useStore(PaintFormatStore);
     this.clientFocusStore = useStore(ClientFocusStore);
     useStore(ArrayFormulaHighlight);
-    this.clipboardStore = useStore(ClipboardStore);
     useStore(SelectionRendererStore);
 
     providePlugins([PopoverContainerPlugin, CheckboxTogglePlugin, AutomaticSumPlugin], {
@@ -916,8 +915,8 @@ export class Grid extends OSComponent {
     } else {
       this.model().dispatch("COPY");
     }
-    const osContent = await this.clipboardStore.getClipboardTextAndImageContent();
-    await this.clipboardPlugin.write(osContent);
+    const osContent = await this.clipboardPlugin.getClipboardTextAndImageContent();
+    await this.navigatorClipboardPlugin.write(osContent);
     ev.preventDefault();
   }
 
@@ -947,9 +946,9 @@ export class Grid extends OSComponent {
     }
 
     const target = this.model().getters.getSelectedZones();
-    const isCutOperation = this.clipboardStore.isCutOperation();
+    const isCutOperation = this.clipboardPlugin.isCutOperation();
 
-    const clipboardId = this.clipboardStore.getClipboardId();
+    const clipboardId = this.clipboardPlugin.getClipboardId();
     const htmlClipboardId = getOSheetClipboardIdFromHTML(
       osClipboard.content[ClipboardMIMEType.Html]
     );
@@ -960,7 +959,7 @@ export class Grid extends OSComponent {
       await interactivePasteFromOS(this.spEnv, target, osClipboardContent);
     }
     if (isCutOperation) {
-      await this.clipboardPlugin.write({ [ClipboardMIMEType.PlainText]: "" });
+      await this.navigatorClipboardPlugin.write({ [ClipboardMIMEType.PlainText]: "" });
     }
   }
 

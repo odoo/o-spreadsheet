@@ -20,10 +20,10 @@ import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { UuidGenerator } from "../helpers/uuid";
 import { areZonesContinuous, getZoneArea, isEqual } from "../helpers/zones";
 import { Model } from "../model";
+import { ClipboardPlugin } from "../owl_plugins/clipboard_owl_plugin";
 import { ImageProviderPlugin } from "../owl_plugins/image_provider_owl_plugin";
 import { NavigatorClipboardPlugin } from "../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
-import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
 import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Format } from "../types/format";
@@ -61,12 +61,12 @@ export const PASTE_AS_VALUE_ACTION = async (env: SpreadsheetActionEnv) => paste(
 
 async function paste(env: SpreadsheetActionEnv, pasteOption?: ClipboardPasteOptions) {
   const notificationPlugin = env.getPlugin(NotificationPlugin);
-  const clipboardPlugin = env.getPlugin(NavigatorClipboardPlugin);
-  const osClipboard = await clipboardPlugin.read();
-  const clipboardStore = env.getStore(ClipboardStore);
+  const navigatorClipboardPlugin = env.getPlugin(NavigatorClipboardPlugin);
+  const osClipboard = await navigatorClipboardPlugin.read();
+  const clipboardPlugin = env.getPlugin(ClipboardPlugin);
   switch (osClipboard.status) {
     case "ok":
-      const clipboardId = clipboardStore.getClipboardId();
+      const clipboardId = clipboardPlugin.getClipboardId();
       const target = env.model().getters.getSelectedZones();
       const htmlClipboardId = getOSheetClipboardIdFromHTML(
         osClipboard.content[ClipboardMIMEType.Html]
@@ -77,8 +77,8 @@ async function paste(env: SpreadsheetActionEnv, pasteOption?: ClipboardPasteOpti
         const osClipboardContent = parseOSClipboardContent(osClipboard.content);
         await interactivePasteFromOS(env, target, osClipboardContent, pasteOption);
       }
-      if (clipboardStore.isCutOperation() && pasteOption !== "asValue") {
-        await clipboardPlugin.write({ [ClipboardMIMEType.PlainText]: "" });
+      if (clipboardPlugin.isCutOperation() && pasteOption !== "asValue") {
+        await navigatorClipboardPlugin.write({ [ClipboardMIMEType.PlainText]: "" });
       }
       break;
     case "notImplemented":

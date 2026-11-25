@@ -1,7 +1,6 @@
 import { BorderDescr, CommandResult } from "../../src";
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { Model } from "../../src/model";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   activateSheet,
   addColumns,
@@ -32,7 +31,7 @@ import {
   getComputedBorder,
 } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers"; // to have getcontext mocks
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 describe("borders", () => {
   test("can add and remove a border, on empty cell", () => {
@@ -491,7 +490,7 @@ describe("borders", () => {
 
   test("cut & paste a border", () => {
     const model = new Model();
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
     setZoneBorders(model, { position: "external" }, ["B2"]);
     expect(getBorder(model, "B2")).toEqual({
       top: DEFAULT_BORDER_DESC,
@@ -525,7 +524,7 @@ describe("Grid manipulation", () => {
   let model: Model;
   beforeEach(() => {
     model = new Model();
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
   });
 
   test("ADD_COLUMNS_ROWS with dimension col before with external borders", () => {

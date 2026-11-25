@@ -3,8 +3,8 @@ import { DEFAULT_BORDER_DESC, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "..
 import { lettersToNumber, toXC } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { ClipboardPlugin } from "../../src/owl_plugins/clipboard_owl_plugin";
 import { ViewportsPluginInstance } from "../../src/owl_plugins/viewports_owl_plugin";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   activateSheet,
   addColumns,
@@ -44,8 +44,7 @@ import {
   makeTestFixture,
   testUndoRedo,
 } from "../test_helpers/helpers";
-import { makeViewportsPlugin } from "../test_helpers/owl_plugins_helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeOwlPluginManager, makeViewportsPlugin } from "../test_helpers/owl_plugins_helpers";
 let model: Model;
 
 function clearColumns(indexes: string[]) {
@@ -1509,7 +1508,7 @@ describe("Rows", () => {
 describe("Delete cell", () => {
   let model: Model;
   beforeEach(() => {
-    ({ model } = makeStore(ClipboardStore));
+    ({ model } = makeOwlPluginManager([]));
   });
 
   test("Do not move cell positioned before the deleted ones", () => {
@@ -1600,7 +1599,7 @@ describe("Delete cell", () => {
 describe("Insert cell", () => {
   let model: Model;
   beforeEach(() => {
-    ({ model } = makeStore(ClipboardStore));
+    ({ model } = makeOwlPluginManager([]));
   });
 
   test("Do not move cell positioned before the inserted ones", () => {
@@ -1681,24 +1680,26 @@ describe("Insert cell", () => {
 
 describe("Insert/Delete cells with merge", () => {
   test("Insert/Delete cell is rejected if a merge is blocking left-right", () => {
-    const { model, store } = makeStore(ClipboardStore);
+    const { model, getPlugin } = makeOwlPluginManager([]);
+    const plugin = getPlugin(ClipboardPlugin);
     merge(model, "B1:B2");
     expect(
-      store.isCommandValid({ type: "DELETE_CELL", zone: toZone("A1"), shiftDimension: "COL" })
+      plugin.isCommandValid({ type: "DELETE_CELL", zone: toZone("A1"), shiftDimension: "COL" })
     ).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
     expect(
-      store.isCommandValid({ type: "INSERT_CELL", zone: toZone("A1"), shiftDimension: "COL" })
+      plugin.isCommandValid({ type: "INSERT_CELL", zone: toZone("A1"), shiftDimension: "COL" })
     ).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 
   test("Insert/Delete cell is rejected if a merge is blocking up-down", () => {
-    const { model, store } = makeStore(ClipboardStore);
+    const { model, getPlugin } = makeOwlPluginManager([]);
+    const plugin = getPlugin(ClipboardPlugin);
     merge(model, "A2:B2");
     expect(
-      store.isCommandValid({ type: "DELETE_CELL", zone: toZone("A1"), shiftDimension: "ROW" })
+      plugin.isCommandValid({ type: "DELETE_CELL", zone: toZone("A1"), shiftDimension: "ROW" })
     ).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
     expect(
-      store.isCommandValid({ type: "INSERT_CELL", zone: toZone("A1"), shiftDimension: "ROW" })
+      plugin.isCommandValid({ type: "INSERT_CELL", zone: toZone("A1"), shiftDimension: "ROW" })
     ).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 });

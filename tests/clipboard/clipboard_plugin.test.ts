@@ -1,3 +1,4 @@
+import { PluginInstance } from "@odoo/owl";
 import {
   ClipboardMIMEType,
   ClipboardPasteTarget,
@@ -18,12 +19,12 @@ import { urlRepresentation } from "../../src/helpers/links";
 import { markdownLink } from "../../src/helpers/misc";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { ClipboardPlugin, MAX_FILE_SIZE } from "../../src/owl_plugins/clipboard_owl_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
 import { clipboardHandlersRegistries } from "../../src/registries/clipboard_handlers_registries";
 import { dynamicToStaticFormulaRegistry } from "../../src/registries/dynamic_to_static_formula_registry";
-import { ClipboardStore, MAX_FILE_SIZE } from "../../src/stores/clipboard_store";
 import { AddConditionalFormatCommand } from "../../src/types/commands";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { XMLString } from "../../src/types/xlsx";
@@ -96,16 +97,22 @@ import {
   getGrid,
   target,
 } from "../test_helpers/helpers";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
-import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
-let store: ClipboardStore;
+let plugin: PluginInstance<typeof ClipboardPlugin>;
 let getPlugin: OwlPluginGetter;
+
+function makeClipboardPlugin(model = new Model()) {
+  const { getPlugin } = makeOwlPluginManager([], { model });
+  const plugin = getPlugin(ClipboardPlugin);
+  return { model, plugin, getPlugin };
+}
 
 describe("clipboard", () => {
   test("can copy and paste a cell", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
 
     expect(getCell(model, "B2")).toMatchObject({
@@ -120,11 +127,11 @@ describe("clipboard", () => {
     expect(getCell(model, "D2")).toMatchObject({
       content: "b2",
     });
-    expect(getClipboardVisibleZones(store).length).toBe(0);
+    expect(getClipboardVisibleZones(plugin).length).toBe(0);
   });
 
   test("can cut and paste a cell", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     expect(getCell(model, "B2")).toMatchObject({
       content: "b2",
@@ -134,16 +141,16 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")).toMatchObject({
       content: "b2",
     });
-    expect(store.isCutOperation()).toBe(true);
+    expect(plugin.isCutOperation()).toBe(true);
     paste(model, "D2");
-    expect(store.isCutOperation()).toBe(false);
+    expect(plugin.isCutOperation()).toBe(false);
 
     expect(getCell(model, "B2")).toBeUndefined();
     expect(getCell(model, "D2")).toMatchObject({
       content: "b2",
     });
 
-    expect(getClipboardVisibleZones(store).length).toBe(0);
+    expect(getClipboardVisibleZones(plugin).length).toBe(0);
 
     // select D3 and paste. it should do nothing
     paste(model, "D3");
@@ -152,25 +159,25 @@ describe("clipboard", () => {
   });
 
   test("can clean the clipboard visible zones (copy)", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     copy(model, "B2");
-    expect(getClipboardVisibleZones(store).length).toBe(1);
+    expect(getClipboardVisibleZones(plugin).length).toBe(1);
     cleanClipBoardHighlight(model);
-    expect(getClipboardVisibleZones(store).length).toBe(0);
+    expect(getClipboardVisibleZones(plugin).length).toBe(0);
   });
 
   test("can clean the clipboard visible zones (cut)", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     cut(model, "B2");
-    expect(getClipboardVisibleZones(store).length).toBe(1);
+    expect(getClipboardVisibleZones(plugin).length).toBe(1);
     cleanClipBoardHighlight(model);
-    expect(getClipboardVisibleZones(store).length).toBe(0);
+    expect(getClipboardVisibleZones(plugin).length).toBe(0);
   });
 
   test("cut command will cut the selection if no target were given", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     setSelection(model, ["B2"]);
     cut(model);
@@ -179,13 +186,13 @@ describe("clipboard", () => {
   });
 
   test("paste without copied value", () => {
-    ({ model, store } = makeStore(ClipboardStore));
-    const result = store.isCommandValid({ type: "PASTE", target: target("D2") });
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
+    const result = plugin.isCommandValid({ type: "PASTE", target: target("D2") });
     expect(result).toBeCancelledBecause(CommandResult.EmptyClipboard);
   });
 
   test("can cut and paste a cell in different sheets", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "a1");
     cut(model, "A1");
     const to = model.getters.getActiveSheetId();
@@ -201,7 +208,7 @@ describe("clipboard", () => {
     activateSheet(model, to);
     expect([...model.getters.getEvaluatedCells(to)]).toEqual([]);
 
-    expect(getClipboardVisibleZones(store).length).toBe(0);
+    expect(getClipboardVisibleZones(plugin).length).toBe(0);
 
     // select D3 and paste. it should do nothing
     paste(model, "D3");
@@ -210,7 +217,7 @@ describe("clipboard", () => {
   });
 
   test("can cut and paste a zone inside the cut zone", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "a1");
     setCellContent(model, "A2", "a2");
 
@@ -222,7 +229,7 @@ describe("clipboard", () => {
   });
 
   test("can copy a cell with style", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     setFormatting(model, "B2", { bold: true });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
@@ -235,7 +242,7 @@ describe("clipboard", () => {
   });
 
   test("copying external content & paste-format on a cell will not paste content", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     const clipboardData = new MockClipboardData();
     clipboardData.setData(ClipboardMIMEType.PlainText, "Excalibur");
 
@@ -247,7 +254,7 @@ describe("clipboard", () => {
   });
 
   test("cannot paste multiple times after cut", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     setFormatting(model, "B2", { bold: true });
 
@@ -261,7 +268,7 @@ describe("clipboard", () => {
   });
 
   test("Cut clipboard should be invalidated when sheet is deleted", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     const sheet1Id = model.getters.getActiveSheetId();
     const sheet2Id = "sheet2";
     createSheet(model, { sheetId: sheet2Id });
@@ -277,7 +284,7 @@ describe("clipboard", () => {
   });
 
   test("can paste even if sheet containing copy zone has been deleted", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     const sheet1Id = model.getters.getActiveSheetId();
     const sheet2Id = "sheet2";
     createSheet(model, { sheetId: sheet2Id });
@@ -294,7 +301,7 @@ describe("clipboard", () => {
   });
 
   test("can copy into a cell with style", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     // set value and style in B2
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
@@ -314,7 +321,7 @@ describe("clipboard", () => {
   });
 
   test("can copy from an empty cell into a cell with style", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     // set value and style in B2
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
@@ -331,7 +338,7 @@ describe("clipboard", () => {
   });
 
   test("can copy a cell with borders", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     selectCell(model, "B2");
     setZoneBorders(model, { position: "bottom" });
     expect(getBorder(model, "B2")).toEqual({ bottom: DEFAULT_BORDER_DESC });
@@ -344,7 +351,7 @@ describe("clipboard", () => {
   });
 
   test("paste cell does not overwrite existing borders", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     const sheetId = model.getters.getActiveSheetId();
     setZoneBorders(model, { position: "all" }, ["A1"]);
     copy(model, "B2");
@@ -358,7 +365,7 @@ describe("clipboard", () => {
   });
 
   test("bottom border of the cell above the copied cell is not pasted above the target", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setZoneBorders(model, { position: "bottom" }, ["A1"]);
     copy(model, "A2");
     paste(model, "C5");
@@ -366,7 +373,7 @@ describe("clipboard", () => {
   });
 
   test("left border of the cell right of the copied cell is not pasted right of the target", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setZoneBorders(model, { position: "left" }, ["B1"]);
     copy(model, "A1");
     paste(model, "D5");
@@ -374,7 +381,7 @@ describe("clipboard", () => {
   });
 
   test("top border of the cell below the copied cell is not pasted below the target", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setZoneBorders(model, { position: "top" }, ["A2"]);
     copy(model, "A1");
     paste(model, "D5");
@@ -382,7 +389,7 @@ describe("clipboard", () => {
   });
 
   test("can copy a cell with a format", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "0.451");
     selectCell(model, "B2");
     setFormat(model, "B2", "0.00%");
@@ -398,7 +405,7 @@ describe("clipboard", () => {
     model = new Model({
       sheets: [{ id: "s1", colNumber: 5, rowNumber: 5, merges: ["B1:C2"] }],
     });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
 
     copy(model, "B1");
     paste(model, "B4");
@@ -409,7 +416,7 @@ describe("clipboard", () => {
     model = new Model({
       sheets: [{ id: "s2", colNumber: 5, rowNumber: 5, merges: ["B1:C2"] }],
     });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     cut(model, "B1:C2");
     paste(model, "B4");
     expect(model.getters.getMerges("s2")).toHaveLength(1);
@@ -420,7 +427,7 @@ describe("clipboard", () => {
     model = new Model({
       sheets: [{ id: "s1", colNumber: 5, rowNumber: 5, merges: ["B1:C2"] }, { id: "s2" }],
     });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     cut(model, "B1:C2");
     activateSheet(model, "s2");
     paste(model, "B4");
@@ -440,7 +447,7 @@ describe("clipboard", () => {
         },
       ],
     });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     copy(model, "A1");
     paste(model, "C1");
     expect(model.getters.isInMerge({ sheetId: "s1", ...toCartesian("C1") })).toBe(true);
@@ -456,7 +463,7 @@ describe("clipboard", () => {
         { id: "s2", colNumber: 5, rowNumber: 5 },
       ],
     });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     const sheet2 = "s2";
     copy(model, "B2");
     activateSheet(model, sheet2);
@@ -474,7 +481,7 @@ describe("clipboard", () => {
         { id: "s2", colNumber: 5, rowNumber: 5 },
       ],
     });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
 
     expect(getCellText(model, "A1", "s1")).toBe("=A2");
 
@@ -487,17 +494,17 @@ describe("clipboard", () => {
   });
 
   test("Pasting content that will destroy a merge will fail", async () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     const sheetId = model.getters.getActiveSheetId();
     merge(model, "B2:C3");
     copy(model, "B2");
-    const result = store.isCommandValid({ type: "PASTE", target: target("A1") });
+    const result = plugin.isCommandValid({ type: "PASTE", target: target("A1") });
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
     expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual(["B2:C3"]);
   });
 
   test("Can paste a single cell on a merge", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "thingies");
     merge(model, "B1:B2");
     copy(model, "A1");
@@ -509,7 +516,7 @@ describe("clipboard", () => {
     model = new Model({
       sheets: [{ id: "s1", merges: ["A1:A3", "C1:C3"] }],
     });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     copy(model, "A1:C3");
     paste(model, "E1");
     const sheetId = model.getters.getActiveSheetId();
@@ -525,7 +532,7 @@ describe("clipboard", () => {
     model = new Model({
       sheets: [{ id: "s1", merges: ["A1:A3", "C1:C3"] }],
     });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     copy(model, "A1", "C1");
     paste(model, "E1");
     const sheetId = model.getters.getActiveSheetId();
@@ -538,7 +545,7 @@ describe("clipboard", () => {
   });
 
   test("copy zones with one merge => unmerge origin cell => paste => it should paste with original merge", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     const sheetId = model.getters.getActiveSheetId();
 
     merge(model, "A1:C3");
@@ -551,7 +558,7 @@ describe("clipboard", () => {
   });
 
   test("copy zones with multiple compatible merges => unmerge origin zones => paste => it should paste with all merges", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     const sheetId = model.getters.getActiveSheetId();
 
     merge(model, "A1:A3");
@@ -566,7 +573,7 @@ describe("clipboard", () => {
   });
 
   test("copy zones with multiple compatible merges => delete origin sheet => paste => it should paste with all merges", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     const sheetId = model.getters.getActiveSheetId();
 
     merge(model, "A1:A3");
@@ -584,7 +591,7 @@ describe("clipboard", () => {
   });
 
   test("cutting a cell with style remove the cell", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     setFormatting(model, "B2", { bold: true });
@@ -599,21 +606,21 @@ describe("clipboard", () => {
   });
 
   test("Clipboard text content export formatted string", async () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "abc");
     selectCell(model, "B2");
     copy(model, "B2");
-    expect(store.getClipboardTextContent()).toBe("abc");
+    expect(plugin.getClipboardTextContent()).toBe("abc");
 
     setCellContent(model, "B2", "= 1 + 2");
     selectCell(model, "B2");
     copy(model, "B2");
-    expect(store.getClipboardTextContent()).toBe("3");
+    expect(plugin.getClipboardTextContent()).toBe("3");
   });
 
   describe("Copied cells HTML", () => {
     beforeEach(() => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
     });
 
     test("Copied HTML table snapshot", async () => {
@@ -621,10 +628,10 @@ describe("clipboard", () => {
       setCellContent(model, "B1", "2");
       setCellContent(model, "A2", "3");
       copy(model, "A1:B2");
-      const osClipboardContent = await store.getClipboardTextAndImageContent();
+      const osClipboardContent = await plugin.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
-      const clipboardId = store.getClipboardId();
-      const clipboardData = JSON.stringify(store["getSheetData"]());
+      const clipboardId = plugin.getClipboardId();
+      const clipboardData = JSON.stringify(plugin["getSheetData"]());
       const expectedHtmlContent = `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='${xmlEscape(
         clipboardData
       )}'><table border="1" style="border-collapse:collapse"><tr><td style="">1</td><td style="">2</td></tr><tr><td style="">3</td><td style=""></td></tr></table></div>`;
@@ -636,7 +643,7 @@ describe("clipboard", () => {
       setCellContent(model, "B1", "2");
       setCellContent(model, "A2", "3");
       copy(model, "A1:B2");
-      const osClipboardContent = await store.getClipboardTextAndImageContent();
+      const osClipboardContent = await plugin.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
       const parsedHTML = parseXML(new XMLString(htmlContent), "text/html");
 
@@ -656,7 +663,7 @@ describe("clipboard", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "3");
       copy(model, "A1:A2");
-      const osClipboardContent = await store.getClipboardTextAndImageContent();
+      const osClipboardContent = await plugin.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
 
       expect(htmlContent).toContain('style="border-collapse:collapse"');
@@ -669,7 +676,7 @@ describe("clipboard", () => {
       setFormatting(model, "A1", { bold: true });
       addEqualCf(model, "A1", { fillColor: "#123456" }, "1");
       copy(model, "A1:A2");
-      const osClipboardContent = await store.getClipboardTextAndImageContent();
+      const osClipboardContent = await plugin.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
       const firstCellStyle = htmlContent
         .replace(/\n/g, "")
@@ -684,19 +691,19 @@ describe("clipboard", () => {
       setCellContent(model, "A1", cellContent);
       setCellContent(model, "A2", "3");
       copy(model, "A1:A2");
-      const osClipboardContent = await store.getClipboardTextAndImageContent();
+      const osClipboardContent = await plugin.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
 
       expect(htmlContent).toContain(xmlEscape(cellContent));
     });
 
     test("Copied single cells are not in a html table", async () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "1");
       copy(model, "A1");
-      const clipboardId = store.getClipboardId();
-      const clipboardData = JSON.stringify(store["getSheetData"]());
-      const osClipboardContent = await store.getClipboardTextAndImageContent();
+      const clipboardId = plugin.getClipboardId();
+      const clipboardData = JSON.stringify(plugin["getSheetData"]());
+      const osClipboardContent = await plugin.getClipboardTextAndImageContent();
       expect(osClipboardContent[ClipboardMIMEType.Html]).toBe(
         `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='${xmlEscape(
           clipboardData
@@ -705,12 +712,12 @@ describe("clipboard", () => {
     });
 
     test("Copied cell content is html-escaped", async () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "<b>hello</b>");
       copy(model, "A1");
-      const clipboardId = store.getClipboardId();
-      const clipboardData = JSON.stringify(store["getSheetData"]());
-      const osClipboardContent = await store.getClipboardTextAndImageContent();
+      const clipboardId = plugin.getClipboardId();
+      const clipboardData = JSON.stringify(plugin["getSheetData"]());
+      const osClipboardContent = await plugin.getClipboardTextAndImageContent();
       expect(osClipboardContent[ClipboardMIMEType.Html]).toBe(
         `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='${xmlEscape(
           clipboardData
@@ -720,7 +727,7 @@ describe("clipboard", () => {
   });
 
   test("can copy a rectangular selection", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     setCellContent(model, "B3", "b3");
     setCellContent(model, "C2", "c2");
@@ -742,22 +749,22 @@ describe("clipboard", () => {
   });
 
   test("empty clipboard: getClipboardTextAndImageContent returns a tab", () => {
-    ({ model, store } = makeStore(ClipboardStore));
-    expect(store.getClipboardTextContent()).toBe("\t");
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
+    expect(plugin.getClipboardTextContent()).toBe("\t");
   });
 
   test("Clipboard Text exports multiple cells", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     setCellContent(model, "B3", "b3");
     setCellContent(model, "C2", "c2");
     setCellContent(model, "C3", "c3");
     copy(model, "B2:C3");
-    expect(store.getClipboardTextContent()).toBe("b2\tc2\nb3\tc3");
+    expect(plugin.getClipboardTextContent()).toBe("b2\tc2\nb3\tc3");
   });
 
   test("can paste multiple cells from os clipboard", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     pasteFromOSClipboard(model, "C1", { text: "a\t1\nb\t2" });
 
     expect(getCellContent(model, "C1")).toBe("a");
@@ -767,10 +774,10 @@ describe("clipboard", () => {
   });
 
   test("Pasting content from os that will destroy a merge will fail", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     const sheetId = model.getters.getActiveSheetId();
     merge(model, "B2:C3");
-    const result = store.isCommandValid({
+    const result = plugin.isCommandValid({
       type: "PASTE_FROM_OS_CLIPBOARD",
       target: target("B2"),
       clipboardContent: { text: "a\t1\nb\t2" },
@@ -780,7 +787,7 @@ describe("clipboard", () => {
   });
 
   test("pasting from OS will not change the viewport", () => {
-    ({ model, store, getPlugin } = makeStore(ClipboardStore));
+    ({ getPlugin, plugin, model } = makeClipboardPlugin());
     const viewPlugin = getPlugin(ViewportsPlugin);
     const viewport = viewPlugin.activeMainViewport;
     pasteFromOSClipboard(model, "C60", { text: "a\t1\nb\t2" });
@@ -788,7 +795,7 @@ describe("clipboard", () => {
   });
 
   test("pasting numbers from windows clipboard => interpreted as number", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     pasteFromOSClipboard(model, "C1", { text: "1\r\n2\r\n3" });
 
     expect(getCellContent(model, "C1")).toBe("1");
@@ -800,13 +807,13 @@ describe("clipboard", () => {
   });
 
   test("incompatible multiple selections: only last one is actually copied", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "a1");
     setCellContent(model, "A2", "a2");
     setCellContent(model, "C1", "c1");
     copy(model, "A1:A2", "C1");
 
-    expect(getClipboardVisibleZones(store).length).toBe(1);
+    expect(getClipboardVisibleZones(plugin).length).toBe(1);
 
     selectCell(model, "E1");
     paste(model, "E1");
@@ -815,14 +822,14 @@ describe("clipboard", () => {
   });
 
   test("compatible multiple selections: each column is copied", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "a1");
     setCellContent(model, "A2", "a2");
     setCellContent(model, "C1", "c1");
     setCellContent(model, "C2", "c2");
     copy(model, "A1:A2", " C1:C2");
 
-    expect(getClipboardVisibleZones(store).length).toBe(2);
+    expect(getClipboardVisibleZones(plugin).length).toBe(2);
 
     paste(model, "E1");
     expect(getCellContent(model, "E1")).toBe("a1");
@@ -832,7 +839,7 @@ describe("clipboard", () => {
   });
 
   test("Viewport won't move after pasting", () => {
-    ({ model, store, getPlugin } = makeStore(ClipboardStore));
+    ({ getPlugin, plugin, model } = makeClipboardPlugin());
     const viewPlugin = getPlugin(ViewportsPlugin);
     copy(model, "A1:B2");
 
@@ -846,7 +853,7 @@ describe("clipboard", () => {
 
   describe("copy/paste a zone in a larger selection will duplicate the zone on the selection as long as it does not exceed it", () => {
     test("paste a value (zone with hight=1 and width=1)", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "1");
       copy(model, "A1");
       paste(model, "C2:D3");
@@ -857,7 +864,7 @@ describe("clipboard", () => {
     });
 
     test("paste a zone with hight zone > 1", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "a1");
       setCellContent(model, "A2", "a2");
       copy(model, "A1:A2");
@@ -870,7 +877,7 @@ describe("clipboard", () => {
     });
 
     test("paste a zone with width zone > 1", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "a1");
       setCellContent(model, "B1", "b1");
       copy(model, "A1:B1");
@@ -883,7 +890,7 @@ describe("clipboard", () => {
     });
 
     test("selection is updated to contain exactly the new pasted zone", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       copy(model, "A1:B2");
 
       // select C3:G7
@@ -898,7 +905,7 @@ describe("clipboard", () => {
 
   describe("cut/paste a zone in a larger selection will paste the zone only once", () => {
     test("paste a value (zone with hight=1 and width=1)", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "1");
       cut(model, "A1");
       paste(model, "C2:D3");
@@ -909,7 +916,7 @@ describe("clipboard", () => {
     });
 
     test("with hight zone > 1", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "a1");
       setCellContent(model, "A2", "a2");
       cut(model, "A1:A2");
@@ -922,7 +929,7 @@ describe("clipboard", () => {
     });
 
     test("with width zone > 1", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "a1");
       setCellContent(model, "B1", "b1");
       cut(model, "A1:B1");
@@ -935,7 +942,7 @@ describe("clipboard", () => {
     });
 
     test("selection is updated to contain exactly the cut and pasted zone", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       cut(model, "A1:B2");
 
       // select C3:G7
@@ -951,7 +958,7 @@ describe("clipboard", () => {
 
   describe("copy/paste a zone in several selection will duplicate the zone on each selection", () => {
     test("paste a value (zone with hight=1 and width=1)", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "33");
       copy(model, "A1");
       paste(model, "C1, E1");
@@ -960,7 +967,7 @@ describe("clipboard", () => {
     });
 
     test("selection is updated to contain exactly the new pasted zones", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       copy(model, "A1");
 
       // select C1 and E1
@@ -973,9 +980,9 @@ describe("clipboard", () => {
     });
 
     test("paste a zone with more than one value is not allowed", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       copy(model, "A1:B2");
-      const result = store.isCommandValid({ type: "PASTE", target: target("C1, E1") });
+      const result = plugin.isCommandValid({ type: "PASTE", target: target("C1, E1") });
 
       expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
     });
@@ -983,7 +990,7 @@ describe("clipboard", () => {
 
   describe("cut/paste a zone in several selection will paste the zone only once", () => {
     test("paste a value (zone with hight=1 and width=1)", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "33");
       cut(model, "A1");
       paste(model, "E1, C1");
@@ -992,7 +999,7 @@ describe("clipboard", () => {
     });
 
     test("selection is updated to contain exactly the new pasted zones", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       cut(model, "A1");
 
       // select C1 and E1
@@ -1005,25 +1012,25 @@ describe("clipboard", () => {
     });
 
     test("paste a zone with more than one value is not allowed", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       cut(model, "A1:B2");
-      const result = store.isCommandValid({ type: "PASTE", target: target("C1, E1") });
+      const result = plugin.isCommandValid({ type: "PASTE", target: target("C1, E1") });
       expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
     });
   });
 
   describe("cut/paste several zones", () => {
     test("cutting is not allowed if multiple selection", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setSelection(model, ["A1", "A2"]);
-      const result = store.isCommandValid({ type: "CUT" });
+      const result = plugin.isCommandValid({ type: "CUT" });
       expect(result).toBeCancelledBecause(CommandResult.WrongCutSelection);
     });
   });
 
   describe("copy/paste several zones", () => {
     beforeEach(() => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "a1");
       setCellContent(model, "A2", "a2");
       setCellContent(model, "A3", "a3");
@@ -1038,9 +1045,9 @@ describe("clipboard", () => {
     describe("if they have same left and same right", () => {
       test("copy all zones", () => {
         copy(model, "A1:B1", " A2:B2");
-        expect(getClipboardVisibleZones(store)[0]).toEqual(toZone("A1:B1"));
-        expect(getClipboardVisibleZones(store)[1]).toEqual(toZone("A2:B2"));
-        expect(getClipboardVisibleZones(store).length).toBe(2);
+        expect(getClipboardVisibleZones(plugin)[0]).toEqual(toZone("A1:B1"));
+        expect(getClipboardVisibleZones(plugin)[1]).toEqual(toZone("A2:B2"));
+        expect(getClipboardVisibleZones(plugin).length).toBe(2);
         paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "F7")).toBe("a2");
@@ -1050,8 +1057,8 @@ describe("clipboard", () => {
 
       test("Copy cells only once", () => {
         copy(model, "A1:A3", "A1:A2", "A2:A3", "A1", "A2", "A3");
-        expect(getClipboardVisibleZones(store)[0]).toEqual(toZone("A1:A3"));
-        expect(getClipboardVisibleZones(store).length).toBe(1);
+        expect(getClipboardVisibleZones(plugin)[0]).toEqual(toZone("A1:A3"));
+        expect(getClipboardVisibleZones(plugin).length).toBe(1);
         paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "F7")).toBe("a2");
@@ -1062,9 +1069,9 @@ describe("clipboard", () => {
       test("paste zones without gap", () => {
         // gap between 1st selection and 2nd selection is one row
         copy(model, "A1:B1", "A3:B3");
-        expect(getClipboardVisibleZones(store)[0]).toEqual(toZone("A1:B1"));
-        expect(getClipboardVisibleZones(store)[1]).toEqual(toZone("A3:B3"));
-        expect(getClipboardVisibleZones(store).length).toBe(2);
+        expect(getClipboardVisibleZones(plugin)[0]).toEqual(toZone("A1:B1"));
+        expect(getClipboardVisibleZones(plugin)[1]).toEqual(toZone("A3:B3"));
+        expect(getClipboardVisibleZones(plugin).length).toBe(2);
         paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "F7")).toBe("a3");
@@ -1088,9 +1095,9 @@ describe("clipboard", () => {
     describe("if zones have same top and same bottom", () => {
       test("copy all zones", () => {
         copy(model, "A1:A2", "B1:B2");
-        expect(getClipboardVisibleZones(store)[0]).toEqual(toZone("A1:A2"));
-        expect(getClipboardVisibleZones(store)[1]).toEqual(toZone("B1:B2"));
-        expect(getClipboardVisibleZones(store).length).toBe(2);
+        expect(getClipboardVisibleZones(plugin)[0]).toEqual(toZone("A1:A2"));
+        expect(getClipboardVisibleZones(plugin)[1]).toEqual(toZone("B1:B2"));
+        expect(getClipboardVisibleZones(plugin).length).toBe(2);
         paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "F7")).toBe("a2");
@@ -1100,8 +1107,8 @@ describe("clipboard", () => {
 
       test("Copy cells only once", () => {
         copy(model, "A1:C1", "A1:B1", "B1:C1", "A1", "B1", "C1");
-        expect(getClipboardVisibleZones(store)[0]).toEqual(toZone("A1:C1"));
-        expect(getClipboardVisibleZones(store).length).toBe(1);
+        expect(getClipboardVisibleZones(plugin)[0]).toEqual(toZone("A1:C1"));
+        expect(getClipboardVisibleZones(plugin).length).toBe(1);
         paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "G6")).toBe("b1");
@@ -1135,8 +1142,8 @@ describe("clipboard", () => {
     describe("copy/paste the last zone if zones don't have [same top and same bottom] or [same left and same right]", () => {
       test("test with dissociated zones", () => {
         copy(model, "A1:A2", "B2:B3");
-        expect(getClipboardVisibleZones(store)[0]).toEqual(toZone("B2:B3"));
-        expect(getClipboardVisibleZones(store).length).toBe(1);
+        expect(getClipboardVisibleZones(plugin)[0]).toEqual(toZone("B2:B3"));
+        expect(getClipboardVisibleZones(plugin).length).toBe(1);
         paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("b2");
         expect(getCellContent(model, "F7")).toBe("b3");
@@ -1144,8 +1151,8 @@ describe("clipboard", () => {
 
       test("test with overlapped zones", () => {
         copy(model, "A1:B2", "B2:B3");
-        expect(getClipboardVisibleZones(store)[0]).toEqual(toZone("B2:B3"));
-        expect(getClipboardVisibleZones(store).length).toBe(1);
+        expect(getClipboardVisibleZones(plugin)[0]).toEqual(toZone("B2:B3"));
+        expect(getClipboardVisibleZones(plugin).length).toBe(1);
         paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("b2");
         expect(getCellContent(model, "F7")).toBe("b3");
@@ -1164,12 +1171,12 @@ describe("clipboard", () => {
 
     test("is not allowed if paste in several selection", () => {
       copy(model, "A1", "C1");
-      const result = store.isCommandValid({ type: "PASTE", target: target("A2, B2") });
+      const result = plugin.isCommandValid({ type: "PASTE", target: target("A2, B2") });
       expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
     });
   });
   test("can copy and paste a cell with STRING content", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", '="test"');
 
     expect(getCellText(model, "B2")).toEqual('="test"');
@@ -1181,11 +1188,11 @@ describe("clipboard", () => {
     expect(getEvaluatedCell(model, "B2").value).toEqual("test");
     expect(getCellText(model, "D2")).toEqual('="test"');
     expect(getEvaluatedCell(model, "D2").value).toEqual("test");
-    expect(getClipboardVisibleZones(store).length).toBe(0);
+    expect(getClipboardVisibleZones(plugin).length).toBe(0);
   });
 
   test("can undo a paste operation", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
 
     copy(model, "B2");
@@ -1196,7 +1203,7 @@ describe("clipboard", () => {
   });
 
   test("can paste-format a cell with style", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     setFormatting(model, "B2", { bold: true });
@@ -1209,7 +1216,7 @@ describe("clipboard", () => {
   });
 
   test("can copy and paste format", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     setFormatting(model, "B2", { bold: true });
     selectCell(model, "B2");
@@ -1222,7 +1229,7 @@ describe("clipboard", () => {
   });
 
   test("paste format does not remove content", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     setCellContent(model, "C2", "c2");
     setFormatting(model, "B2", { bold: true });
@@ -1237,7 +1244,7 @@ describe("clipboard", () => {
   });
 
   test("can undo a paste format", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     setFormatting(model, "B2", { bold: true });
     selectCell(model, "B2");
@@ -1252,7 +1259,7 @@ describe("clipboard", () => {
   });
 
   test("can copy and paste as value", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     copy(model, "B2");
@@ -1261,7 +1268,7 @@ describe("clipboard", () => {
   });
 
   test("can copy a cell with a style and paste as value", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     setFormatting(model, "B2", { bold: true });
     selectCell(model, "B2");
@@ -1275,7 +1282,7 @@ describe("clipboard", () => {
   });
 
   test("can copy a cell with a border and paste as value", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     setZoneBorders(model, { position: "bottom" });
@@ -1290,7 +1297,7 @@ describe("clipboard", () => {
 
   test("can copy a cell with a conditional format and paste as value", () => {
     model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "C1", "1");
@@ -1310,7 +1317,7 @@ describe("clipboard", () => {
   });
 
   test("paste as value does not remove style", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     setCellContent(model, "C3", "c3");
     selectCell(model, "C3");
@@ -1325,7 +1332,7 @@ describe("clipboard", () => {
   });
 
   test("paste as value does not remove border", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     setCellContent(model, "C3", "c3");
     setZoneBorders(model, { position: "bottom" }, ["C3"]);
@@ -1340,7 +1347,7 @@ describe("clipboard", () => {
   });
 
   test("paste as value does remove number format", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "0.451");
     setFormat(model, "B2", "0.00%");
     expect(getCellContent(model, "B2")).toBe("45.10%");
@@ -1355,7 +1362,7 @@ describe("clipboard", () => {
   });
 
   test("paste as value works with both no core format and empty string core format", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "D4", "=DATE(2024,6,5)");
 
     copy(model, "D4");
@@ -1376,7 +1383,7 @@ describe("clipboard", () => {
   ])(
     "can copy a cell with a format and paste as value",
     (originalContent, format, formatedContent) => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "B2", originalContent);
       setFormat(model, "B2", format);
       expect(getCellContent(model, "B2")).toBe(formatedContent);
@@ -1391,7 +1398,7 @@ describe("clipboard", () => {
   );
 
   test("copy as value : the cell take the format of the target cell", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "46023");
     setFormat(model, "B2", "0.00%");
     expect(getCellContent(model, "B2")).toBe("4602300.00%");
@@ -1406,7 +1413,7 @@ describe("clipboard", () => {
   });
 
   test("can copy a formula and paste as value", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "=SUM(1+2)");
     setCellContent(model, "A2", "=EQ(42,42)");
     setCellContent(model, "A3", '=CONCAT("Ki","kou")');
@@ -1418,7 +1425,7 @@ describe("clipboard", () => {
   });
 
   test("Can paste localized content as value", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     updateLocale(model, DEFAULT_LOCALES[1]);
     setCellContent(model, "A1", "5.4");
     setCellContent(model, "A2", "=SUM(4.5)");
@@ -1429,7 +1436,7 @@ describe("clipboard", () => {
   });
 
   test("can copy a formula and paste -> apply the format defined by user, if not apply the automatic evaluated format ", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
 
     // formula without format
     setCellContent(model, "A1", "=SUM(1+2)");
@@ -1471,7 +1478,7 @@ describe("clipboard", () => {
   });
 
   test("can copy a formula and paste format only --> apply the automatic evaluated format", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
 
     // formula without format
     setCellContent(model, "A1", "=SUM(1+2)");
@@ -1517,7 +1524,7 @@ describe("clipboard", () => {
   });
 
   test("can undo a paste as value", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     setFormatting(model, "B2", { bold: true });
@@ -1532,10 +1539,10 @@ describe("clipboard", () => {
   });
 
   test("cut and paste as value is not allowed", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     cut(model, "B2");
-    const result = store.isCommandValid({
+    const result = plugin.isCommandValid({
       type: "PASTE",
       target: target("C3"),
       pasteOption: "asValue",
@@ -1545,10 +1552,10 @@ describe("clipboard", () => {
   });
 
   test("cut and paste format only is not allowed", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     cut(model, "B2");
-    const result = store.isCommandValid({
+    const result = plugin.isCommandValid({
       type: "PASTE",
       target: target("C3"),
       pasteOption: "onlyFormat",
@@ -1558,7 +1565,7 @@ describe("clipboard", () => {
 
   describe("copy/paste a formula with references", () => {
     test("update the references", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "=SUM(C1:C2)");
       copy(model, "A1");
       paste(model, "B2");
@@ -1582,7 +1589,7 @@ describe("clipboard", () => {
       ["=$C1", "=$C2"],
       ["=SUM($C1:D$1)", "=SUM($C$1:E2)"], //excel and g-sheet compatibility ($C2:E$1 <=> $C$1:E2)
     ])("does not update fixed references", (value, expected) => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", value);
       copy(model, "A1");
       paste(model, "B2");
@@ -1590,7 +1597,7 @@ describe("clipboard", () => {
     });
 
     test("update cross-sheet reference", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       createSheet(model, { sheetId: "42" });
       setCellContent(model, "B2", "=Sheet2!B2");
       copy(model, "B2");
@@ -1599,7 +1606,7 @@ describe("clipboard", () => {
     });
 
     test("update cross-sheet reference with a space in the name", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       createSheetWithName(model, { sheetId: "42" }, "Sheet 2");
       setCellContent(model, "B2", "='Sheet 2'!B2");
       copy(model, "B2");
@@ -1608,7 +1615,7 @@ describe("clipboard", () => {
     });
 
     test("update cross-sheet reference in a smaller sheet", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       createSheet(model, { sheetId: "42", rows: 2, cols: 2 });
       setCellContent(model, "A1", "=Sheet2!A1:A2");
       copy(model, "A1");
@@ -1617,7 +1624,7 @@ describe("clipboard", () => {
     });
 
     test("update cross-sheet reference to a range", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       createSheet(model, { sheetId: "42" });
       setCellContent(model, "A1", "=SUM(Sheet2!A2:A5)");
       copy(model, "A1");
@@ -1627,7 +1634,7 @@ describe("clipboard", () => {
   });
 
   test("can cut and paste an invalid formula", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "=(+)");
     setCellContent(model, "A2", "=C1{C2");
     cut(model, "A1:A2");
@@ -1639,7 +1646,7 @@ describe("clipboard", () => {
   });
 
   test("cut/paste a formula with references does not update references in the formula", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "=SUM(C1:C2)");
     cut(model, "A1");
     paste(model, "B2");
@@ -1647,7 +1654,7 @@ describe("clipboard", () => {
   });
 
   test("cut/paste a formula with references in another sheet updates the sheet references in the formula", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     createSheet(model, { sheetId: "sh2", name: "Sheet2" });
     setCellContent(model, "A1", "=SUM(C1:C2)");
     setCellContent(model, "B1", "=Sheet2!A1 + A2");
@@ -1660,7 +1667,7 @@ describe("clipboard", () => {
   });
 
   test("copy/paste a zone present in formulas references does not update references", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "=B2");
     copy(model, "B2");
     paste(model, "C3");
@@ -1669,7 +1676,7 @@ describe("clipboard", () => {
 
   describe("cut/paste a zone present in formulas references", () => {
     test("update references", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "=B2");
       cut(model, "B2");
       paste(model, "C3");
@@ -1677,7 +1684,7 @@ describe("clipboard", () => {
     });
 
     test("update references to a range", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "=SUM(B2:C3)");
       cut(model, "B2:C3");
       paste(model, "D4");
@@ -1685,7 +1692,7 @@ describe("clipboard", () => {
     });
 
     test("update fixed references", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "=$B$2");
       cut(model, "B2");
       paste(model, "C3");
@@ -1693,7 +1700,7 @@ describe("clipboard", () => {
     });
 
     test("update cross-sheet reference", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       createSheet(model, { sheetId: "Sheet2" });
       setCellContent(model, "A1", "=Sheet2!$B$2");
 
@@ -1708,7 +1715,7 @@ describe("clipboard", () => {
     });
 
     test("update references even if the formula is present in the cutting zone", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "=B1");
       setCellContent(model, "B1", "b1");
       cut(model, "A1:B1");
@@ -1721,7 +1728,7 @@ describe("clipboard", () => {
     });
 
     test("does not update reference if it isn't fully included in the zone", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "=SUM(B1:C1)+B1");
       cut(model, "B1");
       paste(model, "B2");
@@ -1729,7 +1736,7 @@ describe("clipboard", () => {
     });
 
     test("does not update reference if it isn't fully included in the zone even if the formula is present in the cutting zone", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "=SUM(B1:C1)+B1");
       setCellContent(model, "B1", "b1");
       cut(model, "A1:B1");
@@ -1747,7 +1754,7 @@ describe("clipboard", () => {
     ["=$C1:1", "=$C2:2"],
     ["=SUM($A:D$2)", "=SUM($A$2:E)"],
   ])("can copy and paste formula with full cols/rows", (value, expected) => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", value);
     copy(model, "A1");
     paste(model, "B2");
@@ -1755,7 +1762,7 @@ describe("clipboard", () => {
   });
 
   test("can copy format from empty cell to another cell to clear format", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
 
     // write something in B2 and set its format
     setCellContent(model, "B2", "b2");
@@ -1775,7 +1782,7 @@ describe("clipboard", () => {
 
   test("can copy and paste a conditional formatted cell", () => {
     model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "C1", "1");
@@ -1796,7 +1803,7 @@ describe("clipboard", () => {
   });
   test("can cut and paste a conditional formatted cell", () => {
     model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "C1", "1");
@@ -1815,7 +1822,7 @@ describe("clipboard", () => {
   });
 
   test("can cut and paste a conditional format in another sheet", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     const sheet1Id = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "sheet2Id" });
     addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1");
@@ -1829,7 +1836,7 @@ describe("clipboard", () => {
   });
 
   test("copy cells with CF => remove origin CF => paste => it should paste with original CF", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     addEqualCf(model, "A1:A3", { fillColor: "#00FF00" }, "1", "cfId");
     copy(model, "A1:A3");
     removeCF(model, "cfId");
@@ -1840,7 +1847,7 @@ describe("clipboard", () => {
   });
 
   test("copy cells with multiple independent CF => remove all copied CF => paste => it should paste with all original CF in the correct positions", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     const sheetId = model.getters.getActiveSheetId();
     addEqualCf(model, "A1:A3", { fillColor: "#00FF00" }, "1", "cf1");
     addEqualCf(model, "C1:C3", { fillColor: "#0000FF" }, "1", "cf2");
@@ -1855,7 +1862,7 @@ describe("clipboard", () => {
   });
 
   test("copy cells with multiple independent CF => remove origin sheet => paste => it should paste with all original CF in the correct positions", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     const sheetId = model.getters.getActiveSheetId();
     addEqualCf(model, "A1:A3", { fillColor: "#00FF00" }, "1", "cf1");
     addEqualCf(model, "C1:C3", { fillColor: "#0000FF" }, "1", "cf2");
@@ -1872,7 +1879,7 @@ describe("clipboard", () => {
 
   test("can copy and paste a conditional formatted zone", () => {
     model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
@@ -1901,7 +1908,7 @@ describe("clipboard", () => {
 
   test("can cut and paste a conditional formatted zone", () => {
     model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
@@ -1928,7 +1935,7 @@ describe("clipboard", () => {
         { id: "s2", colNumber: 5, rowNumber: 5 },
       ],
     });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
@@ -1949,7 +1956,7 @@ describe("clipboard", () => {
 
   test("can copy and paste a conditional formatted cell with a data bar to another page", () => {
     model = createModelFromGrid({ B1: "1", B2: "2" });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "sh2" });
     addCf(
@@ -1980,7 +1987,7 @@ describe("clipboard", () => {
 
   test("can cut and paste a conditional formatted zone to another page", () => {
     model = new Model({ sheets: [{ id: "sheet1" }, { id: "sheet2" }] });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1");
     cut(model, "A1:A2");
     activateSheet(model, "sheet2");
@@ -1992,7 +1999,7 @@ describe("clipboard", () => {
   });
 
   test("copy paste CF in another sheet => change CF => copy paste again does not overwrite the previously pasted CF", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     createSheet(model, {});
     const sheet1Id = model.getters.getSheetIds()[0];
     const sheet2Id = model.getters.getSheetIds()[1];
@@ -2026,7 +2033,7 @@ describe("clipboard", () => {
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
 
     model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
     const sheetId = model.getters.getActiveSheetId();
     addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
 
@@ -2038,7 +2045,7 @@ describe("clipboard", () => {
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     createSheet(model, { sheetId: "42" });
     setCellContent(model, "B2", "=Sheet2!B2");
 
@@ -2048,7 +2055,7 @@ describe("clipboard", () => {
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference with a space in the name", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     createSheetWithName(model, { sheetId: "42" }, "Sheet 2");
     setCellContent(model, "B2", "='Sheet 2'!B2");
 
@@ -2058,7 +2065,7 @@ describe("clipboard", () => {
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference in a smaller sheet", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     createSheet(model, { sheetId: "42", rows: 2, cols: 2 });
     setCellContent(model, "A1", "=Sheet2!A1:A2");
 
@@ -2068,7 +2075,7 @@ describe("clipboard", () => {
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference to a range", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     createSheet(model, { sheetId: "42" });
     setCellContent(model, "A1", "=SUM(Sheet2!A2:A5)");
 
@@ -2081,7 +2088,7 @@ describe("clipboard", () => {
     ["=A1", "=#REF"],
     ["=SUM(A1:B1)", "=SUM(#REF)"],
   ])("Copy invalid ranges due to row deletion", (initialFormula, expectedInvalidFormula) => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A3", initialFormula);
     deleteRows(model, [0]);
     expect(getCellRawContent(model, "A2")).toBe(expectedInvalidFormula);
@@ -2095,7 +2102,7 @@ describe("clipboard", () => {
     ["=A1", "=#REF"],
     ["=SUM(A1:A2)", "=SUM(#REF)"],
   ])("Copy invalid ranges due to column deletion", (initialFormula, expectedInvalidFormula) => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "C1", initialFormula);
     deleteColumns(model, ["A"]);
     expect(getCellRawContent(model, "B1")).toBe(expectedInvalidFormula);
@@ -2109,7 +2116,7 @@ describe("clipboard", () => {
     ["=A1", "=#REF"],
     ["=SUM(A1:B1)", "=SUM(#REF)"],
   ])("Cut invalid ranges due to row deletion", (initialFormula, expectedInvalidFormula) => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A3", initialFormula);
     deleteRows(model, [0]);
     expect(getCellRawContent(model, "A2")).toBe(expectedInvalidFormula);
@@ -2123,7 +2130,7 @@ describe("clipboard", () => {
     ["=A1", "=#REF"],
     ["=SUM(A1:A2)", "=SUM(#REF)"],
   ])("Cut invalid ranges due to column deletion", (initialFormula, expectedInvalidFormula) => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "C1", initialFormula);
     deleteColumns(model, ["A"]);
     expect(getCellRawContent(model, "B1")).toBe(expectedInvalidFormula);
@@ -2140,7 +2147,7 @@ describe("clipboard", () => {
       B3: "b3", C3: "c3", D3: "d3",
       B4: "b4", C4: "c4", D4: "d4",
     });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
 
     createTableWithFilter(model, "B2:D4");
     updateFilter(model, "C3", ["c3"]);
@@ -2161,7 +2168,7 @@ describe("clipboard", () => {
       B3: "b3", C3: "c3", D3: "d3",
       B4: "b4", C4: "c4", D4: "d4",
     });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
 
     createTableWithFilter(model, "B2:D4");
     updateFilter(model, "C3", ["c3"]);
@@ -2182,7 +2189,7 @@ describe("clipboard", () => {
       B3: "b3", C3: "c3", D3: "d3",
       B4: "b4", C4: "c4", D4: "d4",
     });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
 
     hideRows(model, [2]);
     hideColumns(model, ["C"]);
@@ -2203,7 +2210,7 @@ describe("clipboard", () => {
       B3: "b3", C3: "c3", D3: "d3",
       B4: "b4", C4: "c4", D4: "d4",
     });
-    ({ store } = makeStoreWithModel(model, ClipboardStore));
+    ({ getPlugin, plugin } = makeClipboardPlugin(model));
 
     hideRows(model, [2]);
     hideColumns(model, ["C"]);
@@ -2224,7 +2231,7 @@ describe("clipboard", () => {
       A2: "Alice",    B2: "10",
       A3: "Bob",      B3: "30"
     };
-    ({ store, model } = makeStoreWithModel(createModelFromGrid(grid), ClipboardStore));
+    ({ plugin, model } = makeClipboardPlugin(createModelFromGrid(grid)));
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
@@ -2257,7 +2264,7 @@ describe("clipboard", () => {
         A2: "Alice",    B2: "10",
         A3: "Bob",      B3: "30"
     };
-    ({ store, model } = makeStoreWithModel(createModelFromGrid(grid), ClipboardStore));
+    ({ plugin, model } = makeClipboardPlugin(createModelFromGrid(grid)));
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
@@ -2282,7 +2289,7 @@ describe("clipboard", () => {
       A2: "Alice",    B2: "10",
       A3: "Bob",      B3: "30"
     };
-    const { model } = makeStoreWithModel(createModelFromGrid(grid), ClipboardStore);
+    ({ model } = makeClipboardPlugin(createModelFromGrid(grid)));
 
     setFormat(model, "B2:B3", "#,##0[$$]");
 
@@ -2314,7 +2321,7 @@ describe("clipboard", () => {
       A2: "Alice",    B2: "10",    C2: "=PIVOT(C1)",
       A3: "Bob",      B3: "30"
     };
-    ({ store, model } = makeStoreWithModel(createModelFromGrid(grid), ClipboardStore));
+    ({ plugin, model } = makeClipboardPlugin(createModelFromGrid(grid)));
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
@@ -2333,7 +2340,7 @@ describe("clipboard", () => {
       A2: "Alice",    B2: "10",
       A3: "",         B3: "20"
     };
-    ({ store, model } = makeStoreWithModel(createModelFromGrid(grid), ClipboardStore));
+    ({ plugin, model } = makeClipboardPlugin(createModelFromGrid(grid)));
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
@@ -2359,7 +2366,7 @@ describe("clipboard", () => {
       A2: "Alice",    B2: "10",
       A3: "Bob",      B3: "30"
     };
-    ({ store, model } = makeStoreWithModel(createModelFromGrid(grid), ClipboardStore));
+    ({ plugin, model } = makeClipboardPlugin(createModelFromGrid(grid)));
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
@@ -2377,10 +2384,7 @@ describe("clipboard", () => {
         !!getters.getCorrespondingFormulaCell(position)?.compiledFormula.usesSymbol("SEQUENCE"),
       getStaticFormula: (position) => `="static ${toXC(position.col, position.row)}"`,
     });
-    ({ store, model } = makeStoreWithModel(
-      createModelFromGrid({ A1: "=SEQUENCE(3,2)" }),
-      ClipboardStore
-    ));
+    ({ plugin, model } = makeClipboardPlugin(createModelFromGrid({ A1: "=SEQUENCE(3,2)" })));
 
     // copy part of the spread formula
     copy(model, "A1:B2");
@@ -2411,7 +2415,7 @@ describe("clipboard", () => {
       A3: "Bob",      B3: "30"
     };
 
-    ({ store, model } = makeStoreWithModel(createModelFromGrid(grid), ClipboardStore));
+    ({ plugin, model } = makeClipboardPlugin(createModelFromGrid(grid)));
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
@@ -2425,7 +2429,7 @@ describe("clipboard", () => {
 
 describe("clipboard: pasting outside of sheet", () => {
   test("can copy and paste a full column", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "txt");
     const activeSheetId = model.getters.getActiveSheetId();
     const currentRowNumber = model.getters.getNumberRows(activeSheetId);
@@ -2438,7 +2442,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("can copy and paste a full row", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "txt");
 
     const activeSheetId = model.getters.getActiveSheetId();
@@ -2452,7 +2456,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("fill down on cell(s) of edge row should do nothing", async () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B1", "b1");
     selectCell(model, "B1");
     copyPasteAboveCells(model);
@@ -2466,7 +2470,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("fill right on cell(s) of edge column should do nothing", async () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A2", "a2");
     selectCell(model, "A2");
     copyPasteCellsOnLeft(model);
@@ -2480,7 +2484,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("fill down selection with single row -> for each cell, replicates the cell above it", async () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     copyPasteAboveCells(model);
@@ -2505,34 +2509,34 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("do not fill down if filling down would unmerge cells", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "a1");
     merge(model, "A2:A3");
     setSelection(model, ["A1:A3"]);
-    const result = store.isCommandValid({ type: "COPY_PASTE_CELLS_ABOVE" });
+    const result = plugin.isCommandValid({ type: "COPY_PASTE_CELLS_ABOVE" });
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 
   test("do not fill right if filling right would unmerge cells", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "a1");
     merge(model, "B1:C1");
     setSelection(model, ["A1:C1"]);
-    const result = store.isCommandValid({ type: "COPY_PASTE_CELLS_ON_LEFT" });
+    const result = plugin.isCommandValid({ type: "COPY_PASTE_CELLS_ON_LEFT" });
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 
   test("do not fill if filling would unmerge cells", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "a1");
     merge(model, "A2:A3");
     setSelection(model, ["A1:A3"]);
-    const result = store.isCommandValid({ type: "COPY_PASTE_CELLS_ON_ZONE" });
+    const result = plugin.isCommandValid({ type: "COPY_PASTE_CELLS_ON_ZONE" });
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 
   test("fill right selection with single column -> for each cell, replicates the cell on its left", async () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B1", "b1");
     selectCell(model, "B1");
     copyPasteCellsOnLeft(model);
@@ -2557,7 +2561,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("fill down selection with multiple rows -> copies first row and pastes in each subsequent row", async () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B3", "b3");
     setSelection(model, ["B2:B3"]);
     copyPasteAboveCells(model);
@@ -2579,13 +2583,13 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("CopyPasteAboveCell and copyPasteCellsOnLeft do not change the clipboard state", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B3", "b3");
     cut(model, "B3");
     setSelection(model, ["A1:B2"]);
     copyPasteAboveCells(model);
 
-    expect(store.isCutOperation()).toBe(true);
+    expect(plugin.isCutOperation()).toBe(true);
     paste(model, "A2");
     expect(getCellContent(model, "A2")).toBe("b3");
 
@@ -2594,23 +2598,23 @@ describe("clipboard: pasting outside of sheet", () => {
     setSelection(model, ["A1:B2"]);
     copyPasteCellsOnLeft(model);
 
-    expect(store.isCutOperation()).toBe(true);
+    expect(plugin.isCutOperation()).toBe(true);
     paste(model, "A2");
     expect(getCellContent(model, "A2")).toBe("b3");
   });
 
   test("Delete Cell and Insert Cell do not invalidate the clipboard", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B3", "b3");
     copy(model, "B3");
 
     deleteCells(model, "A1", "up");
-    expect(store.isCutOperation()).toBe(false);
+    expect(plugin.isCutOperation()).toBe(false);
     paste(model, "A2");
     expect(getCellContent(model, "A2")).toBe("b3");
 
     insertCells(model, "A1", "down");
-    expect(store.isCutOperation()).toBe(false);
+    expect(plugin.isCutOperation()).toBe(false);
     paste(model, "A5");
     expect(getCellContent(model, "A5")).toBe("b3");
   });
@@ -2631,7 +2635,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("fill right selection with multiple columns -> copies first column and pastes in each subsequent column, ", async () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "C1", "c1");
     setSelection(model, ["B1:C1"]);
     copyPasteCellsOnLeft(model);
@@ -2653,7 +2657,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("Copy a formula which lead to #REF", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B3", "=A1");
     copy(model, "B3");
     paste(model, "B2");
@@ -2662,7 +2666,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("Can cut & paste a formula", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "=1");
     cut(model, "A1");
     paste(model, "B1");
@@ -2671,7 +2675,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("Cut & paste a formula update offsets only if the range is in the zone", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "B1", "2");
     setCellContent(model, "B2", "=B1");
     setCellContent(model, "B3", "=B2");
@@ -2682,7 +2686,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("can paste multiple cells from os to outside of sheet", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     createSheet(model, { activate: true, sheetId: "2", rows: 2, cols: 2 });
     pasteFromOSClipboard(model, "B2", { text: "A\nque\tcoucou\nBOB" });
     expect(getCellContent(model, "B2")).toBe("A");
@@ -2704,7 +2708,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("Can paste localized formula from the OS", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     updateLocale(model, {
       ...DEFAULT_LOCALE,
       decimalSeparator: ",",
@@ -2717,7 +2721,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("Pasted images from OS are inserted at the paste position with a limited size", () => {
-    ({ model, store, getPlugin } = makeStore(ClipboardStore));
+    ({ getPlugin, plugin, model } = makeClipboardPlugin());
     const viewPlugin = getPlugin(ViewportsPlugin);
     const width = 2000;
     const height = 2000;
@@ -2751,13 +2755,13 @@ describe("clipboard: pasting outside of sheet", () => {
       }
     }
     model = new Model({}, { external: { fileStore: new FileStore() } });
-    const { store, getPlugin } = makeStoreWithModel(model, ClipboardStore);
+    const { plugin, getPlugin } = makeClipboardPlugin(model);
     const spyNotifyUI = jest.spyOn(getPlugin(NotificationPlugin), "notifyUser");
 
     createImage(model, { figureId: "test" });
     selectFigure(model, "test");
     copy(model);
-    await store.getClipboardTextAndImageContent();
+    await plugin.getClipboardTextAndImageContent();
     expect(spyNotifyUI).toHaveBeenCalledWith({
       sticky: false,
       text: "The file you are trying to copy is too large (>5MB).\nIt will not be added to your OS clipboard.\nYou can download it directly instead.",
@@ -2766,7 +2770,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("Can copy parts of the spread values", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
@@ -2778,7 +2782,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("Cutting parts of the spread values will make a copy of the values", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
@@ -2793,7 +2797,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("can copy and paste format only from spread value", () => {
-    ({ model, store } = makeStore(ClipboardStore));
+    ({ model, getPlugin, plugin } = makeClipboardPlugin());
 
     // formula without format
     setCellContent(model, "A1", "=SUM(1+2)");
@@ -2840,7 +2844,7 @@ describe("clipboard: pasting outside of sheet", () => {
 
   describe("add col/row can invalidate the clipboard of cut", () => {
     test("adding a column before a cut zone is invalidating the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "1");
       setCellContent(model, "B1", "2");
 
@@ -2855,7 +2859,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
 
     test("adding a column after a cut zone is not invalidating the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "1");
       setCellContent(model, "B1", "2");
 
@@ -2869,7 +2873,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
 
     test("adding a column inside a cut zone is invalidating the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "1");
       setCellContent(model, "B1", "2");
 
@@ -2883,7 +2887,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
 
     test("adding multipe columns inside a cut zone is invalidating the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "1");
       setCellContent(model, "B1", "2");
 
@@ -2897,7 +2901,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
 
     test("adding a row before a cut zone is invalidating the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "2");
 
@@ -2912,7 +2916,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
 
     test("adding a row after a cut zone is not invalidating the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "2");
 
@@ -2926,7 +2930,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
 
     test("adding a row inside a cut zone is invalidating the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "2");
 
@@ -2940,7 +2944,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
 
     test("adding multiple rows inside a cut zone is invalidating the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "2");
 
@@ -2954,7 +2958,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
 
     test("Adding rows in another sheet does not invalidate the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "2");
       cut(model, "A1:A2");
@@ -2970,7 +2974,7 @@ describe("clipboard: pasting outside of sheet", () => {
 
   describe("remove col/row can invalidate the clipboard of cut", () => {
     test("removing a column before a cut zone is invalidating the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "B2", "1");
       setCellContent(model, "C2", "2");
 
@@ -2984,7 +2988,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
 
     test("removing a column after a cut zone is not invalidating the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "B2", "1");
       setCellContent(model, "C2", "2");
 
@@ -2998,7 +3002,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
 
     test("removing a column inside a cut zone is invalidating the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "B2", "1");
       setCellContent(model, "C2", "2");
 
@@ -3010,7 +3014,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
 
     test("removing a row before a cut zone is invalidating the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "B2", "1");
       setCellContent(model, "C2", "2");
 
@@ -3024,7 +3028,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
 
     test("removing a row after a cut zone is not invalidating the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "B2", "1");
       setCellContent(model, "C2", "2");
 
@@ -3038,7 +3042,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
 
     test("removing a row inside a cut zone is invalidating the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "B2", "1");
       setCellContent(model, "B3", "2");
 
@@ -3050,7 +3054,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
 
     test("Removing rows in another sheet does not invalidate the clipboard", () => {
-      ({ model, store } = makeStore(ClipboardStore));
+      ({ model, getPlugin, plugin } = makeClipboardPlugin());
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "2");
       cut(model, "A1:A2");
@@ -3066,8 +3070,8 @@ describe("clipboard: pasting outside of sheet", () => {
 });
 describe("cross spreadsheet copy/paste", () => {
   test("should copy/paste a cell with basic formatting", async () => {
-    const { model: modelA, store: storeA } = makeStore(ClipboardStore);
-    const { model: modelB } = makeStore(ClipboardStore);
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin();
+    const { model: modelB } = makeClipboardPlugin();
     const cellStyle = { bold: true, fillColor: "#00FF00", fontSize: 20 };
 
     setCellContent(modelA, "B2", "b2");
@@ -3079,7 +3083,7 @@ describe("cross spreadsheet copy/paste", () => {
     });
 
     copy(modelA, "B2");
-    const clipboardContent = await storeA.getClipboardTextAndImageContent();
+    const clipboardContent = await pluginA.getClipboardTextAndImageContent();
 
     expect(clipboardContent["text/plain"]).toBe("b2");
     const osClipboardContent = parseOSClipboardContent(clipboardContent);
@@ -3092,8 +3096,8 @@ describe("cross spreadsheet copy/paste", () => {
   });
 
   test("should copy/paste a cell with a border", async () => {
-    const { model: modelA, store: storeA } = makeStore(ClipboardStore);
-    const { model: modelB } = makeStore(ClipboardStore);
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin();
+    const { model: modelB } = makeClipboardPlugin();
 
     selectCell(modelA, "B2");
     setZoneBorders(modelA, { position: "top" });
@@ -3101,7 +3105,7 @@ describe("cross spreadsheet copy/paste", () => {
     expect(getBorder(modelA, "B2")).toEqual({ top: DEFAULT_BORDER_DESC });
 
     copy(modelA, "B2");
-    const clipboardContent = await storeA.getClipboardTextAndImageContent();
+    const clipboardContent = await pluginA.getClipboardTextAndImageContent();
     const osClipboardContent = parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D2", osClipboardContent);
 
@@ -3110,8 +3114,8 @@ describe("cross spreadsheet copy/paste", () => {
   });
 
   test("should copy/paste a cell with a formula", async () => {
-    const { model: modelA, store: storeA } = makeStore(ClipboardStore);
-    const { model: modelB } = makeStore(ClipboardStore);
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin();
+    const { model: modelB } = makeClipboardPlugin();
 
     setCellContent(modelA, "A1", "=SUM(1,2)");
     setCellContent(modelA, "A2", "=SUM(1,2)");
@@ -3122,7 +3126,7 @@ describe("cross spreadsheet copy/paste", () => {
     setCellContent(modelA, "A5", "=SOMME(1,2)");
 
     copy(modelA, "A1:A5");
-    const clipboardContent = await storeA.getClipboardTextAndImageContent();
+    const clipboardContent = await pluginA.getClipboardTextAndImageContent();
     const osClipboardContent = parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D1", osClipboardContent);
 
@@ -3134,14 +3138,14 @@ describe("cross spreadsheet copy/paste", () => {
   });
 
   test("should copy/paste a cell with a markdown link", async () => {
-    const { model: modelA, store: storeA } = makeStore(ClipboardStore);
-    const { model: modelB } = makeStore(ClipboardStore);
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin();
+    const { model: modelB } = makeClipboardPlugin();
     const url = "https://www.odoo.com";
     const urlLabel = "Odoo Website";
 
     setCellContent(modelA, "A1", markdownLink(urlLabel, url));
     copy(modelA, "A1");
-    const clipboardContent = await storeA.getClipboardTextAndImageContent();
+    const clipboardContent = await pluginA.getClipboardTextAndImageContent();
     const osClipboardContent = parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D1", osClipboardContent);
 
@@ -3155,8 +3159,8 @@ describe("cross spreadsheet copy/paste", () => {
   });
 
   test("should copy/paste a table", async () => {
-    const { model: modelA, store: storeA } = makeStore(ClipboardStore);
-    const { model: modelB } = makeStore(ClipboardStore);
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin();
+    const { model: modelB } = makeClipboardPlugin();
 
     createTable(modelA, "A1:B2");
     const tableA = modelA.getters.getCoreTables(modelA.getters.getActiveSheetId())[0];
@@ -3164,7 +3168,7 @@ describe("cross spreadsheet copy/paste", () => {
     expect(tableA).toMatchObject({ range: { zone: toZone("A1:B2") }, type: "static" });
 
     copy(modelA, "A1:B2");
-    const clipboardContent = await storeA.getClipboardTextAndImageContent();
+    const clipboardContent = await pluginA.getClipboardTextAndImageContent();
     const osClipboardContent = parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D1", osClipboardContent);
 
@@ -3175,8 +3179,8 @@ describe("cross spreadsheet copy/paste", () => {
   });
 
   test("should copy/paste a large column of similar formulas with correctly translated references", async () => {
-    const { model: modelA, store: storeA } = makeStore(ClipboardStore);
-    const { model: modelB } = makeStore(ClipboardStore);
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin();
+    const { model: modelB } = makeClipboardPlugin();
     const rowCount = 30;
 
     for (let row = 1; row <= rowCount; row++) {
@@ -3184,7 +3188,7 @@ describe("cross spreadsheet copy/paste", () => {
     }
 
     copy(modelA, `B1:B${rowCount}`);
-    const clipboardContent = await storeA.getClipboardTextAndImageContent();
+    const clipboardContent = await pluginA.getClipboardTextAndImageContent();
     const osClipboardContent = await parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D1", osClipboardContent);
 
@@ -3194,8 +3198,8 @@ describe("cross spreadsheet copy/paste", () => {
   });
 
   test("should copy/paste a large range of cells sharing the same literal value", async () => {
-    const { model: modelA, store: storeA } = makeStore(ClipboardStore);
-    const { model: modelB } = makeStore(ClipboardStore);
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin();
+    const { model: modelB } = makeClipboardPlugin();
     const rowCount = 30;
 
     for (let row = 1; row <= rowCount; row++) {
@@ -3203,7 +3207,7 @@ describe("cross spreadsheet copy/paste", () => {
     }
 
     copy(modelA, `A1:A${rowCount}`);
-    const clipboardContent = await storeA.getClipboardTextAndImageContent();
+    const clipboardContent = await pluginA.getClipboardTextAndImageContent();
     const osClipboardContent = await parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "C1", osClipboardContent);
 
@@ -3213,15 +3217,15 @@ describe("cross spreadsheet copy/paste", () => {
   });
 
   test("should copy/paste a large sparse range keeping only the filled cells", async () => {
-    const { model: modelA, store: storeA } = makeStore(ClipboardStore);
-    const { model: modelB } = makeStore(ClipboardStore);
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin();
+    const { model: modelB } = makeClipboardPlugin();
 
     setCellContent(modelA, "A1", "first");
     setCellContent(modelA, "A20", "middle");
     setCellContent(modelA, "A40", "last");
 
     copy(modelA, "A1:A40");
-    const clipboardContent = await storeA.getClipboardTextAndImageContent();
+    const clipboardContent = await pluginA.getClipboardTextAndImageContent();
     const osClipboardContent = await parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "C1", osClipboardContent);
 
@@ -3232,8 +3236,8 @@ describe("cross spreadsheet copy/paste", () => {
   });
 
   test("should copy/paste a large range sharing the same border and style", async () => {
-    const { model: modelA, store: storeA } = makeStore(ClipboardStore);
-    const { model: modelB } = makeStore(ClipboardStore);
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin();
+    const { model: modelB } = makeClipboardPlugin();
     const range = "A1:A30";
 
     setZoneBorders(modelA, { position: "all" }, [range]);
@@ -3243,7 +3247,7 @@ describe("cross spreadsheet copy/paste", () => {
     }
 
     copy(modelA, range);
-    const clipboardContent = await storeA.getClipboardTextAndImageContent();
+    const clipboardContent = await pluginA.getClipboardTextAndImageContent();
     const osClipboardContent = await parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "C1", osClipboardContent);
 
@@ -3255,8 +3259,8 @@ describe("cross spreadsheet copy/paste", () => {
   });
 
   test("should copy/paste a large range sharing the same conditional format and data validation rule", async () => {
-    const { model: modelA, store: storeA } = makeStore(ClipboardStore);
-    const { model: modelB } = makeStore(ClipboardStore);
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin();
+    const { model: modelB } = makeClipboardPlugin();
     const range = "A1:A30";
 
     for (let row = 1; row <= 30; row++) {
@@ -3266,7 +3270,7 @@ describe("cross spreadsheet copy/paste", () => {
     addDataValidation(modelA, range, "dv1");
 
     copy(modelA, range);
-    const clipboardContent = await storeA.getClipboardTextAndImageContent();
+    const clipboardContent = await pluginA.getClipboardTextAndImageContent();
     const osClipboardContent = await parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "C1", osClipboardContent);
 
@@ -3296,8 +3300,8 @@ describe("cross spreadsheet copy/paste", () => {
   });
 
   test("should copy/paste a cell with the cell content and format copied last from an external spreadsheet", async () => {
-    const { model: modelA, store: storeA } = makeStore(ClipboardStore);
-    const { model: modelB } = makeStore(ClipboardStore);
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin();
+    const { model: modelB } = makeClipboardPlugin();
     const cellStyle = { bold: true, fillColor: "#00FF00", fontSize: 20 };
 
     setCellContent(modelA, "A1", "a1");
@@ -3317,7 +3321,7 @@ describe("cross spreadsheet copy/paste", () => {
 
     copy(modelB, "C1");
     copy(modelA, "A1");
-    const clipboardContent = await storeA.getClipboardTextAndImageContent();
+    const clipboardContent = await pluginA.getClipboardTextAndImageContent();
     expect(clipboardContent["text/plain"]).toBe("a1");
     const osClipboardContent = parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "B1", osClipboardContent);
@@ -3332,14 +3336,10 @@ describe("cross spreadsheet copy/paste", () => {
   });
 
   test("should copy/paste a formula cell with dependencies", async () => {
-    const { model: modelA, store: storeA } = makeStoreWithModel(
-      new Model({ sheets: [{ id: "sheetA" }] }),
-      ClipboardStore
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin(
+      new Model({ sheets: [{ id: "sheetA" }] })
     );
-    const { model: modelB } = makeStoreWithModel(
-      new Model({ sheets: [{ id: "sheetB" }] }),
-      ClipboardStore
-    );
+    const { model: modelB } = makeClipboardPlugin(new Model({ sheets: [{ id: "sheetB" }] }));
 
     setCellContent(modelA, "C1", "=A1*B1");
     setCellContent(modelA, "C2", "=A2*B2");
@@ -3347,7 +3347,7 @@ describe("cross spreadsheet copy/paste", () => {
 
     copy(modelA, "A1:C3");
     const osClipboardContent = parseOSClipboardContent(
-      await storeA.getClipboardTextAndImageContent()
+      await pluginA.getClipboardTextAndImageContent()
     );
     pasteFromOSClipboard(modelB, "E1", osClipboardContent);
 
@@ -3357,13 +3357,13 @@ describe("cross spreadsheet copy/paste", () => {
   });
 
   test("can copy/paste cells with escapable content", async () => {
-    const { model: modelA, store: storeA } = makeStore(ClipboardStore);
-    const { model: modelB } = makeStore(ClipboardStore);
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin();
+    const { model: modelB } = makeClipboardPlugin();
 
     const escapableString = ` & " < > / \ '`;
     setCellContent(modelA, "A1", escapableString);
     copy(modelA, "A1");
-    const clipboardContent = await storeA.getClipboardTextAndImageContent();
+    const clipboardContent = await pluginA.getClipboardTextAndImageContent();
 
     expect(clipboardContent["text/plain"]).toBe(escapableString);
     const osClipboardContent = parseOSClipboardContent(clipboardContent);
@@ -3373,12 +3373,12 @@ describe("cross spreadsheet copy/paste", () => {
   });
 
   test("o-spreadsheet data from Excel clipboard is ignored", async () => {
-    const { model: modelA, store: storeA } = makeStore(ClipboardStore);
-    const { model: modelB } = makeStore(ClipboardStore);
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin();
+    const { model: modelB } = makeClipboardPlugin();
 
     setCellContent(modelA, "A1", "oldContent");
     copy(modelA, "A1");
-    const oldHTML = await storeA["getHTMLContent"]();
+    const oldHTML = await pluginA["getHTMLContent"]();
 
     let content = parseOSClipboardContent({
       "text/html": `<html xmlns:o="urn:schemas-microsoft-com:office:office">${oldHTML}</body></html>`,
@@ -3406,14 +3406,14 @@ describe("cross spreadsheet copy/paste", () => {
   });
 
   test("should only paste text content if there is a version mismatch", async () => {
-    const { model: modelA, store: storeA } = makeStore(ClipboardStore);
-    const { model: modelB } = makeStore(ClipboardStore);
+    const { model: modelA, plugin: pluginA } = makeClipboardPlugin();
+    const { model: modelB } = makeClipboardPlugin();
 
     setCellContent(modelA, "B2", "Hello");
     setFormatting(modelA, "B2", { bold: true });
 
     copy(modelA, "B2");
-    const clipboardContent = await storeA.getClipboardTextAndImageContent();
+    const clipboardContent = await pluginA.getClipboardTextAndImageContent();
     const parsedContent = parseOSClipboardContent(clipboardContent);
     parsedContent.data!.version = "3"; // Version mismatch
     pasteFromOSClipboard(modelB, "D2", parsedContent);

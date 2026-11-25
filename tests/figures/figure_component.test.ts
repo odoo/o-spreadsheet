@@ -16,9 +16,9 @@ import { downloadFile } from "../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { toXC } from "../../src/helpers/coordinates";
 import { render } from "../../src/helpers/owl3_helpers";
+import { ClipboardPlugin } from "../../src/owl_plugins/clipboard_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { figureRegistry } from "../../src/registries/figures_registry";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
@@ -1211,8 +1211,8 @@ describe("figures", () => {
         const envClipBoardContent = await getPlugin(NavigatorClipboardPlugin).read();
         if (envClipBoardContent.status === "ok") {
           const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
-          const clipboardStore = env.getStore(ClipboardStore);
-          const osClipboardContent = await clipboardStore.getClipboardTextAndImageContent();
+          const clipboardPlugin = env.getPlugin(ClipboardPlugin);
+          const osClipboardContent = await clipboardPlugin.getClipboardTextAndImageContent();
           expect(envClipboardTextContent).toEqual(osClipboardContent[ClipboardMIMEType.PlainText]);
         } else {
           throw new Error("Clipboard read failed");
@@ -1241,8 +1241,8 @@ describe("figures", () => {
         const envClipBoardContent = await getPlugin(NavigatorClipboardPlugin).read();
         if (envClipBoardContent.status === "ok") {
           const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
-          const clipboardStore = env.getStore(ClipboardStore);
-          const osClipboardContent = await clipboardStore.getClipboardTextAndImageContent();
+          const clipboardPlugin = env.getPlugin(ClipboardPlugin);
+          const osClipboardContent = await clipboardPlugin.getClipboardTextAndImageContent();
           expect(envClipboardTextContent).toEqual(osClipboardContent[ClipboardMIMEType.PlainText]);
         } else {
           throw new Error("Clipboard read failed");

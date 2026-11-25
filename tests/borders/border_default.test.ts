@@ -11,7 +11,6 @@ import { getClipboardDataPositions } from "../../src/helpers/clipboard/clipboard
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { clipboardHandlersRegistries } from "../../src/registries/clipboard_handlers_registries";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   activateSheet,
   addColumns,
@@ -35,7 +34,7 @@ import {
   unMerge,
 } from "../test_helpers";
 import { target } from "../test_helpers/helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 const TOP_BORDER = { top: DEFAULT_BORDER_DESC };
 const TOP_BORDER_ALT = { top: { style: "dotted" as const, color: "red" } };
@@ -74,7 +73,7 @@ describe("Default Borders", () => {
     model = new Model({
       sheets: [{ id: "sh1", colNumber: 26, rowNumber: 20 }],
     });
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -1028,7 +1027,7 @@ describe("Default Borders", () => {
         },
       ],
     });
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
     setZoneBorders(model, { position: "all" }, ["A1:AN40"]);
     copy(model, "A1:AN40");
 
@@ -1045,7 +1044,7 @@ describe("Default Borders", () => {
 
   test("pasting a cell with an inner vertical sheet border on another sheet copies the exact cell border", () => {
     const model = new Model();
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
     setZoneBorders(model, { position: "v" }, ["A1:Z100"]);
     createSheet(model, { sheetId: "s2" });
     expect(getCellBorder(model, "C3")).toEqual(VERTICAL_BORDER);
@@ -1059,7 +1058,7 @@ describe("Default Borders", () => {
 
   test("pasting a cell with a sheet-wide left border on another sheet only pastes a left border", () => {
     const model = new Model();
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
     setBordersOnTarget(model, ["A1:Z100"], LEFT_BORDER);
     createSheet(model, { sheetId: "s2" });
 
@@ -1072,7 +1071,7 @@ describe("Default Borders", () => {
 
   test("pasting a cell with a sheet-wide bottom border on another sheet pastes a bottom border, not a top one", () => {
     const model = new Model();
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
     setBordersOnTarget(model, ["A1:Z100"], BOTTOM_BORDER);
     createSheet(model, { sheetId: "s2" });
 
@@ -1085,7 +1084,7 @@ describe("Default Borders", () => {
 
   test("pasted full-width bordered rows keep all their sides", () => {
     const model = new Model();
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
     setZoneBorders(model, { position: "all" }, ["A1:Z50"]);
 
     copy(model, "A1:Z50");

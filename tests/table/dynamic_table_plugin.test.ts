@@ -1,7 +1,6 @@
 import { BorderDescr, Model, UID } from "../../src";
 import { toZone } from "../../src/helpers/zones";
 import { dynamicToStaticFormulaRegistry } from "../../src/registries/dynamic_to_static_formula_registry";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   copy,
   createDynamicTable,
@@ -24,8 +23,8 @@ import {
   setGrid,
   toCellPosition,
 } from "../test_helpers/helpers";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
 let sheetId: UID;
@@ -190,7 +189,7 @@ describe("Dynamic tables", () => {
   });
 
   test("Can copy/paste a dynamic table", () => {
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
     setCellContent(model, "A1", "=MUNIT(2)");
     createDynamicTable(model, "A1");
 
@@ -201,7 +200,7 @@ describe("Dynamic tables", () => {
   });
 
   test("Can cut/paste a dynamic table", () => {
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
     setCellContent(model, "A1", "=MUNIT(2)");
     createDynamicTable(model, "A1");
 
@@ -212,7 +211,7 @@ describe("Dynamic tables", () => {
   });
 
   test("Can copy/paste a cell of a dynamic table", () => {
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
     setCellContent(model, "A1", "=MUNIT(2)");
     createDynamicTable(model, "A1");
     updateTableConfig(model, "A1", { styleId: "TableStyleDark11" });
@@ -227,7 +226,7 @@ describe("Dynamic tables", () => {
   });
 
   test("Can copy/paste a part of a dynamic table with its formula cell", () => {
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
     setCellContent(model, "A1", "=MUNIT(2)");
     createDynamicTable(model, "A1");
 
@@ -244,7 +243,7 @@ describe("Dynamic tables", () => {
           !!getters.getCorrespondingFormulaCell(position)?.compiledFormula.usesSymbol("MUNIT"),
         getStaticFormula: () => "=1",
       });
-      makeStoreWithModel(model, ClipboardStore);
+      makeOwlPluginManager([], { model });
       setCellContent(model, "A1", "=MUNIT(2)");
       createDynamicTable(model, "A1");
     });

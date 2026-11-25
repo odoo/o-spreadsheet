@@ -1,8 +1,8 @@
 import { MergeErrorMessage, RemoveDuplicateTerms } from "../../components/translations_terms";
 import { getCurrentVersion } from "../../migrations/data";
+import { ClipboardPlugin } from "../../owl_plugins/clipboard_owl_plugin";
 import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
-import { ClipboardStore } from "../../stores/clipboard_store";
 import { _t } from "../../translation";
 import {
   ClipboardPasteOptions,
@@ -23,8 +23,8 @@ export const handleCopyPasteResult = (
   env: SpreadsheetActionEnv,
   command: CopyPasteCellsAboveCommand | CopyPasteCellsOnLeftCommand | CopyPasteCellsOnZoneCommand
 ) => {
-  const clipboardStore = env.getStore(ClipboardStore);
-  const result = clipboardStore.isCommandValid(command);
+  const clipboardPlugin = env.getPlugin(ClipboardPlugin);
+  const result = clipboardPlugin.isCommandValid(command);
   if (result.isCancelledBecause(CommandResult.WillRemoveExistingMerge)) {
     env.getPlugin(NotificationPlugin).raiseError(MergeErrorMessage);
   } else {
@@ -59,8 +59,8 @@ export function interactivePaste(
   target: Zone[],
   pasteOption?: ClipboardPasteOptions
 ) {
-  const clipboardStore = env.getStore(ClipboardStore);
-  const result = clipboardStore.isCommandValid({ type: "PASTE", target, pasteOption });
+  const clipboardPlugin = env.getPlugin(ClipboardPlugin);
+  const result = clipboardPlugin.isCommandValid({ type: "PASTE", target, pasteOption });
   if (!result.isSuccessful) {
     handlePasteResult(env, result);
   } else {
@@ -105,8 +105,8 @@ export async function interactivePasteFromOS(
     pasteOption,
   };
 
-  const clipboardStore = env.getStore(ClipboardStore);
-  const result = clipboardStore.isCommandValid({ type: "PASTE_FROM_OS_CLIPBOARD", ...payload });
+  const clipboardPlugin = env.getPlugin(ClipboardPlugin);
+  const result = clipboardPlugin.isCommandValid({ type: "PASTE_FROM_OS_CLIPBOARD", ...payload });
 
   if (!result.isSuccessful) {
     handlePasteResult(env, result);
