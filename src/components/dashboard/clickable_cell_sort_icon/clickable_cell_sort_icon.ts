@@ -6,7 +6,7 @@ import { cssPropertiesToCss } from "../../helpers/css";
 import { OSComponent } from "../../os_component";
 
 import { usePlugin, useProps } from "@odoo/owl";
-import { CellHoverOverlayPlugin } from "../../../stores/cell_hover_overlay_store";
+import { CellHoverOverlayPlugin } from "../../../owl_plugins/cell_hover_overlay_owl_plugin";
 import { types } from "../../props_validation";
 
 export class ClickableCellSortIcon extends OSComponent {

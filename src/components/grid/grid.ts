@@ -37,6 +37,7 @@ import { AutomaticSumPlugin } from "../../owl_plugins/automatic_sum_plugin";
 import { CheckboxTogglePlugin } from "../../owl_plugins/checkbox_toggle_plugin";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
+import { DelayedHoveredCellPlugin } from "../../owl_plugins/hovered_cell_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { SelectionRendererPlugin } from "../../owl_plugins/selection_renderer_owl_plugin";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
@@ -111,7 +112,6 @@ import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
 import { Selection } from "../selection/selection";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TableResizer } from "../tables/table_resizer/table_resizer";
-import { DelayedHoveredCellPlugin } from "./delayed_hovered_cell_owl_plugin";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible

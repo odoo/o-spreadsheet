@@ -1,5 +1,4 @@
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import { HoveredCellPlugin } from "../../src/components/grid/delayed_hovered_cell_owl_plugin";
 import { ColResizer, RowResizer } from "../../src/components/headers_overlay/headers_overlay";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -15,6 +14,7 @@ import {
 import { lettersToNumber, toXC } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { HoveredCellPlugin } from "../../src/owl_plugins/hovered_cell_owl_plugin";
 import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { extendMockGetBoundingClientRect } from "../test_helpers";

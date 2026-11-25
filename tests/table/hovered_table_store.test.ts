@@ -1,9 +1,9 @@
 import { PluginInstance } from "@odoo/owl";
 import { Model, UID } from "../../src";
-import { HoveredCellPlugin } from "../../src/components/grid/delayed_hovered_cell_owl_plugin";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
 import { TABLE_HOVER_BACKGROUND_COLOR } from "../../src/constants";
-import { CellHoverOverlayPlugin } from "../../src/stores/cell_hover_overlay_store";
+import { CellHoverOverlayPlugin } from "../../src/owl_plugins/cell_hover_overlay_owl_plugin";
+import { HoveredCellPlugin } from "../../src/owl_plugins/hovered_cell_owl_plugin";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { createTable, hideColumns, setCellContent } from "../test_helpers/commands_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";

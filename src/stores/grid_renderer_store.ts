@@ -32,6 +32,7 @@ import {
   zoneToXc,
 } from "../helpers/zones";
 import { Model } from "../model";
+import { CellHoverOverlayPlugin } from "../owl_plugins/cell_hover_overlay_owl_plugin";
 import { FormulaFingerprintPlugin } from "../owl_plugins/formula_fingerprints_store";
 import { RendererPlugin } from "../owl_plugins/renderer_plugin";
 import { ReadonlyViewportCollection } from "../owl_plugins/viewports_owl_plugin";
@@ -50,7 +51,6 @@ import {
   Viewport,
 } from "../types/rendering";
 import { Get, Store } from "../types/store_engine";
-import { CellHoverOverlayPlugin } from "./cell_hover_overlay_store";
 import { ModelStore } from "./model_store";
 
 export const CELL_ANIMATION_DURATION = 200;

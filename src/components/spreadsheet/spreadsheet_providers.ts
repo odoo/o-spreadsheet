@@ -1,10 +1,15 @@
 import { providePlugins, Signal, usePlugin } from "@odoo/owl";
 import { providePluginsIfNotPresent, useMaybePlugin } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
+import { CellHoverOverlayPlugin } from "../../owl_plugins/cell_hover_overlay_owl_plugin";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { ExposeViewportsPlugin } from "../../owl_plugins/expose_viewports_owl_plugin";
 import { FormulaFingerprintPlugin } from "../../owl_plugins/formula_fingerprints_store";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
+import {
+  DelayedHoveredCellPlugin,
+  HoveredCellPlugin,
+} from "../../owl_plugins/hovered_cell_owl_plugin";
 import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
@@ -19,16 +24,11 @@ import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
-import { CellHoverOverlayPlugin } from "../../stores/cell_hover_overlay_store";
 import { ModelStore } from "../../stores/model_store";
 import { ChartAnimationPlugin } from "../figures/chart/chartJs/chartjs_animation_owl_plugin";
 import { ZoomableChartPlugin } from "../figures/chart/chartJs/zoomable_chart/zoomable_chart_owl_plugin";
 import { DraggedFigurePlugin } from "../figures/figure_dnd_container/figure_dnd_owl_plugin";
 import { FullScreenFigurePlugin } from "../full_screen_figure/full_screen_figure_owl_plugin";
-import {
-  DelayedHoveredCellPlugin,
-  HoveredCellPlugin,
-} from "../grid/delayed_hovered_cell_owl_plugin";
 import { provideSpreadsheetRect } from "../helpers/position_hook";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { SplitToColumnsPlugin } from "../side_panel/split_to_columns_panel/split_to_columns_owl_plugin";

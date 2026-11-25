@@ -11,6 +11,10 @@ import { FOOTER_HEIGHT } from "../../constants";
 import { deepEquals } from "../../helpers/misc";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
+import {
+  DelayedHoveredCellPlugin,
+  HoveredCellPlugin,
+} from "../../owl_plugins/hovered_cell_owl_plugin";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore } from "../../store_engine/store_hooks";
@@ -18,10 +22,6 @@ import { CellPosition, GridClickModifiers, HeaderIndex, Position } from "../../t
 import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
-import {
-  DelayedHoveredCellPlugin,
-  HoveredCellPlugin,
-} from "../grid/delayed_hovered_cell_owl_plugin";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect, isChildEvent, isCtrlKey, isMobileOS } from "../helpers/dom_helpers";

@@ -1,9 +1,9 @@
 import { computed, signal, usePlugin } from "@odoo/owl";
-import { HoveredCellPlugin } from "../components/grid/delayed_hovered_cell_owl_plugin";
 import { TABLE_HOVER_BACKGROUND_COLOR } from "../constants";
 import { arePositionMapEqual, PositionMap } from "../helpers/cells/position_map";
-import { OwlPluginWithModel } from "../owl_plugins/owl_plugin_with_model";
 import { CellPosition, Color } from "../types/misc";
+import { HoveredCellPlugin } from "./hovered_cell_owl_plugin";
+import { OwlPluginWithModel } from "./owl_plugin_with_model";
 
 export interface CellHoverOverlayProvider {
   getHighlightedPositions: (hoveredPosition: CellPosition) => CellPosition[];

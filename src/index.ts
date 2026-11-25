@@ -355,7 +355,6 @@ import { TableAutofillStore } from "./components/autofill/table_autofill_store";
 import { Composer } from "./components/composer/composer/composer";
 import { StandaloneComposer } from "./components/composer/standalone_composer/standalone_composer";
 import { CarouselFigure } from "./components/figures/figure_carousel/figure_carousel";
-import { DelayedHoveredCellPlugin } from "./components/grid/delayed_hovered_cell_owl_plugin";
 import {
   getBoundingRectWithMargins,
   hasInteractiveElementInEventTree,
@@ -391,6 +390,7 @@ import { drawHighlight } from "./helpers/rendering";
 import { fuzzyLookup } from "./helpers/search";
 import { DevicePixelRatioPlugin } from "./owl_plugins/device_pixel_ratio_owl_plugin";
 import { ExposeViewportsPlugin } from "./owl_plugins/expose_viewports_owl_plugin";
+import { DelayedHoveredCellPlugin } from "./owl_plugins/hovered_cell_owl_plugin";
 import { IsSmallPlugin } from "./owl_plugins/is_small_plugin";
 import { ModelPlugin } from "./owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "./owl_plugins/navigator_clipboard_plugin";

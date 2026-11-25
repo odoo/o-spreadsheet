@@ -1,5 +1,6 @@
 import { providePlugins, signal, usePlugin, useProps } from "@odoo/owl";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
+import { DelayedHoveredCellPlugin } from "../../owl_plugins/hovered_cell_owl_plugin";
 import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
@@ -9,7 +10,6 @@ import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/r
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
-import { DelayedHoveredCellPlugin } from "../grid/delayed_hovered_cell_owl_plugin";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { cssPropertiesToCss } from "../helpers/css";

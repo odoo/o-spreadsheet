@@ -1,7 +1,7 @@
 import { shallowEqual, signal } from "@odoo/owl";
-import { OwlPluginWithModel } from "../../owl_plugins/owl_plugin_with_model";
-import { Command } from "../../types/commands";
-import { CellPosition } from "../../types/misc";
+import { Command } from "../types/commands";
+import { CellPosition } from "../types/misc";
+import { OwlPluginWithModel } from "./owl_plugin_with_model";
 
 export class HoveredCellPlugin extends OwlPluginWithModel {
   position = signal<CellPosition | undefined>(undefined, { equals: shallowEqual });
