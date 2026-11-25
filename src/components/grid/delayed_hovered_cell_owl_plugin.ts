@@ -1,11 +1,10 @@
-import { signal } from "@odoo/owl";
+import { shallowEqual, signal } from "@odoo/owl";
 import { OwlPluginWithModel } from "../../owl_plugins/owl_plugin_with_model";
 import { Command } from "../../types/commands";
-import { Position } from "../../types/misc";
+import { CellPosition } from "../../types/misc";
 
-export class DelayedHoveredCellPlugin extends OwlPluginWithModel {
-  col = signal<number | undefined>(undefined);
-  row = signal<number | undefined>(undefined);
+export class HoveredCellPlugin extends OwlPluginWithModel {
+  position = signal<CellPosition | undefined>(undefined, { equals: shallowEqual });
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -14,13 +13,15 @@ export class DelayedHoveredCellPlugin extends OwlPluginWithModel {
     }
   }
 
-  hover(position: Partial<Position>) {
-    this.col.set(position.col);
-    this.row.set(position.row);
+  hover(position: CellPosition) {
+    this.position.set(position);
   }
 
   clear() {
-    this.col.set(undefined);
-    this.row.set(undefined);
+    this.position.set(undefined);
   }
+}
+
+export class DelayedHoveredCellPlugin extends HoveredCellPlugin {
+  static id = "DelayedHoveredCellPlugin";
 }

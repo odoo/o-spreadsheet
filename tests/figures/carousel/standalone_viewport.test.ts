@@ -11,7 +11,7 @@ import { FormulaFingerprintPlugin } from "../../../src/owl_plugins/formula_finge
 import { RendererPlugin } from "../../../src/owl_plugins/renderer_plugin";
 import { ViewportsPlugin } from "../../../src/owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../../src/owl_plugins/zoom_plugin";
-import { CellHoverOverlayStore } from "../../../src/stores/cell_hover_overlay_store";
+import { CellHoverOverlayPlugin } from "../../../src/stores/cell_hover_overlay_store";
 import { GridRenderer } from "../../../src/stores/grid_renderer_store";
 import { PropsOf } from "../../../src/types/props_of";
 import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
@@ -344,18 +344,18 @@ describe("Standalone viewport", () => {
     setGrid(model, { A1: "Hello", B1: "World", C1: "!" }, "sh2");
 
     await mountViewport("A1:C3", { sheetId: "sh2" });
-    const overlayStore = subEnv.getStore(CellHoverOverlayStore);
-    expect(overlayStore.overlayColors.get(toCellPosition("sh2", "A1"))).toBeUndefined();
+    const overlayStore = subActionEnv.getPlugin(CellHoverOverlayPlugin);
+    expect(overlayStore.overlayColors().get(toCellPosition("sh2", "A1"))).toBeUndefined();
 
     await hoverCell(subActionEnv, "A1", 500);
     const color = TABLE_HOVER_BACKGROUND_COLOR;
 
-    expect(overlayStore.overlayColors.get(toCellPosition("sh2", "A1"))).toEqual(color);
-    expect(overlayStore.overlayColors.get(toCellPosition("sh2", "B1"))).toEqual(color);
-    expect(overlayStore.overlayColors.get(toCellPosition("sh2", "C1"))).toEqual(color);
-    expect(overlayStore.overlayColors.get(toCellPosition("sh2", "A2"))).toBeUndefined();
-    expect(overlayStore.overlayColors.get(toCellPosition("sh2", "B2"))).toBeUndefined();
-    expect(overlayStore.overlayColors.get(toCellPosition("sh2", "C2"))).toBeUndefined();
+    expect(overlayStore.overlayColors().get(toCellPosition("sh2", "A1"))).toEqual(color);
+    expect(overlayStore.overlayColors().get(toCellPosition("sh2", "B1"))).toEqual(color);
+    expect(overlayStore.overlayColors().get(toCellPosition("sh2", "C1"))).toEqual(color);
+    expect(overlayStore.overlayColors().get(toCellPosition("sh2", "A2"))).toBeUndefined();
+    expect(overlayStore.overlayColors().get(toCellPosition("sh2", "B2"))).toBeUndefined();
+    expect(overlayStore.overlayColors().get(toCellPosition("sh2", "C2"))).toBeUndefined();
     jest.useRealTimers();
   });
 

@@ -667,7 +667,12 @@ export class Grid extends OSComponent {
   }
 
   isCellHovered(col: HeaderIndex, row: HeaderIndex): boolean {
-    return this.hoveredCell.col() === col && this.hoveredCell.row() === row;
+    const hoveredPosition = this.hoveredCell.position();
+    return (
+      hoveredPosition?.col === col &&
+      hoveredPosition?.row === row &&
+      hoveredPosition?.sheetId === this.viewPlugin.displayedSheetId()
+    );
   }
 
   get focusedClients() {

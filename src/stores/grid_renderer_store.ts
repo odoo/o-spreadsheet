@@ -50,7 +50,7 @@ import {
   Viewport,
 } from "../types/rendering";
 import { Get, Store } from "../types/store_engine";
-import { CellHoverOverlayStore } from "./cell_hover_overlay_store";
+import { CellHoverOverlayPlugin } from "./cell_hover_overlay_store";
 import { ModelStore } from "./model_store";
 
 export const CELL_ANIMATION_DURATION = 200;
@@ -67,7 +67,7 @@ export class GridRenderer extends DisposableStore {
   storeGetters = ["drawLayer"] as const;
 
   private fingerprints = usePlugin(FormulaFingerprintPlugin);
-  private cellHoverOverlayStore = this.get(CellHoverOverlayStore);
+  private cellHoverOverlayPlugin = usePlugin(CellHoverOverlayPlugin);
   private hoveredIcon: Store<HoveredIconStore>;
 
   private lastRenderSheetId: UID | undefined = undefined;
@@ -799,7 +799,7 @@ export class GridRenderer extends DisposableStore {
       border: this.getters.getCellComputedBorder(position) || undefined,
       style,
       dataBarFill,
-      overlayColor: this.cellHoverOverlayStore.overlayColors.get(position),
+      overlayColor: this.cellHoverOverlayPlugin.overlayColors().get(position),
       isError:
         (cell.type === CellValueType.error && !!cell.message) ||
         this.getters.isDataValidationInvalid(position),

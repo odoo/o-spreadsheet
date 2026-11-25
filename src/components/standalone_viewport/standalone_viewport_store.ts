@@ -4,7 +4,7 @@ import { deepEquals, range, sumArray } from "../../helpers/misc";
 import { isInside, isZoneValid } from "../../helpers/zones";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
-import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
+import { CellHoverOverlayPlugin } from "../../stores/cell_hover_overlay_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { Command } from "../../types/commands";
 import { CellPosition, HeaderDimensions, HeaderIndex, UID } from "../../types/misc";
@@ -24,6 +24,7 @@ export class StandaloneViewportStore extends SpreadsheetStore {
 
   private viewPlugin = usePlugin(ViewportsPlugin);
   private devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
+  private hoveredCellOverlayPlugin = usePlugin(CellHoverOverlayPlugin);
 
   constructor(get: Get, range: Range, customColWeights?: number[]) {
     super(get);
@@ -36,9 +37,8 @@ export class StandaloneViewportStore extends SpreadsheetStore {
       zoneToDisplay: this.range.zone,
       getFooterSize: () => 0,
     });
-    const cellHoverOverlayStore = this.get(CellHoverOverlayStore);
-    cellHoverOverlayStore.register(this);
-    this.onDispose(() => cellHoverOverlayStore.unRegister(this));
+    this.hoveredCellOverlayPlugin.register(this);
+    this.onDispose(() => this.hoveredCellOverlayPlugin.unRegister(this));
   }
 
   handle(cmd: Command) {

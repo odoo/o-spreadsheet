@@ -4,13 +4,16 @@ import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { ViewportsPlugin, ViewportsPluginInstance } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
-import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
+import { CellHoverOverlayPlugin } from "../../stores/cell_hover_overlay_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMDimension, Rect } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { ClickableCellsStore } from "../dashboard/clickable_cell_store";
-import { DelayedHoveredCellPlugin } from "../grid/delayed_hovered_cell_owl_plugin";
+import {
+  DelayedHoveredCellPlugin,
+  HoveredCellPlugin,
+} from "../grid/delayed_hovered_cell_owl_plugin";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { HoveredIconStore } from "../grid_overlay/hovered_icon_store";
 import { GridPopover } from "../grid_popover/grid_popover";
@@ -62,13 +65,13 @@ export class StandaloneViewport extends OSComponent {
   cellPopoverStore!: Store<CellPopoverStore>;
 
   setup() {
-    providePlugins([ViewportsPlugin, DelayedHoveredCellPlugin]);
-    useChildStoreProvider([
-      HoveredIconStore,
-      ClickableCellsStore,
-      CellHoverOverlayStore,
-      CellPopoverStore,
+    providePlugins([
+      ViewportsPlugin,
+      HoveredCellPlugin,
+      DelayedHoveredCellPlugin,
+      CellHoverOverlayPlugin,
     ]);
+    useChildStoreProvider([HoveredIconStore, ClickableCellsStore, CellPopoverStore]);
     this.viewPlugin = usePlugin(ViewportsPlugin);
     this.store = useLocalStore(StandaloneViewportStore, this.props.range, this.props.columnWeights);
     this.cellPopoverStore = useStore(CellPopoverStore);

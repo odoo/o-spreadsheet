@@ -1,4 +1,5 @@
 import { CellPosition, UID } from "../../types/misc";
+import { deepEquals } from "../misc";
 
 export class PositionMap<T> {
   private map: Record<UID, Record<number, Record<number, T>>> = {};
@@ -103,4 +104,23 @@ export class PositionMap<T> {
     }
     return true;
   }
+}
+
+export function arePositionMapEqual(a: PositionMap<any>, b: PositionMap<any>): boolean {
+  const aKeys = Array.from(a.keys());
+  const bKeys = Array.from(b.keys());
+  if (aKeys.length !== bKeys.length) {
+    return false;
+  }
+  for (const key of aKeys) {
+    if (!b.has(key)) {
+      return false;
+    }
+    const aValue = a.get(key);
+    const bValue = b.get(key);
+    if (!deepEquals(aValue, bValue)) {
+      return false;
+    }
+  }
+  return true;
 }

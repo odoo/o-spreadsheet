@@ -74,16 +74,15 @@ export class CellPopoverStore extends SpreadsheetStore {
             anchorRect: this.computePopoverAnchorRect(this.persistentPopover),
           };
     }
-    const col = this.hoveredCell.col();
-    const row = this.hoveredCell.row();
+    const hoveredPosition = this.hoveredCell.position();
     if (
-      col === undefined ||
-      row === undefined ||
-      !this.viewPlugin.viewports().isVisibleInViewport({ sheetId, col, row })
+      hoveredPosition === undefined ||
+      hoveredPosition.sheetId !== sheetId ||
+      !this.viewPlugin.viewports().isVisibleInViewport(hoveredPosition)
     ) {
       return { isOpen: false };
     }
-    const position = this.getters.getMainCellPosition({ sheetId, col, row });
+    const position = this.getters.getMainCellPosition(hoveredPosition);
     const popover = cellPopoverRegistry
       .getAll()
       .map((matcher) => matcher.onHover?.(position, this.getters))

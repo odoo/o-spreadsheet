@@ -1,22 +1,25 @@
+import { PluginInstance } from "@odoo/owl";
 import { Model, UID } from "../../src";
+import { HoveredCellPlugin } from "../../src/components/grid/delayed_hovered_cell_owl_plugin";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
 import { TABLE_HOVER_BACKGROUND_COLOR } from "../../src/constants";
-import { DependencyContainer } from "../../src/store_engine/dependency_container";
-import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
-import { Store } from "../../src/types/store_engine";
+import { CellHoverOverlayPlugin } from "../../src/stores/cell_hover_overlay_store";
+import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { createTable, hideColumns, setCellContent } from "../test_helpers/commands_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 import { makeStore, spyStoreCreation } from "../test_helpers/stores";
 
 describe("Hovered Table Store", () => {
-  let hoveredCellOverlayStore: Store<CellHoverOverlayStore>;
+  let hoveredCellOverlayPlugin: PluginInstance<typeof CellHoverOverlayPlugin>;
+  let hoveredCellPlugin: PluginInstance<typeof HoveredCellPlugin>;
   let model: Model;
   let sheetId: UID;
-  let container: DependencyContainer;
+  let getPlugin: OwlPluginGetter;
 
   beforeEach(() => {
-    ({ model, container } = makeStore(HoveredTableStore));
-    hoveredCellOverlayStore = container.get(CellHoverOverlayStore);
+    ({ model, getPlugin } = makeStore(HoveredTableStore));
+    hoveredCellOverlayPlugin = getPlugin(CellHoverOverlayPlugin);
+    hoveredCellPlugin = getPlugin(HoveredCellPlugin);
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -24,21 +27,21 @@ describe("Hovered Table Store", () => {
     const A1 = { sheetId, col: 0, row: 0 };
     createTable(model, "A1");
 
-    hoveredCellOverlayStore.hover(A1);
-    expect(hoveredCellOverlayStore.overlayColors.has(A1)).toBe(false);
+    hoveredCellPlugin.hover(A1);
+    expect(hoveredCellOverlayPlugin.overlayColors().has(A1)).toBe(false);
 
     setCellContent(model, "A1", "Header");
 
-    hoveredCellOverlayStore.hover(A1);
-    expect(hoveredCellOverlayStore.overlayColors.has(A1)).toBe(false);
+    hoveredCellPlugin.hover(A1);
+    expect(hoveredCellOverlayPlugin.overlayColors().has(A1)).toBe(false);
   });
 
   test("Should not have overlay color for empty data cells", () => {
     const A2 = { sheetId, col: 0, row: 1 };
     createTable(model, "A1:A2");
 
-    hoveredCellOverlayStore.hover(A2);
-    expect(hoveredCellOverlayStore.overlayColors.has(A2)).toBe(false);
+    hoveredCellPlugin.hover(A2);
+    expect(hoveredCellOverlayPlugin.overlayColors().has(A2)).toBe(false);
   });
 
   test("Should have overlay color for full data rows with content", () => {
@@ -47,10 +50,10 @@ describe("Hovered Table Store", () => {
     createTable(model, "A1:B2");
     setCellContent(model, "A2", "Data");
 
-    hoveredCellOverlayStore.hover(A2);
-    expect(hoveredCellOverlayStore.overlayColors.has(A2)).toBe(true);
-    expect(hoveredCellOverlayStore.overlayColors.has(B2)).toBe(true);
-    expect(hoveredCellOverlayStore.overlayColors.get(A2)).toBe(TABLE_HOVER_BACKGROUND_COLOR);
+    hoveredCellPlugin.hover(A2);
+    expect(hoveredCellOverlayPlugin.overlayColors().has(A2)).toBe(true);
+    expect(hoveredCellOverlayPlugin.overlayColors().has(B2)).toBe(true);
+    expect(hoveredCellOverlayPlugin.overlayColors().get(A2)).toBe(TABLE_HOVER_BACKGROUND_COLOR);
   });
 
   test("Hidden columns should be ignored when applying overlay colors", () => {
@@ -58,12 +61,12 @@ describe("Hovered Table Store", () => {
     createTable(model, "A1:B2");
     setCellContent(model, "A2", "Some data");
 
-    hoveredCellOverlayStore.hover(B2);
-    expect(hoveredCellOverlayStore.overlayColors.has(B2)).toBe(true);
+    hoveredCellPlugin.hover(B2);
+    expect(hoveredCellOverlayPlugin.overlayColors().has(B2)).toBe(true);
 
     hideColumns(model, ["A"]);
-    hoveredCellOverlayStore.hover(B2);
-    expect(hoveredCellOverlayStore.overlayColors.has(B2)).toBe(false);
+    hoveredCellPlugin.hover(B2);
+    expect(hoveredCellOverlayPlugin.overlayColors().has(B2)).toBe(false);
   });
 });
 
@@ -74,24 +77,24 @@ describe("Spreadsheet integration tests", () => {
     setCellContent(model, "A2", "Data");
     const spy = spyStoreCreation();
 
-    const { env } = await mountSpreadsheet({ model });
-    const hoveredCellOverlayStore = env.getStore(CellHoverOverlayStore);
+    const { getPlugin } = await mountSpreadsheet({ model });
+    const hoveredCellOverlayPlugin = getPlugin(CellHoverOverlayPlugin);
 
-    expect(hoveredCellOverlayStore["providers"]).toHaveLength(0);
+    expect(hoveredCellOverlayPlugin["providers"]()).toHaveLength(0);
     expect(spy.getStores(HoveredTableStore).length).toBe(0);
 
     model.updateMode("readonly");
     await nextTick();
-    expect(hoveredCellOverlayStore["providers"]).toHaveLength(0);
+    expect(hoveredCellOverlayPlugin["providers"]()).toHaveLength(0);
     expect(spy.getStores(HoveredTableStore).length).toBe(0);
 
     model.updateMode("dashboard");
     await nextTick();
-    expect(hoveredCellOverlayStore["providers"]).toHaveLength(1);
+    expect(hoveredCellOverlayPlugin["providers"]()).toHaveLength(1);
     expect(spy.getStores(HoveredTableStore).length).toBe(1);
 
     model.updateMode("readonly");
     await nextTick();
-    expect(hoveredCellOverlayStore["providers"]).toHaveLength(0); // Cleaned up on unmount
+    expect(hoveredCellOverlayPlugin["providers"]()).toHaveLength(0); // Cleaned up on unmount
   });
 });

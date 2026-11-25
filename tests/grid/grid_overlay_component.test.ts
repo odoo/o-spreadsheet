@@ -1,4 +1,5 @@
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { HoveredCellPlugin } from "../../src/components/grid/delayed_hovered_cell_owl_plugin";
 import { ColResizer, RowResizer } from "../../src/components/headers_overlay/headers_overlay";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -15,7 +16,6 @@ import { lettersToNumber, toXC } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
-import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { extendMockGetBoundingClientRect } from "../test_helpers";
 import {
@@ -1400,23 +1400,21 @@ test("Mouse leave events correctly change the hovered cell", async () => {
   const { model, env } = await mountSpreadsheet();
   const sheetId = model.getters.getActiveSheetId();
 
-  const hoverStore = env.getStore(CellHoverOverlayStore);
-  const spy = jest.spyOn(hoverStore, "hover");
+  const hoverStore = env.getPlugin(HoveredCellPlugin);
 
   triggerMouseEvent(".o-grid-overlay", "pointermove", 10, 10);
-  expect(spy).toHaveBeenCalledTimes(1);
-  expect(spy).toHaveBeenLastCalledWith({ sheetId, col: 0, row: 0 });
+  expect(hoverStore.position()).toEqual({ sheetId, col: 0, row: 0 });
 
   triggerMouseEvent(".o-grid-overlay", "mouseleave", 500, 500);
-  expect(spy).toHaveBeenCalledTimes(1); // mouseleave while still inside the grid overlay => do not trigger an hover
+  expect(hoverStore.position()).toEqual({ sheetId, col: 0, row: 0 }); // mouseleave while still inside the grid overlay => do not trigger an hover
 
   triggerMouseEvent(".o-grid-overlay", "mouseenter", 500, 500);
   triggerMouseEvent(".o-grid-overlay", "mouseleave", 2000, 500); // mouseleave outside the grid
-  expect(spy).toHaveBeenLastCalledWith(undefined);
+  expect(hoverStore.position()).toEqual(undefined);
 
   triggerMouseEvent(".o-grid-overlay", "mouseenter", 500, 500);
   triggerMouseEvent(".o-grid-overlay", "mouseleave", 1000, 1000); // mouseleave exactly at the limit of the grid
-  expect(spy).toHaveBeenLastCalledWith(undefined);
+  expect(hoverStore.position()).toEqual(undefined);
 
   jest.useRealTimers();
 });

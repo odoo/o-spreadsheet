@@ -1,6 +1,6 @@
 import { ClickableCellsStore } from "../../src/components/dashboard/clickable_cell_store";
+import { HoveredCellPlugin } from "../../src/components/grid/delayed_hovered_cell_owl_plugin";
 import { TEXT_BODY_MUTED } from "../../src/constants";
-import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
 import { createTable, setFormatting } from "../test_helpers/commands_helpers";
 import { click, getElComputedStyle } from "../test_helpers/dom_helper";
 import { getCellIcons } from "../test_helpers/getters_helpers";
@@ -160,7 +160,7 @@ describe("Dashboard Pivot Sorting", () => {
     const sheetId = model.getters.getSheetIds()[0];
     const table = model.getters.getTable(toCellPosition(sheetId, "B5"))!;
     const tableStyle = model.getters.getTableStyle(table.config.styleId);
-    const { env } = await mountSpreadsheet({ model });
+    const { getPlugin } = await mountSpreadsheet({ model });
     model.updateMode("dashboard");
     await nextTick();
     expect(
@@ -171,7 +171,7 @@ describe("Dashboard Pivot Sorting", () => {
     ).toBeSameColorAs(TEXT_BODY_MUTED);
 
     // hover the row -> background should follow the overlay color
-    env.getStore(CellHoverOverlayStore).hover(toCellPosition(sheetId, "B5"));
+    getPlugin(HoveredCellPlugin).hover(toCellPosition(sheetId, "B5"));
     await nextTick();
     expect(
       getElComputedStyle(".o-dashboard-clickable-cell .sorting-icon", "background-color")
