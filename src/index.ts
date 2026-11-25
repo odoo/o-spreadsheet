@@ -395,6 +395,7 @@ import { IsSmallPlugin } from "./owl_plugins/is_small_plugin";
 import { ModelPlugin } from "./owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "./owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "./owl_plugins/notification_owl_plugin";
+import { OwlPluginWithModel } from "./owl_plugins/owl_plugin_with_model";
 import { RendererPlugin } from "./owl_plugins/renderer_plugin";
 import { SpreadsheetRectPlugin } from "./owl_plugins/spreadsheet_rect_plugin";
 import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
@@ -620,6 +621,7 @@ export const stores = {
 };
 
 export const owlPlugins = {
+  OwlPluginWithModel,
   ViewportsPlugin,
   PopoverContainerPlugin,
   NotificationPlugin,
