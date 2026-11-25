@@ -33,6 +33,38 @@ const PRINT_IFRAME_CSS = /* css */ `
     font-style: italic;
   }
 
+  .o-title-filter-print-page {
+    box-sizing: border-box;
+    margin: 1rem;
+    background-color: #ffffff;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    overflow: hidden; 
+  }
+    
+  .o-title-filter-print-page .o-first-page {
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+
+  .o-title-filter-print-page .o-first-page h1 {
+    display: flex;
+    justify-content: center;
+  }
+      
+  .o-title-filter-print-page .o-first-page h3 {
+    display: flex;
+    justify-content: right;
+  }
+
+  .o-title-filter-print-page .o-first-page .o-ul-filters {
+    display: flex;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   @media print {
     body {
       display: block;
@@ -55,11 +87,22 @@ const PRINT_IFRAME_CSS = /* css */ `
     .o-empty-print-page {
       display: none;
     }
+
+    .o-title-filter-print-page {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      box-shadow: none;
+      break-after: page;
+    }
   }
 `;
 
 interface PrintIframeArgs {
   iframeRef: Signal<HTMLIFrameElement | null>;
+  isDashboard: boolean;
+  printFilters: Function;
   pageCount: Signal<number>;
   /** Dimensions/padding of a page */
   pageStyle: Signal<string>;
@@ -110,7 +153,9 @@ export function usePrintIframe(args: PrintIframeArgs): PrintIframe {
 
     styleElement = doc.createElement("style");
     doc.head.appendChild(styleElement);
-    doc.body.replaceChildren();
+    args.isDashboard
+      ? doc.body.replaceChildren(createTitleFilterPageElement(args.printFilters))
+      : doc.body.replaceChildren();
 
     doc.addEventListener("keydown", (ev: KeyboardEvent) => {
       if (keyboardEventToShortcutString(ev) === "Ctrl+P") {
@@ -142,7 +187,9 @@ export function usePrintIframe(args: PrintIframeArgs): PrintIframe {
       }
     } else {
       if (isEmptyPage) {
-        doc.body.replaceChildren();
+        args.isDashboard
+          ? doc.body.replaceChildren(createTitleFilterPageElement(args.printFilters))
+          : doc.body.replaceChildren();
       }
       while (doc.body.children.length > pageCount) {
         doc.body.lastElementChild?.remove();
@@ -184,6 +231,15 @@ function createEmptyPageElement() {
   const message = document.createElement("h4");
   message.textContent = _t("No content to print");
   page.appendChild(message);
+  return page;
+}
+
+function createTitleFilterPageElement(printFilters: Function) {
+  const page = document.createElement("div");
+  page.classList.add("o-title-filter-print-page");
+  const innerPage = document.createElement("div");
+  innerPage.classList.add("o-first-page");
+  page.appendChild(printFilters(innerPage));
   return page;
 }
 
