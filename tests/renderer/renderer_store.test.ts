@@ -10,6 +10,7 @@ import {
   Model,
   Zone,
 } from "../../src";
+import { HoveredCellPlugin } from "../../src/components/grid/delayed_hovered_cell_owl_plugin";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
 import {
   CANVAS_SHIFT,
@@ -36,7 +37,7 @@ import { FormulaFingerprintPlugin } from "../../src/owl_plugins/formula_fingerpr
 import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
 import { SelectionRendererPlugin } from "../../src/owl_plugins/selection_renderer_owl_plugin";
 import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
-import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
+import { CellHoverOverlayPlugin } from "../../src/stores/cell_hover_overlay_store";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { Mode } from "../../src/types/model";
@@ -512,7 +513,7 @@ describe("renderer", () => {
     ]);
 
     fillStyles = [];
-    container.get(CellHoverOverlayStore).hover({ sheetId, col: 0, row: 0 });
+    getPlugin(HoveredCellPlugin).hover({ sheetId, col: 0, row: 0 });
     drawGridRenderer(ctx);
 
     expect(removeOffsetOfFillStyles(fillStyles)).toEqual([
@@ -522,15 +523,15 @@ describe("renderer", () => {
   });
 
   test("hovered clickable cell without a fill colour draws the overlay colour translucent", () => {
-    const { container, drawGridRenderer, model, getPlugin } = setRenderer(
+    const { drawGridRenderer, model, getPlugin } = setRenderer(
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "Data");
     // A1 has no fill colour of its own, so the overlay has nothing to blend against.
-    container
-      .get(CellHoverOverlayStore)
-      .register({ getHighlightedPositions: () => [{ sheetId, col: 0, row: 0 }] });
+    getPlugin(CellHoverOverlayPlugin).register({
+      getHighlightedPositions: () => [{ sheetId, col: 0, row: 0 }],
+    });
 
     const fillStyles: string[] = [];
     let fillStyle = "";
@@ -547,7 +548,7 @@ describe("renderer", () => {
       },
     });
 
-    container.get(CellHoverOverlayStore).hover({ sheetId, col: 0, row: 0 });
+    getPlugin(HoveredCellPlugin).hover({ sheetId, col: 0, row: 0 });
     drawGridRenderer(ctx);
     expect(fillStyles).toContain(TABLE_HOVER_BACKGROUND_COLOR);
     expect(fillStyles).not.toContain(blendColors("#FFFFFF", TABLE_HOVER_BACKGROUND_COLOR));

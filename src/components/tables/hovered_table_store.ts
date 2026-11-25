@@ -1,5 +1,6 @@
+import { usePlugin } from "@odoo/owl";
 import { range } from "../../helpers/misc";
-import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
+import { CellHoverOverlayPlugin } from "../../stores/cell_hover_overlay_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { CellPosition } from "../../types/misc";
 import { Get } from "../../types/store_engine";
@@ -8,13 +9,12 @@ export class HoveredTableStore extends SpreadsheetStore {
   mutators = ["hover"] as const;
   storeGetters = ["getCellHoverOverlayColor"] as const;
 
-  position: CellPosition | undefined;
+  private hoveredCellOverlayPlugin = usePlugin(CellHoverOverlayPlugin);
 
   constructor(get: Get) {
     super(get);
-    const cellHoverOverlayStore = this.get(CellHoverOverlayStore);
-    cellHoverOverlayStore.register(this);
-    this.onDispose(() => cellHoverOverlayStore.unRegister(this));
+    this.hoveredCellOverlayPlugin.register(this);
+    this.onDispose(() => this.hoveredCellOverlayPlugin.unRegister(this));
   }
 
   getHighlightedPositions(hoveredPosition: CellPosition): CellPosition[] {

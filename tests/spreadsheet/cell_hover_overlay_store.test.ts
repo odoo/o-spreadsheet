@@ -1,42 +1,54 @@
+import { effect, PluginInstance } from "@odoo/owl";
 import { Model, UID } from "../../src";
+import { HoveredCellPlugin } from "../../src/components/grid/delayed_hovered_cell_owl_plugin";
 import { TABLE_HOVER_BACKGROUND_COLOR } from "../../src/constants";
-import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import {
+  CellHoverOverlayPlugin,
   CellHoverOverlayProvider,
-  CellHoverOverlayStore,
 } from "../../src/stores/cell_hover_overlay_store";
-import { Store } from "../../src/types/store_engine";
-import { makeStore } from "../test_helpers/stores";
+import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
+import { nextTick } from "../test_helpers/helpers";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 describe("Cell hover overlay store", () => {
-  let hoveredCellOverlayStore: Store<CellHoverOverlayStore>;
+  let hoveredCellOverlayPlugin: PluginInstance<typeof CellHoverOverlayPlugin>;
+  let hoveredCellPlugin: PluginInstance<typeof HoveredCellPlugin>;
   let model: Model;
   let sheetId: UID;
-  let container: DependencyContainer;
+  let getPlugin: OwlPluginGetter;
 
   beforeEach(() => {
-    ({ model, container } = makeStore(CellHoverOverlayStore));
-    hoveredCellOverlayStore = container.get(CellHoverOverlayStore);
+    ({ model, getPlugin } = makeOwlPluginManager([HoveredCellPlugin, CellHoverOverlayPlugin]));
+    hoveredCellOverlayPlugin = getPlugin(CellHoverOverlayPlugin);
+    hoveredCellPlugin = getPlugin(HoveredCellPlugin);
     sheetId = model.getters.getActiveSheetId();
   });
 
-  test("Store doesn't trigger a re-render when nothing changes", () => {
-    const A1 = { sheetId, col: 0, row: 0 };
-    let result = hoveredCellOverlayStore.hover(A1);
-    expect(result).toBe("noStateChange"); // No render: no overlay provider are registered in the store yet
-    expect(hoveredCellOverlayStore.overlayColors.get(A1)).toBe(undefined);
-
-    hoveredCellOverlayStore.register({
-      getHighlightedPositions: (hoveredPosition) => [hoveredPosition],
+  test("Store doesn't trigger a re-render when nothing changes", async () => {
+    const effectCalled = jest.fn();
+    effect(() => {
+      hoveredCellOverlayPlugin.overlayColors(); // Subscribes to overlay colors changes
+      effectCalled();
     });
 
-    result = hoveredCellOverlayStore.hover(A1);
-    expect(result).toBe(undefined); // Trigger render
-    expect(hoveredCellOverlayStore.overlayColors.get(A1)).toBe(TABLE_HOVER_BACKGROUND_COLOR);
+    const A1 = { sheetId, col: 0, row: 0 };
+    expect(effectCalled).toHaveBeenCalledTimes(1); // Initial effect call
+    hoveredCellPlugin.hover(A1);
+    await nextTick();
+    expect(effectCalled).toHaveBeenCalledTimes(1); // No render: no overlay provider are registered in the store yet
+    expect(hoveredCellOverlayPlugin.overlayColors().get(A1)).toBe(undefined);
 
-    result = hoveredCellOverlayStore.hover(A1);
-    expect(result).toBe("noStateChange"); // No render: hover the same cell
-    expect(hoveredCellOverlayStore.overlayColors.get(A1)).toBe(TABLE_HOVER_BACKGROUND_COLOR);
+    hoveredCellOverlayPlugin.register({
+      getHighlightedPositions: (hoveredPosition) => [hoveredPosition],
+    });
+    await nextTick();
+    expect(effectCalled).toHaveBeenCalledTimes(2); // Effect should be called once after registering the provider
+    expect(hoveredCellOverlayPlugin.overlayColors().get(A1)).toBe(TABLE_HOVER_BACKGROUND_COLOR);
+
+    hoveredCellPlugin.hover(A1);
+    await nextTick();
+    expect(effectCalled).toHaveBeenCalledTimes(2); // No render: hover the same cell
+    expect(hoveredCellOverlayPlugin.overlayColors().get(A1)).toBe(TABLE_HOVER_BACKGROUND_COLOR);
   });
 
   test("Store content is reset when registering/unregistering overlay providers", () => {
@@ -52,17 +64,19 @@ describe("Cell hover overlay store", () => {
         hoveredPosition.row === 1 ? [hoveredPosition] : [],
     };
 
-    hoveredCellOverlayStore.register(A1Provider);
-    hoveredCellOverlayStore.hover(A1);
-    expect(hoveredCellOverlayStore.overlayColors.get(A1)).toBe(TABLE_HOVER_BACKGROUND_COLOR);
+    hoveredCellOverlayPlugin.register(A1Provider);
+    hoveredCellPlugin.hover(A1);
+    expect(hoveredCellOverlayPlugin.overlayColors().get(A1)).toBe(TABLE_HOVER_BACKGROUND_COLOR);
 
-    hoveredCellOverlayStore.register(A2Provider);
-    expect(hoveredCellOverlayStore.overlayColors.get(A1)).toBe(undefined);
+    hoveredCellOverlayPlugin.register(A2Provider);
+    expect(hoveredCellOverlayPlugin.overlayColors().get(A1)).toBe(TABLE_HOVER_BACKGROUND_COLOR);
+    expect(hoveredCellOverlayPlugin.overlayColors().get(A2)).toBe(undefined);
 
-    hoveredCellOverlayStore.hover(A2);
-    expect(hoveredCellOverlayStore.overlayColors.get(A2)).toBe(TABLE_HOVER_BACKGROUND_COLOR);
+    hoveredCellPlugin.hover(A2);
+    expect(hoveredCellOverlayPlugin.overlayColors().get(A1)).toBe(undefined);
+    expect(hoveredCellOverlayPlugin.overlayColors().get(A2)).toBe(TABLE_HOVER_BACKGROUND_COLOR);
 
-    hoveredCellOverlayStore.unRegister(A2Provider);
-    expect(hoveredCellOverlayStore.overlayColors.get(A2)).toBe(undefined);
+    hoveredCellOverlayPlugin.unRegister(A2Provider);
+    expect(hoveredCellOverlayPlugin.overlayColors().get(A2)).toBe(undefined);
   });
 });

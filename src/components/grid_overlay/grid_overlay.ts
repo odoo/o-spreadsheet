@@ -14,12 +14,14 @@ import { positionToZone } from "../../helpers/zones";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore } from "../../store_engine/store_hooks";
-import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { CellPosition, GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
-import { DelayedHoveredCellPlugin } from "../grid/delayed_hovered_cell_owl_plugin";
+import {
+  DelayedHoveredCellPlugin,
+  HoveredCellPlugin,
+} from "../grid/delayed_hovered_cell_owl_plugin";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect, isChildEvent, isCtrlKey, isMobileOS } from "../helpers/dom_helpers";
@@ -36,7 +38,7 @@ function useCellHovered(
   gridRef: Signal<HTMLElement | null>
 ): Partial<Position> {
   const delayedHoveredCell = usePlugin(DelayedHoveredCellPlugin);
-  const cellHoverOverlay = useStore(CellHoverOverlayStore);
+  const hoveredCell = usePlugin(HoveredCellPlugin);
   const viewPlugin = usePlugin(ViewportsPlugin);
   const zoomPlugin = usePlugin(ZoomPlugin);
   const hoveredPosition: Partial<Position> = {
@@ -89,9 +91,9 @@ function useCellHovered(
       lastMoved = Date.now();
       const position = getPosition();
       if (position.col < 0 || position.row < 0) {
-        cellHoverOverlay.hover(undefined);
+        hoveredCell.clear();
       } else {
-        cellHoverOverlay.hover(getPosition());
+        hoveredCell.hover(getPosition());
       }
     }
   }
@@ -143,7 +145,12 @@ function useCellHovered(
     if (col !== hoveredPosition.col || row !== hoveredPosition.row) {
       hoveredPosition.col = col;
       hoveredPosition.row = row;
-      delayedHoveredCell.hover({ col, row });
+      if (col === undefined || row === undefined) {
+        delayedHoveredCell.clear();
+      } else {
+        const sheetId = viewPlugin.displayedSheetId();
+        delayedHoveredCell.hover({ col, row, sheetId });
+      }
     }
   }
   return hoveredPosition;

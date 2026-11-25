@@ -1,14 +1,12 @@
 import { TEXT_BODY_MUTED } from "../../../constants";
 import { blendColors } from "../../../helpers/color";
 import { computeTextFontSizeInPixels } from "../../../helpers/text_helper";
-import { useStore } from "../../../store_engine/store_hooks";
 import { Color, Style } from "../../../types/misc";
-import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { OSComponent } from "../../os_component";
 
-import { useProps } from "@odoo/owl";
-import { CellHoverOverlayStore } from "../../../stores/cell_hover_overlay_store";
+import { usePlugin, useProps } from "@odoo/owl";
+import { CellHoverOverlayPlugin } from "../../../stores/cell_hover_overlay_store";
 import { types } from "../../props_validation";
 
 export class ClickableCellSortIcon extends OSComponent {
@@ -18,11 +16,7 @@ export class ClickableCellSortIcon extends OSComponent {
     position: types.CellPosition(),
     sortDirection: types.or([types.SortDirection, types.literal("none")]),
   });
-  private hoveredCellOverlayStore!: Store<CellHoverOverlayStore>;
-
-  setup(): void {
-    this.hoveredCellOverlayStore = useStore(CellHoverOverlayStore);
-  }
+  private hoveredCellOverlayPlugin = usePlugin(CellHoverOverlayPlugin);
 
   get style() {
     const cellStyle = this.model().getters.getCellComputedStyle(this.props.position);
@@ -49,7 +43,7 @@ export class ClickableCellSortIcon extends OSComponent {
   }
 
   private getBackgroundColor(cellStyle: Style): Color | undefined {
-    const overlayColor = this.hoveredCellOverlayStore.overlayColors.get(this.props.position);
+    const overlayColor = this.hoveredCellOverlayPlugin.overlayColors().get(this.props.position);
     if (overlayColor) {
       return cellStyle.fillColor ? blendColors(cellStyle.fillColor, overlayColor) : overlayColor;
     }

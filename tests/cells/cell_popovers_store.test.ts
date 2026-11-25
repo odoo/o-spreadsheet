@@ -1,8 +1,8 @@
 import { DelayedHoveredCellPlugin } from "../../src/components/grid/delayed_hovered_cell_owl_plugin";
 import { CellPopoverStore } from "../../src/components/popover/cell_popover_store";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { toCartesian } from "../../src/helpers/coordinates";
 import { merge, setCellContent } from "../test_helpers";
+import { toCellPosition } from "../test_helpers/helpers";
 import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 describe("cell popover store", () => {
@@ -12,7 +12,8 @@ describe("cell popover store", () => {
     const cellPopovers = container.get(CellPopoverStore);
     merge(model, "A1:B2");
     setCellContent(model, "A1", "=0/0");
-    hoveredCellStore.hover(toCartesian("B2"));
+    const sheetId = model.getters.getActiveSheetId();
+    hoveredCellStore.hover(toCellPosition(sheetId, "B2"));
     expect(cellPopovers.cellPopover).toMatchObject({
       anchorRect: {
         x: 0,
