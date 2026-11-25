@@ -10,7 +10,6 @@ import {
   Model,
   Zone,
 } from "../../src";
-import { HoveredCellPlugin } from "../../src/components/grid/delayed_hovered_cell_owl_plugin";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
 import {
   CANVAS_SHIFT,
@@ -33,11 +32,12 @@ import {
 import { COLOR_THEMES } from "../../src/helpers/color_themes";
 import { fontSizeInPixels, getContextFontSize } from "../../src/helpers/text_helper";
 import { toZone } from "../../src/helpers/zones";
+import { CellHoverOverlayPlugin } from "../../src/owl_plugins/cell_hover_overlay_owl_plugin";
 import { FormulaFingerprintPlugin } from "../../src/owl_plugins/formula_fingerprints_store";
+import { HoveredCellPlugin } from "../../src/owl_plugins/hovered_cell_owl_plugin";
 import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
 import { SelectionRendererPlugin } from "../../src/owl_plugins/selection_renderer_owl_plugin";
 import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
-import { CellHoverOverlayPlugin } from "../../src/stores/cell_hover_overlay_store";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { Mode } from "../../src/types/model";

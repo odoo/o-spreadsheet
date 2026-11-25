@@ -1,6 +1,6 @@
-import { DelayedHoveredCellPlugin } from "../../src/components/grid/delayed_hovered_cell_owl_plugin";
 import { CellPopoverStore } from "../../src/components/popover/cell_popover_store";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { DelayedHoveredCellPlugin } from "../../src/owl_plugins/hovered_cell_owl_plugin";
 import { merge, setCellContent } from "../test_helpers";
 import { toCellPosition } from "../test_helpers/helpers";
 import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";

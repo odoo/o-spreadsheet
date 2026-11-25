@@ -6,12 +6,12 @@ import { StandaloneViewport } from "../../../src/components/standalone_viewport/
 import { DEFAULT_CELL_HEIGHT, TABLE_HOVER_BACKGROUND_COLOR } from "../../../src/constants";
 import { buildSheetLink, range } from "../../../src/helpers/misc";
 import { zoneToXc } from "../../../src/helpers/zones";
+import { CellHoverOverlayPlugin } from "../../../src/owl_plugins/cell_hover_overlay_owl_plugin";
 import { DevicePixelRatioPlugin } from "../../../src/owl_plugins/device_pixel_ratio_owl_plugin";
 import { FormulaFingerprintPlugin } from "../../../src/owl_plugins/formula_fingerprints_store";
 import { RendererPlugin } from "../../../src/owl_plugins/renderer_plugin";
 import { ViewportsPlugin } from "../../../src/owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../../src/owl_plugins/zoom_plugin";
-import { CellHoverOverlayPlugin } from "../../../src/stores/cell_hover_overlay_store";
 import { GridRenderer } from "../../../src/stores/grid_renderer_store";
 import { PropsOf } from "../../../src/types/props_of";
 import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";

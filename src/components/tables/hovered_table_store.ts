@@ -1,6 +1,6 @@
 import { usePlugin } from "@odoo/owl";
 import { range } from "../../helpers/misc";
-import { CellHoverOverlayPlugin } from "../../stores/cell_hover_overlay_store";
+import { CellHoverOverlayPlugin } from "../../owl_plugins/cell_hover_overlay_owl_plugin";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { CellPosition } from "../../types/misc";
 import { Get } from "../../types/store_engine";

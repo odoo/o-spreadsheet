@@ -1,6 +1,6 @@
 import { ClickableCellsStore } from "../../src/components/dashboard/clickable_cell_store";
-import { HoveredCellPlugin } from "../../src/components/grid/delayed_hovered_cell_owl_plugin";
 import { TEXT_BODY_MUTED } from "../../src/constants";
+import { HoveredCellPlugin } from "../../src/owl_plugins/hovered_cell_owl_plugin";
 import { createTable, setFormatting } from "../test_helpers/commands_helpers";
 import { click, getElComputedStyle } from "../test_helpers/dom_helper";
 import { getCellIcons } from "../test_helpers/getters_helpers";

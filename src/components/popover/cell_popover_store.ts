@@ -1,5 +1,6 @@
 import { usePlugin } from "@odoo/owl";
 import { positionToZone } from "../../helpers/zones";
+import { DelayedHoveredCellPlugin } from "../../owl_plugins/hovered_cell_owl_plugin";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
@@ -12,7 +13,6 @@ import {
 import { Command } from "../../types/commands";
 import { CellPosition, Position } from "../../types/misc";
 import { Rect } from "../../types/rendering";
-import { DelayedHoveredCellPlugin } from "../grid/delayed_hovered_cell_owl_plugin";
 
 export class CellPopoverStore extends SpreadsheetStore {
   mutators = ["open", "close"] as const;

@@ -1,19 +1,19 @@
 import { providePlugins, proxy, signal, untrack, useEffect, usePlugin, useProps } from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
+import { CellHoverOverlayPlugin } from "../../owl_plugins/cell_hover_overlay_owl_plugin";
+import {
+  DelayedHoveredCellPlugin,
+  HoveredCellPlugin,
+} from "../../owl_plugins/hovered_cell_owl_plugin";
 import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { ViewportsPlugin, ViewportsPluginInstance } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
-import { CellHoverOverlayPlugin } from "../../stores/cell_hover_overlay_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMDimension, Rect } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { ClickableCellsStore } from "../dashboard/clickable_cell_store";
-import {
-  DelayedHoveredCellPlugin,
-  HoveredCellPlugin,
-} from "../grid/delayed_hovered_cell_owl_plugin";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { HoveredIconStore } from "../grid_overlay/hovered_icon_store";
 import { GridPopover } from "../grid_popover/grid_popover";
