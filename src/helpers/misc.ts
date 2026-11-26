@@ -974,3 +974,15 @@ export class SequenceSet {
     return this.ranges[this.ranges.length - 1]?.max;
   }
 }
+
+export function shift(dict: Record<number, any>, start: number, quantity: number) {
+  if (!dict || quantity === 0) {
+    return;
+  }
+  const keys = [...Object.keys(dict).map((v) => parseInt(v, 10))].filter((k) => k >= start);
+  keys.sort((a, b) => quantity * (b - a));
+  for (let i = 0; i < keys.length; i++) {
+    dict[keys[i] + quantity] = dict[keys[i]];
+    delete dict[keys[i]];
+  }
+}
