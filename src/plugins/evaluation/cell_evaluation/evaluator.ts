@@ -1,6 +1,10 @@
 import { CompiledFormula, OPERATOR_MAP, UNARY_OPERATOR_MAP } from "../../../formulas/compiler";
 
-import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells/cell_evaluation";
+import {
+  createEvaluatedCell,
+  evaluateLiteral,
+  iterateOverPosition,
+} from "../../../helpers/cells/cell_evaluation";
 
 import { CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
@@ -356,11 +360,26 @@ export class Evaluator {
       this.nextRangesToUpdate.clear();
       this.clearEvaluatedRanges(ranges);
       for (const range of ranges) {
-        const { left, bottom, right, top } = range.zone;
         let zoneIsEntirelyEvaluated = true;
-        for (let col = left; col <= right; col++) {
-          for (let row = top; row <= bottom; row++) {
-            const position = { sheetId: range.sheetId, col, row };
+        const { left, bottom, right, top } = range.zone;
+        if (iterateOverPosition(range.zone)) {
+          for (let col = left; col <= right; col++) {
+            for (let row = top; row <= bottom; row++) {
+              const position = { sheetId: range.sheetId, col, row };
+              if (this.nextRangesToUpdate.hasPosition(position)) {
+                zoneIsEntirelyEvaluated = false;
+                continue;
+              }
+              const evaluatedCell = this.computeCell(position);
+              if (evaluatedCell.value !== null || evaluatedCell.format !== undefined) {
+                this.evaluatedCells.set(position, evaluatedCell);
+                this.updateUsedZone(position);
+              }
+            }
+          }
+        } else {
+          for (const cellId of this.getters.getZoneCellIds(range.sheetId, range.zone)) {
+            const position = this.getters.getCellPosition(cellId);
             if (this.nextRangesToUpdate.hasPosition(position)) {
               zoneIsEntirelyEvaluated = false;
               continue;
@@ -393,12 +412,7 @@ export class Evaluator {
 
   private clearEvaluatedRanges(ranges: Iterable<BoundedRange>) {
     for (const range of ranges) {
-      const { left, bottom, right, top } = range.zone;
-      for (let col = left; col <= right; col++) {
-        for (let row = top; row <= bottom; row++) {
-          this.evaluatedCells.delete({ sheetId: range.sheetId, col, row });
-        }
-      }
+      this.evaluatedCells.clearZone(range.sheetId, range.zone);
     }
   }
 
