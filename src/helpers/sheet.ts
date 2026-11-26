@@ -1,17 +1,6 @@
 import { _t } from "../translation";
-import { HeaderIndex, Row } from "../types/misc";
+import { HeaderIndex } from "../types/misc";
 import { getUnquotedSheetName, isDefined, memoize } from "./misc";
-
-export function createDefaultRows(rowNumber: number): Row[] {
-  const rows: Row[] = [];
-  for (let i = 0; i < rowNumber; i++) {
-    const row = {
-      cells: {},
-    };
-    rows.push(row);
-  }
-  return rows;
-}
 
 export function moveHeaderIndexesOnHeaderAddition(
   indexHeaderAdded: HeaderIndex,

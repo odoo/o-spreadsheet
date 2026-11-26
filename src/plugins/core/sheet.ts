@@ -12,7 +12,6 @@ import {
 } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import {
-  createDefaultRows,
   getDuplicateSheetName,
   getNextSheetName,
   isSheetNameEqual,
@@ -367,7 +366,7 @@ export class SheetPlugin extends CorePlugin<typeof SheetPlugin, SheetState> impl
         name: name,
         numberOfCols: colNumber,
         numberOfRows: rowNumber,
-        rows: createDefaultRows(rowNumber),
+        rows: {},
         areGridLinesVisible:
           sheetData.areGridLinesVisible === undefined ? true : sheetData.areGridLinesVisible,
         isVisible: sheetData.isVisible,
@@ -812,7 +811,7 @@ export class SheetPlugin extends CorePlugin<typeof SheetPlugin, SheetState> impl
       name,
       numberOfCols: colNumber,
       numberOfRows: rowNumber,
-      rows: createDefaultRows(rowNumber),
+      rows: {},
       areGridLinesVisible: true,
       isVisible: true,
       panes: {
