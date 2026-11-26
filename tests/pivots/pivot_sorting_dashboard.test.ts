@@ -1,4 +1,4 @@
-import { ClickableCellsStore } from "../../src/components/dashboard/clickable_cell_store";
+import { ClickableCellsPlugin } from "../../src/components/dashboard/clickable_cell_owl_plugin";
 import { TEXT_BODY_MUTED } from "../../src/constants";
 import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
 import { createTable, setFormatting } from "../test_helpers/commands_helpers";
@@ -10,6 +10,7 @@ import {
   nextTick,
   toCellPosition,
 } from "../test_helpers/helpers";
+import { spyPluginCreation } from "../test_helpers/owl_plugins_helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
 describe("Dashboard Pivot Sorting", () => {
@@ -28,12 +29,13 @@ describe("Dashboard Pivot Sorting", () => {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
+    const { getPlugins: getClickableCellPlugin } = spyPluginCreation(ClickableCellsPlugin);
     const pivotId = model.getters.getPivotIds()[0];
-    const { env, fixture } = await mountSpreadsheet({ model });
+    const { fixture } = await mountSpreadsheet({ model });
     model.updateMode("dashboard");
     await nextTick();
     const sheetId = model.getters.getActiveSheetId();
-    expect(env.getStore(ClickableCellsStore).clickableCells).toMatchObject([
+    expect(getClickableCellPlugin()[0]?.clickableCells).toMatchObject([
       { position: toCellPosition(sheetId, "B5") },
     ]);
     expect(".o-dashboard-clickable-cell").toHaveCount(1);
