@@ -3,10 +3,9 @@ import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl
 import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
-import { useLocalStore, useStore } from "../../store_engine/store_hooks";
+import { useLocalStore } from "../../store_engine/store_hooks";
 import { Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
-import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellPlugin } from "../grid/delayed_hovered_cell_owl_plugin";
@@ -18,7 +17,7 @@ import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { OSComponent } from "../os_component";
-import { CellPopoverStore } from "../popover/cell_popover_store";
+import { CellPopoverPlugin } from "../popover/cell_popover_owl_plugin";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
@@ -41,7 +40,7 @@ export class SpreadsheetDashboard extends OSComponent {
     getGridSize: types.function<() => DOMDimension>(),
   });
 
-  protected cellPopovers!: Store<CellPopoverStore>;
+  protected cellPopovers = usePlugin(CellPopoverPlugin);
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
@@ -74,7 +73,6 @@ export class SpreadsheetDashboard extends OSComponent {
       this.moveCanvas(deltaX, deltaY);
       this.hoveredCell.clear();
     });
-    this.cellPopovers = useStore(CellPopoverStore);
 
     useTouchHandlers(this.gridRef, {
       updateScroll: this.moveCanvas.bind(this),

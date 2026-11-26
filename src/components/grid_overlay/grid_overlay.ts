@@ -27,7 +27,7 @@ import { useInterval } from "../helpers/time_hooks";
 import { ZoomedMouseEvent } from "../helpers/zoom";
 import { OSComponent } from "../os_component";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
-import { CellPopoverStore } from "../popover/cell_popover_store";
+import { CellPopoverPlugin } from "../popover/cell_popover_owl_plugin";
 import { types } from "../props_validation";
 import { HoveredIconStore } from "./hovered_icon_store";
 
@@ -177,7 +177,7 @@ export class GridOverlay extends OSComponent {
     hasFooter: types.boolean().optional(() => true),
   });
   private gridOverlayRef = signal.ref();
-  private cellPopovers!: Store<CellPopoverStore>;
+  private cellPopovers = usePlugin(CellPopoverPlugin);
   private paintFormatStore!: Store<PaintFormatStore>;
   private hoveredIconStore!: Store<HoveredIconStore>;
   viewPlugin = usePlugin(ViewportsPlugin);
@@ -195,7 +195,6 @@ export class GridOverlay extends OSComponent {
       resizeObserver.disconnect();
     });
 
-    this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);
     this.hoveredIconStore = useStore(HoveredIconStore);
   }
@@ -247,7 +246,7 @@ export class GridOverlay extends OSComponent {
   }
 
   onCellClicked(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>) {
-    const openedPopover = this.cellPopovers.persistentCellPopover;
+    const openedPopover = this.cellPopovers.persistentCellPopover();
     const [col, row] = this.viewPlugin.getCartesianCoordinates(
       zoomedMouseEvent.offsetX,
       zoomedMouseEvent.offsetY
@@ -272,8 +271,8 @@ export class GridOverlay extends OSComponent {
 
     if (
       zoomedMouseEvent.ev.target === this.gridOverlayRef() &&
-      this.cellPopovers.isOpen &&
-      deepEquals(openedPopover, this.cellPopovers.persistentCellPopover)
+      this.cellPopovers.isOpen() &&
+      deepEquals(openedPopover, this.cellPopovers.persistentCellPopover())
     ) {
       // Only close the popover if props.click/icon.click didn't open a new one
       this.cellPopovers.close();

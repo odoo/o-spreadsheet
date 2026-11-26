@@ -29,7 +29,7 @@
         <GridPopover
           gridRect="this.getGridRect()"
           onMouseWheel.bind="this.onMouseWheel"
-          onClosePopover="() => this.cellPopoverStore.close()"
+          onClosePopover="() => this.cellPopovers.close()"
         />
         <canvas class="" t-ref="this.canvasRef"/>
       </div>

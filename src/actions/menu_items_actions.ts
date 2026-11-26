@@ -1,4 +1,4 @@
-import { CellPopoverStore } from "../components/popover/cell_popover_store";
+import { CellPopoverPlugin } from "../components/popover/cell_popover_owl_plugin";
 import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import {
@@ -571,7 +571,7 @@ export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetActionEnv) => {
 
 export const INSERT_LINK = (env: SpreadsheetActionEnv) => {
   const { col, row } = env.model().getters.getActivePosition();
-  env.getStore(CellPopoverStore).open({ col, row }, "LinkEditor");
+  env.getPlugin(CellPopoverPlugin).open({ col, row }, "LinkEditor");
 };
 
 export const INSERT_LINK_NAME = (env: SpreadsheetActionEnv) => {

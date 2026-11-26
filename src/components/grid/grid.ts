@@ -102,7 +102,7 @@ import { Highlight } from "../highlight/highlight/highlight";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { OSComponent } from "../os_component";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
-import { CellPopoverStore } from "../popover/cell_popover_store";
+import { CellPopoverPlugin } from "../popover/cell_popover_owl_plugin";
 import { Popover } from "../popover/popover";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { types } from "../props_validation";
@@ -177,7 +177,7 @@ export class Grid extends OSComponent {
   viewPlugin = usePlugin(ViewportsPlugin);
   private zoomPlugin = usePlugin(ZoomPlugin);
   private highlightPlugin = usePlugin(HighlightPlugin);
-  private cellPopovers!: Store<CellPopoverStore>;
+  private cellPopovers = usePlugin(CellPopoverPlugin);
   private composerFocusStore!: Store<ComposerFocusStore>;
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
@@ -238,7 +238,6 @@ export class Grid extends OSComponent {
       this.moveCanvas(deltaX, deltaY);
       this.hoveredCell.clear();
     });
-    this.cellPopovers = useStore(CellPopoverStore);
 
     useLayoutEffect(
       (isMainPanelOpen, isSecondaryPanelOpen) => {
@@ -288,7 +287,7 @@ export class Grid extends OSComponent {
   }
 
   onClosePopover() {
-    if (this.cellPopovers.isOpen) {
+    if (this.cellPopovers.isOpen()) {
       this.cellPopovers.close();
     }
     this.focusDefaultElement();
@@ -328,7 +327,7 @@ export class Grid extends OSComponent {
     Escape: {
       fn: () => {
         /** TODO: Clean once we introduce proper focus on sub components. Grid should not have to handle all this logic */
-        if (this.cellPopovers.isOpen) {
+        if (this.cellPopovers.isOpen()) {
           this.cellPopovers.close();
         } else if (this.menuState.isOpen) {
           this.closeMenu();
@@ -751,7 +750,7 @@ export class Grid extends OSComponent {
   processArrows(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    if (this.cellPopovers.isOpen) {
+    if (this.cellPopovers.isOpen()) {
       this.cellPopovers.close();
     }
 
@@ -891,7 +890,7 @@ export class Grid extends OSComponent {
    * expects x and y coordinates in true pixels (not zoomed)
    */
   toggleContextMenu(type: ContextMenuType, x: Pixel, y: Pixel) {
-    if (this.cellPopovers.isOpen) {
+    if (this.cellPopovers.isOpen()) {
       this.cellPopovers.close();
     }
     const gridRect = this.getGridRect();

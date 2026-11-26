@@ -1,9 +1,18 @@
-import { providePlugins, proxy, signal, untrack, useEffect, usePlugin, useProps } from "@odoo/owl";
+import {
+  PluginInstance,
+  providePlugins,
+  proxy,
+  signal,
+  untrack,
+  useEffect,
+  usePlugin,
+  useProps,
+} from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
 import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { ViewportsPlugin, ViewportsPluginInstance } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
-import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
+import { useChildStoreProvider, useLocalStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMDimension, Rect } from "../../types/rendering";
@@ -20,7 +29,7 @@ import { startDnd } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { OSComponent } from "../os_component";
-import { CellPopoverStore } from "../popover/cell_popover_store";
+import { CellPopoverPlugin } from "../popover/cell_popover_owl_plugin";
 import { types } from "../props_validation";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
 import { StandaloneViewportStore } from "./standalone_viewport_store";
@@ -59,19 +68,14 @@ export class StandaloneViewport extends OSComponent {
 
   viewPlugin!: ViewportsPluginInstance;
   zoomPlugin = usePlugin(ZoomPlugin);
-  cellPopoverStore!: Store<CellPopoverStore>;
+  cellPopovers!: PluginInstance<typeof CellPopoverPlugin>;
 
   setup() {
-    providePlugins([ViewportsPlugin, DelayedHoveredCellPlugin]);
-    useChildStoreProvider([
-      HoveredIconStore,
-      ClickableCellsStore,
-      CellHoverOverlayStore,
-      CellPopoverStore,
-    ]);
+    providePlugins([ViewportsPlugin, DelayedHoveredCellPlugin, CellPopoverPlugin]);
+    useChildStoreProvider([HoveredIconStore, ClickableCellsStore, CellHoverOverlayStore]);
     this.viewPlugin = usePlugin(ViewportsPlugin);
     this.store = useLocalStore(StandaloneViewportStore, this.props.range, this.props.columnWeights);
-    this.cellPopoverStore = useStore(CellPopoverStore);
+    this.cellPopovers = usePlugin(CellPopoverPlugin);
     providePlugins([RendererPlugin], { layers: ["Background", "Chart"] });
     const rendererPlugin = usePlugin(RendererPlugin);
     useEffect(() => {

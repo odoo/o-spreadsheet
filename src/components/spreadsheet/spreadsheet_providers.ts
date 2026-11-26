@@ -26,6 +26,7 @@ import { DraggedFigurePlugin } from "../figures/figure_dnd_container/figure_dnd_
 import { FullScreenFigurePlugin } from "../full_screen_figure/full_screen_figure_owl_plugin";
 import { DelayedHoveredCellPlugin } from "../grid/delayed_hovered_cell_owl_plugin";
 import { provideSpreadsheetRect } from "../helpers/position_hook";
+import { CellPopoverPlugin } from "../popover/cell_popover_owl_plugin";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { SplitToColumnsPlugin } from "../side_panel/split_to_columns_panel/split_to_columns_owl_plugin";
 
@@ -56,6 +57,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
       TableResizePlugin,
       TrimWhitespacePlugin,
       SplitToColumnsPlugin,
+      CellPopoverPlugin,
       FormulaFingerprintPlugin,
       DelayedHoveredCellPlugin,
       FullScreenFigurePlugin,
