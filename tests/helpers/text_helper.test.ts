@@ -16,6 +16,10 @@ describe("computeTextFont", () => {
       `400 12px Verdana,${DEFAULT_FONT}`
     );
   });
+
+  test("uses a bold weight when the style is bold", () => {
+    expect(computeTextFont({ fontSize: 12, bold: true }, "px")).toBe(`bold 12px ${DEFAULT_FONT}`);
+  });
 });
 
 describe("getDefaultContextFont", () => {

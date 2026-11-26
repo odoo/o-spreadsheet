@@ -175,8 +175,9 @@ export function computeTextFont(
   fontUnit: "px" | "pt" = "pt",
   fontWeight: number = DEFAULT_FONT_WEIGHT
 ): string {
+  const weight = style.bold ? true : fontWeight;
   const size = fontUnit === "pt" ? computeTextFontSizeInPixels(style) : style.fontSize;
-  return getDefaultContextFont(size ?? DEFAULT_FONT_SIZE, fontWeight, style.italic, style.font);
+  return getDefaultContextFont(size ?? DEFAULT_FONT_SIZE, weight, style.italic, style.font);
 }
 
 export function computeTextFontSizeInPixels(style?: Style): number {
