@@ -1,6 +1,6 @@
 import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
 import { getItemId } from "../helpers/data_normalization";
-import { groupConsecutive, range } from "../helpers/misc";
+import { groupConsecutive, rangeIterator } from "../helpers/misc";
 import { recomputeZones } from "../helpers/recompute_zones";
 import { positionToZone } from "../helpers/zones";
 import { BorderDescrInternal } from "../plugins/core/borders";
@@ -160,7 +160,7 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
         bottom: toDescr(defaultTop.sheetDefault, "external"),
       });
       // Col default
-      for (const col of range(0, content.width)) {
+      for (const col of rangeIterator(0, content.width)) {
         this.setBorders(sheetId, [{ left: left + col, right: left + col, top, bottom }], {
           left: toDescr(defaultLeft.colDefault?.[col], "internal"),
           right: toDescr(defaultLeft.colDefault?.[col + 1], "external"),
@@ -169,7 +169,7 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
         });
       }
       // Row default
-      for (const row of range(0, content.height)) {
+      for (const row of rangeIterator(0, content.height)) {
         this.setBorders(sheetId, [{ left, right, top: top + row, bottom: top + row }], {
           left: toDescr(defaultLeft.rowDefault?.[row], "internal"),
           right: toDescr(defaultLeft.rowDefault?.[row], "external"),

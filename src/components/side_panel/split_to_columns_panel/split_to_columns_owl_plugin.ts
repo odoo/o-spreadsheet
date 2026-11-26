@@ -1,7 +1,7 @@
 import { computed, signal, usePlugin } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
-import { range } from "../../../helpers/misc";
+import { rangeIterator } from "../../../helpers/misc";
 import { NotificationPlugin } from "../../../owl_plugins/notification_owl_plugin";
 import { OwlPluginWithModel } from "../../../owl_plugins/owl_plugin_with_model";
 import { _t } from "../../../translation";
@@ -137,7 +137,7 @@ export class SplitToColumnsPlugin extends OwlPluginWithModel {
     }
     const sheetId = this.model().getters.getActiveSheetId();
     const splitted: string[][] = [];
-    for (const row of range(selection.top, selection.bottom + 1)) {
+    for (const row of rangeIterator(selection.top, selection.bottom + 1)) {
       const text = this.model().getters.getEvaluatedCell({
         sheetId,
         col: selection.left,
@@ -158,7 +158,7 @@ export class SplitToColumnsPlugin extends OwlPluginWithModel {
 
   private willSplittedColsOverwriteContent(selection: Zone, splittedCols: string[][]) {
     const sheetId = this.model().getters.getActiveSheetId();
-    for (const row of range(selection.top, selection.bottom + 1)) {
+    for (const row of rangeIterator(selection.top, selection.bottom + 1)) {
       const splittedText = splittedCols[row - selection.top];
       for (let i = 1; i < splittedText.length; i++) {
         const cell = this.model().getters.getCell({ sheetId, col: selection.left + i, row });
@@ -183,7 +183,7 @@ export class SplitToColumnsPlugin extends OwlPluginWithModel {
 
     let colsToAdd = 0;
 
-    for (const row of range(selection.top, selection.bottom + 1)) {
+    for (const row of rangeIterator(selection.top, selection.bottom + 1)) {
       const cellPosition = { sheetId, col: selection.left, row };
       const splittedText = splittedCols[row - selection.top];
       const colsToAddInRow = this.getColsToAddToAvoidCollision(cellPosition, splittedText);

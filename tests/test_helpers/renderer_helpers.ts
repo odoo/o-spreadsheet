@@ -5,6 +5,7 @@ import {
 } from "canvas";
 import { GridRenderingContext, Model, RenderingGetters, UID, Viewport, Zone } from "../../src";
 import { getDefaultSheetViewSize } from "../../src/constants";
+import { SequenceSet } from "../../src/helpers/misc";
 import {
   ViewportsPlugin,
   ViewportsPluginInstance,
@@ -102,11 +103,11 @@ export class MockGridRenderingContext implements GridRenderingContext {
     return this.model.getters.getSelectionState().selectedZones;
   }
 
-  get activeCols(): Set<number> {
+  get activeCols(): SequenceSet {
     return this.model.getters.getSelectionState().activeCols;
   }
 
-  get activeRows(): Set<number> {
+  get activeRows(): SequenceSet {
     return this.model.getters.getSelectionState().activeRows;
   }
 

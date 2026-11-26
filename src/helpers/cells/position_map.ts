@@ -1,4 +1,4 @@
-import { CellPosition, UID } from "../../types/misc";
+import { CellPosition, UID, Zone } from "../../types/misc";
 
 export class PositionMap<T> {
   private map: Record<UID, Record<number, Record<number, T>>> = {};
@@ -36,6 +36,22 @@ export class PositionMap<T> {
 
   clearSheet(sheetId: UID) {
     delete this.map[sheetId];
+  }
+
+  clearZone(sheetId: UID, zone: Zone) {
+    const sheet = this.map[sheetId];
+    if (!sheet) {
+      return;
+    }
+    const { left, right, top, bottom } = zone;
+    for (let col = left; col <= right; col++) {
+      if (!sheet[col]) {
+        continue;
+      }
+      for (let row = top; row <= bottom; row++) {
+        delete sheet[col]?.[row];
+      }
+    }
   }
 
   has({ sheetId, col, row }: CellPosition): boolean {

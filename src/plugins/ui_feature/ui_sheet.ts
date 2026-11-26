@@ -9,7 +9,7 @@ import {
 import { isColorValid } from "../../helpers/color";
 import { formatValue } from "../../helpers/format/format";
 import { localizeFormula } from "../../helpers/locale";
-import { deepCopy, groupConsecutive, largeMax, range } from "../../helpers/misc";
+import { deepCopy, groupConsecutive, largeMax, range, rangeIterator } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import {
   computeMultilineTextSize,
@@ -246,7 +246,7 @@ export class SheetUIPlugin extends UIPlugin {
   getContiguousZone(sheetId: UID, zoneToExpand: Zone): Zone {
     /** Try to expand the zone by one col/row in any direction to include a new non-empty cell */
     const expandZone = (zone: Zone): Zone => {
-      for (const col of range(zone.left, zone.right + 1)) {
+      for (const col of rangeIterator(zone.left, zone.right + 1)) {
         if (!this.isCellEmpty({ sheetId, col, row: zone.top - 1 })) {
           return { ...zone, top: zone.top - 1 };
         }
@@ -254,7 +254,7 @@ export class SheetUIPlugin extends UIPlugin {
           return { ...zone, bottom: zone.bottom + 1 };
         }
       }
-      for (const row of range(zone.top, zone.bottom + 1)) {
+      for (const row of rangeIterator(zone.top, zone.bottom + 1)) {
         if (!this.isCellEmpty({ sheetId, col: zone.left - 1, row })) {
           return { ...zone, left: zone.left - 1 };
         }

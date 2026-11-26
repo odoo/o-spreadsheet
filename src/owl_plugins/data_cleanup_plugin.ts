@@ -1,7 +1,7 @@
 import { onWillDestroy, signal, usePlugin } from "@odoo/owl";
 import { CellClipboardHandler } from "../clipboard_handlers/cell_clipboard";
 import { getClipboardDataPositions } from "../helpers/clipboard/clipboard_helpers";
-import { deepEquals, range } from "../helpers/misc";
+import { deepEquals, rangeIterator } from "../helpers/misc";
 import { zoneToDimension } from "../helpers/zones";
 import { _t } from "../translation";
 import { CancelledReason, Command, CommandResult } from "../types/commands";
@@ -174,7 +174,7 @@ export class DataCleanupPlugin extends OwlPluginWithModel {
   ): number[] {
     const uniqueRows = new Map<number, string>();
 
-    for (const row of range(top, bottom + 1)) {
+    for (const row of rangeIterator(top, bottom + 1)) {
       const cellsValuesInRow = columns.map((col) => {
         return this.model().getters.getEvaluatedCell({
           sheetId,

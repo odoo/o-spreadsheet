@@ -1,5 +1,6 @@
 import { proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { MAX_HEADER_SIZE, MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
+import { SequenceSet } from "../../helpers/misc";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
@@ -105,7 +106,7 @@ abstract class AbstractResizer extends OSComponent {
 
   abstract _getType(): ContextMenuType;
 
-  abstract _getActiveElements(): Set<HeaderIndex>;
+  abstract _getActiveElements(): SequenceSet;
 
   abstract _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex;
 
@@ -461,7 +462,7 @@ export class ColResizer extends AbstractResizer {
     return "COL";
   }
 
-  _getActiveElements(): Set<HeaderIndex> {
+  _getActiveElements(): SequenceSet {
     return this.model().getters.getActiveCols();
   }
 
@@ -632,7 +633,7 @@ export class RowResizer extends AbstractResizer {
     return "ROW";
   }
 
-  _getActiveElements(): Set<HeaderIndex> {
+  _getActiveElements(): SequenceSet {
     return this.model().getters.getActiveRows();
   }
 

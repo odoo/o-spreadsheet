@@ -3,7 +3,7 @@ import {
   deepCopy,
   getAddHeaderStartIndex,
   insertItemsAtIndex,
-  range,
+  rangeIterator,
   removeIndexesFromArray,
 } from "../../helpers/misc";
 import {
@@ -125,7 +125,7 @@ export class HeaderSizePlugin
       if (sheet.rows === undefined) {
         sheet.rows = {};
       }
-      for (const row of range(0, this.getters.getNumberRows(sheet.id))) {
+      for (const row of rangeIterator(0, this.getters.getNumberRows(sheet.id))) {
         if (exportDefaults || this.sizes[sheet.id]["ROW"][row]) {
           sheet.rows[row] = {
             ...sheet.rows[row],
@@ -138,7 +138,7 @@ export class HeaderSizePlugin
       if (sheet.cols === undefined) {
         sheet.cols = {};
       }
-      for (const col of range(0, this.getters.getNumberCols(sheet.id))) {
+      for (const col of rangeIterator(0, this.getters.getNumberCols(sheet.id))) {
         if (exportDefaults || this.sizes[sheet.id]["COL"][col]) {
           sheet.cols[col] = { ...sheet.cols[col], size: this.getColSize(sheet.id, col) };
         }

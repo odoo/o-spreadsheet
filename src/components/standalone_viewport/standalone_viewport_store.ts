@@ -1,6 +1,6 @@
 import { usePlugin } from "@odoo/owl";
 import { DEFAULT_CELL_WIDTH } from "../../constants";
-import { deepEquals, range, sumArray } from "../../helpers/misc";
+import { deepEquals, range, rangeIterator, SequenceSet, sumArray } from "../../helpers/misc";
 import { isInside, isZoneValid } from "../../helpers/zones";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
@@ -136,8 +136,8 @@ export class StandaloneViewportStore extends SpreadsheetStore {
       hideFrozenPaneBorder: true,
       dpr: this.devicePixelRatioPlugin.devicePixelRatio() || 1,
       selectedZones: [],
-      activeCols: new Set(),
-      activeRows: new Set(),
+      activeCols: new SequenceSet(),
+      activeRows: new SequenceSet(),
       activePosition: undefined,
     };
     return renderingCtx;
@@ -180,7 +180,7 @@ export class StandaloneViewportStore extends SpreadsheetStore {
     }
 
     const colWeights: number[] = [];
-    for (const col of range(zone.left, zone.right + 1)) {
+    for (const col of rangeIterator(zone.left, zone.right + 1)) {
       if (this.getters.isColHidden(sheetId, col)) {
         colWeights.push(0);
         continue;

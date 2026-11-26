@@ -13,7 +13,7 @@ import { Spreadsheet } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { matrixMap } from "../../src/functions/helpers";
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
-import { range } from "../../src/helpers/misc";
+import { rangeIterator } from "../../src/helpers/misc";
 import { createRangeFromXc } from "../../src/helpers/range";
 import { positions, toUnboundedZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
@@ -395,9 +395,9 @@ export function getRangeCellsAsMatrix(
 ): EvaluatedCell[][] {
   const rangeValue: EvaluatedCell[][] = [];
   const zone = toZone(rangeXc);
-  for (const row of range(zone.top, zone.bottom + 1)) {
+  for (const row of rangeIterator(zone.top, zone.bottom + 1)) {
     const colValues: EvaluatedCell[] = [];
-    for (const col of range(zone.left, zone.right + 1)) {
+    for (const col of rangeIterator(zone.left, zone.right + 1)) {
       const cell = model.getters.getEvaluatedCell({ sheetId, col, row });
       colValues.push(cell);
     }
@@ -436,14 +436,14 @@ export function checkFunctionDoesntSpreadBeyondRange(
   sheetId: string = model.getters.getActiveSheetId()
 ): boolean {
   const zone = toZone(rangeXc);
-  for (const row of range(zone.top, zone.bottom + 2)) {
+  for (const row of rangeIterator(zone.top, zone.bottom + 2)) {
     const cell = model.getters.getEvaluatedCell({ sheetId, col: zone.right + 1, row });
     if (cell.value) {
       return false;
     }
   }
 
-  for (const col of range(zone.left, zone.right + 2)) {
+  for (const col of rangeIterator(zone.left, zone.right + 2)) {
     const cell = model.getters.getEvaluatedCell({ sheetId, col, row: zone.bottom + 1 });
     if (cell.value) {
       return false;
@@ -682,7 +682,7 @@ function insertText(el: HTMLElement, text: string) {
   const focusedLineIndex = (textBefore + text).split("\n").length - 1;
   const newLines = newText.split("\n");
   el.innerHTML = "";
-  for (const lineIndex of range(0, newLines.length)) {
+  for (const lineIndex of rangeIterator(0, newLines.length)) {
     const lineText = newLines[lineIndex];
     const p = document.createElement("p");
     const span = document.createElement("span");

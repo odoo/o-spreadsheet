@@ -1,4 +1,4 @@
-import { range } from "../../helpers/misc";
+import { rangeIterator } from "../../helpers/misc";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { CellPosition } from "../../types/misc";
@@ -26,7 +26,7 @@ export class HoveredTableStore extends SpreadsheetStore {
     }
     const { left, right, top } = table.range.zone;
     const isTableHeader = row < top + table.config.numberOfHeaders;
-    const doesTableRowHaveContent = range(left, right + 1).some((col) => {
+    const doesTableRowHaveContent = rangeIterator(left, right + 1).some((col) => {
       return (
         !this.getters.isColHidden(sheetId, col) &&
         this.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue

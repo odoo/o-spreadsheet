@@ -3,7 +3,7 @@ import {
   deepCopy,
   getAddHeaderStartIndex,
   insertItemsAtIndex,
-  range,
+  rangeIterator,
   removeIndexesFromArray,
 } from "../../helpers/misc";
 import { getCanvas, getDefaultCellHeight } from "../../helpers/text_helper";
@@ -117,7 +117,7 @@ export class HeaderSizeUIPlugin
       }
     } else {
       // Recompute row heights on col size change, they might have changed because of wrapped text
-      for (const row of range(0, this.getters.getNumberRows(sheetId))) {
+      for (const row of rangeIterator(0, this.getters.getNumberRows(sheetId))) {
         for (const col of cmd.elements) {
           this.updateRowSizeForCellChange(sheetId, row, col);
         }

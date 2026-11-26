@@ -1,5 +1,5 @@
 import { CompiledFormula } from "../../formulas/compiler";
-import { deepCopy, deepEquals, isDefined, range } from "../../helpers/misc";
+import { deepCopy, deepEquals, isDefined, rangeIterator } from "../../helpers/misc";
 import { getFirstPivotFunction } from "../../helpers/pivot/pivot_composer_helpers";
 import { createFilter } from "../../helpers/table_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../helpers/table_presets";
@@ -362,7 +362,7 @@ export class TablePlugin extends CorePlugin<typeof TablePlugin, TableState> impl
     const zone = tableRange.zone;
     if (!filters) {
       filters = [];
-      for (const i of range(zone.left, zone.right + 1)) {
+      for (const i of rangeIterator(zone.left, zone.right + 1)) {
         const filterZone = { ...zone, left: i, right: i };
         const uid = this.consumeNextId();
         filters.push(this.createFilterFromZone(uid, tableRange.sheetId, filterZone, config));
@@ -439,7 +439,7 @@ export class TablePlugin extends CorePlugin<typeof TablePlugin, TableState> impl
 
     const filters: Filter[] = [];
     if (newRange || (newConfig && "numberOfHeaders" in newConfig)) {
-      for (const i of range(tableZone.left, tableZone.right + 1)) {
+      for (const i of rangeIterator(tableZone.left, tableZone.right + 1)) {
         const oldFilter =
           tableZone.top === table.range.zone.top
             ? table.filters.find((f) => f.col === i)

@@ -47,7 +47,7 @@ import { ColorThemeName } from "../../../../types/rendering";
 import { isNumberResult } from "../../../cells/cell_evaluation";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
 import { DAYS, formatValue, isDateTimeFormat, MONTHS } from "../../../format/format";
-import { deepCopy, findNextDefinedValue, range } from "../../../misc";
+import { deepCopy, findNextDefinedValue, range, rangeIterator } from "../../../misc";
 import { createDate } from "../../../pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { BubbleChartData } from "../bubble_chart";
 import { getChartBackgroundColor, shouldRemoveFirstLabel } from "../chart_common";
@@ -1151,9 +1151,9 @@ function aggregateDataForLabels(
     labelMap[label] = new Array(datasets.length);
   });
 
-  for (const indexOfLabel of range(0, labels.length)) {
+  for (const indexOfLabel of rangeIterator(0, labels.length)) {
     const label = labels[indexOfLabel];
-    for (const indexOfDataset of range(0, datasets.length)) {
+    for (const indexOfDataset of rangeIterator(0, datasets.length)) {
       const cell = datasets[indexOfDataset].data[indexOfLabel];
       if (!labelMap[label][indexOfDataset]) {
         labelMap[label][indexOfDataset] = { ...cell, value: parseNumber(cell?.value) };

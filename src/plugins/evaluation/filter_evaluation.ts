@@ -1,6 +1,6 @@
 import { toXC } from "../../helpers/coordinates";
 import { isValueFiltered } from "../../helpers/filter_helpers";
-import { deepCopy, getUniqueText, range } from "../../helpers/misc";
+import { deepCopy, getUniqueText, rangeIterator } from "../../helpers/misc";
 import { positions, toZone, zoneToDimension } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { CommandResult, UpdateFilterCommand } from "../../types/commands";
@@ -206,7 +206,7 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
         const tableZone = toZone(tableData.range);
         const filters: ExcelFilterData[] = [];
         const headerNames: string[] = [];
-        for (const i of range(0, zoneToDimension(tableZone).numberOfCols)) {
+        for (const i of rangeIterator(0, zoneToDimension(tableZone).numberOfCols)) {
           const position = {
             sheetId: sheetData.id,
             col: tableZone.left + i,

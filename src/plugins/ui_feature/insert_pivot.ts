@@ -1,5 +1,5 @@
 import { PIVOT_INSERT_TABLE_STYLE_ID, PIVOT_STATIC_TABLE_CONFIG } from "../../constants";
-import { getUniqueText, range, sanitizeSheetName } from "../../helpers/misc";
+import { getUniqueText, rangeIterator, sanitizeSheetName } from "../../helpers/misc";
 import { createPivotFormula } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { pivotTableStyleIdToTableStyleId } from "../../helpers/pivot_table_presets";
@@ -242,8 +242,8 @@ export class InsertPivotPlugin extends UIPlugin {
     if (numberOfRows === 0 || numberOfCols === 0) {
       return;
     }
-    for (const i of range(0, numberOfCols)) {
-      for (const j of range(0, numberOfRows)) {
+    for (const i of rangeIterator(0, numberOfCols)) {
+      for (const j of rangeIterator(0, numberOfRows)) {
         const pivotCell = pivotCells[i][j];
         if (pivotCell) {
           const position = { sheetId, col: spreadZone.left + i, row: spreadZone.top + j };
