@@ -3589,8 +3589,8 @@ export const demoData = {
     {
       id: "megasheet",
       name: "MegaSheet",
-      colNumber: 2_000,
-      rowNumber: 1_000_000,
+      colNumber: 20_000,
+      rowNumber: 10_000_000,
       rows: {},
       cols: {},
       merges: [],
