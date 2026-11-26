@@ -1675,8 +1675,23 @@ export class BordersPlugin
       const positionsByBorder: Record<number, CellPosition[]> = {};
       // In Excel, a cell node does not inherit the row or column style: give
       // it its full border.
-      for (let col: HeaderIndex = 0; col < sheet.colNumber; col++) {
-        for (let row: HeaderIndex = 0; row < sheet.rowNumber; row++) {
+      const parseInt10 = (v) => parseInt(v, 10);
+      const maxColL = Math.max(...Object.keys(this.bordersLeft[sheet.id] ?? {}).map(parseInt10));
+      const maxColT = Math.max(...Object.keys(this.bordersTop[sheet.id] ?? {}).map(parseInt10));
+      const maxRowL = Math.max(
+        ...Object.values(this.bordersLeft[sheet.id] ?? {})
+          .flatMap((v) => Object.keys(v ?? {}))
+          .map(parseInt10)
+      );
+      const maxRowT = Math.max(
+        ...Object.values(this.bordersTop[sheet.id] ?? {})
+          .flatMap((v) => Object.keys(v ?? {}))
+          .map(parseInt10)
+      );
+      const maxCol = Math.max(maxColL, maxColT) + 1;
+      const maxRow = Math.max(maxRowL, maxRowT) + 1;
+      for (let col: HeaderIndex = 0; col < maxCol; col++) {
+        for (let row: HeaderIndex = 0; row < maxRow; row++) {
           const specificBorders = this.getCellSpecificBorder(sheet.id, col, row);
           if (specificBorders) {
             const border = options.fullBorder
