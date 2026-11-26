@@ -9,7 +9,7 @@ import { HeaderIndex } from "../../types/misc";
 import { DOMDimension, Rect } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
-import { ClickableCellsStore } from "../dashboard/clickable_cell_store";
+import { ClickableCellsPlugin } from "../dashboard/clickable_cell_owl_plugin";
 import { DelayedHoveredCellPlugin } from "../grid/delayed_hovered_cell_owl_plugin";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { HoveredIconStore } from "../grid_overlay/hovered_icon_store";
@@ -62,13 +62,10 @@ export class StandaloneViewport extends OSComponent {
   cellPopoverStore!: Store<CellPopoverStore>;
 
   setup() {
-    providePlugins([ViewportsPlugin, DelayedHoveredCellPlugin]);
-    useChildStoreProvider([
-      HoveredIconStore,
-      ClickableCellsStore,
-      CellHoverOverlayStore,
-      CellPopoverStore,
-    ]);
+    // ClickableCellsPlugin must be listed after ViewportsPlugin: it captures the
+    // ViewportsPlugin of the current manager, and would otherwise bind to the parent one.
+    providePlugins([ViewportsPlugin, DelayedHoveredCellPlugin, ClickableCellsPlugin]);
+    useChildStoreProvider([HoveredIconStore, CellHoverOverlayStore, CellPopoverStore]);
     this.viewPlugin = usePlugin(ViewportsPlugin);
     this.store = useLocalStore(StandaloneViewportStore, this.props.range, this.props.columnWeights);
     this.cellPopoverStore = useStore(CellPopoverStore);

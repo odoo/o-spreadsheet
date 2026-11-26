@@ -20,6 +20,7 @@ import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ModelStore } from "../../stores/model_store";
+import { ClickableCellsPlugin } from "../dashboard/clickable_cell_owl_plugin";
 import { ChartAnimationPlugin } from "../figures/chart/chartJs/chartjs_animation_owl_plugin";
 import { ZoomableChartPlugin } from "../figures/chart/chartJs/zoomable_chart/zoomable_chart_owl_plugin";
 import { DraggedFigurePlugin } from "../figures/figure_dnd_container/figure_dnd_owl_plugin";
@@ -75,7 +76,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
   stores.inject(ModelStore, model);
 
   // HighlightPlugin has to be declared after RendererPlugin to capture it.
-  providePlugins([DraggedFigurePlugin, HighlightPlugin]);
+  providePlugins([DraggedFigurePlugin, HighlightPlugin, ClickableCellsPlugin]);
 
   for (const store of globalStores.getAll()) {
     useStore(store);

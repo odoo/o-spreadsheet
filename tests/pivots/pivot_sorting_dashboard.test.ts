@@ -1,4 +1,4 @@
-import { ClickableCellsStore } from "../../src/components/dashboard/clickable_cell_store";
+import { ClickableCellsPlugin } from "../../src/components/dashboard/clickable_cell_owl_plugin";
 import { TEXT_BODY_MUTED } from "../../src/constants";
 import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
 import { createTable, setFormatting } from "../test_helpers/commands_helpers";
@@ -33,7 +33,7 @@ describe("Dashboard Pivot Sorting", () => {
     model.updateMode("dashboard");
     await nextTick();
     const sheetId = model.getters.getActiveSheetId();
-    expect(env.getStore(ClickableCellsStore).clickableCells).toMatchObject([
+    expect(env.getPlugin(ClickableCellsPlugin).clickableCells).toMatchObject([
       { position: toCellPosition(sheetId, "B5") },
     ]);
     expect(".o-dashboard-clickable-cell").toHaveCount(1);
