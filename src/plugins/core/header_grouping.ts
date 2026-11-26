@@ -1,4 +1,10 @@
-import { deepCopy, getAddHeaderStartIndex, isConsecutive, range } from "../../helpers/misc";
+import {
+  deepCopy,
+  getAddHeaderStartIndex,
+  isConsecutive,
+  range,
+  SequenceSet,
+} from "../../helpers/misc";
 import {
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
@@ -36,6 +42,8 @@ export class HeaderGroupingPlugin extends CorePlugin<typeof HeaderGroupingPlugin
     "isGroupFolded",
     "isRowFolded",
     "isColFolded",
+    "getFoldedRows",
+    "getFoldedCols",
   ] as const;
 
   private readonly groups: Record<UID, Record<Dimension, HeaderGroup[]>> = {};
@@ -224,10 +232,30 @@ export class HeaderGroupingPlugin extends CorePlugin<typeof HeaderGroupingPlugin
     return groups.some((group) => group.start <= row && row <= group.end && group.isFolded);
   }
 
+  getFoldedRows(sheetId: UID): SequenceSet {
+    const rows = new SequenceSet();
+    for (const group of this.getters.getHeaderGroups(sheetId, "ROW")) {
+      if (group.isFolded) {
+        rows.add(group.start, group.end);
+      }
+    }
+    return rows;
+  }
+
   isColFolded(sheetId: UID, col: HeaderIndex) {
     const groups = this.getters.getHeaderGroups(sheetId, "COL");
     // might become a performance issue if there are a lot of groups (this is called by isColHidden).
     return groups.some((group) => group.start <= col && col <= group.end && group.isFolded);
+  }
+
+  getFoldedCols(sheetId: UID): SequenceSet {
+    const cols = new SequenceSet();
+    for (const group of this.getters.getHeaderGroups(sheetId, "COL")) {
+      if (group.isFolded) {
+        cols.add(group.start, group.end);
+      }
+    }
+    return cols;
   }
 
   private getGroupId(group: HeaderGroup) {
