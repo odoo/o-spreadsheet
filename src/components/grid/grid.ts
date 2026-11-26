@@ -765,7 +765,7 @@ export class Grid extends OSComponent {
 
     updateSelectionWithArrowKeys(ev, this.model().selection);
 
-    if (this.paintFormatStore.isActive) {
+    if (this.paintFormatStore.isActive && !this.model().getters.isReadonly()) {
       this.paintFormatStore.pasteFormat(this.model().getters.getSelectedZones());
     }
   }
