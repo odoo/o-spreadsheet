@@ -1330,6 +1330,17 @@ describe("Grid component", () => {
       expect(getCell(model, "C2")!.style).toEqual({ bold: true });
     });
 
+    test("can not paste format with key in readonly mode", async () => {
+      setCellContent(model, "B2", "b2");
+      selectCell(model, "B2");
+      setFormatting(model, "B2", { bold: true });
+      paintFormatStore.activate({ persistent: false });
+      model.updateMode("readonly");
+      expect(getCell(model, "C2")).toBeUndefined();
+      await keyDown({ key: "ArrowRight" });
+      expect(getCell(model, "C2")).toBeUndefined();
+    });
+
     test("can exit the paint format mode via ESC key", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
