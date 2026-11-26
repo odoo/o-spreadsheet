@@ -13,7 +13,6 @@ import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { lazy } from "../../src/helpers/misc";
 import { buildRevisionLog } from "../../src/history/factory";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
   autofill,
@@ -23,7 +22,7 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { nextTick, useJestFakeTimers } from "../test_helpers/helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 class MockCommandSquisher implements ICommandSquisher {
   public *collectConsecutiveUpdateCellCommands(
@@ -410,7 +409,7 @@ describe("Collaborative session", () => {
         client: { id: "alice", name: "Alice" },
       }
     );
-    const { container } = makeStoreWithModel(model, ClipboardStore);
+    const { container } = makeOwlPluginManager([], { model });
     const spy = jest.spyOn(transport, "sendMessage");
     setCellContent(model, "A1", "1");
     copy(model, "A1");

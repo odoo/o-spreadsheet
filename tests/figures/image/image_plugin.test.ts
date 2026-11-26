@@ -1,6 +1,5 @@
 import { Model } from "../../../src";
 import { FIGURE_ID_SPLITTER } from "../../../src/constants";
-import { ClipboardStore } from "../../../src/stores/clipboard_store";
 import {
   copy,
   createImage,
@@ -15,7 +14,7 @@ import {
   undo,
 } from "../../test_helpers/commands_helpers";
 import { getFigureIds } from "../../test_helpers/helpers";
-import { makeStoreWithModel } from "../../test_helpers/stores";
+import { makeOwlPluginManager } from "../../test_helpers/owl_plugins_helpers";
 
 describe("image plugin", function () {
   test("create image", () => {
@@ -44,7 +43,7 @@ describe("image plugin", function () {
 
   test("copy paste image", () => {
     const model = new Model();
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     const definition = {
@@ -208,7 +207,7 @@ describe("test image undo/redo", () => {
 
   test("undo/redo image cut & paste", () => {
     const model = new Model();
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
     const imageId = "Image1";
     createImage(model, { figureId: imageId });
     const before = model.exportData();

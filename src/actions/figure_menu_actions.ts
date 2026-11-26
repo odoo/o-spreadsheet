@@ -5,11 +5,11 @@ import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { deepEquals } from "../helpers/misc";
+import { ClipboardPlugin } from "../owl_plugins/clipboard_owl_plugin";
 import { ImageProviderPlugin } from "../owl_plugins/image_provider_owl_plugin";
 import { IsSmallPlugin } from "../owl_plugins/is_small_plugin";
 import { NavigatorClipboardPlugin } from "../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
-import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
 import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { Action, ActionSpec, createActions } from "./action";
@@ -200,8 +200,8 @@ function getCopyMenuItem(
         env.model().dispatch("SELECT_FIGURE", { figureId });
       }
       env.model().dispatch("COPY");
-      const clipboardStore = env.getStore(ClipboardStore);
-      const osClipboardContent = await clipboardStore.getClipboardTextAndImageContent();
+      const clipboardPlugin = env.getPlugin(ClipboardPlugin);
+      const osClipboardContent = await clipboardPlugin.getClipboardTextAndImageContent();
       await env.getPlugin(NavigatorClipboardPlugin).write(osClipboardContent);
       if (copiedNotificationMessage) {
         env
@@ -224,10 +224,10 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetActionEnv): ActionSpec {
         env.model().dispatch("SELECT_FIGURE", { figureId });
       }
       env.model().dispatch("CUT");
-      const clipboardStore = env.getStore(ClipboardStore);
+      const clipboardPlugin = env.getPlugin(ClipboardPlugin);
       await env
         .getPlugin(NavigatorClipboardPlugin)
-        .write(await clipboardStore.getClipboardTextAndImageContent());
+        .write(await clipboardPlugin.getClipboardTextAndImageContent());
     },
     icon: "o-spreadsheet-Icon.CUT",
   };

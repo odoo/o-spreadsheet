@@ -2,7 +2,6 @@ import { CoreCommand, Model, RemoteRevisionMessage } from "../../src";
 import { CommandSquisher, SquishedCoreCommand } from "../../src/collaborative/command_squisher";
 import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { toZone } from "../../src/helpers/zones";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { RemoteRevisionsSquishedMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
@@ -21,6 +20,7 @@ import {
   setCellStyle,
   setFormat,
 } from "../test_helpers/commands_helpers";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -62,7 +62,7 @@ describe("Collaborative session", () => {
 
   test("pasting OS clipboard text with a blank line does not corrupt cells for other clients", () => {
     const { alice, bob } = setupCollaborativeEnv();
-    makeStoreWithModel(alice, ClipboardStore);
+    makeOwlPluginManager([], { model: alice });
     setFormat(alice, "A1:A100", "0.00%");
 
     const result = pasteFromOSClipboard(alice, "A1", { text: "=2\n=0\n\n=0\n=0" });
@@ -75,7 +75,7 @@ describe("Collaborative session", () => {
 
   test("pasting OS clipboard text with an inline format does not corrupt following plain values", () => {
     const { alice, bob } = setupCollaborativeEnv();
-    makeStoreWithModel(alice, ClipboardStore);
+    makeOwlPluginManager([], { model: alice });
 
     const result = pasteFromOSClipboard(alice, "A1", { text: "100%\n2\n3" });
     expect(result.isSuccessful).toBe(true);
@@ -107,7 +107,7 @@ describe("Collaborative session", () => {
 
   test("internal copy/paste (not just OS-clipboard text) mixing percent and plain numbers does not corrupt values", () => {
     const { alice, bob } = setupCollaborativeEnv();
-    makeStoreWithModel(alice, ClipboardStore);
+    makeOwlPluginManager([], { model: alice });
 
     setCellContent(alice, "A1", "100%");
     setCellContent(alice, "A2", "2");

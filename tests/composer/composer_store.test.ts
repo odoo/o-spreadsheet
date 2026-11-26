@@ -8,8 +8,6 @@ import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
-import { DependencyContainer } from "../../src/store_engine/dependency_container";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import {
@@ -51,12 +49,10 @@ import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
 let composerStore: Store<CellComposerStore>;
-let container: DependencyContainer;
 let getPlugin: OwlPluginGetter;
 
 beforeEach(() => {
-  ({ model, container, getPlugin, store: composerStore } = makeStore(CellComposerStore));
-  container.get(ClipboardStore); // Instantiate a clipboard store
+  ({ model, getPlugin, store: composerStore } = makeStore(CellComposerStore));
 });
 
 function editCell(model: Model, xc: string, content: string) {

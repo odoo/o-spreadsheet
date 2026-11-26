@@ -1,11 +1,10 @@
 import { Model } from "../../src";
 import { PIVOT_INSERT_TABLE_STYLE_ID } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { copy, insertPivot, paste } from "../test_helpers/commands_helpers";
 import { getCell, getCellText, getTable } from "../test_helpers/getters_helpers";
 import { createModelFromGrid, setGrid } from "../test_helpers/helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 describe("Insert pivot command", () => {
   test("Can insert a pivot in a cell", () => {
@@ -37,7 +36,9 @@ describe("Insert pivot command", () => {
 
 describe("Check the style when copying and pasting a pivot table", () => {
   test("copy/paste the top left cell", () => {
-    const { model } = makeStoreWithModel(createModelFromGrid({ A1: "1", A2: "2" }), ClipboardStore);
+    const { model } = makeOwlPluginManager([], {
+      model: createModelFromGrid({ A1: "1", A2: "2" }),
+    });
     insertPivot(model, "A1:A2", "pivot1", "Sheet2");
     copy(model, "A1");
     paste(model, "C1");
@@ -46,7 +47,9 @@ describe("Check the style when copying and pasting a pivot table", () => {
   });
 
   test("copy/paste the whole table", () => {
-    const { model } = makeStoreWithModel(createModelFromGrid({ A1: "1", A2: "2" }), ClipboardStore);
+    const { model } = makeOwlPluginManager([], {
+      model: createModelFromGrid({ A1: "1", A2: "2" }),
+    });
     insertPivot(model, "A1:A2", "pivot1", "Sheet2");
     copy(model, "A1:A3");
     paste(model, "C1");
@@ -55,7 +58,9 @@ describe("Check the style when copying and pasting a pivot table", () => {
   });
 
   test("copy/paste a random cell", () => {
-    const { model } = makeStoreWithModel(createModelFromGrid({ A1: "1", A2: "2" }), ClipboardStore);
+    const { model } = makeOwlPluginManager([], {
+      model: createModelFromGrid({ A1: "1", A2: "2" }),
+    });
     insertPivot(model, "A1:A2", "pivot1", "Sheet2");
     copy(model, "A2");
     paste(model, "C1");
@@ -68,7 +73,9 @@ describe("Check the style when copying and pasting a pivot table", () => {
   });
 
   test("copy/paste a part of the table with the top left cell", () => {
-    const { model } = makeStoreWithModel(createModelFromGrid({ A1: "1", A2: "2" }), ClipboardStore);
+    const { model } = makeOwlPluginManager([], {
+      model: createModelFromGrid({ A1: "1", A2: "2" }),
+    });
     insertPivot(model, "A1:A2", "pivot1", "Sheet2");
     copy(model, "A1:A2");
     paste(model, "C1");

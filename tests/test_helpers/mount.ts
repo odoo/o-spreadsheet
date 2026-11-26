@@ -31,7 +31,6 @@ import {
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { proxifyStoreMutation } from "../../src/store_engine/store_hooks";
 import { globalStores } from "../../src/store_engine/store_registries";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { _t } from "../../src/translation";
 import { PropsOf } from "../../src/types/props_of";
 import {
@@ -72,8 +71,6 @@ function setupTestStores(container: DependencyContainer) {
     },
     { focusMode: "inactive" }
   );
-
-  container.get(ClipboardStore); // Instantiate a clipboard store
 
   const sidePanelStore = container.get(SidePanelStore);
   proxifyStoreMutation(sidePanelStore, () => container.trigger("store-updated"));

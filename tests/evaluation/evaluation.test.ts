@@ -4,7 +4,6 @@ import { functionRegistry } from "../../src/functions/function_registry";
 import { toMatrix } from "../../src/functions/helpers";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { Model } from "../../src/model";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   activateSheet,
   addColumns,
@@ -38,7 +37,7 @@ import {
   evaluateGrid,
   toCellPosition,
 } from "../test_helpers/helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 import resetAllMocks = jest.resetAllMocks;
 
 describe("evaluateCells", () => {
@@ -1147,7 +1146,7 @@ describe("evaluateCells", () => {
   });
 
   test("Coherent handling of #REF when it occurs following a column deletion or a copy/paste", () => {
-    const { model } = makeStore(ClipboardStore);
+    const { model } = makeOwlPluginManager([]);
     setCellContent(model, "A1", "=SUM(B1,C1)");
     deleteColumns(model, ["B"]);
     expect(getEvaluatedCell(model, "A1").value).toBe("#REF");

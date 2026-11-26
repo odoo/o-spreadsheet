@@ -18,6 +18,7 @@ import { batched } from "../../helpers/misc";
 import { render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
 import { Component } from "../../owl3_compatibility_layer";
+import { ClipboardPlugin } from "../../owl_plugins/clipboard_owl_plugin";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
@@ -26,7 +27,6 @@ import { SpreadsheetRectPlugin } from "../../owl_plugins/spreadsheet_rect_plugin
 import { ViewportsPlugin, ViewportsPluginInstance } from "../../owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore } from "../../store_engine/store_hooks";
-import { ClipboardStore } from "../../stores/clipboard_store";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { CSSProperties, HeaderGroup, Pixel } from "../../types/misc";
@@ -127,7 +127,7 @@ export class Spreadsheet extends Component {
     this.printModePlugin = usePlugin(PrintModePlugin);
     this.zoomPlugin = usePlugin(ZoomPlugin);
     this.notificationPlugin = usePlugin(NotificationPlugin);
-    useStore(ClipboardStore);
+    useStore(ClipboardPlugin);
     this.sidePanel = useStore(SidePanelStore);
 
     this.notificationPlugin.updateNotificationCallbacks({ ...this.props });

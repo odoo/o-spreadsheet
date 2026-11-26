@@ -5,7 +5,6 @@ import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { deepEquals } from "../../src/helpers/misc";
 import { toZone } from "../../src/helpers/zones";
 import { clipboardHandlersRegistries } from "../../src/registries/clipboard_handlers_registries";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   addColumns,
   addRows,
@@ -73,8 +72,7 @@ describe("Default Plugin: Style", () => {
     model = new Model({
       sheets: [{ id: "sh1", colNumber: 25, rowNumber: 20 }],
     });
-    const { container } = makeStoreWithModel(model, AutofillStore);
-    container.get(ClipboardStore);
+    const {} = makeStoreWithModel(model, AutofillStore);
     sheetId = model.getters.getActiveSheetId();
   });
 

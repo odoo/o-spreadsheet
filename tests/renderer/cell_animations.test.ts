@@ -14,10 +14,7 @@ import {
   ViewportsPluginInstance,
 } from "../../src/owl_plugins/viewports_owl_plugin";
 import { EASING_FN, cellAnimationRegistry } from "../../src/registries/cell_animation_registry";
-import { DependencyContainer } from "../../src/store_engine/dependency_container";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { CELL_ANIMATION_DURATION, GridRenderer } from "../../src/stores/grid_renderer_store";
-import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   activateSheet,
@@ -47,7 +44,6 @@ import { makeStoreWithModel } from "../test_helpers/stores";
 
 let boxesOfLastRender: Box[] = [];
 let model: Model;
-let container: DependencyContainer;
 let drawGrid: Function;
 let gridRenderer: GridRenderer;
 let rendererPlugin: PluginInstance<typeof RendererPlugin>;
@@ -76,12 +72,9 @@ afterAll(() => {
 
 beforeEach(() => {
   model = new Model();
-  let gridRendererStore: GridRenderer;
-  let getPlugin: OwlPluginGetter;
-  ({ container, store: gridRendererStore, getPlugin } = makeStoreWithModel(model, GridRenderer));
+  const { store: gridRendererStore, getPlugin } = makeStoreWithModel(model, GridRenderer);
   viewPlugin = getPlugin(ViewportsPlugin);
   rendererPlugin = getPlugin(RendererPlugin);
-  container.get(ClipboardStore);
   jest
     .spyOn(MockCanvasRenderingContext2D.prototype, "measureText")
     .mockImplementation((text: string) => ({

@@ -1,4 +1,4 @@
-import { usePlugin } from "@odoo/owl";
+import { signal, usePlugin } from "@odoo/owl";
 import { ClipboardHandler } from "../clipboard_handlers/abstract_clipboard_handler";
 import { CellClipboardHandler } from "../clipboard_handlers/cell_clipboard";
 import { isCoreCommand } from "../command_registry";
@@ -16,7 +16,6 @@ import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { UuidGenerator } from "../helpers/uuid";
 import { isZoneValid } from "../helpers/zones";
 import { getCurrentVersion } from "../migrations/data";
-import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { clipboardHandlersRegistries } from "../registries/clipboard_handlers_registries";
 import { _t } from "../translation";
 import {
@@ -33,7 +32,8 @@ import { Command, CommandResult, DispatchResult } from "../types/commands";
 import { ClipboardCell, Dimension, HeaderIndex, UID, Zone } from "../types/misc";
 import { GridRenderingContext } from "../types/rendering";
 import { xmlEscape } from "../xlsx/helpers/xml_helpers";
-import { SpreadsheetStore } from "./spreadsheet_store";
+import { NotificationPlugin } from "./notification_owl_plugin";
+import { OwlPluginWithModel } from "./owl_plugin_with_model";
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -48,19 +48,11 @@ interface InsertDeleteCellsTargets {
  * This clipboard manages all cut/copy/paste interactions internal to the
  * application, and with the OS clipboard as well.
  */
-export class ClipboardStore extends SpreadsheetStore {
-  storeGetters = [
-    "getClipboardTextAndImageContent",
-    "getClipboardId",
-    "getClipboardTextContent",
-    "isCutOperation",
-    "isCommandValid",
-  ] as const;
-
-  private status: "visible" | "invisible" = "invisible";
-  private originSheetId?: UID;
-  private copiedData?: MinimalClipboardData;
-  private _isCutOperation: boolean = false;
+export class ClipboardPlugin extends OwlPluginWithModel {
+  private status = signal<"visible" | "invisible">("invisible");
+  private originSheetId = signal<UID | undefined>(undefined);
+  private copiedData = signal<MinimalClipboardData | undefined>(undefined);
+  private _isCutOperation = signal<boolean>(false);
   private clipboardId = UuidGenerator.uuidv4();
 
   private notificationPlugin = usePlugin(NotificationPlugin);
@@ -80,7 +72,7 @@ export class ClipboardStore extends SpreadsheetStore {
   private getCommandResult(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "CUT":
-        const zones = this.getters.getSelectedZones();
+        const zones = this.model().getters.getSelectedZones();
         return this.isCutAllowedOn(zones);
       case "PASTE_FROM_OS_CLIPBOARD": {
         const copiedData = this.convertTextToClipboardData(cmd.clipboardContent.text ?? "");
@@ -88,43 +80,44 @@ export class ClipboardStore extends SpreadsheetStore {
         return this.isPasteAllowed(cmd.target, copiedData, { pasteOption, isCutOperation: false });
       }
       case "PASTE": {
-        if (!this.copiedData) {
+        const copiedData = this.copiedData();
+        if (!copiedData) {
           return CommandResult.EmptyClipboard;
         }
         const pasteOption = cmd.pasteOption;
-        return this.isPasteAllowed(cmd.target, this.copiedData, {
+        return this.isPasteAllowed(cmd.target, copiedData, {
           pasteOption: pasteOption,
-          isCutOperation: this._isCutOperation,
+          isCutOperation: this._isCutOperation(),
         });
       }
       case "COPY_PASTE_CELLS_ABOVE": {
-        const zones = this.getters.getSelectedZones();
+        const zones = this.model().getters.getSelectedZones();
         if (zones.length > 1 || (zones[0].top === 0 && zones[0].bottom === 0)) {
           return CommandResult.InvalidCopyPasteSelection;
         }
-        const zone = this.getters.getSelectedZone();
+        const zone = this.model().getters.getSelectedZone();
         const copiedData = this.getCopiedDataAbove(zone);
         return this.isPasteAllowed(zones, copiedData, {
           isCutOperation: false,
         });
       }
       case "COPY_PASTE_CELLS_ON_LEFT": {
-        const zones = this.getters.getSelectedZones();
+        const zones = this.model().getters.getSelectedZones();
         if (zones.length > 1 || (zones[0].left === 0 && zones[0].right === 0)) {
           return CommandResult.InvalidCopyPasteSelection;
         }
-        const zone = this.getters.getSelectedZone();
+        const zone = this.model().getters.getSelectedZone();
         const copiedData = this.getCopiedDataOnLeft(zone);
         return this.isPasteAllowed(zones, copiedData, {
           isCutOperation: false,
         });
       }
       case "COPY_PASTE_CELLS_ON_ZONE": {
-        const zones = this.getters.getSelectedZones();
+        const zones = this.model().getters.getSelectedZones();
         if (zones.length > 1) {
           return CommandResult.InvalidCopyPasteSelection;
         }
-        const zone = this.getters.getSelectedZone();
+        const zone = this.model().getters.getSelectedZone();
         const copiedData = this.getCopiedDataOnLeft(zone);
         return this.isPasteAllowed(zones, copiedData, {
           isCutOperation: false,
@@ -151,14 +144,14 @@ export class ClipboardStore extends SpreadsheetStore {
     switch (cmd.type) {
       case "COPY":
       case "CUT":
-        const zones = this.getters.getSelectedZones();
-        this.status = "visible";
-        this.originSheetId = this.getters.getActiveSheetId();
-        this._isCutOperation = cmd.type === "CUT";
-        this.copiedData = this.copy(zones);
+        const zones = this.model().getters.getSelectedZones();
+        this.status.set("visible");
+        this.originSheetId.set(this.model().getters.getActiveSheetId());
+        this._isCutOperation.set(cmd.type === "CUT");
+        this.copiedData.set(this.copy(zones));
         break;
       case "PASTE_FROM_OS_CLIPBOARD": {
-        this._isCutOperation = false;
+        this._isCutOperation.set(false);
 
         let contentToPaste = cmd.clipboardContent;
 
@@ -170,12 +163,12 @@ export class ClipboardStore extends SpreadsheetStore {
 
         // TODO: support multiple image import
         if (contentToPaste.imageData) {
-          const sheetId = this.getters.getActiveSheetId();
+          const sheetId = this.model().getters.getActiveSheetId();
           const figureId = UuidGenerator.uuidv4();
           const definition = contentToPaste.imageData;
 
           const size = getMaxFigureSize(definition.size);
-          this.model.dispatch("CREATE_IMAGE", {
+          this.model().dispatch("CREATE_IMAGE", {
             definition,
             size,
             col: cmd.target[0].left,
@@ -186,38 +179,38 @@ export class ClipboardStore extends SpreadsheetStore {
           });
         }
         if (contentToPaste.data) {
-          this.copiedData = contentToPaste.data;
+          this.copiedData.set(contentToPaste.data);
         } else {
-          this.copiedData = this.convertTextToClipboardData(contentToPaste.text ?? "");
+          this.copiedData.set(this.convertTextToClipboardData(contentToPaste.text ?? ""));
         }
         const pasteOption = cmd.pasteOption;
-        this.paste(cmd.target, this.copiedData, {
+        this.paste(cmd.target, this.copiedData(), {
           pasteOption,
           selectTarget: true,
           isCutOperation: false,
         });
-        this.status = "invisible";
-        this.copiedData = undefined;
+        this.status.set("invisible");
+        this.copiedData.set(undefined);
         break;
       }
       case "PASTE": {
         const pasteOption = cmd.pasteOption;
-        this.paste(cmd.target, this.copiedData, {
+        this.paste(cmd.target, this.copiedData(), {
           pasteOption,
           selectTarget: true,
-          isCutOperation: this._isCutOperation,
+          isCutOperation: this._isCutOperation(),
         });
-        this.status = "invisible";
-        if (this._isCutOperation) {
-          this.copiedData = undefined;
-          this._isCutOperation = false;
+        this.status.set("invisible");
+        if (this._isCutOperation()) {
+          this.copiedData.set(undefined);
+          this._isCutOperation.set(false);
         }
         break;
       }
       case "COPY_PASTE_CELLS_ABOVE":
         {
-          const zone = this.getters.getSelectedZone();
-          this.originSheetId = this.getters.getActiveSheetId();
+          const zone = this.model().getters.getSelectedZone();
+          this.originSheetId.set(this.model().getters.getActiveSheetId());
           const copiedData = this.getCopiedDataAbove(zone);
           this.paste([zone], copiedData, {
             isCutOperation: false,
@@ -227,8 +220,8 @@ export class ClipboardStore extends SpreadsheetStore {
         break;
       case "COPY_PASTE_CELLS_ON_LEFT":
         {
-          const zone = this.getters.getSelectedZone();
-          this.originSheetId = this.getters.getActiveSheetId();
+          const zone = this.model().getters.getSelectedZone();
+          this.originSheetId.set(this.model().getters.getActiveSheetId());
           const copiedData = this.getCopiedDataOnLeft(zone);
           this.paste([zone], copiedData, {
             isCutOperation: false,
@@ -238,8 +231,8 @@ export class ClipboardStore extends SpreadsheetStore {
         break;
       case "COPY_PASTE_CELLS_ON_ZONE":
         {
-          const zone = this.getters.getSelectedZone();
-          this.originSheetId = this.getters.getActiveSheetId();
+          const zone = this.model().getters.getSelectedZone();
+          this.originSheetId.set(this.model().getters.getActiveSheetId());
           const copiedData = this.getCopiedDataAboveOnLeft(zone);
           this.paste([zone], copiedData, {
             isCutOperation: false,
@@ -248,14 +241,14 @@ export class ClipboardStore extends SpreadsheetStore {
         }
         break;
       case "CLEAN_CLIPBOARD_HIGHLIGHT":
-        this.status = "invisible";
+        this.status.set("invisible");
         break;
       case "DELETE_CELL": {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
         if (!isZoneValid(cut[0])) {
-          this.model.dispatch("CLEAR_CELLS", {
+          this.model().dispatch("CLEAR_CELLS", {
             target: [cmd.zone],
-            sheetId: this.getters.getActiveSheetId(),
+            sheetId: this.model().getters.getActiveSheetId(),
           });
           break;
         }
@@ -270,10 +263,10 @@ export class ClipboardStore extends SpreadsheetStore {
         break;
       }
       case "ADD_COLUMNS_ROWS": {
-        this.status = "invisible";
+        this.status.set("invisible");
 
         // If we add a col/row inside or before the cut area, we invalidate the clipboard
-        if (!this._isCutOperation || cmd.sheetId !== this.copiedData?.sheetId) {
+        if (!this._isCutOperation() || cmd.sheetId !== this.copiedData()?.sheetId) {
           return;
         }
         const isClipboardDirty = this.isColRowDirtyingClipboard(
@@ -281,29 +274,29 @@ export class ClipboardStore extends SpreadsheetStore {
           cmd.dimension
         );
         if (isClipboardDirty) {
-          this.copiedData = undefined;
+          this.copiedData.set(undefined);
         }
         break;
       }
       case "REMOVE_COLUMNS_ROWS": {
-        this.status = "invisible";
+        this.status.set("invisible");
 
         // If we remove a col/row inside or before the cut area, we invalidate the clipboard
-        if (!this._isCutOperation || cmd.sheetId !== this.copiedData?.sheetId) {
+        if (!this._isCutOperation() || cmd.sheetId !== this.copiedData()?.sheetId) {
           return;
         }
         for (const el of cmd.elements) {
           const isClipboardDirty = this.isColRowDirtyingClipboard(el, cmd.dimension);
           if (isClipboardDirty) {
-            this.copiedData = undefined;
+            this.copiedData.set(undefined);
             break;
           }
         }
-        this.status = "invisible";
+        this.status.set("invisible");
         break;
       }
       case "REPEAT_PASTE": {
-        this.paste(cmd.target, this.copiedData, {
+        this.paste(cmd.target, this.copiedData(), {
           isCutOperation: false,
           pasteOption: cmd.pasteOption,
           selectTarget: true,
@@ -311,17 +304,17 @@ export class ClipboardStore extends SpreadsheetStore {
         break;
       }
       case "DELETE_SHEET":
-        if (!this._isCutOperation) {
+        if (!this._isCutOperation()) {
           return;
         }
-        if (this.originSheetId === cmd.sheetId) {
-          this.copiedData = undefined;
-          this.status = "invisible";
+        if (this.originSheetId() === cmd.sheetId) {
+          this.copiedData.set(undefined);
+          this.status.set("invisible");
         }
         break;
       default:
         if (isCoreCommand(cmd)) {
-          this.status = "invisible";
+          this.status.set("invisible");
         }
     }
   }
@@ -383,20 +376,20 @@ export class ClipboardStore extends SpreadsheetStore {
     if ("figureIds" in data) {
       return clipboardHandlersRegistries.figureHandlers.getKeys().map((handlerName) => {
         const Handler = clipboardHandlersRegistries.figureHandlers.get(handlerName);
-        return { handlerName, handler: new Handler(this.getters, this.model.dispatch) };
+        return { handlerName, handler: new Handler(this.model().getters, this.model().dispatch) };
       });
     }
     const sheetEntries = clipboardHandlersRegistries.sheetHandlers.getKeys().map((handlerName) => {
       const Handler = clipboardHandlersRegistries.sheetHandlers.get(handlerName);
-      return { handlerName, handler: new Handler(this.getters, this.model.dispatch) };
+      return { handlerName, handler: new Handler(this.model().getters, this.model().dispatch) };
     });
     const cellEntries = clipboardHandlersRegistries.cellHandlers.getKeys().map((handlerName) => {
       const Handler = clipboardHandlersRegistries.cellHandlers.get(handlerName);
-      return { handlerName, handler: new Handler(this.getters, this.model.dispatch) };
+      return { handlerName, handler: new Handler(this.model().getters, this.model().dispatch) };
     });
     const rangeEntries = clipboardHandlersRegistries.rangeHandlers.getKeys().map((handlerName) => {
       const Handler = clipboardHandlersRegistries.rangeHandlers.get(handlerName);
-      return { handlerName, handler: new Handler(this.getters, this.model.dispatch) };
+      return { handlerName, handler: new Handler(this.model().getters, this.model().dispatch) };
     });
     return [...sheetEntries, ...cellEntries, ...rangeEntries];
   }
@@ -420,9 +413,14 @@ export class ClipboardStore extends SpreadsheetStore {
         continue;
       }
       const expandedData = handler.expand(handlerData);
-      const result = handler.isPasteAllowed(this.getters.getActiveSheetId(), target, expandedData, {
-        ...options,
-      });
+      const result = handler.isPasteAllowed(
+        this.model().getters.getActiveSheetId(),
+        target,
+        expandedData,
+        {
+          ...options,
+        }
+      );
       if (result !== CommandResult.Success) {
         return result;
       }
@@ -431,10 +429,11 @@ export class ClipboardStore extends SpreadsheetStore {
   }
 
   private isColRowDirtyingClipboard(position: HeaderIndex, dimension: Dimension): boolean {
-    if (!this.copiedData || !this.copiedData.zones) {
+    const copiedData = this.copiedData();
+    if (!copiedData || !copiedData?.zones) {
       return false;
     }
-    const zones = this.copiedData.zones as Zone[];
+    const zones = copiedData.zones as Zone[];
     for (const zone of zones) {
       if (dimension === "COL" && position <= zone.right) {
         return true;
@@ -449,7 +448,7 @@ export class ClipboardStore extends SpreadsheetStore {
   private copy(zones: Zone[], mode: ClipboardCopyOptions = "copyPaste"): MinimalClipboardData {
     const copiedData: MinimalClipboardData = {
       zones,
-      sheetId: this.getters.getActiveSheetId(),
+      sheetId: this.model().getters.getActiveSheetId(),
     };
     const clipboardData = this.getClipboardData(zones);
     if ("sheetId" in clipboardData) {
@@ -459,7 +458,7 @@ export class ClipboardStore extends SpreadsheetStore {
       copiedData["zones"] = clipboardData.zones;
     }
     for (const { handlerName, handler } of this.selectClipboardHandlers(clipboardData)) {
-      copiedData[handlerName] = handler.copy(clipboardData, this._isCutOperation, mode);
+      copiedData[handlerName] = handler.copy(clipboardData, this._isCutOperation(), mode);
     }
     if ("figureIds" in clipboardData) {
       copiedData["figureIds"] = clipboardData.figureIds;
@@ -479,7 +478,7 @@ export class ClipboardStore extends SpreadsheetStore {
     if (!copiedData) {
       return;
     }
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const handlers = this.selectClipboardHandlers(copiedData);
     const expandedData = expandHandlerData(handlers, copiedData);
     const { target, zone, selectedZones } = getPasteTargetFromHandlers(
@@ -500,7 +499,7 @@ export class ClipboardStore extends SpreadsheetStore {
     }
     if (copiedData.figureIds) {
       // Deselect current figure before adding new figure to selection
-      this.model.dispatch("SELECT_FIGURE", { figureId: null });
+      this.model().dispatch("SELECT_FIGURE", { figureId: null });
     }
     applyClipboardHandlersPaste(handlers, expandedData, target, options, {
       sheetId: copiedData.sheetId,
@@ -511,7 +510,7 @@ export class ClipboardStore extends SpreadsheetStore {
     if (!options.selectTarget) {
       return;
     }
-    selectPastedZone(this.model.selection, zones, selectedZones);
+    selectPastedZone(this.model().selection, zones, selectedZones);
   }
 
   /**
@@ -525,24 +524,24 @@ export class ClipboardStore extends SpreadsheetStore {
     col: number,
     row: number
   ) {
-    const missingRows = height + row - this.getters.getNumberRows(sheetId);
+    const missingRows = height + row - this.model().getters.getNumberRows(sheetId);
     if (missingRows > 0) {
-      this.model.dispatch("ADD_COLUMNS_ROWS", {
+      this.model().dispatch("ADD_COLUMNS_ROWS", {
         dimension: "ROW",
-        base: this.getters.getNumberRows(sheetId) - 1,
+        base: this.model().getters.getNumberRows(sheetId) - 1,
         sheetId,
-        sheetName: this.getters.getSheetName(sheetId),
+        sheetName: this.model().getters.getSheetName(sheetId),
         quantity: missingRows,
         position: "after",
       });
     }
-    const missingCols = width + col - this.getters.getNumberCols(sheetId);
+    const missingCols = width + col - this.model().getters.getNumberCols(sheetId);
     if (missingCols > 0) {
-      this.model.dispatch("ADD_COLUMNS_ROWS", {
+      this.model().dispatch("ADD_COLUMNS_ROWS", {
         dimension: "COL",
-        base: this.getters.getNumberCols(sheetId) - 1,
+        base: this.model().getters.getNumberCols(sheetId) - 1,
         sheetId,
-        sheetName: this.getters.getSheetName(sheetId),
+        sheetName: this.model().getters.getSheetName(sheetId),
         quantity: missingCols,
         position: "after",
       });
@@ -598,18 +597,19 @@ export class ClipboardStore extends SpreadsheetStore {
   private getSheetData(): SpreadsheetClipboardData {
     const data: SpreadsheetClipboardData = {
       version: getCurrentVersion(),
-      sheetId: this.getters.getActiveSheetId(),
+      sheetId: this.model().getters.getActiveSheetId(),
       zones: [{ left: 0, right: 0, top: 0, bottom: 0 }],
     };
-    if (this.copiedData && "figureIds" in this.copiedData) {
+    const copiedData = this.copiedData();
+    if (copiedData && "figureIds" in copiedData) {
       return data;
     }
     // copiedData is already compacted by each handler at copy-time; pass through directly.
-    return { ...data, ...this.copiedData };
+    return { ...data, ...copiedData };
   }
 
   private getPlainTextContent(): string {
-    const raw = this.copiedData?.cell;
+    const raw = this.copiedData()?.cell;
     if (!raw) {
       return "\t";
     }
@@ -617,8 +617,8 @@ export class ClipboardStore extends SpreadsheetStore {
     let cells: (ClipboardCell | null)[][] = handler
       ? handler.expand(raw as CompactCellHandlerData)
       : (raw as ClipboardCell[][]);
-    if (this.getters.shouldShowFormulas() && handler) {
-      cells = handler.unsquishClipboardCells(cells, this.copiedData!.sheetId);
+    if (this.model().getters.shouldShowFormulas() && handler) {
+      cells = handler.unsquishClipboardCells(cells, this.copiedData()!.sheetId);
     }
     return (
       cells
@@ -626,7 +626,7 @@ export class ClipboardStore extends SpreadsheetStore {
           return row
             .map((c) => {
               if (
-                this.getters.shouldShowFormulas() &&
+                this.model().getters.shouldShowFormulas() &&
                 typeof c?.content === "string" &&
                 c.content.startsWith("=")
               ) {
@@ -646,23 +646,24 @@ export class ClipboardStore extends SpreadsheetStore {
       return undefined;
     }
     const Handler = clipboardHandlersRegistries.cellHandlers.get(entry);
-    return new Handler(this.getters, this.model.dispatch) as CellClipboardHandler;
+    return new Handler(this.model().getters, this.model().dispatch) as CellClipboardHandler;
   }
 
   private async getHTMLContent(): Promise<string> {
     let innerHTML: string = "";
-    const rawCell = this.copiedData?.cell;
+    const rawCell = this.copiedData()?.cell;
     const handler = this.getCellHandler();
+    const copiedData = this.copiedData();
     const cells = rawCell
       ? handler
         ? (handler.expand(rawCell as CompactCellHandlerData) as ClipboardCell[][])
         : (rawCell as ClipboardCell[][])
       : undefined;
     if (!cells) {
-      if (this.copiedData?.figureIds && this.copiedData.figureIds.length) {
-        const figureId = this.copiedData.figureIds[0];
-        const figureSheetId = this.getters.getFigureSheetId(figureId)!;
-        const figure = this.getters.getFigure(figureSheetId, figureId)!;
+      if (copiedData?.figureIds && copiedData.figureIds.length) {
+        const figureId = copiedData.figureIds[0];
+        const figureSheetId = this.model().getters.getFigureSheetId(figureId)!;
+        const figure = this.model().getters.getFigure(figureSheetId, figureId)!;
         if (figure.tag === "image") {
           innerHTML = await this.craftImageHTML(figureId);
         } else {
@@ -672,33 +673,33 @@ export class ClipboardStore extends SpreadsheetStore {
         innerHTML = "\t";
       }
     } else if (cells.length === 1 && cells[0].length === 1) {
-      const zone = (this.copiedData!.zones as Zone[])[0];
+      const zone = (copiedData!.zones as Zone[])[0];
       const pos = {
-        sheetId: this.copiedData!.sheetId!,
-        col: this.copiedData?.columnsIndexes?.[0] ?? zone.left,
-        row: this.copiedData?.rowsIndexes?.[0] ?? zone.top,
+        sheetId: copiedData!.sheetId!,
+        col: copiedData?.columnsIndexes?.[0] ?? zone.left,
+        row: copiedData?.rowsIndexes?.[0] ?? zone.top,
       };
-      innerHTML = xmlEscape(`${this.getters.getCellText(pos)}`);
+      innerHTML = xmlEscape(`${this.model().getters.getCellText(pos)}`);
     } else {
-      const originZone = (this.copiedData!.zones as Zone[])[0];
-      const originSheetId = this.copiedData!.sheetId!;
+      const originZone = (copiedData!.zones as Zone[])[0];
+      const originSheetId = copiedData!.sheetId!;
       let htmlTable = `<table border="1" style="border-collapse:collapse">`;
       for (const [r, row] of cells.entries()) {
         htmlTable += "<tr>";
         for (const [c, cell] of row.entries()) {
           const position = {
             sheetId: originSheetId,
-            col: this.copiedData?.columnsIndexes?.[c] ?? originZone.left + c,
-            row: this.copiedData?.rowsIndexes?.[r] ?? originZone.top + r,
+            col: copiedData?.columnsIndexes?.[c] ?? originZone.left + c,
+            row: copiedData?.rowsIndexes?.[r] ?? originZone.top + r,
           };
           if (!cell) {
             htmlTable += `<td style=""></td>`;
             continue;
           }
           const cssStyle = cssPropertiesToCss(
-            cellStyleToCss(this.getters.getCellComputedStyle(position))
+            cellStyleToCss(this.model().getters.getCellComputedStyle(position))
           );
-          const cellText = this.getters.getCellText(position);
+          const cellText = this.model().getters.getCellText(position);
           htmlTable += `<td style=\"${cssStyle}\">` + xmlEscape(cellText) + "</td>";
         }
         htmlTable += "</tr>";
@@ -721,7 +722,7 @@ export class ClipboardStore extends SpreadsheetStore {
   }
 
   private async craftImageHTML(figureId: UID): Promise<string> {
-    const file = (await this.getters.getImageFile(figureId)) || null;
+    const file = (await this.model().getters.getImageFile(figureId)) || null;
 
     if (file) {
       const imageUrl = (await this.readFileAsDataURL(file)) as string;
@@ -732,17 +733,18 @@ export class ClipboardStore extends SpreadsheetStore {
   }
 
   private async getImageContent(): Promise<File | undefined> {
-    const figureId = this.copiedData?.figureIds && this.copiedData.figureIds[0];
+    const copiedData = this.copiedData();
+    const figureId = copiedData?.figureIds && copiedData.figureIds[0];
     if (!figureId) {
       return;
     }
 
-    const figureSheetId = this.getters.getFigureSheetId(figureId)!;
-    const figure = this.getters.getFigure(figureSheetId, figureId)!;
+    const figureSheetId = this.model().getters.getFigureSheetId(figureId)!;
+    const figure = this.model().getters.getFigure(figureSheetId, figureId)!;
     let file: File | Blob | null | undefined;
     if (figure.tag === "image") {
-      const imageUrl = this.getters.getImage(figureId).path;
-      file = await this.getters.getImageFile(figureId);
+      const imageUrl = this.model().getters.getImage(figureId).path;
+      file = await this.model().getters.getImageFile(figureId);
       if (!file) {
         return;
       }
@@ -772,7 +774,7 @@ export class ClipboardStore extends SpreadsheetStore {
   }
 
   isCutOperation(): boolean {
-    return this._isCutOperation ?? false;
+    return this._isCutOperation() ?? false;
   }
 
   // ---------------------------------------------------------------------------
@@ -780,32 +782,32 @@ export class ClipboardStore extends SpreadsheetStore {
   // ---------------------------------------------------------------------------
 
   private getDeleteCellsTargets(zone: Zone, dimension: Dimension): InsertDeleteCellsTargets {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     let cut: Zone;
     if (dimension === "COL") {
       cut = {
         ...zone,
         left: zone.right + 1,
-        right: this.getters.getNumberCols(sheetId) - 1,
+        right: this.model().getters.getNumberCols(sheetId) - 1,
       };
     } else {
       cut = {
         ...zone,
         top: zone.bottom + 1,
-        bottom: this.getters.getNumberRows(sheetId) - 1,
+        bottom: this.model().getters.getNumberRows(sheetId) - 1,
       };
     }
     return { cut: [cut], paste: [zone] };
   }
 
   private getInsertCellsTargets(zone: Zone, dimension: Dimension): InsertDeleteCellsTargets {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     let cut: Zone;
     let paste: Zone;
     if (dimension === "COL") {
       cut = {
         ...zone,
-        right: this.getters.getNumberCols(sheetId) - 1,
+        right: this.model().getters.getNumberCols(sheetId) - 1,
       };
       paste = {
         ...zone,
@@ -815,22 +817,28 @@ export class ClipboardStore extends SpreadsheetStore {
     } else {
       cut = {
         ...zone,
-        bottom: this.getters.getNumberRows(sheetId) - 1,
+        bottom: this.model().getters.getNumberRows(sheetId) - 1,
       };
-      paste = { ...zone, top: zone.bottom + 1, bottom: this.getters.getNumberRows(sheetId) - 1 };
+      paste = {
+        ...zone,
+        top: zone.bottom + 1,
+        bottom: this.model().getters.getNumberRows(sheetId) - 1,
+      };
     }
     return { cut: [cut], paste: [paste] };
   }
 
   private getClipboardData(zones: Zone[]): ClipboardData {
-    const sheetId = this.getters.getActiveSheetId();
-    const selectedFiguresIds = this.getters.getSelectedFigureIds();
+    const sheetId = this.model().getters.getActiveSheetId();
+    const selectedFiguresIds = this.model().getters.getSelectedFigureIds();
     if (selectedFiguresIds.length) {
       return { figureIds: selectedFiguresIds, sheetId };
     }
     const data = getClipboardDataPositions(sheetId, zones);
-    if (!this._isCutOperation) {
-      data.rowsIndexes = data.rowsIndexes.filter((r) => !this.getters.isRowFiltered(sheetId, r));
+    if (!this._isCutOperation()) {
+      data.rowsIndexes = data.rowsIndexes.filter(
+        (r) => !this.model().getters.isRowFiltered(sheetId, r)
+      );
     }
     return data;
   }
@@ -840,10 +848,11 @@ export class ClipboardStore extends SpreadsheetStore {
   // ---------------------------------------------------------------------------
 
   drawLayer(renderingContext: GridRenderingContext) {
-    if (this.status !== "visible" || !this.copiedData) {
+    const copiedData = this.copiedData();
+    if (this.status() !== "visible" || !copiedData) {
       return;
     }
-    const { sheetId: copiedSheetId, zones } = this.copiedData;
+    const { sheetId: copiedSheetId, zones } = copiedData;
     const { ctx, thinLineWidth, viewports, sheetId } = renderingContext;
     if (sheetId !== copiedSheetId || !zones || !(zones as Zone[]).length) {
       return;

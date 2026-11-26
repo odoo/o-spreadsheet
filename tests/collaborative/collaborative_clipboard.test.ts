@@ -1,5 +1,4 @@
 import { Model } from "../../src";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
@@ -15,7 +14,7 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { getCellRawContent } from "../test_helpers/getters_helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative range manipulation", () => {
@@ -29,7 +28,7 @@ describe("Collaborative range manipulation", () => {
   });
 
   test("Copy - Paste of references are correctly updated", () => {
-    makeStoreWithModel(bob, ClipboardStore);
+    makeOwlPluginManager([], { model: bob });
     setCellContent(bob, "A1", "=SUM(B1:C1)");
     copy(bob, "A1");
     network.concurrent(() => {
@@ -43,7 +42,7 @@ describe("Collaborative range manipulation", () => {
   });
 
   test("cut and paste a range in the same sheet", () => {
-    makeStoreWithModel(alice, ClipboardStore);
+    makeOwlPluginManager([], { model: alice });
     setCellContent(alice, "A2", "=A1");
     cut(alice, "A1");
     paste(alice, "B1");
@@ -54,7 +53,7 @@ describe("Collaborative range manipulation", () => {
   });
 
   test("cut and paste a range in another sheet", () => {
-    makeStoreWithModel(alice, ClipboardStore);
+    makeOwlPluginManager([], { model: alice });
     setCellContent(alice, "A2", "=A1");
     cut(alice, "A1");
     createSheet(alice, { activate: true });
@@ -66,7 +65,7 @@ describe("Collaborative range manipulation", () => {
   });
 
   test("cut and paste and delete origin sheet concurrently", () => {
-    makeStoreWithModel(alice, ClipboardStore);
+    makeOwlPluginManager([], { model: alice });
     setCellContent(alice, "A2", "hello");
     cut(alice, "A2");
     createSheet(alice, { sheetId: "Sheet2", activate: true });
@@ -100,7 +99,7 @@ describe("Collaborative range manipulation", () => {
   });
 
   test("cut and paste and delete target sheet concurrently (paste first)", () => {
-    makeStoreWithModel(alice, ClipboardStore);
+    makeOwlPluginManager([], { model: alice });
     setCellContent(alice, "A2", "=A1");
     cut(alice, "A1");
     createSheet(alice, { sheetId: "Sheet2", activate: true });
@@ -115,7 +114,7 @@ describe("Collaborative range manipulation", () => {
   });
 
   test("cut and paste zone adapts chart range", () => {
-    makeStoreWithModel(alice, ClipboardStore);
+    makeOwlPluginManager([], { model: alice });
     createChart(
       alice,
       {
@@ -142,7 +141,7 @@ describe("Collaborative range manipulation", () => {
   });
 
   test("Can copy boolean datavalidation while preserving the cell values", () => {
-    makeStoreWithModel(alice, ClipboardStore);
+    makeOwlPluginManager([], { model: alice });
     setCellContent(alice, "A1", "TRUE");
     setCellContent(alice, "A3", "not a boolean");
     setCellContent(alice, "A4", "=TRANSPOSE(A1)");

@@ -27,6 +27,7 @@ import { handleCopyPasteResult } from "../../src/helpers/ui/paste_interactive";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
+import { ClipboardPlugin } from "../../src/owl_plugins/clipboard_owl_plugin";
 import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { ImageProviderPlugin } from "../../src/owl_plugins/image_provider_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
@@ -38,7 +39,6 @@ import {
 } from "../../src/owl_plugins/viewports_owl_plugin";
 import { ZoomPlugin } from "../../src/owl_plugins/zoom_plugin";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
@@ -1367,24 +1367,24 @@ describe("Grid component", () => {
     });
 
     test("paint format does not destroy clipboard content", async () => {
-      const clipboardStore = env.getStore(ClipboardStore);
+      const clipboardPlugin = env.getPlugin(ClipboardPlugin);
       setCellContent(model, "A1", "hello");
       setFormatting(model, "A1", { bold: true });
       copy(model, "A1");
 
-      const clipboardContent = await clipboardStore.getClipboardTextAndImageContent();
+      const clipboardContent = await clipboardPlugin.getClipboardTextAndImageContent();
       paintFormatStore.activate({ persistent: false });
-      expect(await clipboardStore.getClipboardTextAndImageContent()).toEqual(clipboardContent);
+      expect(await clipboardPlugin.getClipboardTextAndImageContent()).toEqual(clipboardContent);
     });
 
     test("can paint format after a cut", async () => {
-      const clipboardStore = env.getStore(ClipboardStore);
+      const clipboardPlugin = env.getPlugin(ClipboardPlugin);
       setCellContent(model, "B2", "b2");
       cut(model, "A1");
       selectCell(model, "B2");
       setFormatting(model, "B2", { bold: true });
       paintFormatStore.activate({ persistent: false });
-      expect(clipboardStore.isCutOperation());
+      expect(clipboardPlugin.isCutOperation());
 
       await gridMouseEvent(env, "pointerdown", "D8");
       await gridMouseEvent(env, "pointerup", "D8");
@@ -2196,10 +2196,10 @@ describe("Copy paste keyboard shortcut", () => {
       clipboardData.content = clipboard.content;
     }
     const clipboardContent = clipboardData.content;
-    const clipboardStore = env.getStore(ClipboardStore);
+    const clipboardPlugin = env.getPlugin(ClipboardPlugin);
     //@ts-ignore
-    const clipboardHtmlData = JSON.stringify(clipboardStore.getSheetData());
-    const clipboardId = clipboardStore.getClipboardId();
+    const clipboardHtmlData = JSON.stringify(clipboardPlugin.getSheetData());
+    const clipboardId = clipboardPlugin.getClipboardId();
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
       "text/html": `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='${xmlEscape(
@@ -2222,10 +2222,10 @@ describe("Copy paste keyboard shortcut", () => {
       clipboardData.content = clipboard.content;
     }
     const clipboardContent = clipboardData.content;
-    const clipboardStore = env.getStore(ClipboardStore);
+    const clipboardPlugin = env.getPlugin(ClipboardPlugin);
     //@ts-ignore
-    const clipboardHtmlData = JSON.stringify(clipboardStore.getSheetData());
-    const clipboardId = clipboardStore.getClipboardId();
+    const clipboardHtmlData = JSON.stringify(clipboardPlugin.getSheetData());
+    const clipboardId = clipboardPlugin.getClipboardId();
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
       "text/html": `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='${xmlEscape(
@@ -2421,29 +2421,29 @@ describe("Copy paste keyboard shortcut", () => {
   });
 
   test("Clipboard visible zones (copy) will be cleaned after hitting esc", async () => {
-    const clipboardStore = env.getStore(ClipboardStore);
+    const clipboardPlugin = env.getPlugin(ClipboardPlugin);
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
     copy(model, "A1");
     selectCell(model, "A2");
-    expect(getClipboardVisibleZones(clipboardStore).length).toBe(1);
+    expect(getClipboardVisibleZones(clipboardPlugin).length).toBe(1);
     await keyDown({ key: "Escape" });
-    expect(getClipboardVisibleZones(clipboardStore).length).toBe(0);
+    expect(getClipboardVisibleZones(clipboardPlugin).length).toBe(0);
   });
 
   test("Clipboard visible zones (cut) will be cleaned after hitting esc", async () => {
-    const clipboardStore = env.getStore(ClipboardStore);
+    const clipboardPlugin = env.getPlugin(ClipboardPlugin);
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
     cut(model, "A1");
     selectCell(model, "A2");
-    expect(getClipboardVisibleZones(clipboardStore).length).toBe(1);
+    expect(getClipboardVisibleZones(clipboardPlugin).length).toBe(1);
     await keyDown({ key: "Escape" });
-    expect(getClipboardVisibleZones(clipboardStore).length).toBe(0);
+    expect(getClipboardVisibleZones(clipboardPlugin).length).toBe(0);
   });
 
   test("When there is a opened cell popover, hitting esc key will only close the popover and not clean the clipboard visible zones", async () => {
-    const clipboardStore = env.getStore(ClipboardStore);
+    const clipboardPlugin = env.getPlugin(ClipboardPlugin);
     setCellContent(model, "A1", "things");
     createTableWithFilter(model, "A1:A2");
     selectCell(model, "A1");
@@ -2452,28 +2452,28 @@ describe("Copy paste keyboard shortcut", () => {
     await nextTick();
     await clickGridIcon(env, "A1");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
-    expect(getClipboardVisibleZones(clipboardStore).length).toBe(1);
+    expect(getClipboardVisibleZones(clipboardPlugin).length).toBe(1);
     await keyDown({ key: "Escape" });
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
-    expect(getClipboardVisibleZones(clipboardStore).length).toBe(1);
+    expect(getClipboardVisibleZones(clipboardPlugin).length).toBe(1);
 
     await keyDown({ key: "Escape" });
-    expect(getClipboardVisibleZones(clipboardStore).length).toBe(0);
+    expect(getClipboardVisibleZones(clipboardPlugin).length).toBe(0);
   });
 
   test("When there is a opened context menu, hitting esc key will only close the menu and not clean the clipboard visible zones", async () => {
-    const clipboardStore = env.getStore(ClipboardStore);
+    const clipboardPlugin = env.getPlugin(ClipboardPlugin);
     setCellContent(model, "A1", "things");
     copy(model, "A1");
     await rightClickCell(env, "A2");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
-    expect(getClipboardVisibleZones(clipboardStore).length).toBe(1);
+    expect(getClipboardVisibleZones(clipboardPlugin).length).toBe(1);
 
     await keyDown({ key: "Escape" });
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
-    expect(getClipboardVisibleZones(clipboardStore).length).toBe(1);
+    expect(getClipboardVisibleZones(clipboardPlugin).length).toBe(1);
     await keyDown({ key: "Escape" });
-    expect(getClipboardVisibleZones(clipboardStore).length).toBe(0);
+    expect(getClipboardVisibleZones(clipboardPlugin).length).toBe(0);
   });
 
   test("Can copy/paste chart", async () => {
@@ -2531,10 +2531,10 @@ describe("Copy paste keyboard shortcut", () => {
       }
       const clipboardContent = clipboard.content;
 
-      const clipboardStore = env.getStore(ClipboardStore);
+      const clipboardPlugin = env.getPlugin(ClipboardPlugin);
       //@ts-ignore
-      const clipboardHtmlData = JSON.stringify(clipboardStore.getSheetData());
-      const clipboardId = clipboardStore.getClipboardId();
+      const clipboardHtmlData = JSON.stringify(clipboardPlugin.getSheetData());
+      const clipboardId = clipboardPlugin.getClipboardId();
 
       expect(clipboardContent).toMatchObject({
         "text/plain": "\t",
@@ -2564,12 +2564,12 @@ describe("Copy paste keyboard shortcut", () => {
       }
       const clipboardContent = clipboard.content;
 
-      const clipboardStore = env.getStore(ClipboardStore);
+      const clipboardPlugin = env.getPlugin(ClipboardPlugin);
       //@ts-ignore
-      const clipboardHtmlData = JSON.stringify(clipboardStore.getSheetData());
-      const clipboardId = clipboardStore.getClipboardId();
+      const clipboardHtmlData = JSON.stringify(clipboardPlugin.getSheetData());
+      const clipboardId = clipboardPlugin.getClipboardId();
       //@ts-ignore
-      const imgData = (await clipboardStore.readFileAsDataURL(
+      const imgData = (await clipboardPlugin.readFileAsDataURL(
         new Blob([], { type: "image/png" })
       )) as string;
 

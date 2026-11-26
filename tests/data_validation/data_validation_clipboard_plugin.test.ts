@@ -1,6 +1,5 @@
 import { Command, DataValidationCriterion, Model, UID, UIPlugin } from "../../src";
 import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { AddDataValidationCommand } from "../../src/types/commands";
 import {
   activateSheet,
@@ -13,14 +12,14 @@ import {
   removeDataValidation,
 } from "../test_helpers/commands_helpers";
 import { addTestPlugin, getDataValidationRules } from "../test_helpers/helpers";
-import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 describe("Data validation", () => {
   let model: Model;
   let sheetId: UID;
 
   beforeEach(() => {
-    ({ model } = makeStore(ClipboardStore));
+    ({ model } = makeOwlPluginManager([]));
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -214,7 +213,7 @@ describe("Data validation", () => {
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
 
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    makeStoreWithModel(model, ClipboardStore);
+    makeOwlPluginManager([], { model });
     const sheetId = model.getters.getActiveSheetId();
     addDataValidation(model, "A1:A2", "id", { type: "containsText", values: ["1"] });
 

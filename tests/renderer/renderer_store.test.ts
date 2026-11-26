@@ -36,7 +36,6 @@ import { FormulaFingerprintPlugin } from "../../src/owl_plugins/formula_fingerpr
 import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
 import { ViewportsPlugin } from "../../src/owl_plugins/viewports_owl_plugin";
 import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { SelectionRendererStore } from "../../src/stores/selection_renderer_store";
 import { Mode } from "../../src/types/model";
@@ -110,7 +109,6 @@ function setRenderer(model: Model = new Model(), layers: LayerName[] = ["Backgro
     store: gridRendererStore,
     getPlugin,
   } = makeStoreWithModel(model, GridRenderer);
-  container.get(ClipboardStore); // Instantiate a ClipboardStore
   container.get(SelectionRendererStore); // Instantiate a SelectionRendererStore
   gridRendererStore["getBoxesWithAnimations"] = function (boxes: Box[]) {
     for (const box of boxes) {

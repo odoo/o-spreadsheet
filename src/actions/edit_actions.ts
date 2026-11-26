@@ -3,9 +3,9 @@ import { interactiveCut } from "../helpers/ui/cut_interactive";
 import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { doesAnyZoneCrossFrozenPane, getZoneArea, hasOverlappingZones } from "../helpers/zones";
+import { ClipboardPlugin } from "../owl_plugins/clipboard_owl_plugin";
 import { IsSmallPlugin } from "../owl_plugins/is_small_plugin";
 import { NavigatorClipboardPlugin } from "../owl_plugins/navigator_clipboard_plugin";
-import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
 import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { ActionSpec } from "./action";
@@ -36,10 +36,10 @@ export const copy: ActionSpec = {
   isReadonlyAllowed: true,
   execute: async (env) => {
     env.model().dispatch("COPY");
-    const clipboardStore = env.getStore(ClipboardStore);
+    const clipboardPlugin = env.getPlugin(ClipboardPlugin);
     await env
       .getPlugin(NavigatorClipboardPlugin)
-      .write(await clipboardStore.getClipboardTextAndImageContent());
+      .write(await clipboardPlugin.getClipboardTextAndImageContent());
   },
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.CLIPBOARD",
@@ -50,10 +50,10 @@ export const cut: ActionSpec = {
   shortcut: "Ctrl+X",
   execute: async (env) => {
     interactiveCut(env);
-    const clipboardStore = env.getStore(ClipboardStore);
+    const clipboardPlugin = env.getPlugin(ClipboardPlugin);
     await env
       .getPlugin(NavigatorClipboardPlugin)
-      .write(await clipboardStore.getClipboardTextAndImageContent());
+      .write(await clipboardPlugin.getClipboardTextAndImageContent());
   },
   icon: "o-spreadsheet-Icon.CUT",
 };
@@ -68,8 +68,8 @@ export const paste: ActionSpec = {
 export const pasteSpecial: ActionSpec = {
   name: _t("Paste special"),
   isVisible: (env): boolean => {
-    const clipboardStore = env.getStore(ClipboardStore);
-    return !clipboardStore.isCutOperation();
+    const clipboardPlugin = env.getPlugin(ClipboardPlugin);
+    return !clipboardPlugin.isCutOperation();
   },
   icon: "o-spreadsheet-Icon.PASTE",
 };

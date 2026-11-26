@@ -6,7 +6,6 @@ import { toMatrix, toNumber } from "../../src/functions/helpers";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   addColumns,
   addRows,
@@ -23,7 +22,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { addToRegistry, toCellPosition } from "../test_helpers/helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 let model: Model;
 let sheetId: UID;
@@ -214,7 +213,7 @@ describe("evaluate formulas that use/return an array", () => {
 
   describe("cut/past reference", () => {
     beforeEach(() => {
-      makeStoreWithModel(model, ClipboardStore);
+      makeOwlPluginManager([], { model });
     });
 
     test("reference to a spread is keep when we cut/past the spread formula", () => {

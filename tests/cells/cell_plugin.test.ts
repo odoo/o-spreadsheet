@@ -3,7 +3,6 @@ import { LINK_COLOR } from "../../src/constants";
 import { urlRepresentation } from "../../src/helpers/links";
 import { buildSheetLink } from "../../src/helpers/misc";
 import { corePluginRegistry } from "../../src/plugins/plugin_registries";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   addColumns,
   addRows,
@@ -38,7 +37,7 @@ import {
   getStyle,
 } from "../test_helpers/getters_helpers";
 import { addTestPlugin, getGrid, setGrid } from "../test_helpers/helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 describe("getCellText", () => {
   test("Update cell with a format is correctly set", () => {
@@ -446,7 +445,7 @@ describe("link cell", () => {
   );
 
   test("copy-paste web links", () => {
-    const { model } = makeStore(ClipboardStore);
+    const { model } = makeOwlPluginManager([]);
     setCellContent(model, "B2", `[my label](odoo.com)`);
     const B2 = getEvaluatedCell(model, "B2");
     copy(model, "B2");
@@ -459,7 +458,7 @@ describe("link cell", () => {
   });
 
   test("copy-paste sheet links", () => {
-    const { model } = makeStore(ClipboardStore);
+    const { model } = makeOwlPluginManager([]);
     const sheetId = model.getters.getActiveSheetId();
     const sheetLink = buildSheetLink(sheetId);
     setCellContent(model, "B2", `[my label](${sheetLink})`);
@@ -474,7 +473,7 @@ describe("link cell", () => {
   });
 
   test("copy-paste custom style", () => {
-    const { model } = makeStore(ClipboardStore);
+    const { model } = makeOwlPluginManager([]);
     updateCell(model, "B2", {
       content: "[my label](odoo.com)",
       style: { fillColor: "#555", bold: true, textColor: "#111" },
