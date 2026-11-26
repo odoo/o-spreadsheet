@@ -12,7 +12,6 @@ import { GridOverlay } from "./components/grid_overlay/grid_overlay";
 import { useDragAndDropListItems } from "./components/helpers/drag_and_drop_dom_items_hook";
 import { useHighlights, useHighlightsOnHover } from "./components/helpers/highlight_hook";
 import { MenuPopover } from "./components/menu_popover/menu_popover";
-import { CellPopoverStore } from "./components/popover/cell_popover_store";
 import { Popover } from "./components/popover/popover";
 import { SelectionInput } from "./components/selection_input/selection_input";
 import { SelectionInputStore } from "./components/selection_input/selection_input_store";
@@ -367,6 +366,7 @@ import {
   OSComponent,
   useSpreadsheetEnv,
 } from "./components/os_component";
+import { CellPopoverPlugin } from "./components/popover/cell_popover_owl_plugin";
 import { PopoverContainerPlugin } from "./components/popover/popover_container_owl_plugin";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
@@ -598,7 +598,6 @@ export const stores = {
   useStoreProvider,
   proxifyStoreMutation,
   DependencyContainer,
-  CellPopoverStore,
   ComposerFocusStore,
   CellComposerStore,
   FindAndReplaceStore,
@@ -625,6 +624,7 @@ export const owlPlugins = {
   PopoverContainerPlugin,
   NotificationPlugin,
   IsSmallPlugin,
+  CellPopoverPlugin,
   SpreadsheetRectPlugin,
   NavigatorClipboardPlugin,
   ModelPlugin,

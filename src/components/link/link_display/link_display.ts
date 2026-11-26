@@ -1,14 +1,12 @@
 import { LINK_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers/coordinates";
 import { openLink, urlRepresentation } from "../../../helpers/links";
-import { useStore } from "../../../store_engine/store_hooks";
 import type { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { EvaluatedCell } from "../../../types/cells";
 import { Link } from "../../../types/misc";
-import { Store } from "../../../types/store_engine";
 import { isMiddleClickOrCtrlClick } from "../../helpers/dom_helpers";
 import { OSComponent } from "../../os_component";
-import { CellPopoverStore } from "../../popover/cell_popover_store";
+import { CellPopoverPlugin } from "../../popover/cell_popover_owl_plugin";
 
 import { usePlugin, useProps } from "@odoo/owl";
 import { ViewportsPlugin } from "../../../owl_plugins/viewports_owl_plugin";
@@ -22,12 +20,8 @@ export class LinkDisplay extends OSComponent {
     onClosed: types.function().optional(),
   });
 
-  protected cellPopovers!: Store<CellPopoverStore>;
+  private cellPopovers = usePlugin(CellPopoverPlugin);
   private viewPlugin = usePlugin(ViewportsPlugin);
-
-  setup() {
-    this.cellPopovers = useStore(CellPopoverStore);
-  }
 
   get cell(): EvaluatedCell {
     const { col, row } = this.props.cellPosition;

@@ -1,5 +1,5 @@
 import { getDataFilterIcon } from "../components/icons/icons";
-import { CellPopoverStore } from "../components/popover/cell_popover_store";
+import { CellPopoverPlugin } from "../components/popover/cell_popover_owl_plugin";
 import { GRID_ICON_EDGE_LENGTH, GRID_ICON_MARGIN } from "../constants";
 import { relativeLuminance } from "../helpers/color";
 import { iconsOnCellRegistry } from "./icons_on_cell_registry";
@@ -20,8 +20,8 @@ iconsOnCellRegistry.add("filter_icon", (getters, position) => {
       margin: GRID_ICON_MARGIN,
       position,
       onClick: (position, env) => {
-        const cellPopovers = env.getStore(CellPopoverStore);
-        const activePopover = cellPopovers.persistentCellPopover;
+        const cellPopovers = env.getPlugin(CellPopoverPlugin);
+        const activePopover = cellPopovers.persistentCellPopover();
         if (
           activePopover.isOpen &&
           activePopover.col === position.col &&

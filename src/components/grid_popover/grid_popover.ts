@@ -1,10 +1,8 @@
 import { usePlugin, useProps } from "@odoo/owl";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
-import { useStore } from "../../store_engine/store_hooks";
 import { ClosedCellPopover, PositionedCellPopoverComponent } from "../../types/cell_popovers";
-import { Store } from "../../types/store_engine";
 import { OSComponent } from "../os_component";
-import { CellPopoverStore } from "../popover/cell_popover_store";
+import { CellPopoverPlugin } from "../popover/cell_popover_owl_plugin";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 
@@ -17,15 +15,11 @@ export class GridPopover extends OSComponent {
     onMouseWheel: types.function<(ev: WheelEvent) => void>(),
     gridRect: types.Rect(),
   });
-  protected cellPopovers!: Store<CellPopoverStore>;
+  private cellPopovers = usePlugin(CellPopoverPlugin);
   private zoomPlugin = usePlugin(ZoomPlugin);
 
-  setup() {
-    this.cellPopovers = useStore(CellPopoverStore);
-  }
-
   get cellPopover(): PositionedCellPopoverComponent | ClosedCellPopover {
-    const popover = this.cellPopovers.cellPopover;
+    const popover = this.cellPopovers.cellPopover();
     if (!popover.isOpen) {
       return { isOpen: false };
     }
