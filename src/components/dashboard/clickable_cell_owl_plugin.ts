@@ -1,11 +1,11 @@
-import { markRaw, usePlugin } from "@odoo/owl";
+import { usePlugin } from "@odoo/owl";
 import { invalidateEvaluationCommands } from "../../command_registry";
 import { toXC } from "../../helpers/coordinates";
 import { positionToZone } from "../../helpers/zones";
 import { ComponentConstructor } from "../../owl3_compatibility_layer";
+import { OwlPluginWithModel } from "../../owl_plugins/owl_plugin_with_model";
 import { ViewportsPlugin } from "../../owl_plugins/viewports_owl_plugin";
 import { CellClickableItem, clickableCellRegistry } from "../../registries/cell_clickable_registry";
-import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { Command } from "../../types/commands";
 import { CellPosition, UID } from "../../types/misc";
 import { Rect } from "../../types/rendering";
@@ -20,12 +20,12 @@ export interface ClickableCell {
   componentProps: Record<string, unknown>;
 }
 
-export class ClickableCellsStore extends SpreadsheetStore {
+export class ClickableCellsPlugin extends OwlPluginWithModel {
   private viewPlugin = usePlugin(ViewportsPlugin);
-  private _clickableCells: Record<UID, Record<string, CellClickableItem | undefined>> = markRaw({});
-  private _registryItems: CellClickableItem[] = markRaw(
-    clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)
-  );
+  private _clickableCells: Record<UID, Record<string, CellClickableItem | undefined>> = {};
+  private _registryItems: CellClickableItem[] = clickableCellRegistry
+    .getAll()
+    .sort((a, b) => a.sequence - b.sequence);
 
   handle(cmd: Command) {
     if (
@@ -33,10 +33,8 @@ export class ClickableCellsStore extends SpreadsheetStore {
       cmd.type === "EVALUATE_CELLS" ||
       (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
     ) {
-      this._clickableCells = markRaw({});
-      this._registryItems = markRaw(
-        clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)
-      );
+      this._clickableCells = {};
+      this._registryItems = clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
     }
   }
 
@@ -55,7 +53,7 @@ export class ClickableCellsStore extends SpreadsheetStore {
   }
 
   private findClickableItem(position: CellPosition) {
-    const getters = this.getters;
+    const getters = this.model().getters;
     for (const item of this._registryItems) {
       if (item.condition(position, getters)) {
         return item;
@@ -66,13 +64,13 @@ export class ClickableCellsStore extends SpreadsheetStore {
 
   get clickableCells(): ClickableCell[] {
     const cells: ClickableCell[] = [];
-    const getters = this.getters;
     for (const position of this.viewPlugin.visibleCellPositions) {
       const item = this.getClickableItem(position);
       if (!item) {
         continue;
       }
-      const title = typeof item.title === "function" ? item.title(position, getters) : item.title;
+      const title =
+        typeof item.title === "function" ? item.title(position, this.model().getters) : item.title;
       const rect = this.getClickableCellRect(position);
       if (!rect) {
         continue;
@@ -83,17 +81,17 @@ export class ClickableCellsStore extends SpreadsheetStore {
         action: item.execute,
         title: title || "",
         component: item.component,
-        componentProps: item.componentProps?.(position, getters) ?? {},
+        componentProps: item.componentProps?.(position, this.model().getters) ?? {},
       });
     }
     return cells;
   }
 
   private getClickableCellRect(position: CellPosition): Rect | undefined {
-    const zone = this.getters.expandZone(position.sheetId, positionToZone(position));
+    const zone = this.model().getters.expandZone(position.sheetId, positionToZone(position));
     const clickableRect = this.viewPlugin.viewports().getVisibleRect(position.sheetId, zone);
 
-    const icons = this.getters.getCellIcons(position);
+    const icons = this.model().getters.getCellIcons(position);
     const iconsAtPosition = {
       center: icons.find((icon) => icon.horizontalAlign === "center"),
       left: icons.find((icon) => icon.horizontalAlign === "left"),
@@ -104,12 +102,12 @@ export class ClickableCellsStore extends SpreadsheetStore {
     }
     if (iconsAtPosition.right?.onClick) {
       const cellRect = this.viewPlugin.viewports().getRect(position.sheetId, zone);
-      const iconRect = this.getters.getCellIconRect(iconsAtPosition.right, cellRect);
+      const iconRect = this.model().getters.getCellIconRect(iconsAtPosition.right, cellRect);
       clickableRect.width -= iconRect.width + iconsAtPosition.right.margin;
     }
     if (iconsAtPosition.left?.onClick) {
       const cellRect = this.viewPlugin.viewports().getRect(position.sheetId, zone);
-      const iconRect = this.getters.getCellIconRect(iconsAtPosition.left, cellRect);
+      const iconRect = this.model().getters.getCellIconRect(iconsAtPosition.left, cellRect);
       clickableRect.x += iconRect.width + iconsAtPosition.left.margin;
       clickableRect.width -= iconRect.width + iconsAtPosition.left.margin;
     }

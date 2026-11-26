@@ -1,8 +1,6 @@
-import { toRaw } from "@odoo/owl";
-import { useStore } from "../../store_engine/store_hooks";
+import { provideAndUsePlugin } from "../../helpers/owl3_helpers";
 import { Rect } from "../../types/rendering";
-import { Store } from "../../types/store_engine";
-import { ClickableCell, ClickableCellsStore } from "../dashboard/clickable_cell_store";
+import { ClickableCell, ClickableCellsPlugin } from "../dashboard/clickable_cell_owl_plugin";
 import { cssPropertiesToCss } from "../helpers/css";
 import { isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 import { OSComponent } from "../os_component";
@@ -11,11 +9,7 @@ export class ClickableCellsOverlay extends OSComponent {
   static template = "o-spreadsheet-ClickableCellsOverlay";
   static components = {};
 
-  clickableCellsStore!: Store<ClickableCellsStore>;
-
-  setup() {
-    this.clickableCellsStore = useStore(ClickableCellsStore);
-  }
+  private clickableCellsPlugin = provideAndUsePlugin(ClickableCellsPlugin);
 
   getCellClickableStyle(coordinates: Rect) {
     return cssPropertiesToCss({
@@ -33,7 +27,7 @@ export class ClickableCellsOverlay extends OSComponent {
    *
    */
   getClickableCells(): ClickableCell[] {
-    return toRaw(this.clickableCellsStore.clickableCells);
+    return this.clickableCellsPlugin.clickableCells;
   }
 
   selectClickableCell(ev: MouseEvent, clickableCell: ClickableCell) {
