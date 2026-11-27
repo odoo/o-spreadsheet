@@ -2,11 +2,11 @@
   <t t-name="o-spreadsheet-OccurrencesStatistics">
     <div class="fw-bold d-flex justify-content-between">
       <div class="d-flex o-stat-sort-header">
-        <t t-set="sortOn" t-value="this.store.occurrencesSortType.sortOn"/>
-        <t t-set="sortOrder" t-value="this.store.occurrencesSortType.order"/>
+        <t t-set="sortOn" t-value="this.dataAnalysisPlugin.occurrencesSortType().sortOn"/>
+        <t t-set="sortOrder" t-value="this.dataAnalysisPlugin.occurrencesSortType().order"/>
         <span>Categories</span>
         <div
-          t-on-click="() => this.store.toggleOccurrencesSort('name')"
+          t-on-click="() => this.dataAnalysisPlugin.toggleOccurrencesSort('name')"
           data-test-id="o-sort-occurrences-category"
           class="o-button-icon mx-2 d-flex">
           <t t-if="sortOn === 'name'">
@@ -21,7 +21,7 @@
       <div class="d-flex o-stat-sort-header">
         <span>Count</span>
         <div
-          t-on-click="() => this.store.toggleOccurrencesSort('value')"
+          t-on-click="() => this.dataAnalysisPlugin.toggleOccurrencesSort('value')"
           data-test-id="o-sort-occurrences-value"
           class="o-button-icon mx-2 d-flex">
           <t t-if="sortOn === 'value'">
@@ -34,13 +34,16 @@
         </div>
       </div>
     </div>
-    <t t-foreach="this.store.displayedOccurrencesItems" t-as="stat" t-key="stat_index">
+    <t
+      t-foreach="this.dataAnalysisPlugin.displayedOccurrencesItems()"
+      t-as="stat"
+      t-key="stat_index">
       <StatisticItem stat="stat" onHover.bind="this.onStatHovered"/>
     </t>
     <div
-      t-if="this.store.hasMoreOccurrences"
+      t-if="this.dataAnalysisPlugin.hasMoreOccurrences()"
       class="o-button-link d-flex justify-content-center py-1"
-      t-on-click="() => this.store.loadMoreOccurrences()">
+      t-on-click="() => this.dataAnalysisPlugin.loadMoreOccurrences()">
       Load more...
     </div>
   </t>

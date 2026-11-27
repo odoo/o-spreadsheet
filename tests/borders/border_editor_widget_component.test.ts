@@ -1,7 +1,8 @@
-import { proxy, xml } from "@odoo/owl";
+import { providePlugins, proxy, xml } from "@odoo/owl";
 import { BorderPosition, BorderStyle, Color, Model } from "../../src";
 import { BorderEditorWidget } from "../../src/components/border_editor/border_editor_widget";
 import { OSComponent } from "../../src/components/os_component";
+import { TopBarToolPlugin } from "../../src/components/top_bar/top_bar_tool_plugin";
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
 import { PropsOf } from "../../src/types/props_of";
@@ -49,6 +50,7 @@ class BorderWidgetContainer extends OSComponent {
     this.state = proxy({
       showBorderEditor: false,
     });
+    providePlugins([TopBarToolPlugin]);
   }
 
   get borderWidgetProps(): PropsOf<BorderEditorWidget> {

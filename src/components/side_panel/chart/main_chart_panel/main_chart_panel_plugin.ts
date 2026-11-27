@@ -1,9 +1,10 @@
+import { signal } from "@odoo/owl";
 import { SpreadsheetChart } from "../../../../helpers/figures/chart";
 import { deepEquals } from "../../../../helpers/misc";
+import { OwlPluginWithModel } from "../../../../owl_plugins/owl_plugin_with_model";
 import { chartDataSourceRegistry } from "../../../../registries/chart_data_source_registry";
 import { chartTypeRegistry } from "../../../../registries/chart_registry";
 import { chartSubtypeRegistry } from "../../../../registries/chart_subtype_registry";
-import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
 import {
   ChartCreationContext,
   ChartDataSource,
@@ -14,17 +15,16 @@ import {
 } from "../../../../types/chart/chart";
 import { UID } from "../../../../types/misc";
 
-export class MainChartPanelStore extends SpreadsheetStore {
-  mutators = ["activatePanel", "changeChartType"] as const;
-  panel: "configuration" | "design" = "configuration";
+export class MainChartPanelPlugin extends OwlPluginWithModel {
+  panel = signal<"configuration" | "design">("configuration");
   private creationContexts: Record<UID, ChartCreationContext> = {};
 
   activatePanel(panel: "configuration" | "design") {
-    this.panel = panel;
+    this.panel.set(panel);
   }
 
   changeChartType(chartId: UID, newDisplayType: string) {
-    const currentCreationContext = this.getters.getContextCreationChart(chartId);
+    const currentCreationContext = this.model().getters.getContextCreationChart(chartId);
     const savedCreationContext = this.creationContexts[chartId] || {};
     const auxiliaryRange =
       currentCreationContext && "auxiliaryRange" in currentCreationContext
@@ -80,13 +80,13 @@ export class MainChartPanelStore extends SpreadsheetStore {
       dataSource: dataSource as ChartDataSource<string>,
       dataSetStyles,
     };
-    const figureId = this.getters.getFigureIdFromChartId(chartId);
-    const sheetId = this.getters.getFigureSheetId(figureId);
+    const figureId = this.model().getters.getFigureIdFromChartId(chartId);
+    const sheetId = this.model().getters.getFigureSheetId(figureId);
     if (!sheetId) {
       return;
     }
     const definition = this.getDefinitionFromContextCreation(chartId, newDisplayType);
-    this.model.dispatch("UPDATE_CHART", {
+    this.model().dispatch("UPDATE_CHART", {
       definition,
       chartId,
       figureId,

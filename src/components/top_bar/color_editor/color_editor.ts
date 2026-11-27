@@ -2,7 +2,7 @@ import { proxy, useProps } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
 import { deepEquals } from "../../../helpers/misc";
 import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
-import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
+import { ToolBarDropdownPlugin, useToolBarDropdownPlugin } from "../../helpers/top_bar_tool_hook";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
@@ -16,14 +16,14 @@ export class TopBarColorEditor extends OSComponent {
     icon: types.string(),
     title: types.string(),
   });
-  topBarToolStore!: ToolBarDropdownStore;
+  topBarToolPlugin!: ToolBarDropdownPlugin;
 
   state = proxy({
     isOpen: false,
   });
 
   setup() {
-    this.topBarToolStore = useToolBarDropdownStore();
+    this.topBarToolPlugin = useToolBarDropdownPlugin();
   }
   get currentColor(): string {
     return (
@@ -43,14 +43,14 @@ export class TopBarColorEditor extends OSComponent {
   }
 
   get isMenuOpen(): boolean {
-    return this.topBarToolStore.isActive;
+    return this.topBarToolPlugin.isActive;
   }
 
   onClick() {
     if (!this.isMenuOpen) {
-      this.topBarToolStore.openDropdown();
+      this.topBarToolPlugin.openDropdown();
     } else {
-      this.topBarToolStore.closeDropdowns();
+      this.topBarToolPlugin.closeDropdowns();
     }
   }
 

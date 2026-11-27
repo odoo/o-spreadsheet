@@ -11,7 +11,7 @@ import { PropsOf } from "../../../types/props_of";
 import { Store } from "../../../types/store_engine";
 import { TableConfig } from "../../../types/table";
 import { ActionButton } from "../../action_button/action_button";
-import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
+import { ToolBarDropdownPlugin, useToolBarDropdownPlugin } from "../../helpers/top_bar_tool_hook";
 import { OSComponent } from "../../os_component";
 import { Popover } from "../../popover/popover";
 import { types } from "../../props_validation";
@@ -33,12 +33,12 @@ export class TableDropdownButton extends OSComponent {
     class: types.string().optional(),
   });
 
-  topBarToolStore!: ToolBarDropdownStore;
+  topBarToolPlugin!: ToolBarDropdownPlugin;
   private sidePanelStore!: Store<SidePanelStore>;
   state = proxy<State>({ popoverProps: undefined });
 
   setup() {
-    this.topBarToolStore = useToolBarDropdownStore();
+    this.topBarToolPlugin = useToolBarDropdownPlugin();
     this.sidePanelStore = useStore(SidePanelStore);
   }
 
@@ -67,14 +67,14 @@ export class TableDropdownButton extends OSComponent {
     }
     const table = FIRST_TABLE_IN_SELECTION(this.spEnv);
     if (table) {
-      this.topBarToolStore.closeDropdowns();
+      this.topBarToolPlugin.closeDropdowns();
       this.sidePanelStore.toggle("TableSidePanel", { table });
       return;
     }
 
     const target = ev.currentTarget as HTMLElement;
     const { left, bottom } = target.getBoundingClientRect();
-    this.topBarToolStore.openDropdown();
+    this.topBarToolPlugin.openDropdown();
     this.state.popoverProps = {
       anchorRect: { x: left, y: bottom, width: 0, height: 0 },
       positioning: "bottom-left",

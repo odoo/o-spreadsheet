@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { DataAnalysisStore } from "../../src/components/side_panel/data_analysis/data_analysis_store";
+import { DataAnalysisPlugin } from "../../src/components/side_panel/data_analysis/data_analysis_plugin";
 import { analyzeColumns } from "../../src/helpers/data_statistics/data_analysis";
 import { StatValue } from "../../src/helpers/data_statistics/statistics_items";
 import { buildOccurrencesItems } from "../../src/helpers/data_statistics/statistics_suggestion";
@@ -13,7 +13,7 @@ import {
 import { FR_LOCALE } from "../test_helpers/constants";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { createModelFromGrid } from "../test_helpers/helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 function occurrences(model: Model, xc: string) {
   const sheetId = model.getters.getActiveSheetId();
@@ -21,11 +21,15 @@ function occurrences(model: Model, xc: string) {
   return buildOccurrencesItems(model.getters, cols[0], sheetId);
 }
 
+function createDataAnalysisPlugin(model: Model) {
+  return makeOwlPluginManager([DataAnalysisPlugin], { model }).getPlugin(DataAnalysisPlugin);
+}
+
 function getNames(items: StatValue[]): string[] {
   return items.map((item) => item.name);
 }
 
-describe("data analysis store", () => {
+describe("data analysis plugin", () => {
   test("generalStatItems is recomputed when the content of a cell changes", () => {
     const model = createModelFromGrid({
       A1: "apple",
@@ -34,56 +38,56 @@ describe("data analysis store", () => {
       A4: "apple",
       A5: "apple",
     });
-    const { store } = makeStoreWithModel(model, DataAnalysisStore);
+    const plugin = createDataAnalysisPlugin(model);
     setSelection(model, ["A1:A5"]);
-    expect(store.generalStatItems.find((item) => item.id === "unique")).toMatchObject({
+    expect(plugin.generalStatItems().find((item) => item.id === "unique")).toMatchObject({
       value: "2",
     });
     setCellContent(model, "A3", "cherry");
-    expect(store.generalStatItems.find((item) => item.id === "unique")).toMatchObject({
+    expect(plugin.generalStatItems().find((item) => item.id === "unique")).toMatchObject({
       value: "3",
     });
   });
 
   test("generalStatItems is recomputed when the selection changes", () => {
     const model = createModelFromGrid({ A1: "apple", A2: "apple", A3: "banana" });
-    const { store } = makeStoreWithModel(model, DataAnalysisStore);
+    const plugin = createDataAnalysisPlugin(model);
     setSelection(model, ["A1:A3"]);
-    expect(store.generalStatItems.find((item) => item.id === "unique")).toMatchObject({
+    expect(plugin.generalStatItems().find((item) => item.id === "unique")).toMatchObject({
       value: "2",
     });
     setSelection(model, ["A1:A2"]);
-    expect(store.generalStatItems.find((item) => item.id === "unique")).toMatchObject({
+    expect(plugin.generalStatItems().find((item) => item.id === "unique")).toMatchObject({
       value: "1",
     });
   });
 
   test("generalStatItems and occurrencesItems are empty when the selection has no data", () => {
     const model = createModelFromGrid({});
-    const { store } = makeStoreWithModel(model, DataAnalysisStore);
+    const plugin = createDataAnalysisPlugin(model);
     setSelection(model, ["A1:A3"]);
-    expect(store.hasData).toBe(false);
-    expect(store.generalStatItems).toEqual([]);
-    expect(store.occurrencesItems).toEqual([]);
+    expect(plugin.hasData()).toBe(false);
+    expect(plugin.generalStatItems()).toEqual([]);
+    expect(plugin.occurrencesItems()).toEqual([]);
   });
 
   test("generalStatItems and occurrencesItems are empty when several columns are selected", () => {
     const model = createModelFromGrid({ A1: "apple", A2: "banana", B1: "1", B2: "2" });
-    const { store } = makeStoreWithModel(model, DataAnalysisStore);
+    const plugin = createDataAnalysisPlugin(model);
     setSelection(model, ["A1:B2"]);
-    expect(store.generalStatItems).toEqual([]);
-    expect(store.occurrencesItems).toEqual([]);
+    expect(plugin.generalStatItems()).toEqual([]);
+    expect(plugin.occurrencesItems()).toEqual([]);
   });
 });
 
-function makeDataAnalysisStore(grid: Record<string, string>, selection: string) {
+function setupDataAnalysis(grid: Record<string, string>, selection: string) {
   const model = createModelFromGrid(grid);
-  const { store } = makeStoreWithModel(model, DataAnalysisStore);
+  const plugin = createDataAnalysisPlugin(model);
   setSelection(model, [selection]);
-  return { model, store };
+  return { model, plugin };
 }
 
-describe("data analysis store occurrences", () => {
+describe("data analysis plugin occurrences", () => {
   const grid = {
     A1: "banana",
     A2: "cherry",
@@ -95,8 +99,8 @@ describe("data analysis store occurrences", () => {
   };
 
   test("general statistics", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A7");
-    expect(store.generalStatItems).toMatchObject([
+    const { plugin } = setupDataAnalysis(grid, "A1:A7");
+    expect(plugin.generalStatItems()).toMatchObject([
       {
         formula: '=COUNTIF(Sheet1!A1:A7,"<>")',
         id: "non_empty",
@@ -113,40 +117,40 @@ describe("data analysis store occurrences", () => {
   });
 
   test("occurrences are sorted by descending count by default", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A6");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["apple", "cherry", "banana"]);
+    const { plugin } = setupDataAnalysis(grid, "A1:A6");
+    expect(getNames(plugin.displayedOccurrencesItems())).toEqual(["apple", "cherry", "banana"]);
   });
 
   test("sorting by count cycles between ascending, apparition order and descending", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A6");
-    store.toggleOccurrencesSort("value");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["banana", "cherry", "apple"]);
-    expect(store.occurrencesSortType).toEqual({ sortOn: "value", order: "none" });
-    store.toggleOccurrencesSort("value");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["banana", "cherry", "apple"]);
-    expect(store.occurrencesSortType).toEqual({ sortOn: "value", order: "asc" });
-    store.toggleOccurrencesSort("value");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["apple", "cherry", "banana"]);
-    expect(store.occurrencesSortType).toEqual({ sortOn: "value", order: "desc" });
+    const { plugin } = setupDataAnalysis(grid, "A1:A6");
+    plugin.toggleOccurrencesSort("value");
+    expect(getNames(plugin.displayedOccurrencesItems())).toEqual(["banana", "cherry", "apple"]);
+    expect(plugin.occurrencesSortType()).toEqual({ sortOn: "value", order: "none" });
+    plugin.toggleOccurrencesSort("value");
+    expect(getNames(plugin.displayedOccurrencesItems())).toEqual(["banana", "cherry", "apple"]);
+    expect(plugin.occurrencesSortType()).toEqual({ sortOn: "value", order: "asc" });
+    plugin.toggleOccurrencesSort("value");
+    expect(getNames(plugin.displayedOccurrencesItems())).toEqual(["apple", "cherry", "banana"]);
+    expect(plugin.occurrencesSortType()).toEqual({ sortOn: "value", order: "desc" });
   });
 
   test("sorting by name cycles between alphabetical, reverse alphabetical and apparition order", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A6");
-    store.toggleOccurrencesSort("name");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["apple", "banana", "cherry"]);
-    store.toggleOccurrencesSort("name");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["cherry", "banana", "apple"]);
-    store.toggleOccurrencesSort("name");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["banana", "cherry", "apple"]);
+    const { plugin } = setupDataAnalysis(grid, "A1:A6");
+    plugin.toggleOccurrencesSort("name");
+    expect(getNames(plugin.displayedOccurrencesItems())).toEqual(["apple", "banana", "cherry"]);
+    plugin.toggleOccurrencesSort("name");
+    expect(getNames(plugin.displayedOccurrencesItems())).toEqual(["cherry", "banana", "apple"]);
+    plugin.toggleOccurrencesSort("name");
+    expect(getNames(plugin.displayedOccurrencesItems())).toEqual(["banana", "cherry", "apple"]);
   });
 
   test("sorting by name use the same order as grid sorting", () => {
-    const { store } = makeDataAnalysisStore(
+    const { plugin } = setupDataAnalysis(
       { A1: "10", A2: "banana", A3: "9", A4: "-5", A5: "1.5", A6: "Apple", A7: "1.25" },
       "A1:A7"
     );
-    store.toggleOccurrencesSort("name");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual([
+    plugin.toggleOccurrencesSort("name");
+    expect(getNames(plugin.displayedOccurrencesItems())).toEqual([
       "-5",
       "1.25",
       "1.5",
@@ -155,8 +159,8 @@ describe("data analysis store occurrences", () => {
       "Apple",
       "banana",
     ]);
-    store.toggleOccurrencesSort("name");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual([
+    plugin.toggleOccurrencesSort("name");
+    expect(getNames(plugin.displayedOccurrencesItems())).toEqual([
       "banana",
       "Apple",
       "10",
@@ -168,17 +172,17 @@ describe("data analysis store occurrences", () => {
   });
 
   test("occurrences with the same count are sorted by apparition order", () => {
-    const { store } = makeDataAnalysisStore({ A1: "cherry", A2: "apple", A3: "banana" }, "A1:A3");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["cherry", "apple", "banana"]);
+    const { plugin } = setupDataAnalysis({ A1: "cherry", A2: "apple", A3: "banana" }, "A1:A3");
+    expect(getNames(plugin.displayedOccurrencesItems())).toEqual(["cherry", "apple", "banana"]);
   });
 
   test("the sort is kept when the data changes", () => {
-    const { model, store } = makeDataAnalysisStore(grid, "A1:A6");
-    store.toggleOccurrencesSort("name");
+    const { model, plugin } = setupDataAnalysis(grid, "A1:A6");
+    plugin.toggleOccurrencesSort("name");
     setCellContent(model, "A1", "date");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["apple", "cherry", "date"]);
+    expect(getNames(plugin.displayedOccurrencesItems())).toEqual(["apple", "cherry", "date"]);
     setSelection(model, ["A1:A3"]);
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["cherry", "date"]);
+    expect(getNames(plugin.displayedOccurrencesItems())).toEqual(["cherry", "date"]);
   });
 
   test("occurrences are displayed by pages of 50", () => {
@@ -186,17 +190,17 @@ describe("data analysis store occurrences", () => {
     for (let i = 1; i <= 80; i++) {
       grid[`A${i}`] = `value${i}`;
     }
-    const { store } = makeDataAnalysisStore(grid, "A1:A80");
-    expect(store.displayedOccurrencesItems).toHaveLength(50);
-    expect(store.hasMoreOccurrences).toBe(true);
-    store.loadMoreOccurrences();
-    expect(store.displayedOccurrencesItems).toHaveLength(80);
-    expect(store.hasMoreOccurrences).toBe(false);
+    const { plugin } = setupDataAnalysis(grid, "A1:A80");
+    expect(plugin.displayedOccurrencesItems()).toHaveLength(50);
+    expect(plugin.hasMoreOccurrences()).toBe(true);
+    plugin.loadMoreOccurrences();
+    expect(plugin.displayedOccurrencesItems()).toHaveLength(80);
+    expect(plugin.hasMoreOccurrences()).toBe(false);
   });
 
   test("percentage of the total count are computed in each item", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A7");
-    expect(store.displayedOccurrencesItems).toMatchObject([
+    const { plugin } = setupDataAnalysis(grid, "A1:A7");
+    expect(plugin.displayedOccurrencesItems()).toMatchObject([
       { name: "apple", percentage: "(50%)" },
       { name: "cherry", percentage: "(33%)" },
       { name: "banana", percentage: "(17%)" },
@@ -204,11 +208,11 @@ describe("data analysis store occurrences", () => {
   });
 
   test("percentages are computed for boolean data", () => {
-    const { store } = makeDataAnalysisStore(
+    const { plugin } = setupDataAnalysis(
       { A1: "TRUE", A2: "FALSE", A3: "TRUE", A4: "TRUE" },
       "A1:A4"
     );
-    expect(store.occurrencesItems).toMatchObject([
+    expect(plugin.occurrencesItems()).toMatchObject([
       { id: "true", percentage: "(75%)" },
       { id: "false", percentage: "(25%)" },
     ]);
@@ -225,8 +229,8 @@ describe("data analysis for date", () => {
   };
 
   test("general statistics", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A5");
-    expect(store.generalStatItems).toMatchObject([
+    const { plugin } = setupDataAnalysis(grid, "A1:A5");
+    expect(plugin.generalStatItems()).toMatchObject([
       {
         formula: '=COUNTIF(Sheet1!A1:A5,"<>")',
         id: "non_empty",
@@ -243,9 +247,9 @@ describe("data analysis for date", () => {
   });
 
   test("date occurrences are displayed by month in chronological order by default", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A5");
-    expect(store.dateGranularity).toBe("month");
-    expect(store.displayedDateItems.map((item) => item.id)).toEqual([
+    const { plugin } = setupDataAnalysis(grid, "A1:A5");
+    expect(plugin.dateGranularity()).toBe("month");
+    expect(plugin.displayedDateItems().map((item) => item.id)).toEqual([
       "m0",
       "m1",
       "m2",
@@ -262,14 +266,14 @@ describe("data analysis for date", () => {
   });
 
   test("date granularity can be changed", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A4");
-    store.setDateGranularity("year");
-    expect(store.displayedDateItems).toMatchObject([
+    const { plugin } = setupDataAnalysis(grid, "A1:A4");
+    plugin.setDateGranularity("year");
+    expect(plugin.displayedDateItems()).toMatchObject([
       { id: "2023", value: "3" },
       { id: "2024", value: "1" },
     ]);
-    store.setDateGranularity("weekday");
-    expect(store.displayedDateItems.map((item) => item.id)).toEqual([
+    plugin.setDateGranularity("weekday");
+    expect(plugin.displayedDateItems().map((item) => item.id)).toEqual([
       "d0",
       "d1",
       "d2",
@@ -281,10 +285,10 @@ describe("data analysis for date", () => {
   });
 
   test("date granularity adapt to local", () => {
-    const { model, store } = makeDataAnalysisStore(grid, "A1:A4");
+    const { model, plugin } = setupDataAnalysis(grid, "A1:A4");
     updateLocale(model, FR_LOCALE);
-    store.setDateGranularity("weekday");
-    expect(store.displayedDateItems.map((item) => item.id)).toEqual([
+    plugin.setDateGranularity("weekday");
+    expect(plugin.displayedDateItems().map((item) => item.id)).toEqual([
       "d1",
       "d2",
       "d3",
@@ -296,44 +300,44 @@ describe("data analysis for date", () => {
   });
 
   test("date sort cycles between descending, ascending and chronological order", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A4");
-    store.setDateGranularity("year");
-    store.toggleDateSort();
-    expect(store.dateOccurenceSortType).toBe("asc");
-    expect(getNames(store.displayedDateItems)).toEqual(["2024", "2023"]);
-    store.toggleDateSort();
-    expect(store.dateOccurenceSortType).toBe("desc");
-    expect(getNames(store.displayedDateItems)).toEqual(["2023", "2024"]);
-    store.toggleDateSort();
-    expect(store.dateOccurenceSortType).toBe("chrono");
-    expect(getNames(store.displayedDateItems)).toEqual(["2023", "2024"]);
+    const { plugin } = setupDataAnalysis(grid, "A1:A4");
+    plugin.setDateGranularity("year");
+    plugin.toggleDateSort();
+    expect(plugin.dateOccurenceSortType()).toBe("asc");
+    expect(getNames(plugin.displayedDateItems())).toEqual(["2024", "2023"]);
+    plugin.toggleDateSort();
+    expect(plugin.dateOccurenceSortType()).toBe("desc");
+    expect(getNames(plugin.displayedDateItems())).toEqual(["2023", "2024"]);
+    plugin.toggleDateSort();
+    expect(plugin.dateOccurenceSortType()).toBe("chrono");
+    expect(getNames(plugin.displayedDateItems())).toEqual(["2023", "2024"]);
   });
 
   test("months are back in chronological order after cycling through the sorts", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A4");
-    const chronologicalIds = store.displayedDateItems.map((item) => item.id);
-    store.toggleDateSort();
-    store.toggleDateSort();
-    store.toggleDateSort();
-    expect(store.displayedDateItems.map((item) => item.id)).toEqual(chronologicalIds);
+    const { plugin } = setupDataAnalysis(grid, "A1:A4");
+    const chronologicalIds = plugin.displayedDateItems().map((item) => item.id);
+    plugin.toggleDateSort();
+    plugin.toggleDateSort();
+    plugin.toggleDateSort();
+    expect(plugin.displayedDateItems().map((item) => item.id)).toEqual(chronologicalIds);
   });
 
   test("the date sort and granularity are kept when the data changes", () => {
-    const { model, store } = makeDataAnalysisStore(grid, "A1:A4");
-    store.setDateGranularity("year");
-    store.toggleDateSort();
+    const { model, plugin } = setupDataAnalysis(grid, "A1:A4");
+    plugin.setDateGranularity("year");
+    plugin.toggleDateSort();
     setCellContent(model, "A1", "2024-01-15");
     setCellContent(model, "A2", "2024-03-10");
-    expect(store.displayedDateItems).toMatchObject([
+    expect(plugin.displayedDateItems()).toMatchObject([
       { id: "2023", value: "1" },
       { id: "2024", value: "3" },
     ]);
   });
 
   test("date occurrences by quarter", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A4");
-    store.setDateGranularity("quarter");
-    expect(store.displayedDateItems).toMatchObject([
+    const { plugin } = setupDataAnalysis(grid, "A1:A4");
+    plugin.setDateGranularity("quarter");
+    expect(plugin.displayedDateItems()).toMatchObject([
       { id: "q1", name: "Quarter 1", value: "3" },
       { id: "q2", name: "Quarter 2", value: "0" },
       { id: "q3", name: "Quarter 3", value: "0" },
@@ -342,30 +346,30 @@ describe("data analysis for date", () => {
   });
 
   test("date occurrences by week only show non-empty weeks", () => {
-    const { store } = makeDataAnalysisStore(
+    const { plugin } = setupDataAnalysis(
       { A1: "2023-01-02", A2: "2023-01-03", A3: "2023-01-17" },
       "A1:A3"
     );
-    store.setDateGranularity("week");
-    expect(store.displayedDateItems).toMatchObject([
+    plugin.setDateGranularity("week");
+    expect(plugin.displayedDateItems()).toMatchObject([
       { id: "1", name: "W1", value: "2" },
       { id: "3", name: "W3", value: "1" },
     ]);
   });
 
   test("date occurrences by week across two years", () => {
-    const { store } = makeDataAnalysisStore({ A1: "2023-12-28", A2: "2024-01-03" }, "A1:A2");
-    store.setDateGranularity("week");
-    expect(store.displayedDateItems).toMatchObject([
+    const { plugin } = setupDataAnalysis({ A1: "2023-12-28", A2: "2024-01-03" }, "A1:A2");
+    plugin.setDateGranularity("week");
+    expect(plugin.displayedDateItems()).toMatchObject([
       { id: "1", name: "W1", value: "1" },
       { id: "52", name: "W52", value: "1" },
     ]);
   });
 
   test("date occurrences by day of month", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A4");
-    store.setDateGranularity("day");
-    const items = store.displayedDateItems;
+    const { plugin } = setupDataAnalysis(grid, "A1:A4");
+    plugin.setDateGranularity("day");
+    const items = plugin.displayedDateItems();
     expect(items.map((item) => item.id)).toEqual(
       Array.from({ length: 31 }, (_, i) => `dom${i + 1}`)
     );
@@ -375,12 +379,12 @@ describe("data analysis for date", () => {
   });
 
   test("date occurrences by date are formatted, counted and in chronological order", () => {
-    const { store } = makeDataAnalysisStore(
+    const { plugin } = setupDataAnalysis(
       { A1: "2023-03-10", A2: "2023-01-15", A3: "2023-03-10", A4: "2023-01-15 10:00" },
       "A1:A4"
     );
-    store.setDateGranularity("date");
-    expect(store.displayedDateItems).toMatchObject([
+    plugin.setDateGranularity("date");
+    expect(plugin.displayedDateItems()).toMatchObject([
       { name: "2023-01-15", value: "2", percentage: "(50%)" },
       { name: "2023-03-10", value: "2", percentage: "(50%)" },
     ]);
@@ -389,41 +393,41 @@ describe("data analysis for date", () => {
   test("date occurrences by date are named with the formatted value of the cells", () => {
     const model = createModelFromGrid({ A1: "2023-03-10", A2: "2023-01-15" });
     setFormat(model, "A1:A2", "dddd d mmmm yyyy");
-    const { store } = makeStoreWithModel(model, DataAnalysisStore);
+    const plugin = createDataAnalysisPlugin(model);
     setSelection(model, ["A1:A2"]);
-    store.setDateGranularity("date");
-    expect(getNames(store.displayedDateItems)).toEqual([
+    plugin.setDateGranularity("date");
+    expect(getNames(plugin.displayedDateItems())).toEqual([
       "Sunday 15 January 2023",
       "Friday 10 March 2023",
     ]);
   });
 
   test("date percentages are computed on the total number of dates for every granularity", () => {
-    const { store } = makeDataAnalysisStore(grid, "A1:A4");
-    expect(store.displayedDateItems.find((item) => item.id === "m2")).toMatchObject({
+    const { plugin } = setupDataAnalysis(grid, "A1:A4");
+    expect(plugin.displayedDateItems().find((item) => item.id === "m2")).toMatchObject({
       value: "2",
       percentage: "(50%)",
     });
-    store.setDateGranularity("year");
-    expect(store.displayedDateItems).toMatchObject([
+    plugin.setDateGranularity("year");
+    expect(plugin.displayedDateItems()).toMatchObject([
       { id: "2023", percentage: "(75%)" },
       { id: "2024", percentage: "(25%)" },
     ]);
   });
 
   test("quarter formula does not count blank cells", () => {
-    const { model, store } = makeDataAnalysisStore({ A1: "2023-01-15", A2: "2023-03-10" }, "A1:A5");
-    store.setDateGranularity("quarter");
-    const q4 = store.displayedDateItems.find((item) => item.id === "q4")!;
+    const { model, plugin } = setupDataAnalysis({ A1: "2023-01-15", A2: "2023-03-10" }, "A1:A5");
+    plugin.setDateGranularity("quarter");
+    const q4 = plugin.displayedDateItems().find((item) => item.id === "q4")!;
     expect(q4.value).toBe("0");
     setCellContent(model, "B1", q4.formula);
     expect(getEvaluatedCell(model, "B1").value).toBe(0);
   });
 
   test("week formula does not count blank cells", () => {
-    const { model, store } = makeDataAnalysisStore({ A1: "2024-12-25", A3: "2024-01-15" }, "A1:A3");
-    store.setDateGranularity("week");
-    const w52 = store.displayedDateItems.find((item) => item.name === "W52")!;
+    const { model, plugin } = setupDataAnalysis({ A1: "2024-12-25", A3: "2024-01-15" }, "A1:A3");
+    plugin.setDateGranularity("week");
+    const w52 = plugin.displayedDateItems().find((item) => item.name === "W52")!;
     expect(w52.value).toBe("1");
     setCellContent(model, "B1", w52.formula);
     expect(getEvaluatedCell(model, "B1").value).toBe(1);

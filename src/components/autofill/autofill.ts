@@ -1,9 +1,7 @@
 import { proxy, usePlugin, useProps, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
-import { provideAndUsePlugin } from "../../helpers/owl3_helpers";
 import { Component } from "../../owl3_compatibility_layer";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
-import { useStore } from "../../store_engine/store_hooks";
 import { HeaderIndex } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
 import { cssPropertiesToCss } from "../helpers/css";
@@ -11,7 +9,6 @@ import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_h
 import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
 import { AutofillPlugin } from "./autofill_owl_plugin";
-import { TableAutofillStore } from "./table_autofill_store";
 
 // -----------------------------------------------------------------------------
 // Autofill
@@ -35,11 +32,7 @@ export class Autofill extends OSComponent {
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
   private zoomPlugin = usePlugin(ZoomPlugin);
-  private autofillPlugin = provideAndUsePlugin(AutofillPlugin);
-
-  setup(): void {
-    useStore(TableAutofillStore);
-  }
+  private autofillPlugin = usePlugin(AutofillPlugin);
 
   get handlerStyle() {
     const { x, y } = this.state.handler ? this.state.position : this.props.position;

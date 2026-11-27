@@ -21,7 +21,7 @@ import { NamedRangeSelector } from "../named_range_selector/named_range_selector
 import { OSComponent } from "../os_component";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
-import { TopBarToolStore } from "./top_bar_tool_store";
+import { TopBarToolPlugin } from "./top_bar_tool_plugin";
 import { topBarToolBarRegistry } from "./top_bar_tools_registry";
 
 interface State {
@@ -64,7 +64,7 @@ export class TopBar extends OSComponent {
   isntToolbarMenu = false;
   composerFocusStore!: Store<ComposerFocusStore>;
   fingerprints = usePlugin(FormulaFingerprintPlugin);
-  topBarToolStore!: Store<TopBarToolStore>;
+  topBarToolPlugin = usePlugin(TopBarToolPlugin);
 
   toolBarContainerRef = signal.ref();
   toolBarContainerDimensions = useElementRect(this.toolBarContainerRef);
@@ -87,7 +87,6 @@ export class TopBar extends OSComponent {
 
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);
-    this.topBarToolStore = useStore(TopBarToolStore);
 
     useListener(window, "click", this.onExternalClick.bind(this));
     useListener(window, "keydown", this.onKeydown.bind(this));
@@ -212,8 +211,8 @@ export class TopBar extends OSComponent {
     if (!target) {
       return;
     }
-    if (this.topBarToolStore.currentDropdown) {
-      this.topBarToolStore.closeDropdowns();
+    if (this.topBarToolPlugin.currentDropdown()) {
+      this.topBarToolPlugin.closeDropdowns();
     }
     this.state.toolsPopoverState.isOpen = false;
     this.state.menuState.isOpen = true;
@@ -229,8 +228,8 @@ export class TopBar extends OSComponent {
   }
 
   closeMenus() {
-    if (this.topBarToolStore.currentDropdown) {
-      this.topBarToolStore.closeDropdowns();
+    if (this.topBarToolPlugin.currentDropdown()) {
+      this.topBarToolPlugin.closeDropdowns();
     }
     this.state.toolsPopoverState.isOpen = false;
     this.state.menuState.isOpen = false;
@@ -253,8 +252,8 @@ export class TopBar extends OSComponent {
   }
 
   toggleMoreTools() {
-    if (this.topBarToolStore.currentDropdown) {
-      this.topBarToolStore.closeDropdowns();
+    if (this.topBarToolPlugin.currentDropdown()) {
+      this.topBarToolPlugin.closeDropdowns();
     }
     this.state.toolsPopoverState.isOpen = !this.state.toolsPopoverState.isOpen;
   }

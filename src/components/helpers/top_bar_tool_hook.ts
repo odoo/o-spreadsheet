@@ -1,26 +1,26 @@
-import { onWillUnmount } from "@odoo/owl";
+import { onWillUnmount, usePlugin } from "@odoo/owl";
 import { useComponent } from "../../owl3_compatibility_layer";
-import { useStore } from "../../store_engine/store_hooks";
-import { TopBarToolStore } from "../top_bar/top_bar_tool_store";
+import { TopBarToolPlugin } from "../top_bar/top_bar_tool_plugin";
 
-export type ToolBarDropdownStore = ReturnType<typeof useToolBarDropdownStore>;
+export type ToolBarDropdownPlugin = ReturnType<typeof useToolBarDropdownPlugin>;
 
-export function useToolBarDropdownStore() {
+export function useToolBarDropdownPlugin() {
   const component = useComponent();
-  const topbarStore = useStore(TopBarToolStore);
+
+  const topbarPlugin = usePlugin(TopBarToolPlugin);
   onWillUnmount(() => {
-    if (component === topbarStore.currentDropdown) {
-      topbarStore.closeDropdowns();
+    if (component === topbarPlugin.currentDropdown()) {
+      topbarPlugin.closeDropdowns();
     }
   });
 
   return {
-    closeDropdowns: () => topbarStore.closeDropdowns(),
+    closeDropdowns: () => topbarPlugin.closeDropdowns(),
     openDropdown: () => {
-      topbarStore.openDropdown(component);
+      topbarPlugin.openDropdown(component);
     },
     get isActive() {
-      return topbarStore.currentDropdown === component;
+      return topbarPlugin.currentDropdown() === component;
     },
   };
 }

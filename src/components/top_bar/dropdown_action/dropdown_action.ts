@@ -2,7 +2,7 @@ import { signal, useProps } from "@odoo/owl";
 import { PropsOf } from "../../../types/props_of";
 import { ActionButton } from "../../action_button/action_button";
 import { getElBoundingRect } from "../../helpers/dom_helpers";
-import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
+import { ToolBarDropdownPlugin, useToolBarDropdownPlugin } from "../../helpers/top_bar_tool_hook";
 import { OSComponent } from "../../os_component";
 import { Popover } from "../../popover/popover";
 import { types } from "../../props_validation";
@@ -18,23 +18,23 @@ export class DropdownAction extends OSComponent {
     childClass: types.string(),
   });
 
-  topBarToolStore!: ToolBarDropdownStore;
+  topBarToolPlugin!: ToolBarDropdownPlugin;
   actionRef = signal.ref();
 
   setup() {
-    this.topBarToolStore = useToolBarDropdownStore();
+    this.topBarToolPlugin = useToolBarDropdownPlugin();
   }
 
   toggleDropdown() {
     if (this.isActive) {
-      this.topBarToolStore.closeDropdowns();
+      this.topBarToolPlugin.closeDropdowns();
     } else {
-      this.topBarToolStore.openDropdown();
+      this.topBarToolPlugin.openDropdown();
     }
   }
 
   get isActive() {
-    return this.topBarToolStore.isActive;
+    return this.topBarToolPlugin.isActive;
   }
 
   get popoverProps(): PropsOf<Popover> {

@@ -1,8 +1,8 @@
+import { computed, signal, useConfig } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
 import { getFieldDisplayName } from "../../../../helpers/pivot/pivot_helpers";
-import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
+import { OwlPluginWithModel } from "../../../../owl_plugins/owl_plugin_with_model";
 import { _t } from "../../../../translation";
-import { UID } from "../../../../types/misc";
 import {
   NEXT_VALUE,
   PivotCoreDefinition,
@@ -11,29 +11,21 @@ import {
   PivotMeasureDisplayType,
   PREVIOUS_VALUE,
 } from "../../../../types/pivot";
-import { Get } from "../../../../types/store_engine";
 
-export class PivotMeasureDisplayPanelStore extends SpreadsheetStore {
-  mutators = [
-    "cancelMeasureDisplayEdition",
-    "updateMeasureDisplayType",
-    "updateMeasureDisplayField",
-    "updateMeasureDisplayValue",
-  ] as const;
+export class PivotMeasureDisplayPanelPlugin extends OwlPluginWithModel {
+  private pivotId = useConfig("pivotId");
+  private initialMeasure = useConfig<PivotCoreMeasure>("initialMeasure");
 
-  measureDisplay: PivotMeasureDisplay;
-
-  constructor(get: Get, private pivotId: UID, private initialMeasure: PivotCoreMeasure) {
-    super(get);
-    this.measureDisplay = initialMeasure.display || { type: "no_calculations" };
-  }
+  measureDisplay = signal.Object<PivotMeasureDisplay>(
+    this.initialMeasure.display || { type: "no_calculations" }
+  );
 
   updateMeasureDisplayType(measureDisplayType: PivotMeasureDisplayType) {
     this.updatePivotMeasureDisplay(
       this.getMeasureDisplay(
         measureDisplayType,
-        this.measureDisplay.fieldNameWithGranularity,
-        this.measureDisplay.value
+        this.measureDisplay().fieldNameWithGranularity,
+        this.measureDisplay().value
       )
     );
   }
@@ -41,9 +33,9 @@ export class PivotMeasureDisplayPanelStore extends SpreadsheetStore {
   updateMeasureDisplayField(fieldNameWithGranularity: string) {
     this.updatePivotMeasureDisplay(
       this.getMeasureDisplay(
-        this.measureDisplay.type,
+        this.measureDisplay().type,
         fieldNameWithGranularity,
-        this.measureDisplay.value
+        this.measureDisplay().value
       )
     );
   }
@@ -51,24 +43,24 @@ export class PivotMeasureDisplayPanelStore extends SpreadsheetStore {
   updateMeasureDisplayValue(value: string) {
     this.updatePivotMeasureDisplay(
       this.getMeasureDisplay(
-        this.measureDisplay.type,
-        this.measureDisplay.fieldNameWithGranularity,
+        this.measureDisplay().type,
+        this.measureDisplay().fieldNameWithGranularity,
         value
       )
     );
   }
 
   private updatePivotMeasureDisplay(newDisplay: PivotMeasureDisplay) {
-    const pivotDefinition = deepCopy(this.model.getters.getPivotCoreDefinition(this.pivotId));
+    const pivotDefinition = deepCopy(this.model().getters.getPivotCoreDefinition(this.pivotId));
     const measureIndex = this.getMeasureIndex(this.initialMeasure.id, pivotDefinition);
     const newMeasure = { ...pivotDefinition.measures[measureIndex], display: newDisplay };
     pivotDefinition.measures[measureIndex] = newMeasure;
-    const result = this.model.dispatch("UPDATE_PIVOT", {
+    const result = this.model().dispatch("UPDATE_PIVOT", {
       pivot: pivotDefinition,
       pivotId: this.pivotId,
     });
     if (result.isSuccessful) {
-      this.measureDisplay = newDisplay;
+      this.measureDisplay.set(newDisplay);
     }
   }
 
@@ -92,14 +84,14 @@ export class PivotMeasureDisplayPanelStore extends SpreadsheetStore {
       case "rank_asc":
       case "rank_desc":
         if (!fieldNameWithGranularity) {
-          fieldNameWithGranularity = this.fields[0]?.nameWithGranularity;
+          fieldNameWithGranularity = this.fields()[0]?.nameWithGranularity;
         }
         return { type: measureDisplayType, fieldNameWithGranularity };
       case "%_of":
       case "difference_from":
       case "%_difference_from":
         if (!fieldNameWithGranularity) {
-          fieldNameWithGranularity = this.fields[0]?.nameWithGranularity;
+          fieldNameWithGranularity = this.fields()[0]?.nameWithGranularity;
         }
         const possibleValues = this.getPossibleValues(fieldNameWithGranularity);
         if (value === undefined || !possibleValues.find((v) => v.value === value)) {
@@ -121,59 +113,59 @@ export class PivotMeasureDisplayPanelStore extends SpreadsheetStore {
     return measureIndex;
   }
 
-  get doesDisplayNeedsField(): boolean {
+  doesDisplayNeedsField = computed(() => {
     return (
       ["%_of_parent_total", "running_total", "%_running_total", "rank_asc", "rank_desc"].includes(
-        this.measureDisplay.type
-      ) || this.doesDisplayNeedsValue
+        this.measureDisplay().type
+      ) || this.doesDisplayNeedsValue()
     );
-  }
+  });
 
-  get fields() {
-    const definition = this.getters.getPivot(this.pivotId).definition;
+  fields = computed(() => {
+    const definition = this.model().getters.getPivot(this.pivotId).definition;
     return [...definition.columns, ...definition.rows].map((f) => ({
       ...f,
       displayName: getFieldDisplayName(f),
     }));
-  }
+  });
 
-  get doesDisplayNeedsValue(): boolean {
-    return this.isDisplayValueDependant(this.measureDisplay);
-  }
+  doesDisplayNeedsValue = computed(() => {
+    return this.isDisplayValueDependant(this.measureDisplay());
+  });
 
   private isDisplayValueDependant(display: PivotMeasureDisplay): boolean {
     return ["%_of", "difference_from", "%_difference_from"].includes(display.type);
   }
 
-  get values() {
-    const display = this.measureDisplay;
+  values = computed(() => {
+    const display = this.measureDisplay();
     if (!this.isDisplayValueDependant(display)) {
       return [];
     }
     return this.getPossibleValues(display.fieldNameWithGranularity);
-  }
+  });
 
   private getPossibleValues(fieldNameWithGranularity: string | undefined) {
     const baseValues = [
       { value: PREVIOUS_VALUE, label: _t("(previous)") },
       { value: NEXT_VALUE, label: _t("(next)") },
     ];
-    const field = this.fields.find((f) => f.nameWithGranularity === fieldNameWithGranularity);
+    const field = this.fields().find((f) => f.nameWithGranularity === fieldNameWithGranularity);
     if (!field) {
       return [];
     }
-    const values = this.getters.getPivot(this.pivotId).getPossibleFieldValues(field);
+    const values = this.model().getters.getPivot(this.pivotId).getPossibleFieldValues(field);
     return [...baseValues, ...values];
   }
 
   cancelMeasureDisplayEdition() {
-    const pivotDefinition = deepCopy(this.model.getters.getPivotCoreDefinition(this.pivotId));
+    const pivotDefinition = deepCopy(this.model().getters.getPivotCoreDefinition(this.pivotId));
     const measureIndex = this.getMeasureIndex(this.initialMeasure.id, pivotDefinition);
     pivotDefinition.measures[measureIndex] = {
       ...pivotDefinition.measures[measureIndex],
       display: this.initialMeasure.display,
     };
-    this.model.dispatch("UPDATE_PIVOT", {
+    this.model().dispatch("UPDATE_PIVOT", {
       pivot: pivotDefinition,
       pivotId: this.pivotId,
     });

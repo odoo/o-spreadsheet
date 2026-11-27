@@ -4,14 +4,14 @@
       <div class="o-panel d-flex">
         <div
           class="o-sidePanel-tab o-panel-configuration d-flex flex-grow-1 justify-content-center"
-          t-att-class="this.store.panel !== 'configuration' ? 'inactive' : ''"
+          t-att-class="this.mainChartPanelPlugin.panel() !== 'configuration' ? 'inactive' : ''"
           t-on-click="this.switchPanel.bind(this, 'configuration')">
           <i class="oi me-2" data-icon="tune"/>
           Configuration
         </div>
         <div
           class="o-sidePanel-tab o-panel-design d-flex flex-grow-1 justify-content-center"
-          t-att-class="this.store.panel !== 'design' ? 'inactive' : ''"
+          t-att-class="this.mainChartPanelPlugin.panel() !== 'design' ? 'inactive' : ''"
           t-on-click="this.switchPanel.bind(this, 'design')">
           <i class="oi me-2" data-icon="design_services"/>
           Design
@@ -20,9 +20,11 @@
 
       <t t-set="definition" t-value="this.getChartDefinition(this.chartId)"/>
       <div class="o-panel-content h-100 overflow-y-hidden">
-        <div class="h-100" t-att-class="this.store.panel !== 'configuration' ? 'd-none' : ''">
+        <div
+          class="h-100"
+          t-att-class="this.mainChartPanelPlugin.panel() !== 'configuration' ? 'd-none' : ''">
           <div class="h-100 overflow-y-auto">
-            <ChartTypePicker chartId="this.chartId" chartPanelStore="this.store"/>
+            <ChartTypePicker chartId="this.chartId"/>
             <t
               t-component="this.chartPanel.configuration"
               definition="definition"
@@ -33,7 +35,9 @@
             />
           </div>
         </div>
-        <div class="h-100" t-att-class="this.store.panel !== 'design' ? 'd-none' : ''">
+        <div
+          class="h-100"
+          t-att-class="this.mainChartPanelPlugin.panel() !== 'design' ? 'd-none' : ''">
           <div class="h-100 overflow-y-auto">
             <t
               t-component="this.chartPanel.design"

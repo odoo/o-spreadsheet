@@ -41,20 +41,22 @@ import {
   addToRegistry,
   getDataValidationRules,
   getMergeCellMap,
-  makeTestComposerStore,
 } from "../test_helpers/helpers";
 
 import { PluginInstance } from "@odoo/owl";
 import { DIRECTION, Model } from "../../src";
 import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
+import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 import { watchDashedOutline } from "../test_helpers/renderer_helpers";
 
 let autoFill: PluginInstance<typeof AutofillPlugin>;
 let model: Model;
+let container: DependencyContainer;
 let getPlugin: OwlPluginGetter;
 
 function autofillTooltip(from: string, to: string): string | undefined {
@@ -73,7 +75,7 @@ function getDirection(from: string, xc: string): DIRECTION {
 
 beforeEach(() => {
   model = new Model();
-  ({ getPlugin } = makeOwlPluginManager([RendererPlugin, AutofillPlugin], { model }));
+  ({ getPlugin, container } = makeOwlPluginManager([RendererPlugin, AutofillPlugin], { model }));
   autoFill = getPlugin(AutofillPlugin);
 });
 
@@ -148,7 +150,7 @@ describe("Autofill", () => {
   });
 
   test("Autofill a date displays a date in the composer", () => {
-    const composerStore = makeTestComposerStore(model);
+    const composerStore = container.get(CellComposerStore);
     setCellContent(model, "A1", "1/1/2017");
     autofill(model, "A1", "A2");
     selectCell(model, "A2");

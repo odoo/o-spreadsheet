@@ -6,23 +6,28 @@
         class="'w-auto py-0 px-1 o-stat-date-granularity border-0'"
         popoverClass="'w-auto'"
         values="this.granularityOptions"
-        selectedValue="this.store.dateGranularity"
+        selectedValue="this.dataAnalysisPlugin.dateGranularity()"
         onChange.bind="this.onGranularitySelected"
       />
       <div
-        t-on-click="() => this.store.toggleDateSort()"
+        t-on-click="() => this.dataAnalysisPlugin.toggleDateSort()"
         class="o-button-icon ms-auto d-flex align-items-center small text-right">
         <t
-          t-if="this.store.dateOccurenceSortType === 'desc'"
+          t-if="this.dataAnalysisPlugin.dateOccurenceSortType() === 'desc'"
           t-call="o-spreadsheet-Icon.CARET_DOWN"
         />
-        <t t-if="this.store.dateOccurenceSortType === 'asc'" t-call="o-spreadsheet-Icon.CARET_UP"/>
-        <span t-if="this.store.dateOccurenceSortType === 'chrono'" class="o-caret-sort-icon">
+        <t
+          t-if="this.dataAnalysisPlugin.dateOccurenceSortType() === 'asc'"
+          t-call="o-spreadsheet-Icon.CARET_UP"
+        />
+        <span
+          t-if="this.dataAnalysisPlugin.dateOccurenceSortType() === 'chrono'"
+          class="o-caret-sort-icon">
           <t t-call="o-spreadsheet-Icon.CARET_UP_DOWN"/>
         </span>
       </div>
     </div>
-    <t t-foreach="this.store.displayedDateItems" t-as="stat" t-key="stat_index">
+    <t t-foreach="this.dataAnalysisPlugin.displayedDateItems()" t-as="stat" t-key="stat_index">
       <t t-if="stat.value !== '0'">
         <StatisticItem stat="stat" onHover.bind="this.onStatHovered"/>
       </t>

@@ -19,7 +19,7 @@ import { Highlight } from "../../types/misc";
 import { Range } from "../../types/range";
 import { Store } from "../../types/store_engine";
 import { getElBoundingRect } from "../helpers/dom_helpers";
-import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
+import { ToolBarDropdownPlugin, useToolBarDropdownPlugin } from "../helpers/top_bar_tool_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { OSComponent } from "../os_component";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
@@ -39,13 +39,13 @@ export class NamedRangeSelector extends OSComponent {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private sidePanelStore!: Store<SidePanelStore>;
 
-  topBarToolStore!: ToolBarDropdownStore;
+  topBarToolPlugin!: ToolBarDropdownPlugin;
   menuState = proxy<State>({ anchorRect: null, menuItems: [] });
 
   private namedRangeSelectorRef = signal.ref();
 
   setup() {
-    this.topBarToolStore = useToolBarDropdownStore();
+    this.topBarToolPlugin = useToolBarDropdownPlugin();
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.sidePanelStore = useStore(SidePanelStore);
   }
@@ -102,7 +102,7 @@ export class NamedRangeSelector extends OSComponent {
   }
 
   openDropdown() {
-    this.topBarToolStore.openDropdown();
+    this.topBarToolPlugin.openDropdown();
     this.menuState.anchorRect = getElBoundingRect(this.namedRangeSelectorRef());
     this.menuState.menuItems = this.getNamedRangeMenuItems();
   }
@@ -156,7 +156,7 @@ export class NamedRangeSelector extends OSComponent {
 
   private stopEditingNamedRange() {
     this.menuState.searchedText = undefined;
-    this.topBarToolStore.closeDropdowns();
+    this.topBarToolPlugin.closeDropdowns();
     this.DOMFocusableElementStore.focus();
   }
 

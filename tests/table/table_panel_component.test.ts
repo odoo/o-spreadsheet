@@ -21,7 +21,7 @@ import {
 import { Model } from "../../src";
 import { FIRST_TABLE_IN_SELECTION } from "../../src/actions/menu_items_actions";
 import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
-import { TableAutofillStore } from "../../src/components/autofill/table_autofill_store";
+import { TableAutofillPlugin } from "../../src/components/autofill/table_autofill_plugin";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { TableTerms } from "../../src/components/translations_terms";
@@ -50,11 +50,10 @@ describe("Table side panel", () => {
     createTable(model, "A1:C3");
     ({ fixture, env } = await mountComponent(SidePanels, {
       model,
-      providedPlugins: [AutofillPlugin, ModelPlugin],
+      providedPlugins: [AutofillPlugin, ModelPlugin, TableAutofillPlugin],
       providedPluginsConfig: { model },
     }));
     const table = FIRST_TABLE_IN_SELECTION(env);
-    env.getStore(TableAutofillStore);
     env.getStore(SidePanelStore).open("TableSidePanel", { table });
     await nextTick();
   });

@@ -4,7 +4,7 @@
       class="o-named-range-selector d-flex align-items-center rounded p-1 my-1"
       t-ref="this.namedRangeSelectorRef"
       t-att-class="{
-          'selected': this.topBarToolStore.isActive,
+          'selected': this.topBarToolPlugin.isActive,
         }">
       <TextInput
         t-key="this.selectionKey"
@@ -22,7 +22,7 @@
     </div>
 
     <MenuPopover
-      t-if="this.topBarToolStore.isActive"
+      t-if="this.topBarToolPlugin.isActive"
       disableKeyboardNavigation="true"
       anchorRect="this.menuState.anchorRect"
       menuItems="this.menuState.menuItems"

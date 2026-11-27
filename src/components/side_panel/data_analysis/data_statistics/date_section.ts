@@ -1,4 +1,4 @@
-import { useProps } from "@odoo/owl";
+import { usePlugin } from "@odoo/owl";
 import {
   DateGranularity,
   getStatIdFromDate,
@@ -6,23 +6,20 @@ import {
 } from "../../../../helpers/data_statistics/statistics_items";
 import { numberToJsDate } from "../../../../helpers/dates";
 import { _t } from "../../../../translation";
-import { Store } from "../../../../types/store_engine";
 import { OSComponent } from "../../../os_component";
-import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
-import { DataAnalysisStore } from "../data_analysis_store";
+import { DataAnalysisPlugin } from "../data_analysis_plugin";
 import { useStatHighlights } from "./stat_highlights_hook";
 import { StatisticItem } from "./statistic_item";
 
 export class DateSection extends OSComponent {
   static template = "o-spreadsheet-DateSection";
-  protected props = useProps({
-    store: types.Store<DataAnalysisStore>(),
-  });
   static components = {
     StatisticItem,
     Select,
   };
+
+  private dataAnalysisPlugin = usePlugin(DataAnalysisPlugin);
 
   onStatHovered!: (stat: StatValue, isHovered: boolean) => void;
 
@@ -30,7 +27,8 @@ export class DateSection extends OSComponent {
     this.onStatHovered = useStatHighlights(
       (cell, stat) =>
         typeof cell.value === "number" &&
-        stat.id === getStatIdFromDate(numberToJsDate(cell.value), this.store.dateGranularity)
+        stat.id ===
+          getStatIdFromDate(numberToJsDate(cell.value), this.dataAnalysisPlugin.dateGranularity())
     );
   }
 
@@ -46,11 +44,7 @@ export class DateSection extends OSComponent {
     ];
   }
 
-  get store(): Store<DataAnalysisStore> {
-    return this.props.store;
-  }
-
   onGranularitySelected(granularity: DateGranularity) {
-    this.store.setDateGranularity(granularity);
+    this.dataAnalysisPlugin.setDateGranularity(granularity);
   }
 }

@@ -1,23 +1,24 @@
 import { Model } from "../../../src";
 import { ChartTypePicker } from "../../../src/components/side_panel/chart/chart_type_picker/chart_type_picker";
-import { MainChartPanelStore } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel_store";
+import { MainChartPanelPlugin } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel_plugin";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { click, pointerDown } from "../../test_helpers/dom_helper";
 import { mountComponent } from "../../test_helpers/helpers";
-import { makeStoreWithModel } from "../../test_helpers/stores";
 
 let model: Model;
 const chartId = "chartId";
-let chartPanelStore: MainChartPanelStore;
 let fixture: HTMLElement;
 
 describe("Chart type picker component", () => {
   beforeEach(async () => {
     model = new Model();
     createChart(model, { type: "bar" }, chartId);
-    ({ store: chartPanelStore } = makeStoreWithModel(model, MainChartPanelStore));
-    const props = { chartId, chartPanelStore };
-    ({ fixture } = await mountComponent(ChartTypePicker, { model, props }));
+    ({ fixture } = await mountComponent(ChartTypePicker, {
+      model,
+      props: { chartId },
+      providedPlugins: [MainChartPanelPlugin],
+      providedPluginsConfig: { model },
+    }));
   });
 
   test("Clicking on the input toggle the popover", async () => {

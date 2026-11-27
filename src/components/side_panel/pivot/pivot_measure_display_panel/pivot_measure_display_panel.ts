@@ -1,5 +1,6 @@
 import { useProps } from "@odoo/owl";
-import { useLocalStore, useStore } from "../../../../store_engine/store_hooks";
+import { provideAndUsePlugin } from "../../../../helpers/owl3_helpers";
+import { useStore } from "../../../../store_engine/store_hooks";
 import { ValueAndLabel } from "../../../../types/misc";
 import { Store } from "../../../../types/store_engine";
 import { OSComponent } from "../../../os_component";
@@ -10,7 +11,7 @@ import { Checkbox } from "../../components/checkbox/checkbox";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { Section } from "../../components/section/section";
 import { SidePanelStore } from "../../side_panel/side_panel_store";
-import { PivotMeasureDisplayPanelStore } from "./pivot_measure_display_panel_store";
+import { PivotMeasureDisplayPanelPlugin } from "./pivot_measure_display_panel_plugin";
 
 export class PivotMeasureDisplayPanel extends OSComponent {
   static template = "o-spreadsheet-PivotMeasureDisplayPanel";
@@ -24,15 +25,14 @@ export class PivotMeasureDisplayPanel extends OSComponent {
   measureDisplayTypeLabels = measureDisplayTerms.labels;
   measureDisplayDescription = measureDisplayTerms.documentation;
 
-  store!: Store<PivotMeasureDisplayPanelStore>;
   private sidePanelStore!: Store<SidePanelStore>;
 
+  pivotMeasureDisplayPanelPlugin = provideAndUsePlugin(PivotMeasureDisplayPanelPlugin, {
+    pivotId: this.props.pivotId,
+    initialMeasure: this.props.measure,
+  });
+
   setup() {
-    this.store = useLocalStore(
-      PivotMeasureDisplayPanelStore,
-      this.props.pivotId,
-      this.props.measure
-    );
     this.sidePanelStore = useStore(SidePanelStore);
   }
 
@@ -47,7 +47,7 @@ export class PivotMeasureDisplayPanel extends OSComponent {
   }
 
   onCancel() {
-    this.store.cancelMeasureDisplayEdition();
+    this.pivotMeasureDisplayPanelPlugin.cancelMeasureDisplayEdition();
     this.sidePanelStore.replace(
       "PivotSidePanel",
       `pivot_measure_display_${this.props.pivotId}_${this.props.measure.id}`,
@@ -58,7 +58,7 @@ export class PivotMeasureDisplayPanel extends OSComponent {
   }
 
   get fieldChoices() {
-    return this.store.fields.map((field) => ({
+    return this.pivotMeasureDisplayPanelPlugin.fields().map((field) => ({
       value: field.nameWithGranularity,
       label: field.displayName,
     }));

@@ -1,7 +1,7 @@
 import { PluginInstance } from "@odoo/owl";
 import { CommandResult, Model, ResizeTableCommand, UID } from "../../src";
 import { AutofillPlugin } from "../../src/components/autofill/autofill_owl_plugin";
-import { TableAutofillStore } from "../../src/components/autofill/table_autofill_store";
+import { TableAutofillPlugin } from "../../src/components/autofill/table_autofill_plugin";
 import { toZone } from "../../src/helpers/zones";
 import { TableResizePlugin } from "../../src/owl_plugins/table_resize_plugin";
 import {
@@ -22,10 +22,12 @@ describe("Table resize", () => {
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    const { getPlugin, container } = makeOwlPluginManager([TableResizePlugin, AutofillPlugin], {
-      model,
-    });
-    container.get(TableAutofillStore);
+    const { getPlugin } = makeOwlPluginManager(
+      [TableResizePlugin, AutofillPlugin, TableAutofillPlugin],
+      {
+        model,
+      }
+    );
     tableResizePlugin = getPlugin(TableResizePlugin);
   });
 

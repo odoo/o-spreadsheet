@@ -127,7 +127,7 @@ import { WaterfallChartDesignPanel } from "./components/side_panel/chart/waterfa
 import { GenericZoomableChartDesignPanel } from "./components/side_panel/chart/zoomable_chart/design_panel";
 import { SidePanelCollapsible } from "./components/side_panel/components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "./components/side_panel/components/radio_selection/radio_selection";
-import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
+import { PivotMeasureDisplayPanelPlugin } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_plugin";
 import { HoveredTableStore } from "./components/tables/hovered_table_store";
 import { TextInput } from "./components/text_input/text_input";
 import { ChartTerms } from "./components/translations_terms";
@@ -351,7 +351,7 @@ import "./registries/chart_types";
 import "./registries/interactive_icon_on_cell_registry";
 
 import { AutofillPlugin } from "./components/autofill/autofill_owl_plugin";
-import { TableAutofillStore } from "./components/autofill/table_autofill_store";
+import { TableAutofillPlugin } from "./components/autofill/table_autofill_plugin";
 import { Composer } from "./components/composer/composer/composer";
 import { StandaloneComposer } from "./components/composer/standalone_composer/standalone_composer";
 import { CarouselFigure } from "./components/figures/figure_carousel/figure_carousel";
@@ -610,8 +610,6 @@ export const stores = {
   useLocalStore,
   SidePanelStore,
   PivotSidePanelStore,
-  PivotMeasureDisplayPanelStore,
-  TableAutofillStore,
   ClientFocusStore,
   GridRenderer,
   ClipboardStore,
@@ -631,6 +629,8 @@ export const owlPlugins = {
   ZoomPlugin,
   ExposeViewportsPlugin,
   DevicePixelRatioPlugin,
+  PivotMeasureDisplayPanelPlugin,
+  TableAutofillPlugin,
   RendererPlugin,
   HighlightPlugin,
   DelayedHoveredCellPlugin,
