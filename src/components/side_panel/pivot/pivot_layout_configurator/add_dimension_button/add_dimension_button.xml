@@ -20,9 +20,9 @@
         />
       </div>
       <TextValueProvider
-        proposals="this.autoComplete.provider.proposals"
-        selectedIndex="this.autoComplete.selectedIndex"
-        onValueSelected="this.autoComplete.provider.selectProposal"
+        proposals="this.autoCompletePlugin.provider()?.proposals"
+        selectedIndex="this.autoCompletePlugin.selectedIndex()"
+        onValueSelected="this.autoCompletePlugin.provider()?.selectProposal"
         onValueHovered="() => {}"
       />
       <t t-call-slot="default" t-on-click="this.togglePopover"/>

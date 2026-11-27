@@ -10,6 +10,7 @@ import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { evaluationResultToDisplayString } from "../../../helpers/matrix";
 import { clip, concat, isFormula } from "../../../helpers/misc";
 import { isNumber } from "../../../helpers/numbers";
+import { provideAndUsePlugin } from "../../../helpers/owl3_helpers";
 import { cycleFixedReference } from "../../../helpers/reference_type";
 import { splitReference } from "../../../helpers/references";
 import { fuzzyLookup } from "../../../helpers/search";
@@ -41,8 +42,8 @@ import {
   Zone,
 } from "../../../types/misc";
 import { Range, RangePart } from "../../../types/range";
-import { Get, Store } from "../../../types/store_engine";
-import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_plugin";
+import { Get } from "../../../types/store_engine";
+import { AutoCompletePlugin } from "../autocomplete_dropdown/autocomplete_dropdown_plugin";
 
 export interface ComposerSelection {
   start: number;
@@ -82,7 +83,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   protected selectionEnd: number = 0;
   protected initialContent: string | undefined = "";
   private colorIndexByRange: { [xc: string]: number } = {};
-  private autoComplete: Store<AutoCompleteStore> = new AutoCompleteStore(this.get);
+  private autoCompletePlugin = provideAndUsePlugin(AutoCompletePlugin);
   private hasSelectedAProposal: boolean = false;
 
   hoveredTokens: EnrichedToken[] = [];
@@ -251,19 +252,19 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
 
   get autoCompleteProposals() {
-    return this.autoComplete.provider?.proposals || [];
+    return this.autoCompletePlugin.provider()?.proposals || [];
   }
 
   get autoCompleteSelectedIndex() {
-    return this.autoComplete.selectedIndex;
+    return this.autoCompletePlugin.selectedIndex();
   }
 
   get isAutoCompleteDisplayed() {
-    return !!this.autoComplete.provider;
+    return !!this.autoCompletePlugin.provider();
   }
 
   get canBeToggled() {
-    return this.autoComplete.provider?.canBeToggled ?? true;
+    return this.autoCompletePlugin.provider()?.canBeToggled ?? true;
   }
 
   cycleReferences() {
@@ -854,10 +855,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
 
   private updateAutoCompleteProvider() {
-    this.autoComplete.hide();
+    this.autoCompletePlugin.hide();
     void this.autoCompleteKeepLast.add(this.findAutocompleteProvider()).then((provider) => {
       if (provider) {
-        this.autoComplete.useProvider(provider);
+        this.autoCompletePlugin.useProvider(provider);
         this.model.trigger("update");
       }
     });
@@ -942,19 +943,16 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
 
   hideHelp() {
-    this.autoComplete.hide();
+    this.autoCompletePlugin.hide();
   }
 
   autoCompleteOrStop(direction: Direction, assistantForcedClosed: boolean = false) {
     if (this.editionMode !== "inactive") {
-      const autoComplete = this.autoComplete;
+      const provider = this.autoCompletePlugin.provider();
+      const selectedIndex = this.autoCompletePlugin.selectedIndex();
       const suppressAutocomplete = assistantForcedClosed && this.canBeToggled;
-      if (
-        !suppressAutocomplete &&
-        autoComplete.provider &&
-        autoComplete.selectedIndex !== undefined
-      ) {
-        const proposal = autoComplete.provider.proposals[autoComplete.selectedIndex];
+      if (!suppressAutocomplete && provider && selectedIndex !== undefined) {
+        const proposal = provider.proposals[selectedIndex];
         if (proposal) {
           this.insertAutoCompleteValue(proposal);
           return;
@@ -965,16 +963,16 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
 
   insertAutoCompleteValue(proposal: AutoCompleteProposal) {
-    this.autoComplete.provider?.selectProposal(proposal);
+    this.autoCompletePlugin.provider()?.selectProposal(proposal);
     this.hasSelectedAProposal = true;
   }
 
   selectAutoCompleteIndex(index: number) {
-    this.autoComplete.selectIndex(clip(0, index, 10));
+    this.autoCompletePlugin.selectIndex(clip(0, index, 10));
   }
 
   moveAutoCompleteSelection(direction: "previous" | "next") {
-    this.autoComplete.moveSelection(direction);
+    this.autoCompletePlugin.moveSelection(direction);
   }
 
   /**

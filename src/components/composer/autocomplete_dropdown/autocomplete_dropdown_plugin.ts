@@ -1,50 +1,51 @@
+import { Plugin, signal } from "@odoo/owl";
 import {
   AutoCompleteProposal,
   AutoCompleteProvider,
 } from "../../../registries/auto_completes/auto_complete_registry";
-import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 
-export class AutoCompleteStore extends SpreadsheetStore {
-  mutators = ["useProvider", "moveSelection", "hide", "selectIndex"] as const;
-  selectedIndex: number | undefined = undefined;
-  provider: AutoCompleteProvider | undefined;
+export class AutoCompletePlugin extends Plugin {
+  selectedIndex = signal<number | undefined>(undefined);
+  provider = signal<AutoCompleteProvider | undefined>(undefined);
 
   get selectedProposal(): AutoCompleteProposal | undefined {
-    if (this.selectedIndex === undefined || this.provider === undefined) {
+    const provider = this.provider();
+    const selectedIndex = this.selectedIndex();
+    if (selectedIndex === undefined || provider === undefined) {
       return undefined;
     }
-    return this.provider.proposals[this.selectedIndex];
+    return provider.proposals[selectedIndex];
   }
 
   useProvider(provider: AutoCompleteProvider) {
-    this.provider = provider;
-    this.selectedIndex = provider.autoSelectFirstProposal ? 0 : undefined;
+    this.provider.set(provider);
+    this.selectedIndex.set(provider.autoSelectFirstProposal ? 0 : undefined);
   }
 
   hide() {
-    this.provider = undefined;
-    this.selectedIndex = undefined;
+    this.provider.set(undefined);
+    this.selectedIndex.set(undefined);
   }
 
   selectIndex(index: number) {
-    this.selectedIndex = index;
+    this.selectedIndex.set(index);
   }
 
   moveSelection(direction: "previous" | "next") {
-    if (!this.provider) {
+    const provider = this.provider();
+    const selectedIndex = this.selectedIndex();
+    if (!provider) {
       return;
     }
-    if (this.selectedIndex === undefined) {
-      this.selectedIndex = 0;
+    if (selectedIndex === undefined) {
+      this.selectedIndex.set(0);
       return;
     }
     if (direction === "previous") {
-      this.selectedIndex--;
-      if (this.selectedIndex < 0) {
-        this.selectedIndex = this.provider.proposals.length - 1;
-      }
+      const next = selectedIndex - 1;
+      this.selectedIndex.set(next < 0 ? provider.proposals.length - 1 : next);
     } else {
-      this.selectedIndex = (this.selectedIndex + 1) % this.provider.proposals.length;
+      this.selectedIndex.set((selectedIndex + 1) % provider.proposals.length);
     }
   }
 }
