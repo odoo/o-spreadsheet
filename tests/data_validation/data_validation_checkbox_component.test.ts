@@ -7,7 +7,7 @@ import {
   setSelection,
   setStyle,
 } from "../test_helpers/commands_helpers";
-import { clickGridIcon, keyDown } from "../test_helpers/dom_helper";
+import { clickGridIcon, hoverGridIcon, keyDown } from "../test_helpers/dom_helper";
 import { getCellContent, getCellIcons, getStyle } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet } from "../test_helpers/helpers";
 
@@ -107,7 +107,10 @@ describe("Checkbox component", () => {
     const model = new Model();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     setCellContent(model, "A1", "=TRUE");
-    await mountSpreadsheet({ model });
+    const { fixture } = await mountSpreadsheet({ model });
+
+    await hoverGridIcon(model, "A1");
+    expect(fixture.querySelector<HTMLElement>(".o-grid-overlay")!.style.cursor).toBe("default");
 
     expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_CHECKED);
     await clickGridIcon(model, "A1");
@@ -118,7 +121,10 @@ describe("Checkbox component", () => {
     const model = new Model();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     model.updateMode("readonly");
-    await mountSpreadsheet({ model });
+    const { fixture } = await mountSpreadsheet({ model });
+
+    await hoverGridIcon(model, "A1");
+    expect(fixture.querySelector<HTMLElement>(".o-grid-overlay")!.style.cursor).toBe("default");
 
     expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
     await clickGridIcon(model, "A1");
