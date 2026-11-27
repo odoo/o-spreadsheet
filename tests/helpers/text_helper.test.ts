@@ -51,8 +51,8 @@ describe("computeRotationPosition", () => {
 
     test.each([0, Math.PI * 2])("No rotation", (rotation) => {
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(1000),
-        y: expect.toBeCloseTo(2000),
+        x: expect.closeTo(1000),
+        y: expect.closeTo(2000),
       });
     });
 
@@ -62,8 +62,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
 
@@ -73,8 +73,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y - sin * textWidth;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
   });
@@ -84,8 +84,8 @@ describe("computeRotationPosition", () => {
 
     test.each([0, Math.PI * 2])("No rotation", (rotation) => {
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(1000),
-        y: expect.toBeCloseTo(2000),
+        x: expect.closeTo(1000),
+        y: expect.closeTo(2000),
       });
     });
 
@@ -95,8 +95,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y + (sin * textWidth) / 2;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
 
@@ -106,8 +106,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y - (sin * textWidth) / 2;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
   });
@@ -117,8 +117,8 @@ describe("computeRotationPosition", () => {
 
     test.each([0, Math.PI * 2])("No rotation", (rotation) => {
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(1000),
-        y: expect.toBeCloseTo(2000),
+        x: expect.closeTo(1000),
+        y: expect.closeTo(2000),
       });
     });
 
@@ -128,8 +128,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y + sin * textWidth;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
 
@@ -139,8 +139,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
   });
@@ -150,8 +150,8 @@ describe("computeRotationPosition", () => {
 
     test.each([0, Math.PI * 2])("No rotation", (rotation) => {
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(1000),
-        y: expect.toBeCloseTo(2000),
+        x: expect.closeTo(1000),
+        y: expect.closeTo(2000),
       });
     });
 
@@ -161,8 +161,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y - (sin * textWidth) / 2;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
 
@@ -173,8 +173,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y - (sin * textWidth) / 2 + (cos * textHeight) / 4;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
   });
@@ -184,8 +184,8 @@ describe("computeRotationPosition", () => {
 
     test.each([0, Math.PI * 2])("No rotation", (rotation) => {
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(1000),
-        y: expect.toBeCloseTo(2000),
+        x: expect.closeTo(1000),
+        y: expect.closeTo(2000),
       });
     });
 
@@ -195,8 +195,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y - textHeight / 2 + sin * textHeight;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
 
@@ -205,8 +205,8 @@ describe("computeRotationPosition", () => {
       const newX = textBox.x + (sin * textHeight) / 2;
       const newY = textBox.y - textHeight / 2 - sin * textHeight;
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
   });
@@ -216,8 +216,8 @@ describe("computeRotationPosition", () => {
 
     test.each([0, Math.PI * 2])("No rotation", (rotation) => {
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(1000),
-        y: expect.toBeCloseTo(2000),
+        x: expect.closeTo(1000),
+        y: expect.closeTo(2000),
       });
     });
 
@@ -228,8 +228,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y + (sin * textWidth) / 2 + (cos * textHeight) / 4;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
 
@@ -239,8 +239,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y + (sin * textWidth) / 2;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
   });
@@ -250,8 +250,8 @@ describe("computeRotationPosition", () => {
 
     test.each([0, Math.PI * 2])("No rotation", (rotation) => {
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(1000),
-        y: expect.toBeCloseTo(2000),
+        x: expect.closeTo(1000),
+        y: expect.closeTo(2000),
       });
     });
 
@@ -262,8 +262,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y + (1 - cos) * textHeight - sin * textWidth;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
 
@@ -273,8 +273,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y + (1 - cos) * textHeight;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
   });
@@ -284,8 +284,8 @@ describe("computeRotationPosition", () => {
 
     test.each([0, Math.PI * 2])("No rotation", (rotation) => {
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(1000),
-        y: expect.toBeCloseTo(2000),
+        x: expect.closeTo(1000),
+        y: expect.closeTo(2000),
       });
     });
 
@@ -296,8 +296,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y + (1 - cos) * textHeight - (sin * textWidth) / 2;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
 
@@ -308,8 +308,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y + (1 - cos) * textHeight + (sin * textWidth) / 2;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
   });
@@ -319,8 +319,8 @@ describe("computeRotationPosition", () => {
 
     test.each([0, Math.PI * 2])("No rotation", (rotation) => {
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(1000),
-        y: expect.toBeCloseTo(2000),
+        x: expect.closeTo(1000),
+        y: expect.closeTo(2000),
       });
     });
 
@@ -330,8 +330,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y + (1 - cos) * textHeight;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
 
@@ -342,8 +342,8 @@ describe("computeRotationPosition", () => {
       const newY = textBox.y + (1 - cos) * textHeight + sin * textWidth;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
-        x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
-        y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
+        x: expect.closeTo(rotate(newX, newY, rotation).x),
+        y: expect.closeTo(rotate(newX, newY, rotation).y),
       });
     });
   });
