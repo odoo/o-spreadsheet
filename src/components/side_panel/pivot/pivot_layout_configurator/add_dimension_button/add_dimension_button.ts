@@ -9,7 +9,7 @@ import { useLocalStore } from "../../../../../store_engine/store_hooks";
 import { PivotField } from "../../../../../types/pivot";
 import { Store } from "../../../../../types/store_engine";
 import { TextValueProvider } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown";
-import { AutoCompleteStore } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown_store";
+import { AutoCompleteStore } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown_plugin";
 import { useAutofocus } from "../../../../helpers/autofocus_hook";
 import { getHtmlContentFromPattern } from "../../../../helpers/html_content_helpers";
 import { OSComponent } from "../../../../os_component";

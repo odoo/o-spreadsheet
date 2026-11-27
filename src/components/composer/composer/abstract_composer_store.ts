@@ -42,7 +42,7 @@ import {
 } from "../../../types/misc";
 import { Range, RangePart } from "../../../types/range";
 import { Get, Store } from "../../../types/store_engine";
-import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
+import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_plugin";
 
 export interface ComposerSelection {
   start: number;
