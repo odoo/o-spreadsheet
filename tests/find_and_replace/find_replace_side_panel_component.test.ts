@@ -61,7 +61,7 @@ async function inputSearchValue(value: string) {
 }
 
 function getMatchesCountContent() {
-  const countSpans = document.querySelectorAll(selectors.matchesCount + " span");
+  const countSpans = document.querySelectorAll(selectors.matchesCount + " span span");
   return [...countSpans].map((div) => div.textContent).filter((text) => text !== "");
 }
 
