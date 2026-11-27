@@ -155,11 +155,9 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     }
 
     this.masterChart?.destroy();
-    const masterChartCtx = (this.masterChartCanvas?.el as HTMLCanvasElement).getContext("2d")!;
-
     this.setMasterChartCursor(chartRuntime);
-    this.masterChart = new globalThis.Chart(
-      masterChartCtx,
+    this.masterChart = this.createChartJsInstance(
+      this.masterChartCanvas?.el as HTMLCanvasElement,
       this.getMasterChartConfiguration(chartRuntime["masterChartConfig"] as ChartConfiguration<any>)
     );
     this.resetAxesLimits();
@@ -196,8 +194,10 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
         chartRuntime["masterChartConfig"] as ChartConfiguration<any>
       );
       if (!this.masterChart) {
-        const masterChartCtx = (this.masterChartCanvas!.el as HTMLCanvasElement).getContext("2d")!;
-        this.masterChart = new globalThis.Chart(masterChartCtx, masterChartConfig);
+        this.masterChart = this.createChartJsInstance(
+          this.masterChartCanvas!.el as HTMLCanvasElement,
+          masterChartConfig
+        );
       } else {
         this.masterChart.data = masterChartConfig.data;
         this.masterChart.config.options = masterChartConfig.options;

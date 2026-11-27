@@ -22,6 +22,7 @@ import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
 import { sunburstHoverPlugin } from "./chartjs_sunburst_hover_plugin";
 import { sunburstLabelsPlugin } from "./chartjs_sunburst_labels_plugin";
 import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
+import { getZoomAwareChartJsPlatform } from "./chartjs_zoom_aware_platform";
 import { zoomWindowPlugin } from "./zoomable_chart/zoomable_chartjs_plugins";
 
 interface Props {
@@ -147,9 +148,14 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       }
     }
 
-    const canvas = this.canvas.el as HTMLCanvasElement;
-    const ctx = canvas.getContext("2d")!;
-    this.chart = new globalThis.Chart(ctx, chartData);
+    this.chart = this.createChartJsInstance(this.canvas.el as HTMLCanvasElement, chartData);
+  }
+
+  protected createChartJsInstance(canvas: HTMLCanvasElement, config: ChartConfiguration<any>) {
+    return new globalThis.Chart!(canvas.getContext("2d")!, {
+      ...config,
+      platform: getZoomAwareChartJsPlatform(),
+    });
   }
 
   protected updateChartJs(chartRuntime: ChartJSRuntime) {

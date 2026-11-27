@@ -7,6 +7,7 @@ import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { fontSizeInPixels, getContextFontSize } from "../../src/helpers";
 
 export class MockCanvasRenderingContext2D {
+  canvas?: HTMLCanvasElement;
   font: string = "";
   fillStyle: string = "";
   translate() {}
@@ -36,12 +37,15 @@ export class MockCanvasRenderingContext2D {
   }
   drawImage() {}
   resetTransform() {}
+  setTransform() {}
   roundRect() {}
 }
 
 const patch = {
-  getContext: function () {
-    return new MockCanvasRenderingContext2D() as any as CanvasRenderingContext2D;
+  getContext: function (this: HTMLCanvasElement) {
+    const context = new MockCanvasRenderingContext2D();
+    context.canvas = this;
+    return context as any as CanvasRenderingContext2D;
   },
   toDataURL: function () {
     return "data:image/png;base64,randomDataThatIsActuallyABase64Image";
