@@ -1,7 +1,9 @@
 import { DEFAULT_REVISION_ID } from "../constants";
 import { UuidGenerator, getDuplicateSheetName, getNextSheetName } from "../helpers/index";
 import { isValidLocale } from "../helpers/locale";
+import { _t } from "../translation";
 import { StateUpdateMessage } from "../types/collaborative/transport_service";
+import { DataMigrationError, XLSXImportError } from "../types/errors";
 import {
   CoreCommand,
   DEFAULT_LOCALE,
@@ -43,12 +45,20 @@ export function load(data?: any, verboseImport?: boolean): WorkbookData {
   console.debug("### Loading data ###");
   const start = performance.now();
   if (data["[Content_Types].xml"]) {
-    const reader = new XlsxReader(data);
-    data = reader.convertXlsx();
-    if (verboseImport) {
-      for (const parsingError of reader.warningManager.warnings.sort()) {
-        console.warn(parsingError);
+    try {
+      const reader = new XlsxReader(data);
+      data = reader.convertXlsx();
+      if (verboseImport) {
+        for (const parsingError of reader.warningManager.warnings.sort()) {
+          console.warn(parsingError);
+        }
       }
+    } catch (error) {
+      throw new XLSXImportError(
+        _t(
+          "An error occurred while converting the XLSX file. The file may be corrupted or invalid."
+        )
+      );
     }
   }
 
@@ -136,7 +146,7 @@ function migrate(data: any): WorkbookData {
   const versions = getSortedVersions();
   const index = versions.findIndex((v) => compareVersions(v, data.version) >= 0);
   if (index === -1) {
-    throw new Error(
+    throw new DataMigrationError(
       `Data version ${
         data.version
       } postdates the current version of o-spreadsheet (version ${getCurrentVersion()}). It cannot be loaded.`

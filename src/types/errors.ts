@@ -69,3 +69,9 @@ export class DivisionByZeroError extends EvaluationError {
     super(message, CellErrorType.DivisionByZero);
   }
 }
+
+export class ModelCreationError extends Error {}
+
+export class DataMigrationError extends ModelCreationError {}
+
+export class XLSXImportError extends ModelCreationError {}

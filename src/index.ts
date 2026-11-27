@@ -258,7 +258,13 @@ export {
   invalidateEvaluationCommands,
   readonlyAllowedCommands,
 } from "./types/commands";
-export { CellErrorType, EvaluationError } from "./types/errors";
+export {
+  CellErrorType,
+  DataMigrationError,
+  EvaluationError,
+  ModelCreationError,
+  XLSXImportError,
+} from "./types/errors";
 
 export const SPREADSHEET_DIMENSIONS = {
   MIN_ROW_HEIGHT,
