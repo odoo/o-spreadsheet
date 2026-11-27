@@ -23,6 +23,11 @@ export interface SidePanelContent {
    * based on the current state of the spreadsheet model, using the getters.
    */
   computeState?: (getters: Getters, initialProps: object) => SidePanelState;
+  /**
+   * Keep the body mounted (only hidden) while the panel is collapsed, to
+   * preserve its local state (sorting, scroll position, ...).
+   */
+  keepMountedWhenCollapsed?: boolean;
 }
 
 export const sidePanelRegistry = new Registry<SidePanelContent>();
