@@ -1839,7 +1839,7 @@ export function createCarousel(
     col: 0,
     row: 0,
     definition: data,
-    size: { width: 100, height: 100 },
+    size: { width: 105, height: 105 },
     offset: { x: 0, y: 0 },
     ...figureData,
   });

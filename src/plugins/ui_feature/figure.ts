@@ -1,4 +1,5 @@
 import { UuidGenerator } from "../../helpers/uuid";
+import { figureRegistry } from "../../registries/figures_registry";
 import { Command, CommandResult } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
@@ -52,13 +53,17 @@ export class FigureUIPlugin extends UIPlugin {
         if (!baseFigure) {
           throw new Error(`Figure ${cmd.baseFigureId} does not exists.`);
         }
+        const minSize = figureRegistry.get("carousel").minFigSize;
         this.dispatch("CREATE_CAROUSEL", {
           sheetId: cmd.sheetId,
           figureId: carouselFigureId,
           col: baseFigure.col,
           row: baseFigure.row,
           offset: baseFigure.offset,
-          size: { width: baseFigure.width, height: baseFigure.height },
+          size: {
+            width: Math.max(baseFigure.width, minSize),
+            height: Math.max(baseFigure.height, minSize),
+          },
           definition: { items: [] },
         });
         this.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
