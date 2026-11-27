@@ -70,6 +70,7 @@ import { getRefBoundingRect, keyboardEventToShortcutString } from "../helpers/do
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
+import { useLongPressHook } from "../helpers/touch_long_press_hook";
 import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { Highlight } from "../highlight/highlight/highlight";
@@ -195,6 +196,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       },
       () => [this.sidePanel.isMainPanelOpen, this.sidePanel.isSecondaryPanelOpen]
     );
+
+    useLongPressHook(this.gridRef);
 
     useTouchScroll(
       this.gridRef,

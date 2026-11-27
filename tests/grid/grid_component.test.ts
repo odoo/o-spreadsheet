@@ -1,6 +1,10 @@
 import { Spreadsheet, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
+import {
+  LONG_PRESS_DURATION,
+  LONG_PRESS_MOVE_TOLERANCE,
+} from "../../src/components/helpers/touch_long_press_hook";
 import { resetTimeoutDuration } from "../../src/components/helpers/touch_scroll_hook";
 import { getDataFilterIcon } from "../../src/components/icons/icons";
 import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
@@ -404,6 +408,108 @@ describe("Grid component", () => {
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toBe(30);
     jest.runOnlyPendingTimers();
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toBe(30);
+  });
+
+  test("Long press on the grid opens the context menu", async () => {
+    const grid = fixture.querySelector(".o-grid-overlay")!;
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150 });
+    jest.advanceTimersByTime(LONG_PRESS_DURATION - 1);
+    await nextTick();
+    expect(".o-menu").toHaveCount(0);
+    jest.advanceTimersByTime(1);
+    await nextTick();
+    expect(".o-menu").toHaveCount(1);
+  });
+
+  test("Long press does not open the context menu if the touch ends or moves", async () => {
+    const grid = fixture.querySelector(".o-grid-overlay")!;
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150 });
+    triggerTouchEvent(grid, "touchend", { clientX: 150, clientY: 150 });
+    jest.advanceTimersByTime(LONG_PRESS_DURATION);
+    await nextTick();
+    expect(".o-menu").toHaveCount(0);
+
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150 });
+    triggerTouchEvent(grid, "touchmove", { clientX: 150, clientY: 100 });
+    await nextTick();
+    expect(".o-menu").toHaveCount(0);
+  });
+
+  test("Long press does not open the context menu if the touch is canceled before", async () => {
+    const grid = fixture.querySelector(".o-grid-overlay")!;
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150 });
+    jest.advanceTimersByTime(LONG_PRESS_DURATION - 1);
+    triggerTouchEvent(grid, "touchcancel", { clientX: 150, clientY: 150 });
+    await nextTick();
+    expect(".o-menu").toHaveCount(0);
+    jest.advanceTimersByTime(1);
+    await nextTick();
+    expect(".o-menu").toHaveCount(0);
+  });
+
+  test("Second press prevents the opening of the context menu", async () => {
+    const grid = fixture.querySelector(".o-grid-overlay")!;
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150 });
+    jest.advanceTimersByTime(LONG_PRESS_DURATION - 1);
+    triggerTouchEvent(grid, "touchstart", { clientX: 175, clientY: 125 });
+    jest.advanceTimersByTime(1);
+    await nextTick();
+    expect(".o-menu").toHaveCount(0);
+  });
+
+  test("Moving during long press withing move tolerance does not prevent the opening of the context menu", async () => {
+    const grid = fixture.querySelector(".o-grid-overlay")!;
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150 });
+    triggerTouchEvent(grid, "touchmove", {
+      clientX: 150 + LONG_PRESS_MOVE_TOLERANCE,
+      clientY: 150 - LONG_PRESS_MOVE_TOLERANCE,
+    });
+    jest.advanceTimersByTime(LONG_PRESS_DURATION);
+    await nextTick();
+    expect(".o-menu").toHaveCount(1);
+  });
+
+  test("Moving during long press exceeding move tolerance prevents the opening of the context menu", async () => {
+    const grid = fixture.querySelector(".o-grid-overlay")!;
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150 });
+    triggerTouchEvent(grid, "touchmove", {
+      clientX: 150 + LONG_PRESS_MOVE_TOLERANCE + 1,
+      clientY: 150 + LONG_PRESS_MOVE_TOLERANCE + 1,
+    });
+    jest.advanceTimersByTime(LONG_PRESS_DURATION);
+    await nextTick();
+    expect(".o-menu").toHaveCount(0);
+  });
+
+  test("Long press opens a single context menu when the browser natively dispatches one", async () => {
+    const grid = fixture.querySelector(".o-grid-overlay")!;
+    const triggerNativeContextMenu = () => {
+      const event = new MouseEvent("contextmenu", { bubbles: true, cancelable: true });
+      grid.dispatchEvent(event);
+      return event;
+    };
+    const onContextMenu = jest.fn();
+    grid.addEventListener("contextmenu", onContextMenu);
+
+    // native event dispatched before the long press duration
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150 });
+    const nativeEventBefore = triggerNativeContextMenu();
+    expect(nativeEventBefore.defaultPrevented).toBe(true);
+    jest.advanceTimersByTime(LONG_PRESS_DURATION);
+    triggerTouchEvent(grid, "touchend", { clientX: 150, clientY: 150 });
+    expect(onContextMenu).toHaveBeenCalledTimes(1);
+    await nextTick();
+    expect(".o-menu").toHaveCount(1);
+
+    // native event dispatched after the long press duration
+    onContextMenu.mockClear();
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150 });
+    jest.advanceTimersByTime(LONG_PRESS_DURATION);
+    const nativeEventAfter = triggerNativeContextMenu();
+    expect(nativeEventAfter.defaultPrevented).toBe(true);
+    expect(onContextMenu).toHaveBeenCalledTimes(1);
+    await nextTick();
+    expect(".o-menu").toHaveCount(1);
   });
 
   test("Double clicking on an icon does not open the composer", async () => {

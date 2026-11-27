@@ -7,6 +7,7 @@ import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../typ
 import { Ripple } from "../animation/ripple";
 import { css } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
+import { useLongPressHook } from "../helpers/touch_long_press_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { BottomBarSheet } from "./bottom_bar_sheet/bottom_bar_sheet";
 import { BottomBarStatistic } from "./bottom_bar_statistic/bottom_bar_statistic";
@@ -130,6 +131,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   sheetList = this.getVisibleSheets();
 
   setup() {
+    useLongPressHook(this.bottomBarRef);
     onWillUpdateProps(() => {
       this.updateScrollState();
       const visibleSheets = this.getVisibleSheets();

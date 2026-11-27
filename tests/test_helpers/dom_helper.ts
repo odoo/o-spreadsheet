@@ -459,7 +459,7 @@ export class Touch {
 
 export function triggerTouchEvent(
   selector: string | EventTarget,
-  type: "touchstart" | "touchend" | "touchmove",
+  type: "touchstart" | "touchend" | "touchmove" | "touchcancel",
   extra: Partial<Touch>
 ) {
   const target = typeof selector === "string" ? document.querySelector(selector) : selector;

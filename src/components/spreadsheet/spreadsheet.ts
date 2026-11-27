@@ -233,6 +233,7 @@ css/* scss */ `
     .o-grid-overlay {
       position: absolute;
       outline: none;
+      -webkit-touch-callout: none;
     }
   }
 
