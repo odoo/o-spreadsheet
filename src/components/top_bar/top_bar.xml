@@ -140,11 +140,7 @@
     />
     <Popover t-if="this.state.toolsPopoverState.isOpen" t-props="this.toolsPopoverProps">
       <div class="d-flex px-2 py-1 flex-wrap align-items-center">
-        <t
-          t-foreach="this.state.invisibleToolsCategories"
-          t-as="category"
-          t-key="category"
-          t-att-id="category">
+        <t t-foreach="this.state.invisibleToolsCategories" t-as="category" t-key="category">
           <t
             t-foreach="this.toolbarMenuRegistry.getEntries(category)"
             t-as="toolbarAction"
