@@ -6,6 +6,7 @@ import {
   redo,
   setCellContent,
   setCellFormat,
+  setFormatting,
   setSelection,
   splitTextToColumns,
   undo,
@@ -169,6 +170,18 @@ describe("Split text into columns", () => {
     setGrid(model, { A1: "Hello there", B1: "Hi!" });
     splitTextToColumns(model, " ", "A1", { force: true });
     expect(getGrid(model)).toEqual({ A1: "Hello", B1: "there" });
+  });
+
+  test("Split cells keep the row/column style", () => {
+    setCellContent(model, "A1", "a,b,c");
+    setFormatting(model, "A1:A10", { bold: true });
+    splitTextToColumns(model, ",", "A1", { force: true });
+    expect(getGrid(model)).toEqual({ A1: "a", B1: "b", C1: "c" });
+    expect(getGridStyle(model)).toEqual({
+      A1: { bold: true },
+      B1: { bold: true },
+      C1: { bold: true },
+    });
   });
 
   test("Add new columns to avoid collisions", () => {

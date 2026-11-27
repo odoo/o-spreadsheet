@@ -1,6 +1,6 @@
 import { CommandResult } from "../../src";
 import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
-import { numberToLetters } from "../../src/helpers/coordinates";
+import { numberToLetters, toXC } from "../../src/helpers/coordinates";
 import { getCanonicalSymbolName } from "../../src/helpers/misc";
 import { toUnboundedZone, toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
@@ -31,6 +31,7 @@ import {
   resizeColumns,
   resizeRows,
   setCellContent,
+  setFormat,
   setFormatting,
   setGridLinesVisibility,
   setSheetBackground,
@@ -1350,5 +1351,25 @@ describe("sheets", () => {
     expect(result).toBeSuccessfullyDispatched();
     expect(spy).toHaveBeenCalledTimes(5);
     spy.mockRestore();
+  });
+
+  describe("getCellText", () => {
+    test("Repeated character format uses the column font size to fill the cell", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+      const A1 = { sheetId, col: 0, row: 0 };
+      setCellContent(model, "A1", "5");
+      setFormat(model, "A1", "*-0");
+
+      // font size set on the cell itself
+      setFormatting(model, "A1", { fontSize: 30 });
+      const textWithCellStyle = model.getters.getCellText(A1, { availableWidth: 96 });
+
+      // same font size, but set on the whole column
+      setFormatting(model, "A1", { fontSize: undefined });
+      const columnA = toXC(0, 0) + ":" + toXC(0, model.getters.getNumberRows(sheetId) - 1);
+      setFormatting(model, columnA, { fontSize: 30 });
+      expect(model.getters.getCellText(A1, { availableWidth: 96 })).toBe(textWithCellStyle);
+    });
   });
 });

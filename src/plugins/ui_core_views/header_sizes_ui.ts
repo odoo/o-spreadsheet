@@ -213,7 +213,14 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
 
     const cell = this.getters.getCell(position);
     const colSize = this.getters.getColSize(position.sheetId, position.col);
-    return getDefaultCellHeight(this.ctx, cell, this.getters.getLocale(), colSize);
+    return getDefaultCellHeight(
+      this.ctx,
+      cell,
+      this.getters.getCellStyle(position),
+      this.getters.getCellFormat(position),
+      this.getters.getLocale(),
+      colSize
+    );
   }
 
   private isInMultiRowMerge(position: CellPosition): boolean {

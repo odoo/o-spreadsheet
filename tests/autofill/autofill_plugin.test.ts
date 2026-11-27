@@ -189,6 +189,15 @@ describe("Autofill", () => {
         expect(getCellText(model, "A6")).toBe("4/2/2003");
       });
 
+      test("date formatted by its column is incremented", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "3/28/2003");
+        setFormat(model, "A1:A100", "m/d/yyyy");
+        autofill(model, "A1", "A3");
+        expect(getCellText(model, "A2")).toBe("3/29/2003");
+        expect(getCellText(model, "A3")).toBe("3/30/2003");
+      });
+
       test("Descending dates", () => {
         setCellContent(model, "A1", "3/4/2003");
         setCellContent(model, "A2", "3/3/2003");

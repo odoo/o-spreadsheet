@@ -56,6 +56,7 @@ import { ActionSpec, createAction, createActions } from "../../src/actions/actio
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
+import { toXC } from "../../src/helpers/coordinates";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
@@ -1269,6 +1270,23 @@ describe("Menu Item actions", () => {
       selectCell(env.model, "B1");
       expect(setAutoFormatAction.isActive?.(env)).toBe(true);
       expect(setNumberFormatAction.isActive?.(env)).toBe(false);
+    });
+
+    test("Format on a specific cell is active in the menu when format was set on the whole column", () => {
+      setCellContent(model, "A1", "0.5");
+      const columnA = toXC(0, 0) + ":" + toXC(0, model.getters.getNumberRows(sheetId) - 1);
+      setFormat(model, columnA, "0.00%");
+      selectCell(model, "A1");
+      const setAutomaticFormatAction = getNode(
+        ["format", "format_number", "format_number_automatic"],
+        env
+      );
+      const setNumberPercentAction = getNode(
+        ["format", "format_number", "format_number_percent"],
+        env
+      );
+      expect(setAutomaticFormatAction.isActive?.(env)).toBe(false);
+      expect(setNumberPercentAction.isActive?.(env)).toBe(true);
     });
 
     test("cancel edition when setting a format", async () => {
