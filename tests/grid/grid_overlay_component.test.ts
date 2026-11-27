@@ -663,9 +663,25 @@ describe("Resizer component", () => {
 
   test("Cannot resize a column in readonly", async () => {
     model.updateMode("readonly");
-    triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", DEFAULT_CELL_WIDTH, 10);
+    triggerMouseEvent(".o-overlay .o-col-resizer", "pointermove", DEFAULT_CELL_WIDTH, 10);
     await nextTick();
-    expect(fixture.querySelector(".o-overlay .o-col-resizer .o-handle")).toBeNull();
+    expect(".o-overlay .o-col-resizer .o-handle").toHaveCount(0);
+  });
+
+  test("Can select multiple columns in readonly", async () => {
+    model.updateMode("readonly");
+    await selectColumn("B");
+    await selectColumn("D", { shiftKey: true });
+    await selectColumn("F", { ctrlKey: true });
+    expect(model.getters.getSelectedZones()).toEqual([toZone("B1:D10"), toZone("F1:F10")]);
+  });
+
+  test("Can select multiple rows in readonly", async () => {
+    model.updateMode("readonly");
+    await selectRow(1);
+    await selectRow(3, { shiftKey: true });
+    await selectRow(5, { ctrlKey: true });
+    expect(model.getters.getSelectedZones()).toEqual([toZone("A2:J4"), toZone("A6:J6")]);
   });
 });
 
