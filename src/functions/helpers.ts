@@ -1,7 +1,7 @@
 // HELPERS
 import { DateTime, isDateTime, numberToJsDate, parseDateTime } from "../helpers/dates";
 import { memoize } from "../helpers/misc";
-import { isNumber, parseNumber } from "../helpers/numbers";
+import { areAlmostEqual, isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
 import { CellValue } from "../types/cells";
 import { CellErrorType, ErrorValue, EvaluationError, errorTypes } from "../types/errors";
@@ -622,9 +622,9 @@ function evaluatePredicate(
   }
   if (typeof operand === "number" && operator === "=") {
     if (typeof value === "string" && (isNumber(value, locale) || isDateTime(value, locale))) {
-      return toNumber(value, locale) === operand;
+      return areAlmostEqual(toNumber(value, locale), operand);
     }
-    return value === operand;
+    return typeof value === "number" && areAlmostEqual(value, operand);
   }
 
   if (operator === "<>" || operator === "=") {
@@ -635,6 +635,8 @@ function evaluatePredicate(
         result = true;
       } else if (typeof value === "string" && typeof operand === "string") {
         result = wildcardToRegExp(operand).test(value);
+      } else if (typeof value === "number" && typeof operand === "number") {
+        result = areAlmostEqual(value, operand);
       } else {
         result = value === operand;
       }
@@ -644,6 +646,17 @@ function evaluatePredicate(
     return operator === "=" ? result : !result;
   }
 
+  if (typeof value === "number" && typeof operand === "number" && areAlmostEqual(value, operand)) {
+    // the numbers are considered equal: only "<=" and ">=" are satisfied
+    switch (operator) {
+      case "<=":
+      case ">=":
+        return true;
+      case "<":
+      case ">":
+        return false;
+    }
+  }
   if (typeof value === typeof operand) {
     switch (operator) {
       case "<":
