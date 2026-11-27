@@ -195,7 +195,7 @@
   .o-grid {
     position: relative;
     overflow: hidden;
-    background-color: light-dark(var(--os-background-gray-color), #1e1f29);
+    background-color: var(--os-spreadsheet-background);
     &:focus {
       outline: none;
     }
