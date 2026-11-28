@@ -3,7 +3,7 @@ import { BubbleChartDefinition } from "../../../src/types/chart/bubble_chart";
 import { CalendarChartDefinition } from "../../../src/types/chart/calendar_chart";
 import { ComboChartDefinition } from "../../../src/types/chart/combo_chart";
 import { FunnelChartDefinition } from "../../../src/types/chart/funnel_chart";
-import { LineChartDefinition } from "../../../src/types/chart/line_chart";
+import { LineChartDefinition, LineChartRuntime } from "../../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../../src/types/chart/pie_chart";
 import { RadarChartDefinition } from "../../../src/types/chart/radar_chart";
 import { ScatterChartDefinition } from "../../../src/types/chart/scatter_chart";
@@ -463,9 +463,65 @@ describe("bubble chart show value", () => {
   });
 });
 
-describe("Combo chart show value", () => {
-  test("Can show value on a combo chart", () => {
-    const model = createModelFromGrid({ A1: "1", A2: "2", A3: "3", B1: "0", B2: "1", B3: "2.5" });
+describe("Show values with axis min/max", () => {
+  test.each([false, true])(
+    "Values of bars outside the axis range are hidden, others are centered in their visible part (horizontal: %s)",
+    (horizontal) => {
+      // prettier-ignore
+      const model = createModelFromGrid({
+        A1: "30", A2: "80", A3: "100", A4: "150",
+        B1: "10", B2: "10", B3: "20",  B4: "10",
+      });
+      const definition: Partial<BarChartDefinition<string>> & { type: "bar" } = {
+        type: "bar",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A4" }, { dataRange: "B1:B4" }],
+          dataSetsHaveTitle: false,
+        }),
+        showValues: true,
+        stacked: true,
+        horizontal,
+        title: { text: "" },
+        legendPosition: "none",
+        axesDesign: { [horizontal ? "x" : "y"]: { min: 50, max: 100 } },
+      };
+      createChart(model, definition, "chartId");
+
+      const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+      expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+    }
+  );
+
+  test("Values of points outside the axis range are hidden for a line chart", () => {
+    // prettier-ignore
+    const model = createModelFromGrid({
+      A1: "1",  A2: "2",  A3: "3",   A4: "4",   A5: "5.2",
+      B1: "45", B2: "80", B3: "100", B4: "102", B5: "80",
+    });
+    const definition: Partial<LineChartDefinition<string>> & { type: "line" } = {
+      type: "line",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B5" }],
+        labelRange: "A1:A5",
+        dataSetsHaveTitle: false,
+      }),
+      showValues: true,
+      title: { text: "" },
+      legendPosition: "none",
+      axesDesign: { x: { min: 0, max: 5 }, y: { min: 50, max: 100 } },
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as LineChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+
+  test("Values outside the axis range are hidden for a combo chart", () => {
+    // prettier-ignore
+    const model = createModelFromGrid({
+      A1: "30", A2: "80", A3: "150",
+      B1: "40", B2: "90", B3: "120",
+    });
     const definition: Partial<ComboChartDefinition<string>> & { type: "combo" } = {
       type: "combo",
       ...toChartDataSource({
@@ -475,6 +531,7 @@ describe("Combo chart show value", () => {
       showValues: true,
       title: { text: "" },
       legendPosition: "none",
+      axesDesign: { y: { min: 50, max: 100 } },
     };
     createChart(model, definition, "chartId");
 
