@@ -254,11 +254,11 @@ describe("Menu Item actions", () => {
   test("Paste only-format from OS clipboard should paste nothing", async () => {
     await env.getPlugin(NavigatorClipboardPlugin).writeText("Copy in OS clipboard");
     selectCell(model, "A1");
-    await doAction(["edit", "paste_special", "paste_special_format"], env);
+    await doAction(["edit", "paste_special", "paste_format_only"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       clipboardContent: { text: "Copy in OS clipboard" },
       target: target("A1"),
-      pasteOption: "onlyFormat",
+      pasteOption: "format",
     });
     expect(getCellContent(model, "A1")).toEqual("");
   });
@@ -270,7 +270,7 @@ describe("Menu Item actions", () => {
     await doAction(["edit", "copy"], env); // first copy from grid
     await env.getPlugin(NavigatorClipboardPlugin).writeText("Then copy in OS clipboard");
     selectCell(model, "A1");
-    await doAction(["edit", "paste_special", "paste_special_format"], env);
+    await doAction(["edit", "paste_special", "paste_format_only"], env);
     expect(getStyle(model, "A1").fillColor).toBeUndefined();
     expect(getCellContent(model, "A1")).toEqual("");
   });
@@ -307,43 +307,43 @@ describe("Menu Item actions", () => {
     expect(getNode(["edit", "paste_special"], env).isVisible(env)).toBeTruthy();
   });
 
-  test("Edit -> paste_special -> paste_special_value", async () => {
+  test("Edit -> paste_special -> paste_value_only", async () => {
     await doAction(["edit", "copy"], env);
-    await doAction(["edit", "paste_special", "paste_special_value"], env);
+    await doAction(["edit", "paste_special", "paste_value_only"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.model().getters.getSelectedZones(),
-      pasteOption: "asValue",
+      pasteOption: "value",
     });
   });
 
-  test("Edit -> paste_special -> paste_special_value from OS clipboard", async () => {
+  test("Edit -> paste_special -> paste_value_only from OS clipboard", async () => {
     const text = "in OS clipboard";
     await env.getPlugin(NavigatorClipboardPlugin).writeText(text);
-    await doAction(["edit", "paste_special", "paste_special_value"], env);
+    await doAction(["edit", "paste_special", "paste_value_only"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
       clipboardContent: { text },
-      pasteOption: "asValue",
+      pasteOption: "value",
     });
   });
 
-  test("Edit -> paste_special -> paste_special_format", async () => {
+  test("Edit -> paste_special -> paste_format_only", async () => {
     await doAction(["edit", "copy"], env);
-    await doAction(["edit", "paste_special", "paste_special_format"], env);
+    await doAction(["edit", "paste_special", "paste_format_only"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.model().getters.getSelectedZones(),
-      pasteOption: "onlyFormat",
+      pasteOption: "format",
     });
   });
 
-  test("Edit -> paste_special -> paste_special_format from OS clipboard", async () => {
+  test("Edit -> paste_special -> paste_format_only from OS clipboard", async () => {
     const text = "in OS clipboard";
     await env.getPlugin(NavigatorClipboardPlugin).writeText(text);
-    await doAction(["edit", "paste_special", "paste_special_format"], env);
+    await doAction(["edit", "paste_special", "paste_format_only"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
       clipboardContent: { text },
-      pasteOption: "onlyFormat",
+      pasteOption: "format",
     });
   });
 

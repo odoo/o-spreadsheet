@@ -49,7 +49,13 @@ export interface ClipboardPositions {
   columnsIndexes?: HeaderIndex[];
 }
 
-export type ClipboardPasteOptions = "onlyFormat" | "asValue";
+export type ClipboardPasteOptions =
+  | "format"
+  | "value"
+  | "formula"
+  | "transposeValue"
+  | "transposeFormula";
+
 export type ClipboardCopyOptions = "copyPaste" | "shiftCells";
 export type ClipboardOperation = "CUT" | "COPY";
 

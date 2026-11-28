@@ -93,7 +93,7 @@ export class ClipboardStore extends SpreadsheetStore {
         }
         const pasteOption = cmd.pasteOption;
         return this.isPasteAllowed(cmd.target, this.copiedData, {
-          pasteOption: pasteOption,
+          pasteOption,
           isCutOperation: this._isCutOperation,
         });
       }

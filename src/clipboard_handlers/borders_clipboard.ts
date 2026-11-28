@@ -1,4 +1,4 @@
-import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
+import { shouldPasteFormat, splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
 import { getItemId } from "../helpers/data_normalization";
 import { groupConsecutive, range } from "../helpers/misc";
 import { recomputeZones } from "../helpers/recompute_zones";
@@ -86,7 +86,7 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     const sheetId = target.sheetId;
-    if (options.pasteOption === "asValue") {
+    if (!shouldPasteFormat(options.pasteOption)) {
       return;
     }
     const zones = target.zones;
