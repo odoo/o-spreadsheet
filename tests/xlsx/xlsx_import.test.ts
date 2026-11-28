@@ -786,9 +786,9 @@ describe("Import xlsx data", () => {
     const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
     const figureLine = testSheet.figures.find((figure) => figure.data.type === "line");
     const figuresBar = testSheet.figures.filter((figure) => figure.data.type === "bar");
-    expect(figureLine?.data.showValues).toBe(false);
-    expect(figuresBar[0].data.showValues).toBe(true);
-    expect(figuresBar[1].data.showValues).toBe(true);
+    expect(figureLine?.data.showData?.values).toBe(false);
+    expect(figuresBar[0].data.showData?.values).toBe(true);
+    expect(figuresBar[1].data.showData?.values).toBe(true);
   });
 
   test.each([

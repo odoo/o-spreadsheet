@@ -14,7 +14,7 @@ import { Section } from "../../components/section/section";
 import { ChartAnnotation } from "../building_blocks/annotation/annotation";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
-import { ChartShowValues } from "../building_blocks/show_values/show_values";
+import { ChartShowValuesComponent } from "../building_blocks/show_values/show_values";
 import { TextStyler } from "../building_blocks/text_styler/text_styler";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 import { TreeMapCategoryColors } from "./treemap_category_color/treemap_category_color";
@@ -41,7 +41,7 @@ export class TreeMapChartDesignPanel extends OSComponent {
     ChartAnnotation,
     Section,
     SidePanelCollapsible,
-    ChartShowValues,
+    ChartShowValuesComponent,
     Checkbox,
     TextStyler,
     RoundColorPicker,
@@ -63,14 +63,6 @@ export class TreeMapChartDesignPanel extends OSComponent {
 
   get showHeaders() {
     return this.props.definition.showHeaders ?? TreeMapChartDefaults.showHeaders;
-  }
-
-  get showValues() {
-    return this.props.definition.showValues ?? TreeMapChartDefaults.showValues;
-  }
-
-  get showLabels() {
-    return this.props.definition.showLabels ?? TreeMapChartDefaults.showLabels;
   }
 
   get coloringOptions() {

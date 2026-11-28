@@ -167,6 +167,13 @@ export interface TrendConfiguration {
   window?: number;
 }
 
+export type ChartShowValues = {
+  values?: boolean;
+  labels?: boolean;
+  percentages?: boolean;
+  valuesDesign?: ChartStyle;
+};
+
 export type DataSetStyle = Record<UID, CustomizedDataSet>;
 
 export type CustomizedDataSet = {
@@ -259,12 +266,10 @@ export interface ChartCreationContext {
   readonly legendPosition?: LegendPosition;
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
-  readonly showValues?: boolean;
+  readonly showData?: ChartShowValues;
   readonly showTotalLine?: boolean;
   readonly funnelColors?: FunnelChartColors;
-  readonly showLabels?: boolean;
   readonly hideDataMarkers?: boolean;
-  readonly valuesDesign?: ChartStyle;
   readonly groupColors?: (Color | undefined | null)[];
   readonly horizontal?: boolean;
   readonly isDoughnut?: boolean;

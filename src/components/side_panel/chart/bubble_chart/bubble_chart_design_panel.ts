@@ -19,7 +19,7 @@ import {
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartLegend } from "../building_blocks/legend/legend";
-import { ChartShowValues } from "../building_blocks/show_values/show_values";
+import { ChartShowValuesComponent } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 export class BubbleChartDesignPanel extends OSComponent {
@@ -30,7 +30,7 @@ export class BubbleChartDesignPanel extends OSComponent {
     Section,
     AxisDesignEditor,
     ChartLegend,
-    ChartShowValues,
+    ChartShowValuesComponent,
     ChartHumanizeNumbers,
     RadioSelection,
     RoundColorPicker,

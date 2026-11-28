@@ -3,10 +3,12 @@ import { BubbleChartDefinition } from "../../../src/types/chart/bubble_chart";
 import { CalendarChartDefinition } from "../../../src/types/chart/calendar_chart";
 import { ComboChartDefinition } from "../../../src/types/chart/combo_chart";
 import { FunnelChartDefinition } from "../../../src/types/chart/funnel_chart";
+import { HeatmapChartDefinition } from "../../../src/types/chart/heatmap_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../../src/types/chart/pie_chart";
 import { RadarChartDefinition } from "../../../src/types/chart/radar_chart";
 import { ScatterChartDefinition } from "../../../src/types/chart/scatter_chart";
+import { SunburstChartDefinition } from "../../../src/types/chart/sunburst_chart";
 import { drawChartOnNodeCanvas, toChartDataSource } from "../../test_helpers/chart_helpers";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
@@ -20,7 +22,7 @@ describe("Bar chart show value", () => {
         dataSets: [{ dataRange: "A1:A3" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       title: { text: "" },
       legendPosition: "none",
     };
@@ -30,6 +32,47 @@ describe("Bar chart show value", () => {
     expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
   });
 
+  test("Values and percentages are displayed on two lines on a bar chart", () => {
+    const model = createModelFromGrid({ A1: "1", A2: "2", A3: "3" });
+    const definition: Partial<BarChartDefinition<string>> & { type: "bar" } = {
+      type: "bar",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }],
+        dataSetsHaveTitle: false,
+      }),
+      showData: { values: true, percentages: true },
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+
+  test.each([false, true])(
+    "Percentages are relative to the stack total on a stacked bar chart (horizontal: %s)",
+    (horizontal) => {
+      const model = createModelFromGrid({ A1: "10", A2: "20", B1: "30", B2: "20" });
+      const definition: Partial<BarChartDefinition<string>> & { type: "bar" } = {
+        type: "bar",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }],
+          dataSetsHaveTitle: false,
+        }),
+        showData: { values: true, percentages: true },
+        stacked: true,
+        horizontal,
+        title: { text: "" },
+        legendPosition: "none",
+      };
+      createChart(model, definition, "chartId");
+
+      const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+      expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+    }
+  );
+
   test("Outline color is the same as the background color", () => {
     const model = createModelFromGrid({ A1: "1", A2: "2", A3: "3" });
     const definition: Partial<BarChartDefinition<string>> & { type: "bar" } = {
@@ -38,7 +81,7 @@ describe("Bar chart show value", () => {
         dataSets: [{ dataRange: "A1:A3" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       background: "#000000",
       title: { text: "" },
       legendPosition: "none",
@@ -57,7 +100,7 @@ describe("Bar chart show value", () => {
         dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }, { dataRange: "C1:C2" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       stacked: true,
       title: { text: "" },
       legendPosition: "none",
@@ -76,7 +119,7 @@ describe("Bar chart show value", () => {
         dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       stacked: true,
       title: { text: "" },
       legendPosition: "none",
@@ -95,7 +138,7 @@ describe("Bar chart show value", () => {
         dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       showTotalLine: true,
       stacked: true,
       title: { text: "" },
@@ -116,7 +159,7 @@ describe("Bar chart show value", () => {
         dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       title: { text: "" },
       legendPosition: "top",
     };
@@ -140,7 +183,7 @@ describe("Pie chart show value", () => {
         dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       title: { text: "" },
       legendPosition: "none",
     };
@@ -159,7 +202,86 @@ describe("Pie chart show value", () => {
         labelRange: "A1:A3",
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+  test.each([
+    ["labels", { labels: true }],
+    ["percentages", { percentages: true }],
+    ["values and percentages", { values: true, percentages: true }],
+    ["labels and percentages", { labels: true, percentages: true }],
+    ["labels, values and percentages", { labels: true, values: true, percentages: true }],
+  ])("Can show %s on a pie chart", (_, showData) => {
+    const model = createModelFromGrid({ A1: "a", A2: "b", A3: "c", B1: "1", B2: "2", B3: "3" });
+    const definition: Partial<PieChartDefinition<string>> & { type: "pie" } = {
+      type: "pie",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B3" }],
+        labelRange: "A1:A3",
+        dataSetsHaveTitle: false,
+      }),
+      showData,
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+
+  test("Values design is applied to the values of a pie chart", () => {
+    const model = createModelFromGrid({ A1: "a", A2: "b", A3: "c", B1: "1", B2: "2", B3: "3" });
+    const definition: Partial<PieChartDefinition<string>> & { type: "pie" } = {
+      type: "pie",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B3" }],
+        labelRange: "A1:A3",
+        dataSetsHaveTitle: false,
+      }),
+      showData: {
+        values: true,
+        labels: true,
+        valuesDesign: { bold: true, italic: true, fontSize: 20, color: "#FF0000" },
+      },
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+});
+
+describe("Sunburst chart show value", () => {
+  test.each([
+    ["percentages", { labels: false, values: false, percentages: true }],
+    ["values and percentages", { labels: false, values: true, percentages: true }],
+    ["labels, values and percentages", { labels: true, values: true, percentages: true }],
+  ])("Can show %s on a sunburst chart", (_, showData) => {
+    // prettier-ignore
+    const grid = {
+      A1: "A", B1: "A1", C1: "1",
+      A2: "A", B2: "A2", C2: "2",
+      A3: "B", B3: "B1", C3: "3",
+      A4: "B", B4: "B2", C4: "4",
+    };
+    const model = createModelFromGrid(grid);
+    const definition: Partial<SunburstChartDefinition<string>> & { type: "sunburst" } = {
+      type: "sunburst",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A4" }, { dataRange: "B1:B4" }],
+        labelRange: "C1:C4",
+        dataSetsHaveTitle: false,
+      }),
+      showData,
       title: { text: "" },
       legendPosition: "none",
     };
@@ -179,7 +301,7 @@ describe("Line chart show value", () => {
         dataSets: [{ dataRange: "A1:A5" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       title: { text: "" },
       legendPosition: "none",
     };
@@ -197,7 +319,26 @@ describe("Line chart show value", () => {
         dataSets: [{ dataRange: "A1:A5" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+
+  test("Can show values and percentages on a cumulative line chart", () => {
+    const model = createModelFromGrid({ A1: "1", A2: "2", A3: "3", A4: "4" });
+    const definition: Partial<LineChartDefinition<string>> & { type: "line" } = {
+      type: "line",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A4" }],
+        dataSetsHaveTitle: false,
+      }),
+      cumulative: true,
+      showData: { values: true, percentages: true },
       title: { text: "" },
       legendPosition: "none",
     };
@@ -217,7 +358,7 @@ describe("Scatter chart show value", () => {
         dataSets: [{ dataRange: "A1:A5" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       title: { text: "" },
       legendPosition: "none",
     };
@@ -237,7 +378,7 @@ describe("Funnel chart show value", () => {
         dataSets: [{ dataRange: "A1:A5" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       title: { text: "" },
       legendPosition: "none",
     };
@@ -255,7 +396,7 @@ describe("Funnel chart show value", () => {
         dataSets: [{ dataRange: "A1:A5" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       title: { text: "" },
       legendPosition: "none",
     };
@@ -275,7 +416,7 @@ describe("radar chart show value", () => {
         dataSets: [{ dataRange: "A1:A5" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       title: { text: "" },
       legendPosition: "none",
     };
@@ -293,7 +434,7 @@ describe("radar chart show value", () => {
         dataSets: [{ dataRange: "A1:A5" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       fillArea: true,
       title: { text: "" },
       legendPosition: "none",
@@ -314,7 +455,7 @@ describe("Horizontal bar chart show value", () => {
         dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }, { dataRange: "C1:C2" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       stacked: true,
       horizontal: true,
       title: { text: "" },
@@ -334,7 +475,7 @@ describe("Horizontal bar chart show value", () => {
         dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       showTotalLine: true,
       stacked: true,
       horizontal: true,
@@ -357,7 +498,7 @@ describe("Horizontal bar chart show value", () => {
         dataSetsHaveTitle: false,
       }),
       horizontal: true,
-      showValues: true,
+      showData: { values: true },
       stacked: true,
       title: { text: "" },
       legendPosition: "none",
@@ -385,7 +526,7 @@ describe("calendar chart show value", () => {
         dataSetsHaveTitle: false,
         labelRange: "A1:A4",
       }),
-      showValues: true,
+      showData: { values: true },
       title: { text: "" },
       legendPosition: "none",
       verticalGroupBy: "day_of_week",
@@ -412,7 +553,7 @@ describe("calendar chart show value", () => {
         dataSetsHaveTitle: false,
         labelRange: "A1:A4",
       }),
-      showValues: true,
+      showData: { values: true },
       title: { text: "" },
       legendPosition: "none",
       verticalGroupBy: "day_of_week",
@@ -422,6 +563,66 @@ describe("calendar chart show value", () => {
 
     const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     expect(drawChartOnNodeCanvas(runtime, { width: 300, height: 80 })).toMatchImageSnapshot();
+  });
+  test.each([
+    ["values", { values: true, percentages: false }],
+    ["percentages", { values: false, percentages: true }],
+    ["values and percentages", { values: true, percentages: true }],
+  ])("Can show %s on a calendar chart", (_, showData) => {
+    // prettier-ignore
+    const model = createModelFromGrid({
+      A1: "01/01/2024", B1: "1",
+      A2: "01/02/2024", B2: "2",
+      A3: "02/05/2024", B3: "3",
+      A4: "02/06/2024", B4: "4",
+    });
+    const definition: Partial<CalendarChartDefinition<string>> & { type: "calendar" } = {
+      type: "calendar",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B4" }],
+        dataSetsHaveTitle: false,
+        labelRange: "A1:A4",
+      }),
+      showData,
+      title: { text: "" },
+      legendPosition: "none",
+      verticalGroupBy: "day_of_week",
+      horizontalGroupBy: "month_number",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+});
+
+describe("heatmap chart show value", () => {
+  test.each([
+    ["values", { values: true, percentages: false }],
+    ["percentages", { values: false, percentages: true }],
+    ["values and percentages", { values: true, percentages: true }],
+  ])("Can show %s on a heatmap chart", (_, showData) => {
+    // prettier-ignore
+    const model = createModelFromGrid({
+      A1: "a", B1: "x", C1: "1",
+      A2: "a", B2: "y", C2: "2",
+      A3: "b", B3: "x", C3: "3",
+      A4: "b", B4: "y", C4: "4",
+    });
+    const definition: Partial<HeatmapChartDefinition<string>> & { type: "heatmap" } = {
+      type: "heatmap",
+      xRange: "A1:A4",
+      yRange: "B1:B4",
+      sizeRange: "C1:C4",
+      dataSetsHaveTitle: false,
+      showData,
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
   });
 });
 
@@ -434,7 +635,7 @@ describe("bubble chart show value", () => {
       sizeRange: "A1:A5",
       bubbleColor: { color: "multiple" },
       type: "bubble",
-      showValues: true,
+      showData: { values: true },
       title: { text: "" },
       legendPosition: "none",
     };
@@ -452,7 +653,7 @@ describe("bubble chart show value", () => {
       sizeRange: undefined,
       bubbleColor: { color: "multiple" },
       type: "bubble",
-      showValues: true,
+      showData: { values: true },
       title: { text: "" },
       legendPosition: "none",
     };
@@ -472,7 +673,7 @@ describe("Combo chart show value", () => {
         dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }],
         dataSetsHaveTitle: false,
       }),
-      showValues: true,
+      showData: { values: true },
       title: { text: "" },
       legendPosition: "none",
     };

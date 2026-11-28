@@ -11,7 +11,7 @@ import { Section } from "../../components/section/section";
 import { ChartAnnotation } from "../building_blocks/annotation/annotation";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
-import { ChartShowValues } from "../building_blocks/show_values/show_values";
+import { ChartShowValuesComponent } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 type Props = ChartSidePanelProps<FunnelChartDefinition<string>>;
@@ -19,7 +19,7 @@ type Props = ChartSidePanelProps<FunnelChartDefinition<string>>;
 export class FunnelChartDesignPanel extends OSComponent {
   static template = "o-spreadsheet-FunnelChartDesignPanel";
   static components = {
-    ChartShowValues,
+    ChartShowValuesComponent,
     GeneralDesignEditor,
     ChartAnnotation,
     SidePanelCollapsible,

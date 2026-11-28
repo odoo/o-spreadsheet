@@ -13,7 +13,7 @@ import { GeneralDesignEditor } from "../building_blocks/general_design/general_d
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { SeriesWithAxisDesignEditor } from "../building_blocks/series_design/series_with_axis_design_editor";
-import { ChartShowValues } from "../building_blocks/show_values/show_values";
+import { ChartShowValuesComponent } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 import { useProps } from "@odoo/owl";
@@ -29,7 +29,7 @@ export class ChartWithAxisDesignPanel<
     AxisDesignEditor,
     SeriesWithAxisDesignEditor,
     ChartLegend,
-    ChartShowValues,
+    ChartShowValuesComponent,
     ChartHumanizeNumbers,
   };
   protected props = useProps(chartSidePanelPropsDefinition) as unknown as P;
@@ -44,5 +44,9 @@ export class ChartWithAxisDesignPanel<
       axes.push({ id: "y1", name: useLeftAxis ? _t("Right axis") : _t("Vertical axis") });
     }
     return axes;
+  }
+
+  get showPercentageCheckbox() {
+    return false;
   }
 }

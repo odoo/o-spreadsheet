@@ -8,7 +8,7 @@ import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humani
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { SeriesDesignEditor } from "../building_blocks/series_design/series_design_editor";
 import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_data_markers";
-import { ChartShowValues } from "../building_blocks/show_values/show_values";
+import { ChartShowValuesComponent } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 import { useProps } from "@odoo/owl";
@@ -20,7 +20,7 @@ export class RadarChartDesignPanel extends OSComponent {
     SeriesDesignEditor,
     Section,
     ChartLegend,
-    ChartShowValues,
+    ChartShowValuesComponent,
     ChartShowDataMarkers,
     Checkbox,
     ChartHumanizeNumbers,

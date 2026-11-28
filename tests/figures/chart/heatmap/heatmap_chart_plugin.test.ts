@@ -39,7 +39,7 @@ describe("heatmap chart", () => {
       colorScale: { minColor: "#ffffff", maxColor: "#ff0000" },
       missingValueColor: "#ff0000",
       axesDesign: {},
-      showValues: false,
+      showData: { values: false, labels: false },
       humanize: false,
       annotationText: "This is an annotation text",
       annotationLink: "https://www.odoo.com",
@@ -617,7 +617,7 @@ describe("heatmap chart", () => {
         yRange: "A2:A3",
         sizeRange: "C2:C3",
         dataSetsHaveTitle: false,
-        showValues: true,
+        showData: { values: true },
       },
       "1"
     );

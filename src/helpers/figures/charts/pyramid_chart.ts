@@ -27,7 +27,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
     "dataSource",
     "legendPosition",
     "dataSetStyles",
-    "showValues",
+    "showData",
     "aggregated",
     "axesDesign",
     "stacked",
@@ -68,7 +68,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
       axesDesign: context.axesDesign,
       horizontal: true,
       stacked: true,
-      showValues: context.showValues,
+      showData: context.showData,
       humanize: context.humanize,
       annotationLink: context.annotationLink,
       annotationText: context.annotationText,
@@ -98,6 +98,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
       labelRange,
       verticalAxis: getDefinedAxis(definition),
       maxValue,
+      showValues: definition.showData?.values ?? false,
     };
   },
 

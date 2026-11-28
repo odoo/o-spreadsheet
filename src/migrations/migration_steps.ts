@@ -713,21 +713,53 @@ migrationStepRegistry
         const { dataRange, ...rest } = definition;
         return dataRange ? { ...rest, metric: `=${dataRange}` } : rest;
       }
-      for (const sheet of data.sheets || []) {
-        for (const figure of sheet.figures || []) {
-          if (figure.tag === "chart") {
-            figure.data = upgrade(figure.data);
-          } else if (figure.tag === "carousel") {
-            for (const chartId in figure.data.chartDefinitions) {
-              const definition = figure.data.chartDefinitions[chartId];
-              figure.data.chartDefinitions[chartId] = upgrade(definition);
-            }
-          }
+      return upgradeFigureData(data, upgrade);
+    },
+  })
+  .add("20.1.3", {
+    migrate(data: WorkbookData): any {
+      function upgrade(definition: any): any {
+        if (
+          !(
+            "showValues" in definition ||
+            "showLabels" in definition ||
+            "valuesDesign" in definition
+          )
+        ) {
+          return definition;
         }
+        const { showValues, showLabels, valuesDesign, ...rest } = definition;
+        const showData = { ...rest.showData };
+        if (showValues !== undefined) {
+          showData.values = showValues;
+        }
+        if (showLabels !== undefined) {
+          showData.labels = showLabels;
+        }
+        if (valuesDesign !== undefined) {
+          showData.valuesDesign = valuesDesign;
+        }
+        return { ...rest, showData };
       }
-      return data;
+      return upgradeFigureData(data, upgrade);
     },
   });
+
+function upgradeFigureData(data: WorkbookData, upgrade: (definition: any) => any): WorkbookData {
+  for (const sheet of data.sheets || []) {
+    for (const figure of sheet.figures || []) {
+      if (figure.tag === "chart") {
+        figure.data = upgrade(figure.data);
+      } else if (figure.tag === "carousel") {
+        for (const chartId in figure.data.chartDefinitions) {
+          const definition = figure.data.chartDefinitions[chartId];
+          figure.data.chartDefinitions[chartId] = upgrade(definition);
+        }
+      }
+    }
+  }
+  return data;
+}
 
 function fixOverlappingFilters(data: any): any {
   for (const sheet of data.sheets || []) {

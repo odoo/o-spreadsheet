@@ -55,7 +55,7 @@ export const BubbleChart: ChartTypeBuilder<"bubble"> = {
     "bubbleColor",
     "legendPosition",
     "axesDesign",
-    "showValues",
+    "showData",
   ],
 
   fromStrDefinition(definition, sheetId, getters) {
@@ -129,7 +129,7 @@ export const BubbleChart: ChartTypeBuilder<"bubble"> = {
       xRange: context.auxiliaryRange || undefined,
       sizeRange: context.sizeRange || undefined,
       axesDesign: context.axesDesign,
-      showValues: context.showValues,
+      showData: context.showData,
       humanize: context.humanize,
       annotationText: context.annotationText,
       annotationLink: context.annotationLink,

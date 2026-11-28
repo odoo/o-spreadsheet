@@ -13,7 +13,7 @@ import { getBarChartDatasets } from "./runtime/chartjs_dataset";
 import { getChartLayout } from "./runtime/chartjs_layout";
 import { getBarChartLegend } from "./runtime/chartjs_legend";
 import { getBarChartScales } from "./runtime/chartjs_scales";
-import { getChartShowValues } from "./runtime/chartjs_show_values";
+import { getBarChartShowValues } from "./runtime/chartjs_show_values";
 import { getChartTitle } from "./runtime/chartjs_title";
 import { getBarChartTooltip } from "./runtime/chartjs_tooltip";
 
@@ -28,7 +28,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
     "axesDesign",
     "stacked",
     "aggregated",
-    "showValues",
+    "showData",
     "showTotalLine",
     "zoomable",
   ] as const,
@@ -65,7 +65,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
       title: context.title || { text: "" },
       type: "bar",
       axesDesign: context.axesDesign,
-      showValues: context.showValues,
+      showData: context.showData,
       showTotalLine: context.showTotalLine,
       horizontal: context.horizontal,
       zoomable: context.zoomable,
@@ -83,6 +83,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
+      showValues: definition.showData?.values ?? false,
     };
   },
 
@@ -111,7 +112,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
           title: getChartTitle(definition, getters),
           legend: getBarChartLegend(definition, chartData),
           tooltip: getBarChartTooltip(definition, chartData),
-          chartShowValuesPlugin: getChartShowValues(definition, chartData),
+          chartShowValuesPlugin: getBarChartShowValues(definition, chartData),
           background: { color: chartData.background },
         },
         ...eventHandlers,

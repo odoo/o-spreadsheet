@@ -81,4 +81,29 @@ describe("Heatmap chart design side panel", () => {
     definition = model.getters.getChartDefinition(chartId) as HeatmapChartDefinition<string>;
     expect(definition.missingValueColor).toBe("#0000FF");
   });
+
+  test("Values are shown by default", async () => {
+    const model = new Model({});
+    const { fixture, env } = await mountComponent(SidePanels, { model });
+    createHeatmapChart(model, TEST_CHART_DATA.heatmap, chartId, undefined, {});
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    expect('input[name="showValues"]').toHaveValue(true);
+    expect('input[name="showPercentages"]').toHaveValue(false);
+    const runtime = model.getters.getChartRuntime(chartId) as any;
+    expect(runtime.chartJsConfig.options.plugins.chartShowValuesPlugin.display.values).toBe(true);
+  });
+
+  test("Can show percentages", async () => {
+    const model = new Model({});
+    const { fixture, env } = await mountComponent(SidePanels, { model });
+    createHeatmapChart(model, TEST_CHART_DATA.heatmap, chartId, undefined, {});
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    expect('input[name="showPercentages"]').toHaveValue(false);
+    await click(fixture, 'input[name="showPercentages"]');
+    const definition = model.getters.getChartDefinition(chartId) as HeatmapChartDefinition<string>;
+    expect(definition.showData?.percentages).toBe(true);
+    expect('input[name="showPercentages"]').toHaveValue(true);
+  });
 });

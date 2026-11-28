@@ -448,3 +448,19 @@ export function getSingleValueFormulaData(
   }
   return { scalar, range };
 }
+
+export function formatValueWithPercentage(
+  formattedValue: string | undefined,
+  percentage: number | undefined,
+  parentheses?: boolean
+): string | undefined {
+  let formattedPercentage =
+    percentage !== undefined && !isNaN(percentage) ? `${percentage.toFixed(2)}%` : undefined;
+  if ((parentheses || formattedValue) && formattedPercentage) {
+    formattedPercentage = `(${formattedPercentage})`;
+  }
+  if (formattedValue && formattedPercentage) {
+    return `${formattedValue} ${formattedPercentage}`;
+  }
+  return formattedValue || formattedPercentage;
+}

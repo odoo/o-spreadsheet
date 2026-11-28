@@ -1,14 +1,15 @@
 import { ChartType, Plugin } from "chart.js";
 import { relativeLuminance } from "../../../../helpers/color";
+import { formatValueWithPercentage } from "../../../../helpers/figures/charts/chart_common";
 import { GHOST_SUNBURST_VALUE } from "../../../../helpers/figures/charts/runtime/chartjs_dataset";
 import { isDefined } from "../../../../helpers/misc";
 import { getDefaultContextFont, sliceTextToFitWidth } from "../../../../helpers/text_helper";
+import { ChartShowValues } from "../../../../types/chart/chart";
 import { SunburstChartRawData } from "../../../../types/chart/sunburst_chart";
 import { Style } from "../../../../types/misc";
 
 export interface ChartSunburstLabelsPluginOptions {
-  showValues: boolean;
-  showLabels: boolean;
+  display: ChartShowValues;
   style: Style;
   callback: (value: number, axisId?: string) => string;
 }
@@ -24,7 +25,10 @@ const Y_PADDING = 3;
 export const sunburstLabelsPlugin: Plugin = {
   id: "sunburstLabelsPlugin",
   afterDatasetsDraw(chart: any, args, options: ChartSunburstLabelsPluginOptions) {
-    if ((!options.showValues && !options.showLabels) || chart.config.type !== "doughnut") {
+    if (
+      (!options.display?.values && !options.display?.labels && !options.display?.percentages) ||
+      chart.config.type !== "doughnut"
+    ) {
       return;
     }
     const ctx = chart.ctx as CanvasRenderingContext2D;
@@ -42,14 +46,20 @@ function drawSunburstChartValues(
   const lineHeight = fontSize + Y_PADDING;
 
   for (const dataset of chart._metasets) {
-    for (let i = 0; i < dataset._dataset.data.length; i++) {
-      const rawData = dataset._dataset.data[i] as SunburstChartRawData;
+    const rawDataset = dataset._dataset.data as SunburstChartRawData[];
+    const total = rawDataset.reduce((sum, rawData) => sum + rawData.value, 0);
+    for (let i = 0; i < rawDataset.length; i++) {
+      const rawData = rawDataset[i];
       if (rawData.label === GHOST_SUNBURST_VALUE) {
         continue;
       }
+      const percentage = total === 0 ? 0 : (rawData.value / total) * 100;
       const valuesToDisplay = [
-        options.showLabels ? rawData.label : undefined,
-        options.showValues ? options.callback(rawData.value, "y") : undefined,
+        options.display?.labels ? rawData.label : undefined,
+        formatValueWithPercentage(
+          options.display?.values ? options.callback(rawData.value, "y") : undefined,
+          options.display?.percentages ? percentage : undefined
+        ),
       ].filter(isDefined);
 
       const arc = dataset.data[i];

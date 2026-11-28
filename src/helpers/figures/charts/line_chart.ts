@@ -13,7 +13,7 @@ import { getLineChartDatasets } from "./runtime/chartjs_dataset";
 import { getChartLayout } from "./runtime/chartjs_layout";
 import { getLineChartLegend } from "./runtime/chartjs_legend";
 import { getLineChartScales } from "./runtime/chartjs_scales";
-import { getChartShowValues } from "./runtime/chartjs_show_values";
+import { getLineChartShowValues } from "./runtime/chartjs_show_values";
 import { getChartTitle } from "./runtime/chartjs_title";
 import { getLineChartTooltip } from "./runtime/chartjs_tooltip";
 
@@ -31,7 +31,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
     "cumulative",
     "axesDesign",
     "fillArea",
-    "showValues",
+    "showData",
     "hideDataMarkers",
     "zoomable",
   ] as const,
@@ -68,7 +68,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
       cumulative: context.cumulative ?? false,
       axesDesign: context.axesDesign,
       fillArea: context.fillArea,
-      showValues: context.showValues,
+      showData: context.showData,
       hideDataMarkers: context.hideDataMarkers,
       zoomable: context.zoomable,
       humanize: context.humanize,
@@ -85,6 +85,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
+      showValues: definition.showData?.values ?? false,
     };
   },
 
@@ -113,7 +114,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
           title: getChartTitle(definition, getters),
           legend: getLineChartLegend(definition, chartData),
           tooltip: getLineChartTooltip(definition, chartData),
-          chartShowValuesPlugin: getChartShowValues(definition, chartData),
+          chartShowValuesPlugin: getLineChartShowValues(definition, chartData),
           background: { color: chartData.background },
         },
         ...eventHandlers,

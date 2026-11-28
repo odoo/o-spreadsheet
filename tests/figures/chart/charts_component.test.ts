@@ -23,7 +23,11 @@ import { chartSubtypeRegistry } from "../../../src/registries/chart_subtype_regi
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { GaugeChartDefinition } from "../../../src/types/chart/gauge_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
-import { PieChartDefinition, PieChartRuntime } from "../../../src/types/chart/pie_chart";
+import {
+  PieChartDefaults,
+  PieChartDefinition,
+  PieChartRuntime,
+} from "../../../src/types/chart/pie_chart";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
@@ -2509,25 +2513,93 @@ describe("charts", () => {
     );
   });
 
-  test.each<ChartType>(["bar", "line", "waterfall", "radar", "calendar"])(
+  test.each<ChartType>(["bar", "line", "waterfall", "radar"])(
     "showValues checkbox updates the chart",
     async (type: ChartType) => {
       createTestChart(type);
       await mountChartSidePanel();
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
-      expect(model.getters.getChartDefinition(chartId)["showValues"]).toBeFalsy();
+      expect(model.getters.getChartDefinition(chartId)["showData"]?.values).toBeFalsy();
 
       let options = getChartConfiguration(model, chartId).options;
-      expect(options.plugins.chartShowValuesPlugin.showValues).toBeFalsy();
+      expect(options.plugins.chartShowValuesPlugin.display.values).toBeFalsy();
 
       await simulateClick("input[name='showValues']");
-      expect(model.getters.getChartDefinition(chartId)["showValues"]).toBeTruthy();
+      expect(model.getters.getChartDefinition(chartId)["showData"]?.values).toBeTruthy();
 
       options = getChartConfiguration(model, chartId).options;
-      expect(options.plugins.chartShowValuesPlugin.showValues).toBeTruthy();
+      expect(options.plugins.chartShowValuesPlugin.display.values).toBeTruthy();
     }
   );
+
+  test.each(["showLabels", "showPercentages"] as const)(
+    "%s checkbox updates the pie chart",
+    async (checkboxName) => {
+      const key = checkboxName === "showLabels" ? "labels" : "percentages";
+      const originalValue = PieChartDefaults.showData?.[key];
+      createTestChart("pie");
+      await mountChartSidePanel();
+      await openChartDesignSidePanel(model, env, fixture, chartId);
+
+      expect(`input[name='${checkboxName}']`).toHaveValue(!!originalValue);
+      let options = getChartConfiguration(model, chartId).options;
+      expect(options.plugins.chartShowValuesPlugin.display[key]).toBe(originalValue);
+
+      await simulateClick(`input[name='${checkboxName}']`);
+      expect(`input[name='${checkboxName}']`).toHaveValue(!originalValue);
+      expect(model.getters.getChartDefinition(chartId)["showData"]?.[key]).toBe(!originalValue);
+      options = getChartConfiguration(model, chartId).options;
+      expect(options.plugins.chartShowValuesPlugin.display[key]).toBe(!originalValue);
+    }
+  );
+
+  test.each(["bar", "pie"] as const)(
+    "Percentage checkbox is displayed for %s charts",
+    async (type) => {
+      createTestChart(type);
+      await mountChartSidePanel();
+      await openChartDesignSidePanel(model, env, fixture, chartId);
+
+      expect("input[name='showPercentages']").toHaveCount(1);
+    }
+  );
+
+  test("Percentage checkbox is displayed for bar charts with several data sets only when stacked", async () => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, {
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+      }),
+    });
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    expect("input[name='showPercentages']").toHaveCount(0);
+
+    updateChart(model, chartId, { stacked: true });
+    await nextTick();
+    expect("input[name='showPercentages']").toHaveCount(1);
+  });
+
+  test("Percentage checkbox is only displayed for cumulative line charts", async () => {
+    createTestChart("line");
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    expect("input[name='showPercentages']").toHaveCount(0);
+
+    updateChart(model, chartId, { cumulative: true });
+    await nextTick();
+    expect("input[name='showPercentages']").toHaveCount(1);
+  });
+
+  test.each(["pie"] as const)("Label checkbox is displayed for %s charts", async (type) => {
+    createTestChart(type);
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    expect("input[name='showLabels']").toHaveCount(1);
+  });
 
   test("showTotalLine checkbox updates stacked bar charts", async () => {
     createChart(

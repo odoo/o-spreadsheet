@@ -27,7 +27,7 @@ describe("bubble chart", () => {
       labelRange: "Sheet1!A1:A4",
       legendPosition: "bottom",
       axesDesign: {},
-      showValues: false,
+      showData: { values: false, labels: false },
       humanize: false,
       bubbleColor: { color: FIRST_CHART_COLOR },
       sizeRange: "Sheet1!C1:C4",
