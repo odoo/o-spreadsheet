@@ -1,9 +1,9 @@
 import { useListener, useOnChange, useProps } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
 import { provideAndUsePlugin } from "../../../../helpers/owl3_helpers";
+import { getSheetIds } from "../../../../helpers/range";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
-import { UID } from "../../../../types/misc";
 import { Store } from "../../../../types/store_engine";
 import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
@@ -34,38 +34,27 @@ export class ConditionalFormattingEditor extends OSComponent {
     cf: types.ConditionalFormat(),
     isNewCf: types.boolean(),
     onCloseSidePanel: types.function(),
+    sheetId: types.UID(),
   });
 
-  private activeSheetId!: UID;
   private cfEditorPlugin = provideAndUsePlugin(ConditionalFormattingEditorPlugin, {
     cf: deepCopy(this.props.cf),
     isNewCf: this.props.isNewCf,
+    sheetId: this.props.sheetId,
   });
   private sidePanelStore!: Store<SidePanelStore>;
 
   setup() {
-    this.activeSheetId = this.model().getters.getActiveSheetId();
     this.sidePanelStore = useStore(SidePanelStore);
     useOnChange(
-      () => [this.model().getters.getActiveSheetId(), this.isEditedCfRemoved],
-      (sheetId, isCfRemoved) => {
-        if (this.activeSheetId !== sheetId || isCfRemoved) {
-          this.sidePanelStore.replace(
-            "ConditionalFormatting",
-            `ConditionalFormattingEditor_${this.props.cf.id}`
-          );
+      () => [this.cfEditorPlugin.isEditedCfRemoved],
+      (isCfRemoved) => {
+        if (isCfRemoved) {
+          this.closeEditor();
         }
       }
     );
     useListener(window as any, "click", () => this.cfEditorPlugin.closeMenus());
-  }
-
-  get isEditedCfRemoved() {
-    return !Boolean(
-      this.model()
-        .getters.getConditionalFormats(this.activeSheetId)
-        .find((cf) => cf.id === this.props.cf.id)
-    );
   }
 
   get cfTypesValues() {
@@ -81,30 +70,41 @@ export class ConditionalFormattingEditor extends OSComponent {
     this.cfEditorPlugin.updateConditionalFormat({});
     const isSuccessful = this.cfEditorPlugin.state.errors.length === 0;
     if (isSuccessful) {
-      this.sidePanelStore.replace(
-        "ConditionalFormatting",
-        `ConditionalFormattingEditor_${this.props.cf.id}`
-      );
+      this.closeEditor();
     }
   }
 
   onCancel() {
     if (this.cfEditorPlugin.state.hasEditedCf) {
+      const sheetIdsToRemove = getSheetIds(
+        this.model().getters,
+        this.cfEditorPlugin.state.currentCF.ranges,
+        this.props.sheetId
+      );
       if (this.props.isNewCf) {
-        this.model().dispatch("REMOVE_CONDITIONAL_FORMAT", {
-          sheetId: this.activeSheetId,
-          id: this.props.cf.id,
+        this.model().dispatch("UPDATE_CONDITIONAL_FORMATS", {
+          cfId: this.cfEditorPlugin.state.currentCF.id,
+          sheetIdsToRemove,
         });
       } else {
-        this.model().dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: this.props.cf,
-          ranges: this.props.cf.ranges.map((range) =>
-            this.model().getters.getRangeDataFromXc(this.activeSheetId, range)
-          ),
-          sheetId: this.activeSheetId,
+        this.model().dispatch("UPDATE_CONDITIONAL_FORMATS", {
+          cfId: this.cfEditorPlugin.state.currentCF.id,
+          sheetIdsToRemove: sheetIdsToRemove.filter((id) => id !== this.props.sheetId),
+          rulesBySheetId: {
+            [this.props.sheetId]: {
+              cf: this.props.cf,
+              ranges: this.props.cf.ranges.map((xc) =>
+                this.model().getters.getRangeDataFromXc(this.props.sheetId, xc)
+              ),
+            },
+          },
         });
       }
     }
+    this.closeEditor();
+  }
+
+  closeEditor() {
     this.sidePanelStore.replace(
       "ConditionalFormatting",
       `ConditionalFormattingEditor_${this.props.cf.id}`

@@ -264,8 +264,8 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     return getRangeString(range, forSheetId, this.getters.getSheetName, options);
   }
 
-  getRangeDataFromXc(sheetId: UID, xc: string): RangeData {
-    const range = this.getters.getRangeFromSheetXC(sheetId, xc);
+  getRangeDataFromXc(defaultSheetId: UID | undefined, xc: string): RangeData {
+    const range = this.getters.getRangeFromSheetXC(defaultSheetId, xc);
     return this.getRangeDataFromZone(range.sheetId, range.unboundedZone);
   }
 

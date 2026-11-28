@@ -6,6 +6,8 @@ import {
   activateSheet,
   addDataValidation,
   createSheet,
+  redo,
+  undo,
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
@@ -377,6 +379,112 @@ describe("data validation sidePanel component", () => {
       },
     ]);
     expect(getDataValidationRules(model, "sh2")).toHaveLength(0);
+  });
+
+  test("A rule with ranges on multiple sheets create duplicate rules for each sheet", async () => {
+    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    await simulateClick(".o-dv-add");
+    await nextTick();
+    await setInputValueAndTrigger(".o-selection-input input", "Sheet1!A1");
+    await simulateClick(".o-add-selection");
+    const range2 = document.querySelectorAll(".o-selection-input input")[1];
+    await setInputValueAndTrigger(range2, "Sheet2!B1");
+    await editStandaloneComposer(".o-dv-settings .o-composer", "Random text");
+    await simulateClick(".o-dv-save");
+
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([{ ranges: ["A1"] }]);
+    expect(getDataValidationRules(model, "sh2")).toMatchObject([{ ranges: ["B1"] }]);
+  });
+
+  test("undo/redo of a DV rule split across multiple sheets is atomic", () => {
+    createSheet(model, { sheetId: "sh2" });
+    const rule = {
+      id: "r1",
+      criterion: { type: "containsText" as const, values: ["x"] },
+      isBlocking: false,
+    };
+    model.dispatch("UPDATE_DATA_VALIDATION_RULES", {
+      ruleId: "r1",
+      rulesBySheetId: {
+        [sheetId]: { rule, ranges: [model.getters.getRangeDataFromXc(sheetId, "A1")] },
+        sh2: { rule, ranges: [model.getters.getRangeDataFromXc("sh2", "B1")] },
+      },
+    });
+    expect(getDataValidationRules(model, sheetId)).toHaveLength(1);
+    expect(getDataValidationRules(model, "sh2")).toHaveLength(1);
+
+    // All sheets are undone in a single step
+    undo(model);
+    expect(getDataValidationRules(model, sheetId)).toHaveLength(0);
+    expect(getDataValidationRules(model, "sh2")).toHaveLength(0);
+
+    redo(model);
+    expect(getDataValidationRules(model, sheetId)).toHaveLength(1);
+    expect(getDataValidationRules(model, "sh2")).toHaveLength(1);
+  });
+
+  test("Editing a rule to only target another sheet moves it to that sheet", async () => {
+    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    addDataValidation(model, "A1", "id1", { type: "containsText", values: ["str"] });
+    await nextTick();
+
+    await click(fixture.querySelector(".o-dv-preview")!);
+    await setInputValueAndTrigger(".o-selection-input input", "Sheet2!B2");
+    await simulateClick(".o-dv-save");
+
+    expect(getDataValidationRules(model, sheetId)).toHaveLength(0);
+    expect(getDataValidationRules(model, "sh2")).toMatchObject([{ ranges: ["B2"] }]);
+
+    undo(model);
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([{ id: "id1", ranges: ["A1"] }]);
+    expect(getDataValidationRules(model, "sh2")).toHaveLength(0);
+  });
+
+  test("Editing a rule to target another sheet does not overwrite the rule with the same id there", async () => {
+    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    addDataValidation(model, "A1", "id1", { type: "containsText", values: ["str"] });
+    addDataValidation(
+      model,
+      "B1",
+      "id1",
+      { type: "containsText", values: ["other"] },
+      "warning",
+      "sh2"
+    );
+    await nextTick();
+
+    await click(fixture.querySelector(".o-dv-preview")!);
+    await setInputValueAndTrigger(".o-selection-input input", "Sheet2!C3");
+    await simulateClick(".o-dv-save");
+
+    expect(getDataValidationRules(model, sheetId)).toHaveLength(0);
+    const sh2Rules = getDataValidationRules(model, "sh2");
+    expect(sh2Rules).toMatchObject([
+      { id: "id1", ranges: ["B1"], criterion: { values: ["other"] } },
+      { ranges: ["C3"], criterion: { values: ["str"] } },
+    ]);
+    expect(sh2Rules[1].id).not.toBe("id1");
+  });
+
+  test("Unexisting sheet name can not be saved", async () => {
+    await simulateClick(".o-dv-add");
+    await nextTick();
+    await setInputValueAndTrigger(".o-selection-input input", "UnexistingSheet!A1");
+    await editStandaloneComposer(".o-dv-settings .o-composer", "Random text");
+    await simulateClick(".o-dv-save");
+
+    expect(fixture.querySelector(".o-selection-input .input-icon.text-danger")).toBeTruthy();
+    expect(getDataValidationRules(model, sheetId)).toHaveLength(0);
+  });
+
+  test("Create a range without sheetname use the active sheet", async () => {
+    await simulateClick(".o-dv-add");
+    await nextTick();
+    await setInputValueAndTrigger(".o-selection-input input", "A1");
+    await editStandaloneComposer(".o-dv-settings .o-composer", "Random text");
+    await simulateClick(".o-dv-save");
+
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([{ ranges: ["A1"] }]);
   });
 
   describe("Locale", () => {

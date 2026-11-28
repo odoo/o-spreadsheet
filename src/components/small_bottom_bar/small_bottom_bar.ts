@@ -120,7 +120,7 @@ export class SmallBottomBar extends OSComponent {
   }
 
   toggleRibbon(): void {
-    this.composerStore.cancelEdition();
+    this.composerStore.cancelEdition({ resetContent: true, activateSheet: true });
     this.menuState.isOpen = !this.menuState.isOpen;
   }
 }

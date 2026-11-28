@@ -2,7 +2,7 @@ import { proxy, types, useConfig } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex, colorToNumber, isColorValid } from "../../../../helpers/color";
 import { canonicalizeContent } from "../../../../helpers/locale";
-import { rangeReference } from "../../../../helpers/references";
+import { getSheetIds } from "../../../../helpers/range";
 import { ComponentConstructor } from "../../../../owl3_compatibility_layer";
 import { OwlPluginWithModel } from "../../../../owl_plugins/owl_plugin_with_model";
 import {
@@ -24,6 +24,7 @@ import {
 } from "../../../../types/conditional_formatting";
 import { GenericCriterion, GenericDateCriterion } from "../../../../types/generic_criterion";
 import { Color, UID, ValueAndLabel } from "../../../../types/misc";
+import { RangeData } from "../../../../types/range";
 import { hexaToInt } from "../../../../xlsx/conversion/color_conversion";
 import { cssPropertiesToCss } from "../../../helpers/css";
 import { ICON_SETS, ICONS } from "../../../icons/icons";
@@ -50,11 +51,13 @@ type CFMenu =
 
 interface State {
   currentCFType: CFType;
+  currentCF: ConditionalFormat;
   errors: CancelledReason[];
   rules: Rules;
   openedMenu?: CFMenu;
   ranges: string[];
   hasEditedCf: boolean;
+  cfSheetId: UID;
 }
 
 export class ConditionalFormattingEditorPlugin extends OwlPluginWithModel {
@@ -65,8 +68,9 @@ export class ConditionalFormattingEditorPlugin extends OwlPluginWithModel {
   private cfId!: UID;
 
   setup() {
-    const cf = useConfig("cf", types.object());
+    const cf = useConfig("cf", types.object()) as ConditionalFormat;
     const isNewCf = useConfig("isNewCf", types.boolean());
+    const sheetId = useConfig("sheetId", types.string());
     this.cfId = cf.id;
     this.state = proxy<State>({
       errors: [],
@@ -74,6 +78,8 @@ export class ConditionalFormattingEditorPlugin extends OwlPluginWithModel {
       ranges: cf.ranges,
       rules: this.getDefaultRules(),
       hasEditedCf: isNewCf,
+      cfSheetId: sheetId,
+      currentCF: cf,
     });
     switch (cf.rule.type) {
       case "CellIsRule":
@@ -91,32 +97,81 @@ export class ConditionalFormattingEditorPlugin extends OwlPluginWithModel {
     }
   }
 
-  updateConditionalFormat(newCf: Partial<ConditionalFormat> & { suppressErrors?: boolean }) {
-    const ranges = newCf.ranges || this.state.ranges;
-    const invalidRanges = this.state.ranges.some((xc) => !xc.match(rangeReference));
-    if (invalidRanges) {
-      if (!newCf.suppressErrors) {
+  get allSheetIds(): UID[] {
+    return getSheetIds(this.model().getters, this.state.currentCF.ranges, this.state.cfSheetId);
+  }
+
+  get isEditedCfRemoved() {
+    return this.allSheetIds.every(
+      (sheetId) =>
+        !this.model()
+          .getters.getConditionalFormats(sheetId)
+          .find((cf) => cf.id === this.state.currentCF.id)
+    );
+  }
+
+  updateConditionalFormat(cfChanges: Partial<ConditionalFormat> & { suppressErrors?: boolean }) {
+    const strRanges = cfChanges.ranges || this.state.ranges;
+    const rule = cfChanges.rule || this.getEditedRule(this.state.currentCFType);
+    const ranges = strRanges.map((xc) =>
+      this.model().getters.getRangeFromSheetXC(this.state.cfSheetId, xc)
+    );
+    if (ranges.some((range) => range.invalidXc || range.invalidSheetName)) {
+      if (!cfChanges.suppressErrors) {
         this.state.errors = [CommandResult.InvalidRange];
       }
       return;
     }
-    const sheetId = this.model().getters.getActiveSheetId();
-    const rule = newCf.rule || this.getEditedRule(this.state.currentCFType);
-    const result = this.model().dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: {
-        id: this.cfId,
-        rule,
-      },
-      ranges: ranges.map((xc) => this.model().getters.getRangeDataFromXc(sheetId, xc)),
-      sheetId,
+    if (!ranges.length) {
+      if (!cfChanges.suppressErrors) {
+        this.state.errors = [CommandResult.EmptyRange];
+      }
+      return;
+    }
+    const rangesBySheet = Object.groupBy(
+      ranges.map((range) => this.model().getters.getRangeData(range)),
+      (range) => range._sheetId
+    );
+    const sheetIdsToRemove: UID[] = [];
+    const rulesBySheetId: {
+      [key: UID]: {
+        cf: Omit<ConditionalFormat, "ranges">;
+        ranges: RangeData[];
+      };
+    } = {};
+    for (const sheetId in rangesBySheet) {
+      rulesBySheetId[sheetId] = {
+        cf: {
+          id: this.cfId,
+          rule,
+        },
+        ranges: rangesBySheet[sheetId]!,
+      };
+    }
+    for (const sheetId of this.allSheetIds) {
+      if (!(sheetId in rangesBySheet)) {
+        sheetIdsToRemove.push(sheetId);
+      }
+    }
+    const result = this.model().dispatch("UPDATE_CONDITIONAL_FORMATS", {
+      cfId: this.cfId,
+      sheetIdsToRemove,
+      rulesBySheetId,
     });
+
     if (result.isSuccessful) {
       this.state.hasEditedCf = true;
     }
     const reasons = result.reasons.filter((r) => r !== CommandResult.NoChanges);
-    if (!newCf.suppressErrors) {
-      this.state.errors = reasons;
+    if (reasons.length) {
+      if (!cfChanges.suppressErrors) {
+        this.state.errors = reasons;
+      }
+      return;
     }
+
+    const { suppressErrors, ...changes } = cfChanges;
+    this.state.currentCF = { ...this.state.currentCF, ...changes, ranges: strRanges };
   }
 
   get isRangeValid(): boolean {
@@ -141,7 +196,10 @@ export class ConditionalFormattingEditorPlugin extends OwlPluginWithModel {
     }
     this.state.errors = [];
     this.state.currentCFType = ruleType;
-    this.updateConditionalFormat({ rule: this.getEditedRule(ruleType), suppressErrors: true });
+    this.updateConditionalFormat({
+      rule: this.getEditedRule(ruleType),
+      suppressErrors: true,
+    });
   }
 
   private getEditedRule(ruleType: CFType): ConditionalFormatRule {
@@ -205,7 +263,10 @@ export class ConditionalFormattingEditorPlugin extends OwlPluginWithModel {
     if (operator.includes("date") && !this.state.rules.cellIs.dateValue) {
       this.state.rules.cellIs.dateValue = "exactDate";
     }
-    this.updateConditionalFormat({ rule: this.state.rules.cellIs, suppressErrors: true });
+    this.updateConditionalFormat({
+      rule: this.state.rules.cellIs,
+      suppressErrors: true,
+    });
     this.closeMenus();
   }
 
@@ -246,7 +307,10 @@ export class ConditionalFormattingEditorPlugin extends OwlPluginWithModel {
 
   updateThresholdType(threshold: "minimum" | "maximum", thresholdType: ThresholdType) {
     this.state.rules.colorScale[threshold].type = thresholdType;
-    this.updateConditionalFormat({ rule: this.state.rules.colorScale, suppressErrors: true });
+    this.updateConditionalFormat({
+      rule: this.state.rules.colorScale,
+      suppressErrors: true,
+    });
   }
 
   updateThresholdValue(threshold: "minimum" | "midpoint" | "maximum", value: string) {
@@ -317,7 +381,10 @@ export class ConditionalFormattingEditorPlugin extends OwlPluginWithModel {
     type: IconThreshold["type"]
   ) {
     this.state.rules.iconSet[inflectionPoint].type = type;
-    this.updateConditionalFormat({ rule: this.state.rules.iconSet, suppressErrors: true });
+    this.updateConditionalFormat({
+      rule: this.state.rules.iconSet,
+      suppressErrors: true,
+    });
   }
 
   /*****************************************************************************
