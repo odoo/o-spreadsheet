@@ -25,7 +25,9 @@ const DAY_OF_MONTH_DIMENSION = createPivotDimension("day_of_month");
 const DAY_OF_WEEK_DIMENSION = createPivotDimension("day_of_week");
 const DAY_DIMENSION = createPivotDimension("day");
 const HOUR_NUMBER_DIMENSION = createPivotDimension("hour_number");
+const HOUR_DIMENSION = createPivotDimension("hour");
 const MINUTE_NUMBER_DIMENSION = createPivotDimension("minute_number");
+const MINUTE_DIMENSION = createPivotDimension("minute");
 const SECOND_NUMBER_DIMENSION = createPivotDimension("second_number");
 
 describe("Date Spreadsheet Pivot", () => {
@@ -44,7 +46,9 @@ describe("Date Spreadsheet Pivot", () => {
     expect(createDate(DAY_OF_WEEK_DIMENSION, d05_april_2024, DEFAULT_LOCALE)).toBe(6); // Friday
     expect(createDate(DAY_DIMENSION, d05_april_2024, DEFAULT_LOCALE)).toBe(d05_april_2024);
     expect(createDate(HOUR_NUMBER_DIMENSION, d05_april_2024, DEFAULT_LOCALE)).toBe(0);
+    expect(createDate(HOUR_DIMENSION, d05_april_2024, DEFAULT_LOCALE)).toBe(d05_april_2024);
     expect(createDate(MINUTE_NUMBER_DIMENSION, d05_april_2024, DEFAULT_LOCALE)).toBe(0);
+    expect(createDate(MINUTE_DIMENSION, d05_april_2024, DEFAULT_LOCALE)).toBe(d05_april_2024);
     expect(createDate(SECOND_NUMBER_DIMENSION, d05_april_2024, DEFAULT_LOCALE)).toBe(0);
 
     const d04_may_2024 = 45_416;
@@ -56,7 +60,9 @@ describe("Date Spreadsheet Pivot", () => {
     expect(createDate(DAY_OF_WEEK_DIMENSION, d04_may_2024, DEFAULT_LOCALE)).toBe(7); // Saturday
     expect(createDate(DAY_DIMENSION, d04_may_2024, DEFAULT_LOCALE)).toBe(d04_may_2024);
     expect(createDate(HOUR_NUMBER_DIMENSION, d04_may_2024, DEFAULT_LOCALE)).toBe(0);
+    expect(createDate(HOUR_DIMENSION, d04_may_2024, DEFAULT_LOCALE)).toBe(d04_may_2024);
     expect(createDate(MINUTE_NUMBER_DIMENSION, d04_may_2024, DEFAULT_LOCALE)).toBe(0);
+    expect(createDate(MINUTE_DIMENSION, d04_may_2024, DEFAULT_LOCALE)).toBe(d04_may_2024);
     expect(createDate(SECOND_NUMBER_DIMENSION, d04_may_2024, DEFAULT_LOCALE)).toBe(0);
 
     const d01_january_2019 = 43_466;
@@ -68,7 +74,9 @@ describe("Date Spreadsheet Pivot", () => {
     expect(createDate(DAY_OF_WEEK_DIMENSION, d01_january_2019, DEFAULT_LOCALE)).toBe(3); // Tuesday
     expect(createDate(DAY_DIMENSION, d01_january_2019, DEFAULT_LOCALE)).toBe(d01_january_2019);
     expect(createDate(HOUR_NUMBER_DIMENSION, d01_january_2019, DEFAULT_LOCALE)).toBe(0);
+    expect(createDate(HOUR_DIMENSION, d01_january_2019, DEFAULT_LOCALE)).toBe(d01_january_2019);
     expect(createDate(MINUTE_NUMBER_DIMENSION, d01_january_2019, DEFAULT_LOCALE)).toBe(0);
+    expect(createDate(MINUTE_DIMENSION, d01_january_2019, DEFAULT_LOCALE)).toBe(d01_january_2019);
     expect(createDate(SECOND_NUMBER_DIMENSION, d01_january_2019, DEFAULT_LOCALE)).toBe(0);
   });
 
@@ -85,7 +93,15 @@ describe("Date Spreadsheet Pivot", () => {
     expect(createDate(DAY_OF_WEEK_DIMENSION, d05_april_2024_3h_7m_12s, DEFAULT_LOCALE)).toBe(6); // Friday
     expect(createDate(DAY_DIMENSION, d05_april_2024_3h_7m_12s, DEFAULT_LOCALE)).toBe(45_387);
     expect(createDate(HOUR_NUMBER_DIMENSION, d05_april_2024_3h_7m_12s, DEFAULT_LOCALE)).toBe(3);
+    const d05_april_2024_3h = 45_387 + 3 / 24;
+    expect(createDate(HOUR_DIMENSION, d05_april_2024_3h_7m_12s, DEFAULT_LOCALE)).toBe(
+      d05_april_2024_3h
+    );
     expect(createDate(MINUTE_NUMBER_DIMENSION, d05_april_2024_3h_7m_12s, DEFAULT_LOCALE)).toBe(7);
+    const d05_april_2024_3h_7m = 45_387 + (3 * 60 + 7) / (24 * 60);
+    expect(createDate(MINUTE_DIMENSION, d05_april_2024_3h_7m_12s, DEFAULT_LOCALE)).toBe(
+      d05_april_2024_3h_7m
+    );
     expect(createDate(SECOND_NUMBER_DIMENSION, d05_april_2024_3h_7m_12s, DEFAULT_LOCALE)).toBe(12);
   });
 
@@ -98,8 +114,22 @@ describe("Date Spreadsheet Pivot", () => {
     expect(createDate(DAY_OF_WEEK_DIMENSION, null, DEFAULT_LOCALE)).toBeNull();
     expect(createDate(DAY_DIMENSION, null, DEFAULT_LOCALE)).toBeNull();
     expect(createDate(HOUR_NUMBER_DIMENSION, null, DEFAULT_LOCALE)).toBeNull();
+    expect(createDate(HOUR_DIMENSION, null, DEFAULT_LOCALE)).toBeNull();
     expect(createDate(MINUTE_NUMBER_DIMENSION, null, DEFAULT_LOCALE)).toBeNull();
+    expect(createDate(MINUTE_DIMENSION, null, DEFAULT_LOCALE)).toBeNull();
     expect(createDate(SECOND_NUMBER_DIMENSION, null, DEFAULT_LOCALE)).toBeNull();
+  });
+
+  test("createDate with hour granularity keeps a value already rounded to the hour", () => {
+    const d05_april_2024_3h = 45_387 + 3 / 24;
+    expect(createDate(HOUR_DIMENSION, d05_april_2024_3h, DEFAULT_LOCALE)).toBe(d05_april_2024_3h);
+  });
+
+  test("createDate with minute granularity keeps a value already rounded to the minute", () => {
+    const d05_april_2024_3h_7m = 45_387 + (3 * 60 + 7) / (24 * 60);
+    expect(createDate(MINUTE_DIMENSION, d05_april_2024_3h_7m, DEFAULT_LOCALE)).toBe(
+      d05_april_2024_3h_7m
+    );
   });
 
   test("createDate throw with unknown granularity", () => {
