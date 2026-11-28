@@ -1,5 +1,6 @@
+import { PluginInstance } from "@odoo/owl";
 import { DEFAULT_LOCALE, Model, UID } from "../../src";
-import { FindAndReplaceStore } from "../../src/components/side_panel/find_and_replace/find_and_replace_store";
+import { FindAndReplacePlugin } from "../../src/components/side_panel/find_and_replace/find_and_replace_plugin";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
@@ -7,7 +8,6 @@ import {
   ViewportsPlugin,
   ViewportsPluginInstance,
 } from "../../src/owl_plugins/viewports_owl_plugin";
-import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { SearchOptions } from "../../src/types/find_and_replace";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import {
@@ -37,11 +37,10 @@ import {
   getCellText,
 } from "../test_helpers/getters_helpers";
 import { addToRegistry, flattenHighlightRange } from "../test_helpers/helpers";
-import { makeViewportsPlugin } from "../test_helpers/owl_plugins_helpers";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 let model: Model;
-let store: FindAndReplaceStore;
-let container: DependencyContainer;
+let findAndReplacePlugin: PluginInstance<typeof FindAndReplacePlugin>;
 let getPlugin: OwlPluginGetter;
 let viewPlugin: ViewportsPluginInstance;
 
@@ -55,27 +54,27 @@ function match(sheetId: UID, xc: string) {
 }
 
 function updateSearch(model: Model, toSearch: string, options: Partial<SearchOptions> = {}) {
-  const searchOptions = { ...store.searchOptions, ...options };
-  store.updateSearchContent(toSearch);
-  store.updateSearchOptions(searchOptions);
+  const searchOptions = { ...findAndReplacePlugin.searchOptions, ...options };
+  findAndReplacePlugin.updateSearchContent(toSearch);
+  findAndReplacePlugin.updateSearchOptions(searchOptions);
 }
 
 function replaceSearch(replaceWith: string) {
-  store.toReplace = replaceWith;
-  store.replace();
+  findAndReplacePlugin.toReplace.set(replaceWith);
+  findAndReplacePlugin.replace();
 }
 
 function replaceAll(replaceWith: string) {
-  store.toReplace = replaceWith;
-  store.replaceAll();
+  findAndReplacePlugin.toReplace.set(replaceWith);
+  findAndReplacePlugin.replaceAll();
 }
 
 let sheetId1: string;
 const sheetId2 = "s2";
 beforeEach(() => {
-  // Create the viewport store before the f&r store to have the finalize in the correct order (see FIXME in SpreadsheetStore)
-  ({ viewPlugin, model, container, getPlugin } = makeViewportsPlugin());
-  store = container.get(FindAndReplaceStore);
+  ({ getPlugin, model } = makeOwlPluginManager([FindAndReplacePlugin], {}));
+  viewPlugin = getPlugin(ViewportsPlugin);
+  findAndReplacePlugin = getPlugin(FindAndReplacePlugin);
   sheetId1 = model.getters.getActiveSheetId();
 });
 
@@ -87,11 +86,11 @@ describe("basic search", () => {
     setCellContent(model, "A1", "test");
     setCellContent(model, "A2", "test");
     updateSearch(model, "test", { searchScope: "activeSheet" });
-    expect(store.searchMatches).toEqual([match("sh2", "A1"), match("sh2", "A2")]);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toEqual([match("sh2", "A1"), match("sh2", "A2")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
     activateSheet(model, sheetId1);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A2")]);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId1, "A2")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
   });
 
   test("default search scope is set to activeSheet", () => {
@@ -101,8 +100,8 @@ describe("basic search", () => {
     setCellContent(model, "A1", "test");
     setCellContent(model, "A2", "test");
     updateSearch(model, "test");
-    expect(store.searchMatches).toEqual([match("sh2", "A1"), match("sh2", "A2")]);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toEqual([match("sh2", "A1"), match("sh2", "A2")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
   });
 
   test("simple search for search scope allSheet", () => {
@@ -110,8 +109,11 @@ describe("basic search", () => {
     createSheet(model, { sheetId: "sh2" });
     setCellContent(model, "A2", "test", "sh2");
     updateSearch(model, "test", { searchScope: "allSheets" });
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toEqual([match(sheetId1, "A2"), match("sh2", "A2")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toEqual([
+      match(sheetId1, "A2"),
+      match("sh2", "A2"),
+    ]);
   });
 
   test("simple search for search scope specificRange", () => {
@@ -121,8 +123,8 @@ describe("basic search", () => {
       searchScope: "specificRange",
       specificRange: model.getters.getRangeFromSheetXC(sheetId1, "A1:B1"),
     });
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId1, "A1")]);
   });
 
   test("Specific range is following the active sheet", async () => {
@@ -133,20 +135,20 @@ describe("basic search", () => {
       searchScope: "specificRange",
       specificRange: model.getters.getRangeFromSheetXC(sheetId1, "A1:B1"),
     });
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId1, "A1")]);
 
     activateSheet(model, sheetId2);
-    expect(store.searchMatches).toStrictEqual([]);
-    expect(store.searchOptions.specificRange?.sheetId).toBe(sheetId2);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([]);
+    expect(findAndReplacePlugin.searchOptions().specificRange?.sheetId).toBe(sheetId2);
 
     setCellContent(model, "A1", "test", sheetId2);
-    expect(store.searchMatches).toStrictEqual([match(sheetId2, "A1")]);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId2, "A1")]);
   });
 
   test("search with a regexp characters", () => {
     setCellContent(model, "A1", "hello (world).*");
     updateSearch(model, "hello (world).*");
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId1, "A1")]);
   });
 
   test("Update search automatically select the first match", () => {
@@ -161,12 +163,18 @@ describe("basic search", () => {
     setCellContent(model, "A2", "Hello1");
     setCellContent(model, "A3", "=111");
     updateSearch(model, "hello", { searchScope: "activeSheet" });
-    store.selectNextMatch();
-    expect(store.selectedMatchIndex).toStrictEqual(1);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1"), match(sheetId1, "A2")]);
+    findAndReplacePlugin.selectNextMatch();
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(1);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+    ]);
     updateSearch(model, "1", { searchScope: "activeSheet" });
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A2"), match(sheetId1, "A3")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
+    ]);
   });
 
   test("change the search for allSheet searchScope", () => {
@@ -176,12 +184,18 @@ describe("basic search", () => {
     setCellContent(model, "A1", "=111", sheetId2);
 
     updateSearch(model, "hello", { searchScope: "allSheets" });
-    store.selectNextMatch();
-    expect(store.selectedMatchIndex).toStrictEqual(1);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1"), match(sheetId1, "A2")]);
+    findAndReplacePlugin.selectNextMatch();
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(1);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+    ]);
     updateSearch(model, "1");
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A2"), match(sheetId2, "A1")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
+      match(sheetId1, "A2"),
+      match(sheetId2, "A1"),
+    ]);
   });
 
   test("change the search for specificRange searchScope", () => {
@@ -192,13 +206,13 @@ describe("basic search", () => {
       searchScope: "specificRange",
       specificRange: model.getters.getRangeFromSheetXC(sheetId2, "A1:A3"),
     });
-    store.selectNextMatch();
-    expect(store.searchMatches).toHaveLength(0);
+    findAndReplacePlugin.selectNextMatch();
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(0);
     expect(model.getters.getActiveSheetId()).toBe(sheetId1);
     updateSearch(model, "1");
     expect(model.getters.getActiveSheetId()).toBe(sheetId2);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId2, "A2")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId2, "A2")]);
   });
 
   test("search is refreshed when active sheet is deleted", () => {
@@ -206,12 +220,12 @@ describe("basic search", () => {
     createSheet(model, { sheetId: sheetId2 });
 
     updateSearch(model, "test", { searchScope: "activeSheet" });
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId1, "A1")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
 
     deleteSheet(model, sheetId1);
-    expect(store.searchMatches).toStrictEqual([]);
-    expect(store.selectedMatchIndex).toStrictEqual(null);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(null);
   });
 
   test("specific range is cleared when its sheet is deleted", () => {
@@ -221,21 +235,21 @@ describe("basic search", () => {
       specificRange: model.getters.getRangeFromSheetXC(sheetId1, "A1:B2"),
     });
 
-    expect(store.searchOptions.specificRange?.sheetId).toBe(sheetId1);
+    expect(findAndReplacePlugin.searchOptions().specificRange?.sheetId).toBe(sheetId1);
     deleteSheet(model, sheetId1);
 
-    expect(store.searchOptions.specificRange).toBeUndefined();
+    expect(findAndReplacePlugin.searchOptions().specificRange).toBeUndefined();
   });
 
   test("refresh search when cell is updated", async () => {
     setCellContent(model, "A1", "hello");
     updateSearch(model, "hello");
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId1, "A1")]);
     setCellContent(model, "B1", "hello");
     setCellContent(model, "B2", '="hello"');
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "B1"),
       match(sheetId1, "B2"),
@@ -252,28 +266,31 @@ describe("basic search", () => {
     setCellContent(model, "A1", "hello");
     setCellContent(model, "B1", "=GETVALUE()");
     updateSearch(model, "hello");
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId1, "A1")]);
     value = "hello";
     evaluateCells(model);
     expect(getCellContent(model, "B1")).toBe(value);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1"), match(sheetId1, "B1")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
+      match(sheetId1, "A1"),
+      match(sheetId1, "B1"),
+    ]);
   });
 
   test("search on empty string does not match anything", () => {
     setCellContent(model, "A1", "hello");
     updateSearch(model, "");
-    expect(store.searchMatches).toHaveLength(0);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(0);
   });
 
   test("search on empty string clears matches", () => {
     setCellContent(model, "A1", "hello");
     setCellContent(model, "A2", "hello");
     updateSearch(model, "hello");
-    expect(store.searchMatches).toHaveLength(2);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(2);
     updateSearch(model, "");
-    expect(store.searchMatches).toHaveLength(0);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(0);
   });
 
   test("search begins from current sheet with index starting at the first sheet in allSheets search scope", () => {
@@ -285,8 +302,8 @@ describe("basic search", () => {
     activateSheet(model, sheetId2);
     updateSearch(model, "1", { searchScope: "allSheets" });
     expect(getActivePosition(model)).toBe("A2");
-    expect(store.selectedMatchIndex).toStrictEqual(2);
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(2);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A2"),
       match(sheetId1, "A3"),
       match(sheetId2, "A2"),
@@ -299,75 +316,84 @@ describe("basic search", () => {
     setCellContent(model, "A2", "=111", sheetId2);
     updateSearch(model, "1", { searchScope: "activeSheet" });
     expect(getActivePosition(model)).toBe("A3");
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A3")]);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId1, "A3")]);
     activateSheet(model, "s2");
     expect(getActivePosition(model)).toBe("A2");
-    expect(store.searchMatches).toStrictEqual([match(sheetId2, "A2")]);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId2, "A2")]);
   });
 
   test("Update search if column or row is added", () => {
     setCellContent(model, "A3", "1");
     setCellContent(model, "A4", "1");
     updateSearch(model, "1");
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A3"), match(sheetId1, "A4")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
+      match(sheetId1, "A3"),
+      match(sheetId1, "A4"),
+    ]);
     addRows(model, "after", 1, 1);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A4"), match(sheetId1, "A5")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
+      match(sheetId1, "A4"),
+      match(sheetId1, "A5"),
+    ]);
   });
 
   test("Search is updated if column or row is removed", () => {
     setCellContent(model, "A2", "1");
     setCellContent(model, "A3", "111");
     updateSearch(model, "1");
-    store.selectNextMatch();
-    expect(store.selectedMatchIndex).toStrictEqual(1);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A2"), match(sheetId1, "A3")]);
+    findAndReplacePlugin.selectNextMatch();
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(1);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
+    ]);
     deleteRows(model, [1]);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A2")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId1, "A2")]);
   });
 
   test("Update search upon undo/redo operations, which can update the cell", () => {
     setCellContent(model, "A2", "1");
     setCellContent(model, "A3", "1");
     updateSearch(model, "1");
-    expect(store.searchMatches).toHaveLength(2);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(2);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
     deleteRows(model, [1]);
-    expect(store.searchMatches).toHaveLength(1);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(1);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
     undo(model);
-    expect(store.searchMatches).toHaveLength(2);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(2);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
     redo(model);
-    expect(store.searchMatches).toHaveLength(1);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(1);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
   });
 
   test("hidden cells should not be included in match", () => {
     setCellContent(model, "A2", "1");
     setCellContent(model, "A3", "1");
     updateSearch(model, "1");
-    expect(store.searchMatches).toHaveLength(2);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(2);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
     hideRows(model, [1]);
-    expect(store.searchMatches).toHaveLength(1);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(1);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
     unhideRows(model, [1]);
-    expect(store.searchMatches).toHaveLength(2);
-    expect(store.selectedMatchIndex).toStrictEqual(1);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(2);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(1);
   });
 
   test("hidden cells should be included in match if the search option includeHidden is true", async () => {
     setCellContent(model, "A2", "1");
     setCellContent(model, "A3", "1");
     updateSearch(model, "1");
-    expect(store.searchMatches).toHaveLength(2);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(2);
     hideRows(model, [1]);
-    expect(store.searchMatches).toHaveLength(1);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(1);
     updateSearch(model, "1", { includeHidden: true });
-    expect(store.searchMatches).toHaveLength(2);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(2);
   });
 
   test("Need to update search if updating or removing the filter", () => {
@@ -375,14 +401,14 @@ describe("basic search", () => {
     setCellContent(model, "A3", "=111");
     createTableWithFilter(model, "A1:A6");
     updateSearch(model, "1");
-    expect(store.searchMatches).toHaveLength(2);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(2);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
     updateFilter(model, "A1", ["1"]);
-    expect(store.searchMatches).toHaveLength(1);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(1);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
     deleteTable(model, "A1:A6");
-    expect(store.searchMatches).toHaveLength(2);
-    expect(store.selectedMatchIndex).toStrictEqual(1);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(2);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(1);
   });
 
   test("Switching sheet properly recomputes search results and shows them in the viewport", () => {
@@ -391,14 +417,14 @@ describe("basic search", () => {
     createSheet(model, { sheetId: "s2" });
     setCellContent(model, "Z100", "hello", "s2");
     updateSearch(model, "hello", { searchScope: "allSheets" });
-    expect(store.activeSheetMatchesCount).toBe(2);
-    expect(store.allSheetsMatchesCount).toBe(3);
-    expect(store.specificRangeMatchesCount).toBe(0);
+    expect(findAndReplacePlugin.matchesCount.activeSheet.total).toBe(2);
+    expect(findAndReplacePlugin.matchesCount.allSheets.total).toBe(3);
+    expect(findAndReplacePlugin.matchesCount.specificRange.total).toBe(0);
     expect(viewPlugin.activeMainViewport).toMatchObject(toZone("A1:K44"));
     activateSheet(model, "s2");
-    expect(store.activeSheetMatchesCount).toBe(1);
-    expect(store.allSheetsMatchesCount).toBe(3);
-    expect(store.specificRangeMatchesCount).toBe(0);
+    expect(findAndReplacePlugin.matchesCount.activeSheet.total).toBe(1);
+    expect(findAndReplacePlugin.matchesCount.allSheets.total).toBe(3);
+    expect(findAndReplacePlugin.matchesCount.specificRange.total).toBe(0);
     expect(viewPlugin.activeMainViewport).toMatchObject(toZone("P57:Z100"));
   });
 
@@ -410,7 +436,7 @@ describe("basic search", () => {
       specificRange: model.getters.getRangeFromSheetXC(sheetId1, "A1:A3"),
     });
 
-    expect(store.highlights.map(flattenHighlightRange)).toMatchObject([
+    expect(findAndReplacePlugin.highlights.map(flattenHighlightRange)).toMatchObject([
       { zone: toZone("A2") },
       { zone: toZone("A3"), noBorder: true }, // Not selected, we don't show a border
       { zone: toZone("A1:A3"), noFill: true }, // Searched range
@@ -424,8 +450,11 @@ test("simple search with array formula", () => {
   setCellContent(model, "A3", "=1");
   setCellContent(model, "B1", "=TRANSPOSE(A1:A3)");
   updateSearch(model, "hello");
-  expect(store.selectedMatchIndex).toStrictEqual(0);
-  expect(store.searchMatches).toStrictEqual([match(sheetId1, "C1"), match(sheetId1, "A2")]);
+  expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+  expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
+    match(sheetId1, "C1"),
+    match(sheetId1, "A2"),
+  ]);
 });
 
 test("replace don't replace value resulting from array formula", () => {
@@ -435,8 +464,8 @@ test("replace don't replace value resulting from array formula", () => {
   setCellContent(model, "B1", "=TRANSPOSE(A1:A3)");
   updateSearch(model, "hello");
   replaceAll("kikou");
-  expect(store.searchMatches).toHaveLength(0);
-  expect(store.selectedMatchIndex).toStrictEqual(null);
+  expect(findAndReplacePlugin.searchMatches()).toHaveLength(0);
+  expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(null);
   // Check that the original value has correctly been replaced
   expect(getCellContent(model, "A2")).toBe("kikou");
   // Check that the array formula has not been modified : If nothing has
@@ -451,8 +480,8 @@ test("Only change sheet on search related command", () => {
   setCellContent(model, "A1", "hello");
   updateSearch(model, "hello", { searchScope: "allSheets" });
   createSheet(model, { sheetId: "sh2", activate: true });
-  expect(store.searchMatches).toHaveLength(1);
-  expect(store.selectedMatchIndex).toStrictEqual(0);
+  expect(findAndReplacePlugin.searchMatches()).toHaveLength(1);
+  expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
   setCellContent(model, "A1", "test");
   expect(model.getters.getActiveSheetId()).toBe("sh2");
 });
@@ -465,8 +494,8 @@ describe("next/previous cycle", () => {
   });
   test("Next will select the next match", () => {
     updateSearch(model, "1");
-    store.selectNextMatch();
-    expect(store.searchMatches).toStrictEqual([
+    findAndReplacePlugin.selectNextMatch();
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A3"),
@@ -474,9 +503,9 @@ describe("next/previous cycle", () => {
   });
   test("Next than previous will cancel each other", () => {
     updateSearch(model, "1");
-    store.selectNextMatch();
-    store.selectPreviousMatch();
-    expect(store.searchMatches).toStrictEqual([
+    findAndReplacePlugin.selectNextMatch();
+    findAndReplacePlugin.selectPreviousMatch();
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A3"),
@@ -486,42 +515,42 @@ describe("next/previous cycle", () => {
   test("search will cycle with next", () => {
     updateSearch(model, "1");
     expect(getActivePosition(model)).toBe("A1");
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A3"),
     ]);
-    store.selectNextMatch();
+    findAndReplacePlugin.selectNextMatch();
     expect(getActivePosition(model)).toBe("A2");
-    expect(store.selectedMatchIndex).toStrictEqual(1);
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(1);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A3"),
     ]);
 
-    store.selectNextMatch();
+    findAndReplacePlugin.selectNextMatch();
     expect(getActivePosition(model)).toBe("A3");
-    expect(store.selectedMatchIndex).toStrictEqual(2);
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(2);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A3"),
     ]);
 
-    store.selectNextMatch();
+    findAndReplacePlugin.selectNextMatch();
     expect(getActivePosition(model)).toBe("A1");
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A3"),
     ]);
 
-    store.selectNextMatch();
+    findAndReplacePlugin.selectNextMatch();
     expect(getActivePosition(model)).toBe("A2");
-    expect(store.selectedMatchIndex).toStrictEqual(1);
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(1);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A3"),
@@ -530,44 +559,44 @@ describe("next/previous cycle", () => {
   test("search will cycle with previous", () => {
     updateSearch(model, "1");
     expect(getActivePosition(model)).toBe("A1");
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A3"),
     ]);
 
-    store.selectPreviousMatch();
+    findAndReplacePlugin.selectPreviousMatch();
     expect(getActivePosition(model)).toBe("A3");
-    expect(store.selectedMatchIndex).toStrictEqual(2);
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(2);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A3"),
     ]);
 
-    store.selectPreviousMatch();
+    findAndReplacePlugin.selectPreviousMatch();
     expect(getActivePosition(model)).toBe("A2");
-    expect(store.selectedMatchIndex).toStrictEqual(1);
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(1);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A3"),
     ]);
 
-    store.selectPreviousMatch();
+    findAndReplacePlugin.selectPreviousMatch();
     expect(getActivePosition(model)).toBe("A1");
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A3"),
     ]);
 
-    store.selectPreviousMatch();
+    findAndReplacePlugin.selectPreviousMatch();
     expect(getActivePosition(model)).toBe("A3");
-    expect(store.selectedMatchIndex).toStrictEqual(2);
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(2);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A3"),
@@ -581,7 +610,7 @@ describe("next/previous cycle", () => {
     updateSearch(model, "1", { searchScope: "allSheets" });
     expect(model.getters.getActiveSheetId()).toBe(sheetId1);
     expect(getActivePosition(model)).toBe("A1");
-    store.selectPreviousMatch();
+    findAndReplacePlugin.selectPreviousMatch();
     expect(model.getters.getActiveSheetId()).toBe("s2");
     expect(getActivePosition(model)).toBe("Z26");
   });
@@ -592,12 +621,12 @@ test("next/previous with a hidden match", () => {
   setCellContent(model, "A2", "1");
   hideRows(model, [1]);
   updateSearch(model, "1", { includeHidden: true });
-  store.selectNextMatch();
+  findAndReplacePlugin.selectNextMatch();
   expect(getActivePosition(model)).toBe("A2");
-  expect(store.selectedMatchIndex).toStrictEqual(1);
-  store.selectPreviousMatch();
+  expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(1);
+  findAndReplacePlugin.selectPreviousMatch();
   expect(getActivePosition(model)).toBe("A1");
-  expect(store.selectedMatchIndex).toStrictEqual(0);
+  expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
 });
 
 describe("next/previous with single match", () => {
@@ -611,7 +640,9 @@ describe("next/previous with single match", () => {
     (cmd) => {
       setSelection(model, ["B3"]);
       expect(model.getters.getSelectedZones()).toEqual([toZone("B3")]);
-      cmd === "selectNext" ? store.selectNextMatch() : store.selectPreviousMatch();
+      cmd === "selectNext"
+        ? findAndReplacePlugin.selectNextMatch()
+        : findAndReplacePlugin.selectPreviousMatch();
       expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
     }
   );
@@ -637,7 +668,9 @@ describe("next/previous with single match", () => {
       const viewportAfterSearch = viewPlugin.activeMainViewport;
       viewPlugin.setViewportOffset({ offsetX: 1000, offsetY: 1000 });
       expect(viewPlugin.activeMainViewport).not.toMatchObject(viewportAfterSearch);
-      cmd === "selectNext" ? store.selectNextMatch() : store.selectPreviousMatch();
+      cmd === "selectNext"
+        ? findAndReplacePlugin.selectNextMatch()
+        : findAndReplacePlugin.selectPreviousMatch();
       expect(viewPlugin.activeMainViewport).toMatchObject(viewportAfterSearch);
     }
   );
@@ -665,19 +698,25 @@ describe("search options", () => {
 
   test("Can search matching case", () => {
     updateSearch(model, "Hell", { matchCase: true });
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A2"), match(sheetId1, "A5")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
+      match(sheetId1, "A2"),
+      match(sheetId1, "A5"),
+    ]);
   });
 
   test("Can search matching entire cell", () => {
     updateSearch(model, "Hell", { exactMatch: true });
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A4"), match(sheetId1, "A5")]);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
+      match(sheetId1, "A4"),
+      match(sheetId1, "A5"),
+    ]);
   });
 
   test("Can search in formulas", () => {
     updateSearch(model, "Hell", { searchFormulas: true });
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A4"),
@@ -687,11 +726,11 @@ describe("search options", () => {
 
   test("Can search in formulas(2)", () => {
     updateSearch(model, "4", { searchFormulas: false });
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A3")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId1, "A3")]);
     updateSearch(model, "4", { searchFormulas: true });
-    expect(store.searchMatches).toStrictEqual([]);
-    expect(store.selectedMatchIndex).toBe(null);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toBe(null);
   });
 
   test("Search in formula searches cell content of a cell in error", () => {
@@ -700,7 +739,7 @@ describe("search options", () => {
     expect(getCellError(model, "A7")).toBeDefined();
     expect(getCellError(model, "A8")).toBeDefined();
     updateSearch(model, "sumif", { searchScope: "activeSheet", searchFormulas: true });
-    const matches = store.searchMatches;
+    const matches = findAndReplacePlugin.searchMatches();
     expect(matches).toHaveLength(2);
     expect(matches[0]).toStrictEqual({ sheetId: sheetId1, col: 0, row: 6 });
     expect(matches[1]).toStrictEqual({ sheetId: sheetId1, col: 0, row: 7 });
@@ -708,8 +747,8 @@ describe("search options", () => {
 
   test("Combine matching case / matching entire cell / search in formulas", () => {
     updateSearch(model, "hell");
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A4"),
@@ -717,28 +756,34 @@ describe("search options", () => {
     ]);
     //match case
     updateSearch(model, "hell", { matchCase: true });
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1"), match(sheetId1, "A4")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
+      match(sheetId1, "A1"),
+      match(sheetId1, "A4"),
+    ]);
 
     //match case + exact match
     updateSearch(model, "hell", { matchCase: true, exactMatch: true });
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A4")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId1, "A4")]);
 
     //change input and remove match case + exact match and add look in formula
     updateSearch(model, "SUM", { matchCase: false, exactMatch: false, searchFormulas: true });
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1"), match(sheetId1, "A3")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
+      match(sheetId1, "A1"),
+      match(sheetId1, "A3"),
+    ]);
 
     //add match case
     updateSearch(model, "SUM", { matchCase: true, searchFormulas: true });
-    expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A3")]);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([match(sheetId1, "A3")]);
   });
 
   test("can search a hidden cell with the option includeHidden", () => {
     updateSearch(model, "Hello", { includeHidden: true });
-    expect(store.searchMatches).toStrictEqual([
+    expect(findAndReplacePlugin.searchMatches()).toStrictEqual([
       match(sheetId1, "A1"),
       match(sheetId1, "A2"),
       match(sheetId1, "A6"),
@@ -751,8 +796,8 @@ describe("Replace", () => {
     setCellContent(model, "A1", "hello");
     updateSearch(model, "hello");
     replaceSearch("kikou");
-    expect(store.searchMatches).toHaveLength(0);
-    expect(store.selectedMatchIndex).toStrictEqual(null);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(0);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(null);
     expect(getCellText(model, "A1")).toBe("kikou");
   });
 
@@ -760,8 +805,8 @@ describe("Replace", () => {
     setCellContent(model, "A1", "=SUM(2,2)");
     updateSearch(model, "2", { searchFormulas: true, searchScope: "activeSheet" });
     replaceSearch("4");
-    expect(store.searchMatches).toHaveLength(0);
-    expect(store.selectedMatchIndex).toStrictEqual(null);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(0);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(null);
     expect(getCellText(model, "A1")).toBe("=SUM(4,4)");
   });
 
@@ -775,18 +820,18 @@ describe("Replace", () => {
     });
     updateSearch(model, "2", { searchFormulas: true, searchScope: "activeSheet" });
     replaceSearch("2,5");
-    expect(store.searchMatches).toHaveLength(1);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(1);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
     expect(getCellRawContent(model, "A1")).toBe("=SUM(2.5,2.5)");
   });
 
   test("formulas wont be modified if not looking in formulas or not modifying formulas", () => {
     setCellContent(model, "A1", "=SUM(2,2)");
     updateSearch(model, "4");
-    expect(store.searchMatches).toHaveLength(1);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(1);
     replaceSearch("2");
-    expect(store.searchMatches).toHaveLength(1);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(1);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
     expect(getCellText(model, "A1")).toBe("=SUM(2,2)");
   });
 
@@ -797,8 +842,8 @@ describe("Replace", () => {
     setCellContent(model, "A1", "hello", sheetId2);
     updateSearch(model, "hell", { searchScope: "activeSheet" });
     replaceAll("kikou");
-    expect(store.searchMatches).toHaveLength(0);
-    expect(store.selectedMatchIndex).toStrictEqual(null);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(0);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(null);
     expect(getCellText(model, "A1")).toBe("kikouo");
     expect(getCellText(model, "A1", sheetId2)).toBe("hello");
   });
@@ -810,8 +855,8 @@ describe("Replace", () => {
     setCellContent(model, "A1", "hello", sheetId2);
     updateSearch(model, "hell", { searchScope: "allSheets" });
     replaceAll("kikou");
-    expect(store.searchMatches).toHaveLength(0);
-    expect(store.selectedMatchIndex).toStrictEqual(null);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(0);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(null);
     expect(getCellText(model, "A1")).toBe("kikouo");
     expect(getCellText(model, "A1", sheetId2)).toBe("kikouo");
   });
@@ -827,8 +872,8 @@ describe("Replace", () => {
     });
     updateSearch(model, "hell", { searchScope: "specificRange" });
     replaceAll("kikou");
-    expect(store.searchMatches).toHaveLength(0);
-    expect(store.selectedMatchIndex).toStrictEqual(null);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(0);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(null);
     expect(getCellText(model, "A1", sheetId1)).toBe("hello");
     expect(getCellText(model, "A1", sheetId2)).toBe("kikouo");
     expect(getCellText(model, "B1", sheetId2)).toBe("hello");
@@ -841,8 +886,8 @@ describe("Replace", () => {
     updateSearch(model, "hell");
     expect(getActivePosition(model)).toBe("A1");
     replaceAll("kikou");
-    expect(store.searchMatches).toHaveLength(0);
-    expect(store.selectedMatchIndex).toStrictEqual(null);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(0);
+    expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(null);
     expect(getActivePosition(model)).toBe("A1");
   });
 
@@ -852,14 +897,14 @@ describe("Replace", () => {
     setCellContent(model, "A4", "hell");
 
     updateSearch(model, "hell");
-    store.selectNextMatch();
+    findAndReplacePlugin.selectNextMatch();
     expect(getActivePosition(model)).toBe("A3");
     replaceSearch("2");
     expect(getActivePosition(model)).toBe("A4");
     replaceSearch("2");
     expect(getActivePosition(model)).toBe("A1");
     replaceSearch("2");
-    expect(store.searchMatches).toHaveLength(0);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(0);
   });
 
   test("replacing correctly moves the selection to the next match starting from the second match", () => {
@@ -874,7 +919,7 @@ describe("Replace", () => {
     replaceSearch("2");
     expect(getActivePosition(model)).toBe("A4");
     replaceSearch("2");
-    expect(store.searchMatches).toHaveLength(0);
+    expect(findAndReplacePlugin.searchMatches()).toHaveLength(0);
   });
 });
 
@@ -897,8 +942,8 @@ describe("number of match counts", () => {
     "number of match counts return number of search in allSheet, currentSheet for %s search scope",
     (scope) => {
       updateSearch(model, "hell", { searchScope: scope });
-      expect(store.activeSheetMatchesCount).toBe(2);
-      expect(store.allSheetsMatchesCount).toBe(3);
+      expect(findAndReplacePlugin.matchesCount.activeSheet.total).toBe(2);
+      expect(findAndReplacePlugin.matchesCount.allSheets.total).toBe(3);
     }
   );
 
@@ -906,10 +951,10 @@ describe("number of match counts", () => {
     "number of match counts return number of search in allSheet, currentSheet for %s search scope, with hidden cells",
     (scope) => {
       updateSearch(model, "hell", { searchScope: scope, includeHidden: true });
-      expect(store.activeSheetMatchesCount).toBe(3);
-      expect(store.activeSheetHiddenMatchesCount).toBe(1);
-      expect(store.allSheetsMatchesCount).toBe(5);
-      expect(store.allSheetsHiddenMatchesCount).toBe(2);
+      expect(findAndReplacePlugin.matchesCount.activeSheet.total).toBe(3);
+      expect(findAndReplacePlugin.matchesCount.activeSheet.hidden).toBe(1);
+      expect(findAndReplacePlugin.matchesCount.allSheets.total).toBe(5);
+      expect(findAndReplacePlugin.matchesCount.allSheets.hidden).toBe(2);
     }
   );
 
@@ -918,9 +963,9 @@ describe("number of match counts", () => {
       searchScope: "specificRange",
       specificRange: model.getters.getRangeFromSheetXC(sheetId1, "A1:B2"),
     });
-    expect(store.activeSheetMatchesCount).toBe(2);
-    expect(store.allSheetsMatchesCount).toBe(3);
-    expect(store.specificRangeMatchesCount).toBe(1);
+    expect(findAndReplacePlugin.matchesCount.activeSheet.total).toBe(2);
+    expect(findAndReplacePlugin.matchesCount.allSheets.total).toBe(3);
+    expect(findAndReplacePlugin.matchesCount.specificRange.total).toBe(1);
   });
 });
 
@@ -932,25 +977,25 @@ test("Selecting a previous match located in a previous sheet will select the las
   setCellContent(model, "H34", "9", "sh2");
 
   updateSearch(model, "9", { searchScope: "allSheets" });
-  expect(store.activeSheetMatchesCount).toStrictEqual(3);
+  expect(findAndReplacePlugin.matchesCount.activeSheet.total).toStrictEqual(3);
 
-  store.selectNextMatch();
-  store.selectNextMatch();
-  store.selectNextMatch();
+  findAndReplacePlugin.selectNextMatch();
+  findAndReplacePlugin.selectNextMatch();
+  findAndReplacePlugin.selectNextMatch();
 
-  expect(store.activeSheetMatchesCount).toStrictEqual(1);
+  expect(findAndReplacePlugin.matchesCount.activeSheet.total).toStrictEqual(1);
 
-  expect(store.selectedMatchIndex).toStrictEqual(3);
+  expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(3);
   expect(getActivePosition(model)).toBe("H34");
-  store.selectPreviousMatch();
+  findAndReplacePlugin.selectPreviousMatch();
   expect(getActivePosition(model)).toBe("P14");
-  expect(store.selectedMatchIndex).toStrictEqual(2);
-  store.selectPreviousMatch();
+  expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(2);
+  findAndReplacePlugin.selectPreviousMatch();
   expect(getActivePosition(model)).toBe("B2");
-  expect(store.selectedMatchIndex).toStrictEqual(1);
-  store.selectPreviousMatch();
+  expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(1);
+  findAndReplacePlugin.selectPreviousMatch();
   expect(getActivePosition(model)).toBe("A1");
-  expect(store.selectedMatchIndex).toStrictEqual(0);
+  expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(0);
 });
 
 describe("replace warnings", () => {
@@ -1067,10 +1112,10 @@ test("edit a cell update the search but keep the selected match", () => {
   setCellContent(model, "A1", "test");
   setCellContent(model, "A2", "test");
   updateSearch(model, "test", { searchScope: "activeSheet" });
-  store.selectNextMatch();
-  expect(store.searchMatches).toHaveLength(2);
-  expect(store.selectedMatchIndex).toStrictEqual(1);
+  findAndReplacePlugin.selectNextMatch();
+  expect(findAndReplacePlugin.searchMatches()).toHaveLength(2);
+  expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(1);
   setCellContent(model, "B1", "test");
-  expect(store.searchMatches).toHaveLength(3);
-  expect(store.selectedMatchIndex).toStrictEqual(2);
+  expect(findAndReplacePlugin.searchMatches()).toHaveLength(3);
+  expect(findAndReplacePlugin.selectedMatchIndex()).toStrictEqual(2);
 });

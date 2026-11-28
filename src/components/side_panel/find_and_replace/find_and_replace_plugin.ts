@@ -4,14 +4,13 @@ import { HighlightPlugin, HighlightProvider } from "../../../owl_plugins/highlig
 import { Command } from "../../../types/commands";
 import { CellPosition, Color, Highlight, UID } from "../../../types/misc";
 
-import { usePlugin } from "@odoo/owl";
+import { computed, onWillDestroy, signal, usePlugin } from "@odoo/owl";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { NotificationPlugin } from "../../../owl_plugins/notification_owl_plugin";
+import { OwlPluginWithModel } from "../../../owl_plugins/owl_plugin_with_model";
 import { ViewportsPlugin } from "../../../owl_plugins/viewports_owl_plugin";
-import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { _t } from "../../../translation";
 import { SearchOptions } from "../../../types/find_and_replace";
-import { Get } from "../../../types/store_engine";
 
 const FIND_AND_REPLACE_HIGHLIGHT_COLOR: Color = "#8B008B";
 
@@ -26,27 +25,11 @@ interface RefreshSearchOptions {
   updateSelection?: boolean;
 }
 
-export class FindAndReplaceStore extends SpreadsheetStore implements HighlightProvider {
-  mutators = [
-    "updateSearchOptions",
-    "updateSearchContent",
-    "updateReplaceContent",
-    "searchFormulas",
-    "selectPreviousMatch",
-    "selectNextMatch",
-    "replace",
-  ] as const;
-  private allSheetsMatches: CellPosition[] = [];
-  private activeSheetMatches: CellPosition[] = [];
-  private specificRangeMatches: CellPosition[] = [];
-  private selectedMatchPosition: CellPosition | null = null;
-  private allSheetsHiddenMatches: CellPosition[] = [];
-  private activeSheetHiddenMatches: CellPosition[] = [];
-  private specificRangeHiddenMatches: CellPosition[] = [];
-  hiddenSheetsWithMatches: UID[] = [];
-
+export class FindAndReplacePlugin extends OwlPluginWithModel implements HighlightProvider {
+  private allSheetsMatches = signal<CellPosition[]>([]);
+  private selectedMatchPosition = signal<CellPosition | null>(null);
+  hiddenSheetsWithMatches = signal<UID[]>([]);
   private currentSearchRegex: RegExp | null = null;
-  private initialShowFormulaState: boolean;
   private irreplaceableMatchCount: number = 0;
 
   private isSearchDirty = false;
@@ -58,55 +41,91 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
 
   // fixme: why do we make selectedMatchIndex on top of a selected
   // property in the matches?
-  selectedMatchIndex: number | null = null;
-  toSearch: string = "";
-  toReplace: string = "";
-  searchOptions: SearchOptions = {
+  selectedMatchIndex = signal<number | null>(null);
+  toSearch = signal<string>("");
+  toReplace = signal<string>("");
+  searchOptions = signal.Object<SearchOptions>({
     matchCase: false,
     exactMatch: false,
     searchFormulas: false,
     includeHidden: false,
     searchScope: "activeSheet",
     specificRange: undefined,
-  };
+  });
 
-  constructor(get: Get) {
-    super(get);
-    this.initialShowFormulaState = this.model.getters.shouldShowFormulas();
-    this.searchOptions.searchFormulas = this.initialShowFormulaState;
+  setup() {
+    super.setup();
+    const initialShowFormulaState = this.model().getters.shouldShowFormulas();
+    this.searchOptions().searchFormulas = initialShowFormulaState;
 
     this.highlightPlugin.register(this);
-    this.onDispose(() => {
-      this.model.dispatch("SET_FORMULA_VISIBILITY", { show: this.initialShowFormulaState });
+    onWillDestroy(() => {
+      this.model().dispatch("SET_FORMULA_VISIBILITY", { show: initialShowFormulaState });
       this.highlightPlugin.unRegister(this);
     });
   }
 
-  get searchMatches(): CellPosition[] {
-    switch (this.searchOptions.searchScope) {
+  searchMatches = computed(() => {
+    switch (this.searchOptions().searchScope) {
       case "allSheets":
-        return this.allSheetsMatches;
+        return this.allSheetsMatches();
       case "activeSheet":
-        return this.activeSheetMatches;
+        return this.activeSheetMatches();
       case "specificRange":
-        return this.specificRangeMatches;
+        return this.specificRangeMatches();
     }
-  }
+  });
+
+  allSheetsHiddenMatches = computed(() =>
+    this.allSheetsMatches().filter((match) => {
+      return this.isMatchHidden(match);
+    })
+  );
+
+  activeSheetMatches = computed(() => {
+    return this.allSheetsMatches().filter(
+      (match) => match.sheetId === this.model().getters.getActiveSheetId()
+    );
+  });
+
+  activeSheetHiddenMatches = computed(() => {
+    return this.allSheetsHiddenMatches().filter(
+      (match) => match.sheetId === this.model().getters.getActiveSheetId()
+    );
+  });
+
+  specificRangeMatches = computed(() => {
+    const specificRange = this.searchOptions().specificRange;
+    if (specificRange) {
+      const { sheetId, zone } = specificRange;
+      return this.allSheetsMatches().filter(
+        (match) => match.sheetId === sheetId && isInside(match.col, match.row, zone)
+      );
+    } else {
+      return [];
+    }
+  });
+
+  specificRangeHiddenMatches = computed(() =>
+    this.specificRangeMatches().filter((match) => {
+      return this.isMatchHidden(match);
+    })
+  );
 
   updateSearchContent(toSearch: string) {
-    this._updateSearch(toSearch, this.searchOptions);
+    this._updateSearch(toSearch, this.searchOptions());
   }
 
   updateReplaceContent(toReplace: string) {
-    this.toReplace = toReplace;
+    this.toReplace.set(toReplace);
   }
 
   updateSearchOptions(searchOptions: Partial<SearchOptions>) {
-    this._updateSearch(this.toSearch, { ...this.searchOptions, ...searchOptions });
+    this._updateSearch(this.toSearch(), { ...this.searchOptions(), ...searchOptions });
   }
 
   searchFormulas(showFormula: boolean) {
-    this.model.dispatch("SET_FORMULA_VISIBILITY", { show: showFormula });
+    this.model().dispatch("SET_FORMULA_VISIBILITY", { show: showFormula });
     this.updateSearchOptions({ searchFormulas: showFormula });
   }
 
@@ -122,6 +141,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   }
 
   handle(cmd: Command) {
+    const searchOptions = this.searchOptions();
     switch (cmd.type) {
       case "SET_FORMULA_VISIBILITY":
         this.updateSearchOptions({ searchFormulas: cmd.show });
@@ -141,19 +161,19 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       case "ACTIVATE_SHEET":
         this.isSearchDirty = true;
         this.shouldFinalizeUpdateSelection = true;
-        if (this.searchOptions.specificRange) {
-          this.searchOptions.specificRange = {
-            ...this.searchOptions.specificRange,
-            sheetId: this.getters.getActiveSheetId(),
+        if (searchOptions.specificRange) {
+          searchOptions.specificRange = {
+            ...searchOptions.specificRange,
+            sheetId: this.model().getters.getActiveSheetId(),
           };
         }
         break;
       case "DELETE_SHEET":
         if (
-          this.searchOptions.searchScope === "specificRange" &&
-          this.searchOptions.specificRange?.sheetId === cmd.sheetId
+          searchOptions.searchScope === "specificRange" &&
+          searchOptions.specificRange?.sheetId === cmd.sheetId
         ) {
-          this.searchOptions = { ...this.searchOptions, specificRange: undefined };
+          this.searchOptions.set({ ...searchOptions, specificRange: undefined });
         }
         this.isSearchDirty = true;
         break;
@@ -182,29 +202,23 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     }
   }
 
-  get allSheetsMatchesCount(): number {
-    return this.allSheetsMatches.length;
+  get matchesCount() {
+    return {
+      allSheets: {
+        total: this.allSheetsMatches().length,
+        hidden: this.allSheetsHiddenMatches().length,
+      },
+      activeSheet: {
+        total: this.activeSheetMatches().length,
+        hidden: this.activeSheetHiddenMatches().length,
+      },
+      specificRange: {
+        total: this.specificRangeMatches().length,
+        hidden: this.specificRangeHiddenMatches().length,
+      },
+    };
   }
 
-  get activeSheetMatchesCount(): number {
-    return this.activeSheetMatches.length;
-  }
-
-  get specificRangeMatchesCount(): number {
-    return this.specificRangeMatches.length;
-  }
-
-  get allSheetsHiddenMatchesCount(): number {
-    return this.allSheetsHiddenMatches.length;
-  }
-
-  get activeSheetHiddenMatchesCount(): number {
-    return this.activeSheetHiddenMatches.length;
-  }
-
-  get specificRangeHiddenMatchesCount(): number {
-    return this.specificRangeHiddenMatches.length;
-  }
   // ---------------------------------------------------------------------------
   // Search
   // ---------------------------------------------------------------------------
@@ -214,13 +228,13 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
    * It will then search for matches using the regex and store them.
    */
   private _updateSearch(toSearch: string, searchOptions: SearchOptions) {
-    this.searchOptions = searchOptions;
-    if (toSearch !== this.toSearch) {
-      this.selectedMatchIndex = null;
-      this.selectedMatchPosition = null;
+    this.searchOptions.set(searchOptions);
+    if (toSearch !== this.toSearch()) {
+      this.selectedMatchIndex.set(null);
+      this.selectedMatchPosition.set(null);
     }
-    this.toSearch = toSearch;
-    this.currentSearchRegex = getSearchRegex(this.toSearch, this.searchOptions);
+    this.toSearch.set(toSearch);
+    this.currentSearchRegex = getSearchRegex(this.toSearch(), this.searchOptions());
     this.refreshSearch({ jumpToMatchSheet: true, updateSelection: true });
   }
 
@@ -229,19 +243,20 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
    */
   private refreshSearch(options: RefreshSearchOptions) {
     this.findMatches();
-    if (this.selectedMatchPosition) {
-      if (this.selectedMatchPosition.sheetId !== this.getters.getActiveSheetId()) {
-        this.selectedMatchIndex = null;
-        this.selectedMatchPosition = null;
+    const selectedMatchPosition = this.selectedMatchPosition();
+    if (selectedMatchPosition) {
+      if (selectedMatchPosition.sheetId !== this.model().getters.getActiveSheetId()) {
+        this.selectedMatchIndex.set(null);
+        this.selectedMatchPosition.set(null);
       } else {
-        const index = this.searchMatches.findIndex(
+        const index = this.searchMatches().findIndex(
           (match) =>
-            match.sheetId === this.selectedMatchPosition?.sheetId &&
-            match.col === this.selectedMatchPosition?.col &&
-            match.row === this.selectedMatchPosition?.row
+            match.sheetId === selectedMatchPosition?.sheetId &&
+            match.col === selectedMatchPosition?.col &&
+            match.row === selectedMatchPosition?.row
         );
         if (index !== -1) {
-          this.selectedMatchIndex = index;
+          this.selectedMatchIndex.set(index);
         }
       }
     }
@@ -249,19 +264,21 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   }
 
   private getSheetsInSearchOrder() {
-    switch (this.searchOptions.searchScope) {
+    switch (this.searchOptions().searchScope) {
       case "allSheets":
-        const sheetIds = this.getters.getSheetIds();
-        const activeSheetIndex = sheetIds.findIndex((id) => id === this.getters.getActiveSheetId());
+        const sheetIds = this.model().getters.getSheetIds();
+        const activeSheetIndex = sheetIds.findIndex(
+          (id) => id === this.model().getters.getActiveSheetId()
+        );
         return [
           sheetIds[activeSheetIndex],
           ...sheetIds.slice(activeSheetIndex + 1),
           ...sheetIds.slice(0, activeSheetIndex),
         ];
       case "activeSheet":
-        return [this.getters.getActiveSheetId()];
+        return [this.model().getters.getActiveSheetId()];
       case "specificRange":
-        const specificRange = this.searchOptions.specificRange;
+        const specificRange = this.searchOptions().specificRange;
         if (!specificRange) {
           return [];
         }
@@ -275,12 +292,12 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   private findMatches() {
     const matches: CellPosition[] = [];
     const sheetIdsWithHiddenMatches: UID[] = [];
-    if (this.toSearch) {
-      for (const sheetId of this.getters.getVisibleSheetIds()) {
+    if (this.toSearch()) {
+      for (const sheetId of this.model().getters.getVisibleSheetIds()) {
         matches.push(...this.findMatchesInSheet(sheetId));
       }
-      if (this.searchOptions.includeHidden) {
-        for (const sheetId of this.getters.getInvisibleSheetIds()) {
+      if (this.searchOptions().includeHidden) {
+        for (const sheetId of this.model().getters.getInvisibleSheetIds()) {
           const hiddenMatches = this.findMatchesInSheet(sheetId);
           matches.push(...hiddenMatches);
           if (hiddenMatches.length) {
@@ -289,47 +306,30 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
         }
       }
     }
+    this.allSheetsMatches.set(matches);
+    this.hiddenSheetsWithMatches.set(sheetIdsWithHiddenMatches);
+  }
 
-    // set results
-    this.allSheetsMatches = matches;
-    this.activeSheetMatches = matches.filter(
-      (match) => match.sheetId === this.getters.getActiveSheetId()
-    );
-    this.allSheetsHiddenMatches = matches.filter((match) => {
-      const isSheetHidden = this.getters.getInvisibleSheetIds().includes(match.sheetId);
-      const isColHidden = this.getters.isColHidden(match.sheetId, match.col);
-      const isRowHidden = this.getters.isRowHidden(match.sheetId, match.row);
-      return isSheetHidden || isColHidden || isRowHidden;
-    });
-    this.activeSheetHiddenMatches = this.allSheetsHiddenMatches.filter(
-      (match) => match.sheetId === this.getters.getActiveSheetId()
-    );
-    if (this.searchOptions.specificRange) {
-      const { sheetId, zone } = this.searchOptions.specificRange;
-      this.specificRangeMatches = matches.filter(
-        (match) => match.sheetId === sheetId && isInside(match.col, match.row, zone)
-      );
-      this.specificRangeHiddenMatches = this.allSheetsHiddenMatches.filter(
-        (match) => match.sheetId === sheetId && isInside(match.col, match.row, zone)
-      );
-    } else {
-      this.specificRangeMatches = [];
-      this.specificRangeHiddenMatches = [];
-    }
-    this.hiddenSheetsWithMatches = sheetIdsWithHiddenMatches;
+  private isMatchHidden(position: CellPosition): boolean {
+    const { sheetId, col, row } = position;
+    const isSheetHidden = !this.model().getters.isSheetVisible(sheetId);
+    const isColHidden = this.model().getters.isColHidden(sheetId, col);
+    const isRowHidden = this.model().getters.isRowHidden(sheetId, row);
+    return isSheetHidden || isColHidden || isRowHidden;
   }
 
   private findMatchesInSheet(sheetId: string) {
     const matches: CellPosition[] = [];
-
-    const { left, right, top, bottom } = this.getters.getSheetZone(sheetId);
-
+    const { left, right, top, bottom } = this.model().getters.getSheetZone(sheetId);
+    const isSheetVisible = this.model().getters.isSheetVisible(sheetId);
     for (let row = top; row <= bottom; row++) {
       for (let col = left; col <= right; col++) {
-        const isSheetHidden = this.getters.getInvisibleSheetIds().includes(sheetId);
-        const isColHidden = this.getters.isColHidden(sheetId, col);
-        const isRowHidden = this.getters.isRowHidden(sheetId, row);
-        if (!this.searchOptions.includeHidden && (isSheetHidden || isColHidden || isRowHidden)) {
+        const isColHidden = this.model().getters.isColHidden(sheetId, col);
+        const isRowHidden = this.model().getters.isRowHidden(sheetId, row);
+        if (
+          !this.searchOptions().includeHidden &&
+          (!isSheetVisible || isColHidden || isRowHidden)
+        ) {
           continue;
         }
         const cellPosition: CellPosition = { sheetId, col, row };
@@ -351,14 +351,15 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
    * and selectedMatchIndex.
    */
   private selectNextCell(indexChange: Direction, options: RefreshSearchOptions) {
-    const matches = this.searchMatches;
+    const matches = this.searchMatches();
     if (!matches.length) {
-      this.selectedMatchIndex = null;
-      this.selectedMatchPosition = null;
+      this.selectedMatchIndex.set(null);
+      this.selectedMatchPosition.set(null);
       return;
     }
     let nextIndex: number;
-    if (this.selectedMatchIndex === null) {
+    const selectedMatchIndex = this.selectedMatchIndex();
+    if (selectedMatchIndex === null) {
       let nextMatchIndex = -1;
       // if search is not available in current sheet will select in next sheet
       for (const sheetId of this.getSheetsInSearchOrder()) {
@@ -369,27 +370,30 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       }
       nextIndex = nextMatchIndex;
     } else {
-      nextIndex = this.selectedMatchIndex + indexChange;
+      nextIndex = selectedMatchIndex + indexChange;
     }
     // loop index value inside the array (index -1 => last index)
     nextIndex = (nextIndex + matches.length) % matches.length;
-    this.selectedMatchIndex = nextIndex;
-    this.selectedMatchPosition = matches[this.selectedMatchIndex];
+    this.selectedMatchIndex.set(nextIndex);
+    this.selectedMatchPosition.set(matches[nextIndex]);
     const selectedMatch = matches[nextIndex];
 
     // Switch to the sheet where the match is located
-    if (options.jumpToMatchSheet && this.getters.getActiveSheetId() !== selectedMatch.sheetId) {
-      this.model.dispatch("ACTIVATE_SHEET", {
-        sheetIdFrom: this.getters.getActiveSheetId(),
+    if (
+      options.jumpToMatchSheet &&
+      this.model().getters.getActiveSheetId() !== selectedMatch.sheetId
+    ) {
+      this.model().dispatch("ACTIVATE_SHEET", {
+        sheetIdFrom: this.model().getters.getActiveSheetId(),
         sheetIdTo: selectedMatch.sheetId,
       });
       // We do not want to reset the selection at finalize in this case
       this.isSearchDirty = false;
     }
     // we want grid selection to capture the selection stream
-    this.model.selection.getBackToDefault();
+    this.model().selection.getBackToDefault();
     if (options.updateSelection) {
-      this.model.selection.selectCell(selectedMatch.col, selectedMatch.row, {
+      this.model().selection.selectCell(selectedMatch.col, selectedMatch.row, {
         allowsHiddenSelection: true,
       });
     }
@@ -399,26 +403,27 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
    * Replace the value of the currently selected match
    */
   replace() {
-    if (this.selectedMatchIndex === null) {
+    const selectedMatchIndex = this.selectedMatchIndex();
+    if (selectedMatchIndex === null) {
       return;
     }
     this.shouldFinalizeUpdateSelection = true;
-    this.model.dispatch("REPLACE_SEARCH", {
-      searchString: this.toSearch,
-      replaceWith: this.toReplace,
-      matches: [this.searchMatches[this.selectedMatchIndex]],
-      searchOptions: this.searchOptions,
+    this.model().dispatch("REPLACE_SEARCH", {
+      searchString: this.toSearch(),
+      replaceWith: this.toReplace(),
+      matches: [this.searchMatches()[selectedMatchIndex]],
+      searchOptions: this.searchOptions(),
     });
   }
   /**
    * Apply the replace function to all the matches one time.
    */
   replaceAll() {
-    this.model.dispatch("REPLACE_SEARCH", {
-      searchString: this.toSearch,
-      replaceWith: this.toReplace,
-      matches: this.searchMatches,
-      searchOptions: this.searchOptions,
+    this.model().dispatch("REPLACE_SEARCH", {
+      searchString: this.toSearch(),
+      replaceWith: this.toReplace(),
+      matches: this.searchMatches(),
+      searchOptions: this.searchOptions(),
     });
   }
 
@@ -457,11 +462,11 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     replaceWith: string,
     searchOptions: SearchOptions
   ) {
-    if (this.getters.isSheetLocked(selectedMatch.sheetId)) {
+    if (this.model().getters.isSheetLocked(selectedMatch.sheetId)) {
       this.irreplaceableMatchCount++;
       return;
     }
-    const cell = this.getters.getCell(selectedMatch);
+    const cell = this.model().getters.getCell(selectedMatch);
     if (!cell?.isFormula && !cell?.content) {
       return;
     }
@@ -473,16 +478,18 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
 
     const searchRegex = getSearchRegex(searchString, searchOptions);
     const replaceRegex = new RegExp(searchRegex.source, searchRegex.flags + "g");
-    const toReplace: string | null = this.getters.getCellText(selectedMatch, {
+    const toReplace: string | null = this.model().getters.getCellText(selectedMatch, {
       showFormula: searchOptions.searchFormulas,
     });
     const content = toReplace.replace(replaceRegex, replaceWith);
-    const canonicalContent = canonicalizeNumberContent(content, this.getters.getLocale());
-    this.model.dispatch("UPDATE_CELL", { ...selectedMatch, content: canonicalContent });
+    const canonicalContent = canonicalizeNumberContent(content, this.model().getters.getLocale());
+    this.model().dispatch("UPDATE_CELL", { ...selectedMatch, content: canonicalContent });
   }
 
   private getSearchableString(position: CellPosition): string {
-    return this.getters.getCellText(position, { showFormula: this.searchOptions.searchFormulas });
+    return this.model().getters.getCellText(position, {
+      showFormula: this.searchOptions().searchFormulas,
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -491,30 +498,30 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
 
   get highlights(): Highlight[] {
     const highlights: Highlight[] = [];
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
 
-    for (const [index, match] of this.searchMatches.entries()) {
+    for (const [index, match] of this.searchMatches().entries()) {
       if (match.sheetId !== sheetId) {
         continue; // Skip drawing matches from other sheets
       }
 
       const zone = positionToZone(match);
-      const zoneWithMerge = this.getters.expandZone(sheetId, zone);
+      const zoneWithMerge = this.model().getters.expandZone(sheetId, zone);
 
       const { width, height } = this.viewPlugin.viewports().getVisibleRect(sheetId, zoneWithMerge);
       if (width > 0 && height > 0) {
         highlights.push({
-          range: this.model.getters.getRangeFromZone(sheetId, zoneWithMerge),
+          range: this.model().getters.getRangeFromZone(sheetId, zoneWithMerge),
           color: FIND_AND_REPLACE_HIGHLIGHT_COLOR,
-          noBorder: index !== this.selectedMatchIndex,
+          noBorder: index !== this.selectedMatchIndex(),
           thinLine: true,
           fillAlpha: 0.2,
         });
       }
     }
 
-    if (this.searchOptions.searchScope === "specificRange") {
-      const range = this.searchOptions.specificRange;
+    if (this.searchOptions().searchScope === "specificRange") {
+      const range = this.searchOptions().specificRange;
       if (range && range.sheetId === sheetId) {
         highlights.push({
           range,
