@@ -4,6 +4,7 @@ import { Model } from "../../model";
 import { CellHoverOverlayPlugin } from "../../owl_plugins/cell_hover_overlay_owl_plugin";
 import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { ExposeViewportsPlugin } from "../../owl_plugins/expose_viewports_owl_plugin";
+import { FocusedSelectionInputPlugin } from "../../owl_plugins/focused_selection_input_plugin";
 import { FormulaFingerprintPlugin } from "../../owl_plugins/formula_fingerprints_store";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import {
@@ -68,6 +69,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
       ChartAnimationPlugin,
       ZoomableChartPlugin,
       ViewportsPlugin,
+      FocusedSelectionInputPlugin,
     ],
     {
       popoverContainerRectSignal: spreadsheetRectPlugin.rect,
