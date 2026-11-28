@@ -19,7 +19,6 @@ import { CellComposerStore } from "../composer/cell_composer_store";
 import { Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 
-const COMPOSER_BORDER_WIDTH = 3 * 0.4 * globalThis.devicePixelRatio || 1;
 const GRID_CELL_REFERENCE_TOP_OFFSET = 28;
 
 /**
@@ -52,6 +51,10 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
 
   get defaultRect() {
     return { x: 0, y: 0, width: 0, height: 0 };
+  }
+
+  get composerBorderWidth() {
+    return 3 * 0.4 * globalThis.devicePixelRatio || 1;
   }
 
   setup() {
@@ -91,7 +94,7 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
   get cellReferenceStyle(): string {
     const { x: left, y: top } = this.rect;
     return cssPropertiesToCss({
-      left: `${left - COMPOSER_BORDER_WIDTH}px`,
+      left: `${left - this.composerBorderWidth}px`,
       top: `${top - GRID_CELL_REFERENCE_TOP_OFFSET}px`,
     });
   }
@@ -105,7 +108,7 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
   get composerProps(): PropsOf<Composer> {
     const { width, height } = this.viewStore.sheetViewDimensionWithHeaders;
     // Remove the wrapper border width
-    const maxHeight = this.props.gridDims.height - this.rect.y - 2 * COMPOSER_BORDER_WIDTH;
+    const maxHeight = this.props.gridDims.height - this.rect.y - 2 * this.composerBorderWidth;
     return {
       rect: { ...this.rect },
       delimitation: {
@@ -128,6 +131,7 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
       composerStore: this.composerStore,
       inputStyle: `max-height: ${maxHeight}px;`,
       inputMode: this.composerStore.editionMode === "inactive" ? "none" : undefined,
+      osThemeDependant: true,
     };
   }
 
@@ -144,8 +148,8 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
     const { x: left, y: top, width, height } = this.rect;
 
     // color style
-    const background = (!_isFormula && style.fillColor) || "#ffffff";
-    const color = (!_isFormula && style.textColor) || "#000000";
+    const background = (!_isFormula && style.fillColor) || "";
+    const color = (!_isFormula && style.textColor) || "";
 
     // font style
     const fontSize = (!_isFormula && style.fontSize) || 10;
@@ -178,7 +182,7 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
     return cssPropertiesToCss({
       left: `${left - 1}px`,
       top: `${top}px`,
-      border: `${COMPOSER_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR}`,
+      border: `${this.composerBorderWidth}px solid ${SELECTION_BORDER_COLOR}`,
 
       "min-width": `${minWidth}px`,
       "min-height": `${minHeight}px`,
