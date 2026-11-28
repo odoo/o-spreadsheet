@@ -745,10 +745,6 @@ export interface RepeatPasteCommand {
   pasteOption?: ClipboardPasteOptions;
 }
 
-export interface CleanClipBoardHighlightCommand {
-  type: "CLEAN_CLIPBOARD_HIGHLIGHT";
-}
-
 export interface AutoFillCellCommand {
   type: "AUTOFILL_CELL";
   originCol: number;
@@ -1106,7 +1102,6 @@ export type LocalCommand =
   | CopyPasteCellsOnLeftCommand
   | CopyPasteCellsOnZoneCommand
   | RepeatPasteCommand
-  | CleanClipBoardHighlightCommand
   | AutoFillCellCommand
   | PasteFromOSClipboardCommand
   | AutoresizeColumnsCommand
