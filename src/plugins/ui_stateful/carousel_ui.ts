@@ -1,5 +1,5 @@
 import { SpreadsheetChart } from "../../helpers/figures/chart";
-import { deepEquals, insertItemsAtIndex } from "../../helpers/misc";
+import { insertItemsAtIndex } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
 import { ChartDefinition } from "../../types/chart/chart";
 import {
@@ -19,11 +19,12 @@ import { UIPlugin } from "../ui_plugin";
 export class CarouselUIPlugin extends UIPlugin {
   static getters = [
     "getSelectedCarouselItem",
+    "getSelectedCarouselItemIndex",
     "getChartFromFigureId",
     "getChartIdFromFigureId",
   ] as const;
 
-  carouselStates: Record<UID, string | undefined> = {};
+  carouselStates: Record<UID, number | undefined> = {};
 
   validators = {
     ADD_FIGURES_CHART_TO_CAROUSEL: this.checkAddFiguresChartToCarousel,
@@ -47,17 +48,17 @@ export class CarouselUIPlugin extends UIPlugin {
   };
 
   private onUpdateCarouselActiveItem(cmd: UpdateCarouselActiveItemCommand) {
-    this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
+    this.carouselStates[cmd.carouselId] = cmd.itemIndex;
   }
 
   private onAddFiguresChartToCarousel(cmd: AddFiguresChartToCarouselCommand) {
     cmd.chartFigureIds.forEach((figureId) => {
-      this.addFigureChartToCarousel(cmd.carouselFigureId, figureId, cmd.sheetId);
+      this.addFigureChartToCarousel(cmd.carouselId, figureId, cmd.sheetId);
     });
   }
 
   private onAddNewChartToCarousel(cmd: AddNewChartToCarouselCommand) {
-    this.addNewChartToCarousel(cmd.figureId, cmd.newChartId, cmd.sheetId, cmd.chartDefinition);
+    this.addNewChartToCarousel(cmd.carouselId, cmd.newChartId, cmd.sheetId, cmd.chartDefinition);
   }
 
   private onUpdateCarousel(cmd: UpdateCarouselCommand) {
@@ -76,7 +77,7 @@ export class CarouselUIPlugin extends UIPlugin {
 
   private checkAddFiguresChartToCarousel(cmd: AddFiguresChartToCarouselCommand) {
     if (
-      !this.getters.doesCarouselExist(cmd.carouselFigureId) ||
+      !this.getters.doesCarouselExist(cmd.carouselId) ||
       cmd.chartFigureIds.some(
         (figureId) => this.getters.getFigure(cmd.sheetId, figureId)?.tag !== "chart"
       )
@@ -100,17 +101,20 @@ export class CarouselUIPlugin extends UIPlugin {
   }
 
   private checkCarouselExists(cmd: AddNewChartToCarouselCommand) {
-    return this.getters.doesCarouselExist(cmd.figureId)
+    return this.getters.doesCarouselExist(cmd.carouselId)
       ? CommandResult.Success
       : CommandResult.InvalidFigureId;
   }
 
   private checkUpdateCarouselActiveItem(cmd: UpdateCarouselActiveItemCommand) {
-    if (!this.getters.doesCarouselExist(cmd.figureId)) {
+    if (!this.getters.doesCarouselExist(cmd.carouselId)) {
       return CommandResult.InvalidFigureId;
     }
-    if (!this.getters.getCarousel(cmd.figureId).items.some((item) => deepEquals(item, cmd.item))) {
-      return CommandResult.InvalidCarouselItem;
+    if (
+      cmd.itemIndex < 0 ||
+      cmd.itemIndex >= this.getters.getCarousel(cmd.carouselId).items.length
+    ) {
+      return CommandResult.InvalidCarouselIndex;
     }
     return CommandResult.Success;
   }
@@ -122,9 +126,21 @@ export class CarouselUIPlugin extends UIPlugin {
       return;
     }
     const figure = this.getters.getFigure(sheetId, carouselId);
-
+    if (!figure) {
+      return;
+    }
     const chartDefinition = this.getters.getChartDefinition(chartId);
-    if (!chartDefinition || !figure) {
+    if (!chartDefinition) {
+      return;
+    }
+    const chartIndex = carousel.items.findIndex(
+      (item) => item.type === "chart" && item.chartId === chartId
+    );
+    if (chartIndex === -1) {
+      return;
+    }
+    const selectedItemIndex = this.getSelectedCarouselItemIndex(carouselId);
+    if (selectedItemIndex === undefined) {
       return;
     }
 
@@ -147,6 +163,13 @@ export class CarouselUIPlugin extends UIPlugin {
       figureId: carouselId,
       definition: this.getters.carouselToCarouselData({ ...carousel, items }),
     });
+    if (chartIndex < selectedItemIndex) {
+      this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+        carouselId,
+        sheetId,
+        itemIndex: selectedItemIndex - 1,
+      });
+    }
     this.dispatch("SELECT_FIGURE", { figureId: newChartFigureId });
   }
 
@@ -155,12 +178,16 @@ export class CarouselUIPlugin extends UIPlugin {
     if (!carousel.items.length) {
       return undefined;
     }
+    const index = this.carouselStates[figureId] || 0;
+    return carousel.items[index];
+  }
 
-    return this.carouselStates[figureId]
-      ? carousel.items.find(
-          (item) => this.getCarouselItemId(item) === this.carouselStates[figureId]
-        )
-      : carousel.items[0];
+  getSelectedCarouselItemIndex(figureId: UID): number | undefined {
+    const carousel = this.getters.getCarousel(figureId);
+    if (!carousel.items.length) {
+      return undefined;
+    }
+    return this.carouselStates[figureId] || 0;
   }
 
   getChartFromFigureId(figureId: UID): SpreadsheetChart | undefined {
@@ -202,11 +229,9 @@ export class CarouselUIPlugin extends UIPlugin {
     if (carousel.items.length === 0) {
       delete this.carouselStates[figureId];
     } else if (!this.carouselStates[figureId]) {
-      this.carouselStates[figureId] = this.getCarouselItemId(carousel.items[0]);
-    } else if (
-      !carousel.items.some((item) => this.getCarouselItemId(item) === this.carouselStates[figureId])
-    ) {
-      this.carouselStates[figureId] = this.getCarouselItemId(carousel.items[0]);
+      this.carouselStates[figureId] = 0;
+    } else if (this.carouselStates[figureId]! >= carousel.items.length) {
+      this.carouselStates[figureId] = 0;
     }
   }
 
@@ -231,7 +256,11 @@ export class CarouselUIPlugin extends UIPlugin {
       figureId,
       definition: this.getters.carouselToCarouselData(definition),
     });
-    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", { figureId, sheetId, item: carouselItem });
+    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+      carouselId: figureId,
+      sheetId,
+      itemIndex: definition.items.length - 1,
+    });
   }
 
   private addFigureChartToCarousel(figureId: UID, chartFigureId: UID, sheetId: string) {
@@ -258,7 +287,11 @@ export class CarouselUIPlugin extends UIPlugin {
       definition: this.getters.getChartDefinition(chartId),
     });
     this.dispatch("DELETE_FIGURE", { sheetId, figureId: chartFigureId });
-    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", { figureId, sheetId, item: newItem });
+    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+      carouselId: figureId,
+      sheetId,
+      itemIndex: definition.items.length - 1,
+    });
   }
 
   private onDuplicateCarouselChart({
@@ -273,10 +306,11 @@ export class CarouselUIPlugin extends UIPlugin {
     }
     const carousel = this.getters.getCarousel(carouselId);
 
+    const selectedItemIndex = this.getSelectedCarouselItemIndex(carouselId);
     const duplicatedItemIndex = carousel.items.findIndex(
       (item) => item.type === "chart" && item.chartId === chartId
     );
-    if (duplicatedItemIndex === -1) {
+    if (duplicatedItemIndex === -1 || selectedItemIndex === undefined) {
       return;
     }
 
@@ -298,9 +332,12 @@ export class CarouselUIPlugin extends UIPlugin {
       figureId: carouselId,
       definition: this.getters.carouselToCarouselData({ ...carousel, items: carouselItems }),
     });
-  }
-
-  private getCarouselItemId(item: CarouselItem): UID {
-    return item.type === "chart" ? item.chartId : "carouselDataView";
+    if (duplicatedItemIndex < selectedItemIndex) {
+      this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+        carouselId,
+        sheetId,
+        itemIndex: selectedItemIndex + 1,
+      });
+    }
   }
 }
