@@ -1,15 +1,14 @@
 import { proxy, signal, useListener, useProps } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR } from "../../../../../constants";
+import { provideAndUsePlugin } from "../../../../../helpers/owl3_helpers";
 import { fuzzyLookup } from "../../../../../helpers/search";
 import {
   AutoCompleteProposal,
   AutoCompleteProvider,
 } from "../../../../../registries/auto_completes/auto_complete_registry";
-import { useLocalStore } from "../../../../../store_engine/store_hooks";
 import { PivotField } from "../../../../../types/pivot";
-import { Store } from "../../../../../types/store_engine";
 import { TextValueProvider } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown";
-import { AutoCompleteStore } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown_store";
+import { AutoCompletePlugin } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown_plugin";
 import { useAutofocus } from "../../../../helpers/autofocus_hook";
 import { getHtmlContentFromPattern } from "../../../../helpers/html_content_helpers";
 import { OSComponent } from "../../../../os_component";
@@ -27,13 +26,12 @@ export class AddDimensionButton extends OSComponent {
   private buttonRef = signal.ref(HTMLButtonElement);
   private popover = proxy({ isOpen: false });
   private search = proxy({ input: "" });
-  private autoComplete!: Store<AutoCompleteStore>;
+  private autoCompletePlugin = provideAndUsePlugin(AutoCompletePlugin);
   private autofocusRef = signal.ref(HTMLInputElement);
 
   // TODO navigation keys. (this looks a lot like auto-complete list. Could maybe be factorized)
   setup() {
-    this.autoComplete = useLocalStore(AutoCompleteStore);
-    this.autoComplete.useProvider(this.getProvider());
+    this.autoCompletePlugin.useProvider(this.getProvider());
     useListener(window, "click", (ev) => {
       if (ev.target !== this.buttonRef()) {
         this.popover.isOpen = false;
@@ -92,7 +90,7 @@ export class AddDimensionButton extends OSComponent {
 
   updateSearch(searchInput: string) {
     this.search.input = searchInput;
-    this.autoComplete.useProvider(this.getProvider());
+    this.autoCompletePlugin.useProvider(this.getProvider());
   }
 
   pickField(field: PivotField) {
@@ -103,24 +101,24 @@ export class AddDimensionButton extends OSComponent {
   togglePopover() {
     this.popover.isOpen = !this.popover.isOpen;
     this.search.input = "";
-    this.autoComplete.useProvider(this.getProvider());
+    this.autoCompletePlugin.useProvider(this.getProvider());
   }
 
   onKeyDown(ev: KeyboardEvent) {
     switch (ev.key) {
       case "Enter":
-        const proposals = this.autoComplete.provider?.proposals;
+        const proposals = this.autoCompletePlugin.provider()?.proposals;
         if (proposals?.length === 1) {
-          this.autoComplete.provider?.selectProposal(proposals[0]);
+          this.autoCompletePlugin.provider()?.selectProposal(proposals[0]);
         }
-        const proposal = this.autoComplete.selectedProposal;
+        const proposal = this.autoCompletePlugin.selectedProposal;
         if (proposal) {
-          this.autoComplete.provider?.selectProposal(proposal);
+          this.autoCompletePlugin.provider()?.selectProposal(proposal);
         }
         break;
       case "ArrowUp":
       case "ArrowDown":
-        this.autoComplete.moveSelection(ev.key === "ArrowDown" ? "next" : "previous");
+        this.autoCompletePlugin.moveSelection(ev.key === "ArrowDown" ? "next" : "previous");
         break;
       case "Escape":
         this.popover.isOpen = false;
