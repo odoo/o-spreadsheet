@@ -30,14 +30,14 @@ describe("spreadsheet pivot auto complete", () => {
       expect(composer.autoCompleteProposals).toEqual([
         {
           description: "My pivot",
-          fuzzySearchKey: "1My pivot",
+          fuzzySearchKey: '1My pivot"1"',
           htmlContent: [{ color: "#02c39a", value: "1" }],
           text: "1",
           alwaysExpanded: true,
         },
         {
           description: "My pivot 2",
-          fuzzySearchKey: "2My pivot 2",
+          fuzzySearchKey: '2My pivot 2"2"',
           htmlContent: [{ color: "#02c39a", value: "2" }],
           text: "2",
           alwaysExpanded: true,
@@ -53,25 +53,28 @@ describe("spreadsheet pivot auto complete", () => {
     }
   });
 
-  test("do not show autocomplete if pivot id already set", async () => {
+  test("autocomplete pivot id when the id is already typed", async () => {
     const model = createModelWithPivot("A1:I5");
-    addPivot(model, "A1:A4", {
-      columns: [],
-      rows: [],
-      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
-    });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     for (const func of ["PIVOT", "PIVOT.HEADER", "PIVOT.VALUE"]) {
-      // id as a number
-      composer.startEdition(`=${func}(1`);
+      composer.startEdition("=");
+      composer.setCurrentContent(`=${func}(1`);
       await nextTick();
-      expect(composer.isAutoCompleteDisplayed).toBe(false);
+      expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(["1"]);
       composer.cancelEdition();
+    }
+  });
 
-      // id as a string
-      composer.startEdition(`=${func}("1"`);
+  test("autocomplete pivot id typed as a string replaces it with a number", async () => {
+    const model = createModelWithPivot("A1:I5");
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
+    for (const func of ["PIVOT", "PIVOT.HEADER", "PIVOT.VALUE"]) {
+      composer.startEdition("=");
+      composer.setCurrentContent(`=${func}("1"`);
       await nextTick();
-      expect(composer.isAutoCompleteDisplayed).toBe(false);
+      expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(["1"]);
+      composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
+      expect(composer.currentContent).toBe(`=${func}(1`);
       composer.cancelEdition();
     }
   });
@@ -890,7 +893,7 @@ describe("spreadsheet pivot auto complete", () => {
     expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
-  test.each(["=add(1,2", "=add(1,2)", "=true", "=false"])(
+  test.each(["=add(1,2", "=add(1,2)", "=2", "=A1", "=true", "=false"])(
     "do not auto complete dimension after %s",
     async (content) => {
       // prettier-ignore

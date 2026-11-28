@@ -27,9 +27,6 @@ autoCompleteProviders.add("pivot_ids", {
       return;
     }
     const pivotIds = this.getters.getPivotIds();
-    if (pivotIds.includes(tokenAtCursor.value)) {
-      return;
-    }
     return pivotIds
       .map((pivotId) => {
         const definition = this.getters.getPivotCoreDefinition(pivotId);
@@ -40,7 +37,7 @@ autoCompleteProviders.add("pivot_ids", {
           text: str,
           description: definition.name,
           htmlContent: [{ value: str, color: tokenColors.NUMBER }],
-          fuzzySearchKey: str + definition.name,
+          fuzzySearchKey: str + definition.name + `"${str}"`,
           alwaysExpanded: true,
         };
       })
@@ -50,7 +47,7 @@ autoCompleteProviders.add("pivot_ids", {
 });
 
 autoCompleteProviders.add("pivot_measures", {
-  sequence: 50,
+  sequence: 51,
   autoSelectFirstProposal: true,
   getProposals(tokenAtCursor) {
     const functionContext = tokenAtCursor.functionContext;
@@ -89,7 +86,7 @@ autoCompleteProviders.add("pivot_measures", {
 });
 
 autoCompleteProviders.add("pivot_group_fields", {
-  sequence: 50,
+  sequence: 52,
   autoSelectFirstProposal: true,
   getProposals(tokenAtCursor) {
     const functionContext = tokenAtCursor.functionContext;
@@ -192,7 +189,7 @@ function canAutoCompletePivotHeaderField(tokenAtCursor) {
 }
 
 autoCompleteProviders.add("pivot_group_values", {
-  sequence: 50,
+  sequence: 53,
   autoSelectFirstProposal: true,
   getProposals(tokenAtCursor) {
     const functionContext = tokenAtCursor.functionContext;

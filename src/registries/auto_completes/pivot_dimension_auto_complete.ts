@@ -12,6 +12,13 @@ export function createMeasureAutoComplete(
     sequence: 0,
     autoSelectFirstProposal: true,
     getProposals(tokenAtCursor) {
+      if (
+        !["SYMBOL", "UNKNOWN", "STRING", "ARG_SEPARATOR", "LEFT_PAREN", "OPERATOR"].includes(
+          tokenAtCursor.type
+        )
+      ) {
+        return;
+      }
       const measureProposals = pivot.measures
         .filter((m) => m !== forComputedMeasure)
         .map((measure) => {
