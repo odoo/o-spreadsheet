@@ -43,7 +43,7 @@ import { PivotDimension } from "./components/side_panel/pivot/pivot_layout_confi
 import { PivotDimensionGranularity } from "./components/side_panel/pivot/pivot_layout_configurator/pivot_dimension_granularity/pivot_dimension_granularity";
 import { PivotDimensionOrder } from "./components/side_panel/pivot/pivot_layout_configurator/pivot_dimension_order/pivot_dimension_order";
 import { PivotLayoutConfigurator } from "./components/side_panel/pivot/pivot_layout_configurator/pivot_layout_configurator";
-import { PivotSidePanelStore } from "./components/side_panel/pivot/pivot_side_panel/pivot_side_panel_store";
+import { PivotSidePanelPlugin } from "./components/side_panel/pivot/pivot_side_panel/pivot_side_panel_plugin";
 import { PivotTitleSection } from "./components/side_panel/pivot/pivot_title_section/pivot_title_section";
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
@@ -127,7 +127,6 @@ import { WaterfallChartDesignPanel } from "./components/side_panel/chart/waterfa
 import { GenericZoomableChartDesignPanel } from "./components/side_panel/chart/zoomable_chart/design_panel";
 import { SidePanelCollapsible } from "./components/side_panel/components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "./components/side_panel/components/radio_selection/radio_selection";
-import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
 import { HoveredTableStore } from "./components/tables/hovered_table_store";
 import { TextInput } from "./components/text_input/text_input";
 import { ChartTerms } from "./components/translations_terms";
@@ -371,6 +370,7 @@ import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
 import { CalendarButton } from "./components/side_panel/criterion_form/calendar_button/calendar_button";
 import { PerfItem } from "./components/side_panel/perf_profile/perf_item";
+import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
 import { Spreadsheet } from "./components/spreadsheet/spreadsheet";
 import { useSpreadsheetProviders } from "./components/spreadsheet/spreadsheet_providers";
 import { TopBar } from "./components/top_bar/top_bar";
@@ -609,7 +609,6 @@ export const stores = {
   useStore,
   useLocalStore,
   SidePanelStore,
-  PivotSidePanelStore,
   PivotMeasureDisplayPanelStore,
   TableAutofillStore,
   ClientFocusStore,
@@ -634,6 +633,7 @@ export const owlPlugins = {
   RendererPlugin,
   HighlightPlugin,
   DelayedHoveredCellPlugin,
+  PivotSidePanelPlugin,
 };
 
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";

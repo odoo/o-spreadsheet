@@ -1,9 +1,8 @@
 import { useProps } from "@odoo/owl";
+import { provideAndUsePlugin } from "../../../../../helpers/owl3_helpers";
 import { DEFAULT_PIVOT_STYLE } from "../../../../../helpers/pivot/pivot_helpers";
 import { PIVOT_TABLE_PRESETS } from "../../../../../helpers/pivot_table_presets";
-import { useLocalStore } from "../../../../../store_engine/store_hooks";
 import { PivotStyle } from "../../../../../types/pivot";
-import { Store } from "../../../../../types/store_engine";
 import { TableConfig, TableStyle } from "../../../../../types/table";
 import { NumberInput } from "../../../../number_input/number_input";
 import { OSComponent } from "../../../../os_component";
@@ -11,7 +10,7 @@ import { types } from "../../../../props_validation";
 import { TableStylePicker } from "../../../../tables/table_style_picker/table_style_picker";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
-import { PivotSidePanelStore } from "../pivot_side_panel_store";
+import { PivotSidePanelPlugin } from "../pivot_side_panel_plugin";
 
 export class PivotDesignPanel extends OSComponent {
   static template = "o-spreadsheet-PivotDesignPanel";
@@ -21,19 +20,20 @@ export class PivotDesignPanel extends OSComponent {
     pivotId: types.UID(),
   });
 
-  store!: Store<PivotSidePanelStore>;
-
-  setup() {
-    this.store = useLocalStore(PivotSidePanelStore, this.props.pivotId, "neverDefer");
-  }
+  pivotSidePanelPlugin = provideAndUsePlugin(PivotSidePanelPlugin, {
+    pivotId: this.props.pivotId,
+    updateMode: "neverDefer",
+  });
 
   updatePivotStyleNumberProperty(valueStr: string, key: keyof PivotStyle) {
     const value = parseInt(valueStr);
-    this.store.update({ style: { ...this.pivotStyle, [key]: isNaN(value) ? undefined : value } });
+    this.pivotSidePanelPlugin.update({
+      style: { ...this.pivotStyle, [key]: isNaN(value) ? undefined : value },
+    });
   }
 
   updatePivotStyleProperty(key: keyof PivotStyle, value: PivotStyle[keyof PivotStyle]) {
-    this.store.update({ style: { ...this.pivotStyle, [key]: value } });
+    this.pivotSidePanelPlugin.update({ style: { ...this.pivotStyle, [key]: value } });
   }
 
   get pivotStyle() {
