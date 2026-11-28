@@ -93,9 +93,10 @@ function convertChartData(
 ): ChartDefinition<string> | undefined {
   const dataSetsHaveTitle = chartData.dataSets.some((ds) => "reference" in (ds.label ?? {}));
   const dataSetsStyling: DataSetStyle = {};
-  const labelRange = chartData.labelRange
-    ? convertExcelRangeToSheetXC(chartData.labelRange, dataSetsHaveTitle, warningManager)
-    : undefined;
+  const labelRanges =
+    chartData.labelRanges
+      ?.map((range) => convertExcelRangeToSheetXC(range, dataSetsHaveTitle, warningManager))
+      ?.filter(isDefined) ?? [];
   const dataSets = chartData.dataSets
     .map((data, i) => {
       let label: string | undefined = undefined;
@@ -120,9 +121,9 @@ function convertChartData(
     dataSets.reverse();
   }
   const creationContext: ChartCreationContext = {
-    dataSource: { dataSets, dataSetsHaveTitle, labelRange, type: "range" },
+    dataSource: { dataSets, dataSetsHaveTitle, labelRanges, type: "range" },
     dataSetStyles: dataSetsStyling,
-    auxiliaryRange: labelRange,
+    auxiliaryRange: labelRanges?.at(-1),
     title: chartData.title ?? { text: "" },
     background: convertColor({ rgb: chartData.backgroundColor }) || "#FFFFFF",
     legendPosition: chartData.legendPosition,

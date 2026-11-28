@@ -156,7 +156,7 @@ describe("Pie chart show value", () => {
       type: "pie",
       ...toChartDataSource({
         dataSets: [{ dataRange: "B1:B3" }],
-        labelRange: "A1:A3",
+        labelRanges: ["A1:A3"],
         dataSetsHaveTitle: false,
       }),
       showValues: true,
@@ -383,7 +383,7 @@ describe("calendar chart show value", () => {
       ...toChartDataSource({
         dataSets: [{ dataRange: "B1:B4" }],
         dataSetsHaveTitle: false,
-        labelRange: "A1:A4",
+        labelRanges: ["A1:A4"],
       }),
       showValues: true,
       title: { text: "" },
@@ -410,7 +410,7 @@ describe("calendar chart show value", () => {
       ...toChartDataSource({
         dataSets: [{ dataRange: "B1:B4" }],
         dataSetsHaveTitle: false,
-        labelRange: "A1:A4",
+        labelRanges: ["A1:A4"],
       }),
       showValues: true,
       title: { text: "" },

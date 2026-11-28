@@ -13,6 +13,7 @@
             onChange.bind="(showTotalLine) => this.props.updateChart(this.props.chartId, { showTotalLine })"
           />
         </Section>
+        <ChartMergeGroups t-props="this.props"/>
         <Section t-if="this.isZoomable" class="'pt-0'" title.translate="Zoom">
           <Checkbox
             name="'zoomable'"

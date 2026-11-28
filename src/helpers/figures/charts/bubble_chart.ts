@@ -126,7 +126,10 @@ export const BubbleChart: ChartTypeBuilder<"bubble"> = {
       type: "bubble",
       labelRange: context.bubbleLabelRange || undefined,
       labelsAsText: context.labelsAsText ?? false,
-      xRange: context.auxiliaryRange || undefined,
+      xRange:
+        (isDataSourceRange ? context.dataSource?.labelRanges?.at(-1) : undefined) ||
+        context.auxiliaryRange ||
+        undefined,
       sizeRange: context.sizeRange || undefined,
       axesDesign: context.axesDesign,
       showValues: context.showValues,
@@ -146,6 +149,8 @@ export const BubbleChart: ChartTypeBuilder<"bubble"> = {
           dataSetId: `${i}`,
           dataRange: range,
         })),
+        dataSetsHaveTitle: definition.dataSetsHaveTitle,
+        labelRanges: definition.xRange ? [definition.xRange] : [],
       },
       bubbleLabelRange: definition.labelRange,
       auxiliaryRange: definition.xRange,

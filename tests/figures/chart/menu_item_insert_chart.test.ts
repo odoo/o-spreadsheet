@@ -400,7 +400,7 @@ describe("Insert chart menu item", () => {
             { dataRange: "G1:G5" },
             { dataRange: "H1:H5" },
           ],
-          labelRange: "A1:A5",
+          labelRanges: ["A1:A5"],
           dataSetsHaveTitle: true,
         }),
       },
@@ -416,7 +416,7 @@ describe("Insert chart menu item", () => {
     expect(model.getters.getChartDefinition(chartId)).toMatchObject(
       toChartDataSource({
         dataSets: [{ dataRange: "B:B" }],
-        labelRange: "A:A",
+        labelRanges: ["A:A"],
       })
     );
   });
@@ -483,8 +483,16 @@ describe("Smart chart type detection", () => {
   test.each([
     [["percentage"], { type: "pie", dataSetsHaveTitle: false }],
     [["number"], { type: "bar", dataSetsHaveTitle: false }],
-    [["text"], { type: "pie", labelRange: "A1:A6", aggregated: true, dataSetsHaveTitle: true }], // categorical pie chart, the data range is also the label range
-    [["boolean"], { type: "pie", labelRange: "A1:A6", aggregated: true, dataSetsHaveTitle: false }],
+    [["text"], { type: "pie", labelRanges: ["A1:A6"], aggregated: true, dataSetsHaveTitle: true }], // categorical pie chart, the data range is also the label range
+    [
+      ["boolean"],
+      { type: "pie", labelRanges: ["A1:A6"], aggregated: true, dataSetsHaveTitle: false },
+    ],
+    [["text"], { type: "pie", labelRanges: ["A1:A6"], aggregated: true, dataSetsHaveTitle: true }], // categorical pie chart, the data range is also the label range
+    [
+      ["date"],
+      { type: "calendar", dataSets: [], labelRanges: ["A1:A6"], dataSetsHaveTitle: false },
+    ], // calendar chart counts entries, so the data range is only used as label range
     [["percentage_with_header"], { type: "pie", dataSetsHaveTitle: true }],
   ] as const)("Single column %s creates chart", async (datasetPattern, expected) => {
     createDatasetFromDescription([...datasetPattern]);
@@ -496,8 +504,8 @@ describe("Smart chart type detection", () => {
     expect(definition).toMatchObject({
       type: expected.type,
       ...toChartDataSource({
-        dataSets: [{ dataRange: "A1:A6" }],
-        labelRange: "labelRange" in expected ? expected.labelRange : undefined,
+        dataSets: "dataSets" in expected ? [...expected.dataSets] : [{ dataRange: "A1:A6" }],
+        labelRanges: "labelRanges" in expected ? [...expected.labelRanges] : undefined,
         dataSetsHaveTitle: expected.dataSetsHaveTitle,
       }),
     });
@@ -518,7 +526,7 @@ describe("Smart chart type detection", () => {
       dataSource: {
         type: "range",
         dataSets: [],
-        labelRange: "A1:A6",
+        labelRanges: ["A1:A6"],
       },
       horizontalGroupBy: "day_of_week",
       verticalGroupBy: "month_number",
@@ -550,7 +558,7 @@ describe("Smart chart type detection", () => {
       type: expected.type,
       ...toChartDataSource({
         dataSets: expectedDataset,
-        labelRange: expectedLabelRange,
+        labelRanges: [expectedLabelRange],
         dataSetsHaveTitle: expected.dataSetsHaveTitle,
       }),
     });
@@ -583,7 +591,7 @@ describe("Smart chart type detection", () => {
         type: expected.type,
         ...toChartDataSource({
           dataSets: expectedDatasets,
-          labelRange: expectedLabelRange,
+          labelRanges: [expectedLabelRange],
           dataSetsHaveTitle: expected.dataSetsHaveTitle,
         }),
       });
@@ -622,7 +630,7 @@ describe("Smart chart type detection", () => {
       type: expected.type,
       ...toChartDataSource({
         dataSets: expectedDatasets,
-        labelRange: "A1:A6",
+        labelRanges: ["A1:A6"],
         dataSetsHaveTitle: expected.dataSetsHaveTitle,
       }),
     });
@@ -650,7 +658,7 @@ describe("Smart chart type detection", () => {
       type: "scatter",
       ...toChartDataSource({
         dataSets: [{ dataRange: "C1:C6" }],
-        labelRange: "A1:A6",
+        labelRanges: ["A1:A6"],
         dataSetsHaveTitle: false,
       }),
     });
